@@ -1,9 +1,7 @@
 ---
-title:Steve's first page
+title:Eclipse code template for GWT jsni methods
 date:2011-10-20
 ---
-# Eclipse code template for GWT jsni methods
-
 GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them before. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!
 
 Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:

@@ -1,5 +1,5 @@
 ---
-title:Steve's first page
+title:Eclipse code template for GWT jsni methods
 date:2011-10-20
 ---
 # Eclipse code template for GWT jsni methods
@@ -8,7 +8,9 @@ GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about
 
 Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:
 
-	public final native ${return_type} ${newName}()/*-{ ${cursor} }-*/;
+	public final native ${return_type} ${newName}()/*-{ 
+	    ${cursor} 
+	}-*/;
 
 To add this in Eclipse:
 

@@ -1,7 +1,9 @@
 ---
-title:GWT JavaScriptObjects (Javascript Overlays)
+title:GWT JavaScript Overlays
 date:2011-10-12
 ---
+# GWT JavaScriptObjects (Javascript Overlays)
+
 GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example this one. The gist of it is, given some JSON like this:
 
 	{ "item": {
