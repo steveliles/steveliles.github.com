@@ -1,0 +1,44 @@
+---
+title:What makes a good developer?
+date:2011-10-19
+---
+# What makes a good developer?
+
+At the beginning of the year I worked with our Operations Manager in Beirut - [Bassel Beaini](http://www.linkedin.com/pub/bassel-beaini/26/553/291) - to do annual reviews for our whole development (and UX) team there. 
+
+As part of the review process we gave the developers an updated job specification, which I wanted to be both prescriptive and aspirational - the idea being to describe the role each should currently be playing, to make very clear what would be needed to move to the next level, and at the same time to make everyone want to up their game and take it to the next level.
+
+The end result, I guess, is my attempt at a technology agnostic description of what makes a good developer. Being a developer myself I'm fairly biased towards the technical aspects of the role and probably tend to somewhat overlook the human side of things (team-work, interaction with other parts of the business incl. non-programmers, etc). I'd love to hear constructive feedback on how I could improve these descriptions for next year :)
+
+Here are the "aspirational" parts of the job descriptions I wrote for the top-tiers - architect/expert and senior developer:
+
+## Architect/Expert Developer
+
+A passionate technologist, you demonstrate excitement, deep interest and knowledge of all aspects of development: languages; paradigms; patterns; idioms; platforms; performance; reliability; scalability; quality; tools and technologies. You relish the challenge of hugely complex problems.
+
+Possessing true mastery of at least one modern programming language and paradigm, along with advanced knowledge of idioms and Design Patterns and when (or when not) to apply them, you will be able to recognize opportunities to improve code at a glance, and have the confidence and competence to take these opportunities to refactor towards better design.
+
+You must be able to explain at length the reasons behind (micro)architectural decisions you make - or help others to make - so that others may learn from you. Your code has a finesse and indescribable quality that is the envy of all who read and work with it. You have exceptional ability to narrow down potential sources of a problem, hone in on the root-cause, and propose a range of solutions and explain their pros and cons.
+
+Your architectural skills allow you both to describe designs at a high level to the business, and also to hone in on the complexities and details that allow a design to be implemented successfully. You are able to interpret and translate abstract ideas from more business oriented colleagues and customers, and from those ideas produce designs and specifications for developers to implement. You will be able to identify and separate the real requirements from the incidental details that inevitably form part of such brain-storming or business driven interaction.
+
+You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have no prior experience. You will be aware of facets of these tools and processes that are not in daily use, such that you will be able to turn these tools even more to your advantage in specific situations. You will be constantly looking for new ways to streamline your working practices and those of the team through use of new and existing tools and technologies.
+
+As one of the most senior members of the development team you will set an excellent example of engineering discipline to your colleagues, and will be passionate about achieving the very best quality and helping those around you to do so. You will recognize and evangelize the benefits of engineering disciplines such as source-code control, unit-testing, and code-review, and have a very self-critical view of what constitutes "done".
+
+You will delight in tackling a range of tasks, recognizing the pleasure to be found in a polished solution to the smallest problem, as well as the challenges of a more significant undertaking, and you will enjoy mentoring and engaging in discussion about all aspects of development with your colleagues.
+
+## Senior Developer
+
+You are the kind of person who develops software for fun in your spare time - whether personal projects or open-source contributions. You are deeply interested in languages, paradigms, idioms, tools and technologies, and in solving difficult problems.
+
+You take great pride in your work, and it shows clearly in the way your code speaks to others - simple, clean, thoroughly unit-tested and easily understood and maintained. You are able to recognize and fix many code-smells and can gently point them out to your less experienced colleagues during code-review. You are keen to develop your skills further through interaction with your colleagues - junior and senior - and by consistently executing any task, large or small, with the attitude that there is always something new to learn. You can quickly identify and fix problems from minimal descriptions.
+
+You are accomplished at taking high level designs and specifications from Architects and implementing them successfully, including creating and assigning suitable sub-tasks to less advanced members of your team. You can articulately explain the reasons behind micro-architectural choices you make during implementation, and evaluate the pros and cons of such decisions.
+
+You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have little or no prior experience. You will be so confident with and reliant upon these tools that you use them even for your personal projects, knowing that the benefits are well worth the extra up-front effort.
+
+You will set an excellent example of engineering discipline to your peers and junior colleagues, and you understand and truly believe in the need for engineering discipline and processes in delivering high quality software. Your attitude toward any task is to produce the best solution you can and learn from the experience. You will actively seek feedback on your solutions from peers and senior colleagues, whether by code-review or less formal discussion.
+
+
+If you're in Beirut, are a serious Java or Objective-C hacker, and would like to work with us, drop a comment, contact [me](http://uk.linkedin.com/pub/steve-liles/7/302/2a8) or [Bassel](http://www.linkedin.com/pub/bassel-beaini/26/553/291) via linked-in, or tweet me ([@steveliles](http://twitter.com/#!/steveliles))
