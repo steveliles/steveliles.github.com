@@ -158,6 +158,7 @@ pre {
 blockquote {
   font-family:'Ubuntu Mono', monospace;
   font-size:18px;
+  letter-spacing:1px;
   color:#666;
 }
 

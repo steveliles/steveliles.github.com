@@ -1,0 +1,388 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div>
+      <header class="site-header">
+        <div class="left">
+          <h1>ExoMemory</h1>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+          <img src="images/lego.png"> 
+        </div>
+      </header>
+      <nav>
+        <form action="http://www.google.com/search" method="get">
+          <input type="hidden" name="q" value="site:steveliles.github.com">
+          <input type="text" name="q" placeholder="search"></input>
+        </form>
+      </nav>
+      <div class="content">
+        <div class="main"><article>
+  <span class="meta">September 08, 2011</span>
+  <a href="my_first_android_app_desktop_widget.html"><h1>My first Android app (desktop widget)</h1></a>
+  <p>Having spent quite a bit of time away from Eclipse lately I've been itching to play with some code again. During a short meeting this morning an idea hit me for a really simple Android desktop widget: a twitter search widget that you can drop on your desktop and configure with a hash-tag search.</p>
+
+<p>Here's how it looks in the Android emulator:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-vquQDRX3D2Y/TmjCGIscAiI/AAAAAAAAHlw/g0nU2gdPnug/s815/tweet-widget.png" alt="Screenshot" /></p>
+
+<p>I know, not exactly eye-candy, but that wasn't really the point :)</p>
+
+<h3>The important pieces of the puzzle are:</h3>
+
+<ul>
+<li>A BroadcastReceiver that receives events telling the widget to update. Here I extended AppWidgetProvider to override onUpdate only.</li>
+<li>A Service that does the Twitter API request asynchronously - we don't want to use the UI thread and fail the responsiveness criteria</li>
+<li>The "widget info" descriptor xml</li>
+<li>Android manifest entries that register the Service and the broadcast receiver</li>
+<li>SAX ContentHandler implementation to parse the Tweet text from the atom response to the Twitter API request</li>
+</ul>
+
+<p>Here's the code, currently wired to display a search for "#uml"</p>
+
+<h4>The BroadcastReceiver</h4>
+
+<pre><code>import android.appwidget.*;
+import android.content.*;
+
+public class NewsTicker extends AppWidgetProvider
+{
+    @Override
+    public void onUpdate(Context aContext, 
+                             AppWidgetManager aAppWidgetManager, 
+                             int[] aAppWidgetIds)
+    {
+    super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
+    aContext.startService(
+                new Intent(aContext, NewsTickerDataService.class));
+    }
+}
+The Service
+public class NewsTickerDataService extends Service
+{
+    @Override
+    public void onStart(Intent aIntent, int aStartId)
+    {
+    super.onStart(aIntent, aStartId);
+
+    RemoteViews _views = buildUpdatedViews(this);
+
+    ComponentName _widget = 
+            new ComponentName(this, NewsTicker.class);
+    AppWidgetManager _manager = 
+                AppWidgetManager.getInstance(this);
+
+    _manager.updateAppWidget(_widget, _views);            
+    }
+
+    @Override
+    public IBinder onBind(Intent aParamIntent)
+    {
+    // not supporting binding
+
+    return null;
+    }
+
+    private RemoteViews buildUpdatedViews(Context aContext)
+    {
+    List&lt;Story&gt; _stories = getStories();
+
+    RemoteViews _result = new RemoteViews(
+            aContext.getPackageName(), 
+            R.layout.newsticker_widget
+        );
+
+    if (_stories.isEmpty())
+    {
+        _result.setTextViewText(R.id.title, 
+                    "Sadly there's nothing to read today.");
+    }
+    else
+    {
+        _result.setTextViewText(
+                R.id.title, _stories.get(0).getTitle());
+    }
+
+    return _result;
+    }
+
+    private List&lt;Story&gt; getStories()
+    {
+    try
+    {
+        URL _url = new URL("http://search.twitter.com" +
+                "/search.atom?q=%23uml&amp;" + 
+                "result_type=mixed&amp;count=5");
+        InputStream _in = _url.openStream();
+
+        return parse(new InputSource(_in));
+    }
+    catch (Exception anExc)
+    {
+        Log.e("NewsTicker", anExc.getMessage(), anExc);
+        return new ArrayList&lt;Story&gt;();
+    }                        
+    }
+
+    private List&lt;Story&gt; parse(InputSource aSource)
+    throws Exception
+    {
+    SAXParserFactory _f = SAXParserFactory.newInstance();
+    SAXParser _p = _f.newSAXParser();
+    XMLReader _r = _p.getXMLReader();
+
+    AbstractParser _h = new AtomParser();
+    _r.setContentHandler(_h);
+
+    _r.parse(aSource);
+
+    return _h.getStories();
+    }
+}
+</code></pre>
+
+<h4>The SAX ContentHandler</h4>
+
+<pre><code>package com.knowledgeview.android.ticker.parse;
+
+import java.util.*;
+
+import org.xml.sax.*;
+import org.xml.sax.helpers.*;
+
+import com.knowledgeview.android.ticker.*;
+
+public abstract class AbstractParser extends DefaultHandler
+{
+    static interface Handler
+    {
+    Handler startElement(String aName);     
+    Handler characters(char[] aChars, int aStart, int aLength);
+    Handler endElement(String aName);
+    }
+
+    public static AbstractParser newAtomParser()
+    {
+    return new AbstractParser() 
+    {
+        protected String getStoryElementName()
+        {
+            return "entry";
+        }
+    };
+    }
+
+    private Handler handler;
+    private List&lt;Story&gt; stories;
+
+    public AbstractParser()
+    {
+    stories = new ArrayList&lt;Story&gt;();        
+    handler = newDefaultHandler();
+    }
+
+    protected abstract String getStoryElementName();
+
+    @Override
+    public void startElement(String aUri, String aLocalName, 
+            String aQName, Attributes aAttributes) 
+    throws SAXException
+    {
+    handler = handler.startElement(aLocalName);        
+    }
+
+    @Override
+    public void characters(char[] aCh, int aStart, int aLength) 
+    throws SAXException
+    {
+    handler = handler.characters(aCh, aStart, aLength);
+    }
+
+    @Override
+    public void endElement(
+        String aUri, String aLocalName, String aQName) 
+    throws SAXException
+    {
+    handler = handler.endElement(aLocalName);
+    }
+
+    public List&lt;Story&gt; getStories()
+    {
+    return stories;
+    }
+
+    private Handler newDefaultHandler()
+    {
+    return new Handler()
+    {
+        @Override
+        public Handler startElement(String aName)
+        {
+            if (aName.equals(getStoryElementName()))
+            {
+                return newItemHandler(this);
+            }
+            return this;
+        }
+
+        @Override
+        public Handler characters(
+                char[] aChars, int aStart, int aLength)
+        {
+            return this;
+        }
+
+        @Override
+        public Handler endElement(String aName)
+        {
+            return this;
+        }
+    };
+    }
+
+    private Handler newItemHandler(final Handler aParent)
+    {
+    stories.add(new StoryImpl());
+
+    return new Handler()
+    {
+        @Override
+        public Handler startElement(String aName)
+        {
+            if ("title".equals(aName))
+            {
+                return newTitleHandler(this);
+            }
+            return this;
+        }
+
+        @Override
+        public Handler characters(
+                char[] aChars, int aStart, int aLength)
+        {
+            return this;
+        }
+
+        @Override
+        public Handler endElement(String aName)
+        {
+            if (getStoryElementName().equals(aName))
+            {
+                return aParent;
+            }
+            return this;
+        }
+    };
+    }
+
+    private Handler newTitleHandler(final Handler aParent)
+    {
+    final StringBuilder _title = new StringBuilder();
+
+    return new Handler()
+    {
+        @Override
+        public Handler startElement(String aName)
+        {
+            return this;
+        }
+
+        @Override
+        public Handler characters(
+                char[] aChars, int aStart, int aLength)
+        {
+            _title.append(aChars, aStart, aLength);
+            return this;
+        }
+
+        @Override
+        public Handler endElement(String aName)
+        {
+            if ("title".equals(aName))
+            {
+                StoryImpl _s = (StoryImpl) 
+                            stories.get(stories.size()-1);
+                _s.setTitle(_title.toString());
+                return aParent;
+            }
+
+            return this;
+        }
+    };
+    }
+}
+</code></pre>
+
+<h4>The Android Manifest</h4>
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.knowledgeview.android.ticker"
+    android:versionCode="1"
+    android:versionName="1.0"&gt;
+  &lt;uses-sdk android:minSdkVersion="7" /&gt;
+  &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+  &lt;application 
+        android:icon="@drawable/icon" 
+        android:label="@string/app_name"&gt;
+    &lt;receiver android:name=".NewsTicker"&gt;
+      &lt;intent-filter&gt;
+    &lt;action 
+          android:name="android.appwidget.action.APPWIDGET_UPDATE"/&gt;
+      &lt;/intent-filter&gt;
+      &lt;meta-data 
+            android:name="android.appwidget.provider"
+    android:resource="@xml/newsticker_widget_info"/&gt;
+    &lt;/receiver&gt;
+    &lt;service android:name=".NewsTickerDataService"/&gt;
+  &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre>
+
+<h4>The Widget descriptor</h4>
+
+<pre><code>&lt;appwidget-provider 
+      xmlns:android="http://schemas.android.com/apk/res/android"
+  android:minWidth="294dp"
+  android:minHeight="72dp"
+  android:updatePeriodMillis="86400000"
+  android:initialLayout="@layout/newsticker_widget"&gt;
+&lt;/appwidget-provider&gt;
+</code></pre>
+
+<h4>The layout descriptor</h4>
+
+<pre><code>&lt;LinearLayout 
+      android:id="@+id/linearLayout1" 
+      android:layout_width="fill_parent" 
+      android:layout_height="fill_parent" 
+      xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+  &lt;TextView
+    android:textAppearance="?android:attr/textAppearanceSmall"
+    android:id="@+id/title"
+    android:text="TextView"
+    android:textSize="10sp"
+    android:textColor="#fff"
+    android:layout_height="60dp"
+    android:layout_width="fill_parent"
+    android:background="#c333"
+    android:padding="3dp"
+    android:layout_margin="5dp"&gt;
+  &lt;/TextView&gt;
+&lt;/LinearLayout&gt;
+</code></pre>
+
+</article>
+</div>
+        <div class="sidebar"></div>
+      </div>
+    </div>
+  </body>
+</html>
