@@ -106,7 +106,7 @@ h1,h2,h3,h4,h5,h6 {
   margin-top:10px;
   line-height:1.1em;
   letter-spacing:-2px;
-  color:black;
+  color:#000;
 }
 
 h1 {
@@ -153,6 +153,12 @@ pre {
   padding:20px;
   border:1px dotted #bac7da;
   background-color:#dae7fa;    
+}
+
+blockquote {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:18px;
+  color:#666;
 }
 
 input {

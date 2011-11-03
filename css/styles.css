@@ -155,6 +155,13 @@ pre {
   background-color:#dae7fa;    
 }
 
+blockquote {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:18px;
+  letter-spacing:1px;
+  color:#666;
+}
+
 input {
   float:right;
   font-family:'Ubuntu Mono', monospace;
