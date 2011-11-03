@@ -9,6 +9,10 @@ body {
   background-color:#252525;
 }
 
+form {
+  display:inline;
+}
+
 body > div {
   width:1000px;
   margin-left:auto;
@@ -140,8 +144,7 @@ a:hover {
 
 pre, code {
   font-family:'Ubuntu Mono', monospace;
-  font-size:16px; 
-  letter-spacing:0px; 
+  font-size:15px; 
 }
 
 p > code {
@@ -162,8 +165,12 @@ blockquote {
   color:#666;
 }
 
-input {
+nav span {
   float:right;
+}
+
+nav input {
+  display:inline;
   font-family:'Ubuntu Mono', monospace;
   font-size:18px;
   border:1px solid #a9ca9a;
@@ -174,6 +181,11 @@ input {
   padding-right:6px;
   background-color:#e6f6e0;  
   box-shadow:#dae9d4 1px 1px 1px;
+}
+
+nav img {
+  vertical-align:middle;
+  margin:auto;
 }
 
 span.meta {
