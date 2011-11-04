@@ -226,7 +226,7 @@ li {
 .keywords li {
   display:inline;
   list-style-type:none;
-  background:url('../images/tag.png') no-repeat 10px 5px;
+  background:url('../images/tag.png') no-repeat 7px 5px;
 
   margin:4px;
   padding:3px;
