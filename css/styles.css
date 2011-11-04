@@ -94,6 +94,8 @@ div.content > .sidebar {
   width:275px !important;
   background-color:#eee;
   border-left:1px solid #ddd;
+  background:-webkit-gradient(linear, left top, right top, from(#eee), to(#ddd));
+  background:-moz-linear-gradient(left,  #eee,  #ddd);
 }
 
 article {
@@ -206,8 +208,41 @@ span.meta {
   border-right:none;
   border-top-left-radius:5px;
   border-bottom-left-radius:15px;  
+
+  background:-webkit-gradient(linear, left top, right top, from(#ddd), to(#eee));
+  background:-moz-linear-gradient(left,  #ddd,  #eee);
 }
 
 li {
   color:#666;
 }
+
+.keywords {
+  margin:0px;
+  margin-right:-52px;
+  float:right;
+}
+
+.keywords li {
+  display:inline;
+  list-style-type:none;
+  background:url('../images/tag.png') no-repeat 10px 5px;
+
+  margin:4px;
+  padding:3px;
+  padding-left:30px;
+  padding-right:10px;
+
+  border:1px solid #ddd;
+  border-radius: 3px;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  background-color:#eee;
+
+  line-height: 15px;
+  font-size:18px;
+  font-family:'ubuntu mono';
+  color: #666;
+  text-shadow: 1px 1px 1px white;
+}
+
