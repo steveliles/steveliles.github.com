@@ -103,6 +103,10 @@ div.content > .sidebar {
   background:-moz-linear-gradient(left,  #eee,  #ddd);
 }
 
+.sidebar > div {
+  margin:15px;
+}
+
 article {
   padding:55px;
   padding-top:40px;
