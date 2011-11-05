@@ -679,8 +679,19 @@ public abstract class AbstractParser extends DefaultHandler
   <div style="clear:both"></div>
 </article>
 </div>
-        <div class="sidebar"></div>
+        <div class="sidebar">
+          <div class="twitter-feed" show="5" account="steveliles">
+            <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>-
+                  <span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+            </div>
+        </div>
       </div>
     </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js?cache=${build.timestamp}"></script>
   </body>
 </html>
