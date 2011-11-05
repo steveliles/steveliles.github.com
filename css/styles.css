@@ -50,6 +50,10 @@ body > div {
   margin-right:-100px;
 }
 
+.site-header a:hover {
+  text-decoration:none;
+}
+
 .site-header h1 {  
   font-family:'Ubuntu Mono', Arial, sans-serif;
   text-transform:uppercase;
@@ -138,10 +142,6 @@ body, p, div, span, input {
 a {
   color:#336699;
   text-decoration:none;
-}
-
-a:hover {
-  text-decoration:underline;
 }
 
 pre, code {
