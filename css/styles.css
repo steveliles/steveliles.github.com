@@ -107,7 +107,38 @@ div.content > .sidebar {
   margin:15px;
   width:245px;
   overflow:hidden;
+
+  opacity:0.3;
+
+  -moz-transition-property: opacity;
+  -moz-transition-duration: 0.5s;
+  -moz-transition-delay:1s;
+
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.5s;
+  -webkit-transition-delay:1s;
+  
+  transition-property: opacity;
+  transition-duration: 0.5s;
+  transition-delay:1s;
 }
+
+.sidebar > div:hover {
+  opacity:1;
+
+  -moz-transition-property: opacity;
+  -moz-transition-duration: 0.5s;
+  -moz-transition-delay:0s;
+
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.5s;
+  -webkit-transition-delay:0s;
+  
+  transition-property: opacity;
+  transition-duration: 0.5s;
+  transition-delay:0s;
+}
+
 
 article {
   padding:55px;
@@ -251,38 +282,6 @@ li {
   font-family:'ubuntu mono';
   color: #666;
   text-shadow: 1px 1px 1px #fff;
-}
-
-.twitter-feed {
-  opacity:0.3;
-
-  -moz-transition-property: opacity;
-  -moz-transition-duration: 0.5s;
-  -moz-transition-delay:1s;
-
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.5s;
-  -webkit-transition-delay:1s;
-  
-  transition-property: opacity;
-  transition-duration: 0.5s;
-  transition-delay:1s;
-}
-
-.twitter-feed:hover {
-  opacity:1;
-
-  -moz-transition-property: opacity;
-  -moz-transition-duration: 0.5s;
-  -moz-transition-delay:0s;
-
-  -webkit-transition-property: opacity;
-  -webkit-transition-duration: 0.5s;
-  -webkit-transition-delay:0s;
-  
-  transition-property: opacity;
-  transition-duration: 0.5s;
-  transition-delay:0s;
 }
 
 .twitter-feed h5 {  
