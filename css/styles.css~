@@ -334,3 +334,7 @@ li {
 .twitter-feed .date {
   color:#999;
 }
+
+.twitter-follow-button {
+  width:245px;
+}
