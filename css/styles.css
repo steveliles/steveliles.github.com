@@ -105,6 +105,7 @@ div.content > .sidebar {
 
 .sidebar > div {
   margin:15px;
+  width:245px;
   overflow:hidden;
 }
 
