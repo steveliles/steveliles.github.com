@@ -95,13 +95,16 @@ div.content > .main {
 }
 
 div.content > .sidebar {
-  padding:15px;
   display:table-cell;
   width:275px !important;
   background-color:#eee;
   border-left:1px solid #ddd;
   background:-webkit-gradient(linear, left top, right top, from(#eee), to(#ddd));
   background:-moz-linear-gradient(left,  #eee,  #ddd);
+}
+
+.sidebar > div {
+  margin:15px;
 }
 
 article {

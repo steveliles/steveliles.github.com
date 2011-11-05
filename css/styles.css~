@@ -95,7 +95,6 @@ div.content > .main {
 }
 
 div.content > .sidebar {
-  padding:15px;
   display:table-cell;
   width:275px !important;
   background-color:#eee;
@@ -253,15 +252,15 @@ li {
 
   -moz-transition-property: opacity;
   -moz-transition-duration: 0.5s;
-  -moz-transition-delay:2s;
+  -moz-transition-delay:1s;
 
   -webkit-transition-property: opacity;
   -webkit-transition-duration: 0.5s;
-  -webkit-transition-delay:2s;
+  -webkit-transition-delay:1s;
   
   transition-property: opacity;
   transition-duration: 0.5s;
-  transition-delay:2s;
+  transition-delay:1s;
 }
 
 .twitter-feed:hover {
