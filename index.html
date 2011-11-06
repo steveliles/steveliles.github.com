@@ -678,6 +678,251 @@ public abstract class AbstractParser extends DefaultHandler
 </ul>
   <div style="clear:both"></div>
 </article>
+<article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403">
+  <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
+  <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
+  <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
+
+<p>...
+One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
+
+<pre><code>runtimeError: message=
+  [The data necessary to complete this operation is not yet available.]
+  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
+  lineSource=[null] lineOffset=[0]
+</code></pre>
+
+<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
+
+<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
+
+<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
+
+<pre><code>// The DOM ready check for Internet Explorer
+function doScrollCheck() {
+ if ( jQuery.isReady ) {
+  return;
+ }
+
+ try {
+  // If IE is used, use the trick by Diego Perini
+  // http://javascript.nwbox.com/IEContentLoaded/
+     document.documentElement.doScroll("left");
+ } catch(e) {
+  setTimeout( doScrollCheck, 1 );
+  return;
+ }
+
+ // and execute any waiting functions
+ jQuery.ready();
+}
+</code></pre>
+
+<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
+
+<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
+
+<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
+</span>
+  <ul class="keywords"><li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
+<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
+<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
+</ul>
+  <div style="clear:both"></div>
+</article>
+<article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1658">
+  <span class="meta" itemprop="datePublished"><time datetime="2011-03-15">March 15, 2011</time></span>
+  <a itemprop="url" href="unit_testing_code_written_in_tell_don_t_ask_style.html"><h1 itemprop="name" itemprop="headline">Unit Testing code written in "Tell, Don't Ask" style</h1></a>
+  <span itemprop="articleBody"><p>More and more I find myself enjoying the "Tell, Don't Ask" style of programming, to the extent that recently I've been challenging myself to write all my code that way. </p>
+
+<p>This brought up an interesting discussion while working on a proto-type with an excellent developer I've known and worked with for years - how do you test code written in this style?</p>
+
+<h3>Setting the scene</h3>
+
+<p>The idea of the proto-type was to play with and test out several Entity-Extraction and Text-Clustering algorithms - some that we had researched, some using existing libraries, and others of our own devising. We collected a few dozen Mb-worth of sample data to toy with, and I knocked up a quick harness to feed the test data into the Entity-Extraction and Test-Clustering routines, which just needed to implement a bunch of Java interfaces I'd written (using "Tell, Don't Ask" style). Each of us then proceeded to implement some of the algorithms, which we plugged in Strategy-Pattern style.</p>
+
+<p>Every so often as we were working, my colleague would turn and say something like "I need to add Xxxx to the Yyyy interface, so I can unit-test my implementation". His feeling was that whilst in principle "Tell, Don't Ask" is laudable, it makes testing very awkward and ungainly.</p>
+
+<p>As a result the interfaces drifted away from "Tell, Don't Ask" so that, whilst they still included the callback-style methods, they now presented a more typical "Ask" style API too - a simple example being: implementing <code>Iterable&lt;T&gt;</code> as well as providing <code>each(T)</code> methods.</p>
+
+<h3>Example Tests</h3>
+
+<p>Let's look at a simple example of the kind of tests that appear to be made difficult due to the "Tell, Don't Ask" style. Note that I'm using junit 3.8 style for these examples.</p>
+
+<p>Say we have a Stuff interface, which is an immutable container of Thing's, and a ThingMaker that creates many Thing's and returns them packed in a Stuff.  Here are the "Tell, Don't Ask" interfaces we might have started off with:</p>
+
+<pre><code>  public interface Thing {
+    public String getName();
+    public void doThings();
+  }
+
+  public interface ThingCallback {
+    public void with(Thing thing);
+  }
+
+  public interface Stuff {
+    public void each(ThingCallback callback);
+  }
+
+  public interface ThingMaker {
+    public Stuff makeThings(int howMany);
+  }
+</code></pre>
+
+<p>Pretty straight-forward. Now, lets see what happens when we want to test that when we ask the ThingMaker to make two Thing's, we actually get two non-null Thing's. Here's what the test method might look like:</p>
+
+<pre><code>public void testMakesCorrectNumberOfThings() {
+  ThingMaker tm = new SimpleThingMaker();
+  Stuff result = tm.makeThings(2);
+
+  final boolean[] calledBack = new boolean[1];
+  final int[] count = new int[1];
+
+  result.each(new ThingCallback() {
+    public void with(Thing thing) {
+      calledBack[0] = true;
+      if (thing != null) {
+        count[0] = count[0]++;
+      }
+    }
+  });
+
+  assertTrue(calledBack[0]);
+  assertEquals(2, count.length);
+}
+</code></pre>
+
+<p>Yikes, that's pretty nasty. What's all that nonsense with the final arrays? Well, given that we're working in an anonymous inner class (the callback) we can't just update a boolean or an int that we've declared in the enclosing scope, the only option we have is to cheat and use final variables that have mutable content - arrays are a cheap way to do that. But I think you'll agree this is hideous.</p>
+
+<p>An alternative is to make the inner class do the checking and counting. To do that we have to raise its profile somewhat, to make it a named inner class:</p>
+
+<pre><code>  class TestThingCallback implements ThingCallback {
+    boolean called;
+    int count;
+
+    public void with(Thing thing) {
+      called = true;
+      count++;
+    }
+  }
+
+  public void testMakesCorrectNumberOfThings() {
+    ThingMaker tm = new SimpleThingMaker();
+    Stuff result = tm.makeThings(2);
+
+    TestThingCallback cb = new TestThingCallback();
+    result.each(cb);
+
+    assertTrue(cb.called);
+    assertEquals(2, cb.count);
+  }
+</code></pre>
+
+<p>OK, well that's a lot better, but the effort of making these "Test Spy" objects grows very quickly, and although this is more readable it somehow feels less concise, and by moving code outside of the test-method it makes it just that little bit more awkward to read.</p>
+
+<p>I think this shows that "classical" unit testing of "Tell, Don't Ask" style code is actually awkward enough to want to find a better way. But can we do any better? Absolutely ...</p>
+
+<h3>Enter, jMock</h3>
+
+<p>jMock is an astonishingly useful tool in the testing arsenal. It makes truly unit testing your code possible without masses of work creating Test Double's, because it does all the grunt work for you. Lets quickly re-write our test using jmock.</p>
+
+<pre><code>  public class TestCaseThingMaker extends MockObjectTestCase {
+    public void testMakesCorrectNumberOfThings() {
+      final ThingCallback callback = mock(ThingCallback.class);
+      checking(new Expectations(){{
+        exactly(2).of(callback).each(with(any(Thing.class)));
+      }});
+
+      ThingMaker tm = new SimpleThingMaker();
+      Stuff result = tm.makeThings(2);
+      result.each(callback);
+    }
+  }
+</code></pre>
+
+<p>Some of that might need a little explanation, so here goes:</p>
+
+<p>The first thing we do inside our test method is create a "mock" instance of the ThingCallback interface. jMock does this for you in the invocation of the mock method.</p>
+
+<p>Next we set up our "expectations" of what will happen to the mock ThingCallback during our test. The slightly funky syntax with the double braces is just an instance initializer on an anonymous inner class. The interesting bit is the declaration of what we expect to happen to our mock object - this is the bit inside those {{ ... }} written in jMock's intuitive internal DSL. To understand it you just have to read the whole line from left to right - we're expecting exactly 2 invocations of callback.each() with any instance of Thing.</p>
+
+<p>Once we've set up our expectations it only remains to build the object under test - SimpleThingMaker - and invoke the methods we want to test.
+If you are staring at that and wondering how JMock knows that the test is finished and the expectations should have been met (and that it should fail the test if not), notice that I'm using the JUnit-3 integration here - extending MockObjectTestCase - and the behind the scenes plumbing is taking care of that last step for me. </p>
+
+<p>If you're using the JUnit-4 integration you need to explicitly invoke assertIsSatisfied on the mock object context (org.jmock.Mockery) which supplied your mock objects.
+jMock takes a little getting used to, as it involves quite a different way of thinking about your test. If you want to write good tests with it it certainly involves considerable effort to learn how to use it well (its easy to use it badly and end up with tests which are very difficult to understand). Once you get used to it though, it really does make tests much easier to write and, more importantly, to read.</p>
+
+<p>I find that jMock really comes into its own when testing Tell, Don't Ask code - the code under test is clean and, by nature of the improved data-hiding, more robust, whilst jMock provides a very neat way to test that code with a minimum of fuss and boiler-plate. </p>
+
+<p><em>UPDATE:</em> After ruminating on this for a while I came to the conclusion that JMock is so good at testing "Tell, don't ask" code that I was sure the designers of JMock must have set out with that in mind. I found a very nice post from @natpryce (one of the JMock authors) which confirmed my suspicions - Nat describes tell don't ask very succinctly:</p>
+
+<blockquote>
+  <p>"...objects tell each other what to do by sending commands to one another, they don't ask each other for information and then make decisions upon the results of those queries. </p>
+  
+  <p>The end result of this style is that it is easy to swap one object for another that can respond to the same commands but in a different way. This is because the behaviour of one object is not tied to the internal structure of the objects that it talks to."</p>
+</blockquote>
+
+<p>Nat goes on to say that the only way to test tell-dont-ask code is to see how the state of the world is affected when objects are told to do something (because you can't ask them about their state), and that this is best achieved with mock objects, whereas "train wreck" code (Nat's description of code that is not written tell-dont-ask style, and commonly violates demeter's law) is hard to test with mock objects.</p>
+</span>
+  <ul class="keywords"><li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TDD">TDD</a></li>
+<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Unit Testing">Unit Testing</a></li>
+<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Tell Dont Ask">Tell Dont Ask</a></li>
+</ul>
+  <div style="clear:both"></div>
+</article>
+<article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="536">
+  <span class="meta" itemprop="datePublished"><time datetime="2011-02-24">February 24, 2011</time></span>
+  <a itemprop="url" href="elasticsearch_vs_solrcloud.html"><h1 itemprop="name" itemprop="headline">ElasticSearch vs SOLRCloud</h1></a>
+  <span itemprop="articleBody"><p>For an upcoming work project I need a scalable search platform - scalable to tens or hundreds of millions of documents (news articles), and millions of queries per day. We're a (mostly) Java shop, and have a lot of experience with Lucene, so two solutions that pique my curiosity are SOLRCloud (SOLR + ZooKeeper) and ElasticSearch.</p>
+
+<h3>Initial Impressions - ElasticSearch</h3>
+
+<p>ElasticSearch is impressive. Its clean, simple, and elegant. For those who are familiar with Compass, ElasticSearch can be considered as Compass 3.0 (quoting Shay Bannon, author of Compass). ElasticSearch has been under development for about 9 months at time of writing, and is currently at version 0.15. It appears to be very actively developed, with new features and fixes flowing steadily. </p>
+
+<p>My main worry at this point is that there appears to be only one "resource" active on the project - Shay Bannon (@kimchy) himself, who seems to be architect, developer, documentation-writer, and a prolific commenter on forums.</p>
+
+<h4>Noteworthy features include:</h4>
+
+<ul>
+<li>Document-oriented / Schema-free (JSON documents)</li>
+<li>Store, retrieve, index and search multiple versions of documents</li>
+<li>Self-hosting RESTful web-service api</li>
+<li>Exposes the full power of lucene queries</li>
+<li>Multiple Indexes in one cluster (described as Multi-Tenancy)</li>
+<li>Built from the ground-up with scalability and distributed-operation in mind - supporting distributed search, automatic fail-over and re-balancing, with no single point of failure</li>
+<li>Support for async write/backup to shared storage (Gateway, in ElasticSearch parlance)</li>
+<li>"Percolator" (aka. prospective search)</li>
+</ul>
+
+<h3>Initial Impressions - SOLRCloud</h3>
+
+<p>SOLR is a project from the same (Apache) stable as Lucene itself, and the projects have recently merged to some degree. SOLRCloud is an extension that integrates ZooKeeper with SOLR with the express aim of "enabling and simplifying the creation and use of Solr clusters."</p>
+
+<p>SOLRCloud is described as "still under development", ie., not yet a GA release. </p>
+
+<h4>Currently proclaimed features include:</h4>
+
+<ul>
+<li>Central configuration of the entire cluster</li>
+<li>Automatic load-balancing and fail-over for queries</li>
+<li>ZooKeeper integration for cluster coordination and configuration (not sure I would have listed that as a feature personally!)</li>
+<li>I'll add that SOLRCloud is part of the SOLR code-base, and is being developed by core Lucene and SOLR committers including Mark Miller and Yonik Seeley. This can only be a good thing :). On top of all that, SOLR has been around for a good long time now, so it is battle-tested and there's lots of information available (including numerous books).</li>
+</ul>
+
+<p>That said, I still have two big worries about SOLRCloud:
+* Setup/deployment just sounds fiddly - it is recommended not to deploy zookeeper embedded with SOLR (though I cannot find any explanation to back up that recommendation), which means you need both a ZooKeeper ensemble - multiple ZooKeeper instances - and a SOLRCloud ... er ... cloud.
+* No GA release as yet, and no roadmap that I can find (this is the closest I got).</p>
+
+<h3>Next Steps</h3>
+
+<p>My next steps are to dive in to both technologies and really get to see which best suits our needs, and really how difficult these things are likely to be to manage in a medium/large-scale deployment.</p>
+</span>
+  <ul class="keywords"><li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TDD">TDD</a></li>
+<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Unit Testing">Unit Testing</a></li>
+<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Tell Dont Ask">Tell Dont Ask</a></li>
+</ul>
+  <div style="clear:both"></div>
+</article>
 </div>
         <div class="sidebar">
           <div>
