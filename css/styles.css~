@@ -108,7 +108,7 @@ div.content > .sidebar {
   width:245px;
   overflow:hidden;
 
-  opacity:0.3;
+  opacity:0.6;
 
   -moz-transition-property: opacity;
   -moz-transition-duration: 0.5s;
@@ -321,7 +321,7 @@ li {
 }
 
 .text a.user {
-  color:#996633;        
+  color:#996633;        -
 }
 
 .text a.hashtag {
@@ -338,4 +338,39 @@ li {
 
 .twitter-follow-button {
   width:245px;
+}
+
+nav ul {
+  display:table;
+}
+
+nav ul li {
+  display:table-cell;
+  list-style-type:none;  
+
+  margin:0px;
+  padding:3px;
+  padding-left:20px;
+  padding-right:20px;
+
+  border:1px solid #a9ca9a;
+  border-radius: 3px;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  background-color:#e6f6e0;
+
+  line-height: 15px;
+  font-size:14px;
+  letter-spacing:0.5px;
+  font-family:'ubuntu mono';
+  color: #666;
+  text-shadow: 1px 1px 1px #fff;
+}
+
+.twitter-feed h5 {  
+  font-size:20px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  text-shadow: 1px 1px 1px #fff;
+  margin-bottom:20px;
 }

@@ -4,11 +4,11 @@
     <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-    <meta name="keywords" content="CPU affinity" itemprop="keywords">
-<meta name="keywords" content="Linux" itemprop="keywords">
-<meta name="keywords" content="Java" itemprop="keywords">
-<meta name="keywords" content="Threading" itemprop="keywords">
-
+          <meta name="keywords" content="CPU affinity" itemprop="keywords">
+      <meta name="keywords" content="Linux" itemprop="keywords">
+      <meta name="keywords" content="Java" itemprop="keywords">
+      <meta name="keywords" content="Threading" itemprop="keywords">
+    <script type="text/javascript" src="google-analytics.js"></script>
   </head>
   <body>
     <div>
@@ -33,10 +33,11 @@
         </span>
       </nav>
       <div class="content">
-        <div class="main"><article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198">
-  <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
-  <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
-  <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
+              <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
+              <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
 
 <p>To replicate I needed to run on a single-cpu but I didn't want to commit more potentially broken tests to source-control and run repeatedly breaking builds on the build-server.</p>
 
@@ -52,14 +53,27 @@
 
 <p>It basically sets processor affinity by setting some process properties that tell the linux cpu scheduler to only allow the process to run on the stated CPU's.</p>
 </span>
-  <ul class="keywords"><li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CPU affinity">CPU affinity</a></li>
-<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
-<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
-<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threading">Threading</a></li>
-</ul>
-  <div style="clear:both"></div>
-</article>
-</div>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CPU affinity">CPU affinity</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threading">Threading</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+        </div>
         <div class="sidebar">
           <div>
             <div class="twitter-feed" show="5" account="steveliles">
@@ -75,7 +89,13 @@
           </div>
         </div>
       </div>
+      <nav>
+        <ul>
+          <li><a title="previous" href="my_first_android_app_desktop_widget.html">&lt;&lt; My first Android app (desktop widget)</a></li>
+          <li><a title="next" href="jquery_htmlunit_runtimeerror_messages_galore.html">JQuery + HtmlUnit = runtimeError messages galore &gt;&gt;</a></li>
+        </ul>
+      </nav>
     </div>
-    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js?cache=${build.timestamp}"></script>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>
 </html>

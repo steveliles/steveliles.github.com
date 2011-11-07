@@ -4,11 +4,9 @@
     <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-    <meta name="keywords" content="JQuery" itemprop="keywords">
-<meta name="keywords" content="HtmlUnit" itemprop="keywords">
-<meta name="keywords" content="runtimeerror" itemprop="keywords">
-
-
+          <meta name="keywords" content="JQuery" itemprop="keywords">
+      <meta name="keywords" content="HtmlUnit" itemprop="keywords">
+      <meta name="keywords" content="runtimeerror" itemprop="keywords">
     <script type="text/javascript" src="google-analytics.js"></script>
   </head>
   <body>
@@ -34,10 +32,11 @@
         </span>
       </nav>
       <div class="content">
-        <div class="main"><article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403">
-  <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
-  <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
-  <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
+              <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
+              <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
 
 <p>...
 One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
@@ -81,24 +80,25 @@ function doScrollCheck() {
 <p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
 </span>
 
-  <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
-  <script type="text/javascript">
-    window.___gcfg = {lang: 'en-GB'};
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
 
-    (function() {
-      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-      po.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')0; s.parentNode.insertBefore(po, s);
-    })();
-  </script-->
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
 
-  <ul class="keywords"><li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
-<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
-<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
-</ul>
-  <div style="clear:both"></div>
-</article>
-</div>
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+        </div>
         <div class="sidebar">
           <div>
             <div class="twitter-feed" show="5" account="steveliles">
@@ -114,7 +114,13 @@ function doScrollCheck() {
           </div>
         </div>
       </div>
+      <nav>
+        <ul>
+          <li><a title="previous" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html">&lt;&lt; Replicating Java threading issues between machines with different cpu counts</a></li>
+          <li><a title="next" href="unit_testing_code_written_in_tell_don_t_ask_style.html">Unit Testing code written in "Tell, Don't Ask" style &gt;&gt;</a></li>
+        </ul>
+      </nav>
     </div>
-    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js?cache=${build.timestamp}"></script>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>
 </html>

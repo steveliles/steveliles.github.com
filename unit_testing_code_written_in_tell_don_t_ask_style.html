@@ -4,11 +4,9 @@
     <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-    <meta name="keywords" content="TDD" itemprop="keywords">
-<meta name="keywords" content="Unit Testing" itemprop="keywords">
-<meta name="keywords" content="Tell Dont Ask" itemprop="keywords">
-
-
+          <meta name="keywords" content="TDD" itemprop="keywords">
+      <meta name="keywords" content="Unit Testing" itemprop="keywords">
+      <meta name="keywords" content="Tell Dont Ask" itemprop="keywords">
     <script type="text/javascript" src="google-analytics.js"></script>
   </head>
   <body>
@@ -34,10 +32,11 @@
         </span>
       </nav>
       <div class="content">
-        <div class="main"><article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1658">
-  <span class="meta" itemprop="datePublished"><time datetime="2011-03-15">March 15, 2011</time></span>
-  <a itemprop="url" href="unit_testing_code_written_in_tell_don_t_ask_style.html"><h1 itemprop="name" itemprop="headline">Unit Testing code written in "Tell, Don't Ask" style</h1></a>
-  <span itemprop="articleBody"><p>More and more I find myself enjoying the "Tell, Don't Ask" style of programming, to the extent that recently I've been challenging myself to write all my code that way. </p>
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,658">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-03-15">March 15, 2011</time></span>
+              <a itemprop="url" href="unit_testing_code_written_in_tell_don_t_ask_style.html"><h1 itemprop="name" itemprop="headline">Unit Testing code written in "Tell, Don't Ask" style</h1></a>
+              <span itemprop="articleBody"><p>More and more I find myself enjoying the "Tell, Don't Ask" style of programming, to the extent that recently I've been challenging myself to write all my code that way. </p>
 
 <p>This brought up an interesting discussion while working on a proto-type with an excellent developer I've known and worked with for years - how do you test code written in this style?</p>
 
@@ -169,24 +168,25 @@ jMock takes a little getting used to, as it involves quite a different way of th
 <p>Nat goes on to say that the only way to test tell-dont-ask code is to see how the state of the world is affected when objects are told to do something (because you can't ask them about their state), and that this is best achieved with mock objects, whereas "train wreck" code (Nat's description of code that is not written tell-dont-ask style, and commonly violates demeter's law) is hard to test with mock objects.</p>
 </span>
 
-  <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
-  <script type="text/javascript">
-    window.___gcfg = {lang: 'en-GB'};
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
 
-    (function() {
-      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-      po.src = 'https://apis.google.com/js/plusone.js';
-      var s = document.getElementsByTagName('script')0; s.parentNode.insertBefore(po, s);
-    })();
-  </script-->
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
 
-  <ul class="keywords"><li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TDD">TDD</a></li>
-<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Unit Testing">Unit Testing</a></li>
-<li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Tell Dont Ask">Tell Dont Ask</a></li>
-</ul>
-  <div style="clear:both"></div>
-</article>
-</div>
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TDD">TDD</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Unit Testing">Unit Testing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Tell Dont Ask">Tell Dont Ask</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+        </div>
         <div class="sidebar">
           <div>
             <div class="twitter-feed" show="5" account="steveliles">
@@ -202,7 +202,13 @@ jMock takes a little getting used to, as it involves quite a different way of th
           </div>
         </div>
       </div>
+      <nav>
+        <ul>
+          <li><a title="previous" href="jquery_htmlunit_runtimeerror_messages_galore.html">&lt;&lt; JQuery + HtmlUnit = runtimeError messages galore</a></li>
+          <li><a title="next" href="elasticsearch_vs_solrcloud.html">ElasticSearch vs SOLRCloud &gt;&gt;</a></li>
+        </ul>
+      </nav>
     </div>
-    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js?cache=${build.timestamp}"></script>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>
 </html>
