@@ -344,14 +344,23 @@ nav ul {
   display:table;
 }
 
-nav ul li {
-  display:table-cell;
-  list-style-type:none;  
+nav div.links {
+  display:table;
+  margin:auto;
+  padding:11px;
+}
 
+nav .next, .prev {  
+  display:table-cell;
+  
+  padding-left:1px;
+  padding-right:1px;
+}
+
+nav .next a, nav .prev a {
   margin:0px;
-  padding:3px;
-  padding-left:20px;
-  padding-right:20px;
+  margin-left:2px;
+  margin-right:2px;
 
   border:1px solid #a9ca9a;
   border-radius: 3px;
@@ -363,6 +372,20 @@ nav ul li {
   font-family:'ubuntu mono';
   color: #666;
   text-shadow: 1px 1px 1px #fff;
+}
+
+.next a {
+  background:url('../images/next.png') no-repeat 0 2px;
+  padding:3px;
+  padding-left:30px;
+  padding-right:20px;
+}
+
+.prev a {
+  background:url('../images/prev.png') no-repeat right 2px;
+  padding:3px;
+  padding-left:20px;
+  padding-right:30px;
 }
 
 .twitter-feed h5 {  
