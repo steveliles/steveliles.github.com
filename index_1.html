@@ -260,7 +260,7 @@
               </ul>
               <div style="clear:both"></div>
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="872">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="873">
               <span class="meta" itemprop="datePublished"><time datetime="2011-01-02">January 02, 2011</time></span>
               <a itemprop="url" href="3d_graphics_using_the_html5_canvas.html"><h1 itemprop="name" itemprop="headline">3D graphics using the html5 canvas</h1></a>
               <span itemprop="articleBody"><p>I thought i'd put up a quick sample of my latest play-thing - a 3D rendering of a rubik's cube, using javascript (GWT) to implement the z-buffer and the html5 canvas as the display.  I originally built this in plain old javascript, but have now converted it to GWT - partly just for fun and partly to make the code a bit more manageable and refactorable (if that's even a word). Along the way I made a few optimisations like caching radian, sin and cosine values of angles.</p>
@@ -300,11 +300,14 @@
 
 <p>I'm quite pleased with the results so far, and the performance is not bad either it seems. The speed of actually drawing on the canvas seems to be plenty good enough to get away with a bit of animation. On my (Core i7) laptop I can spin the cube on all 3 axis at a couple-hundred frames per second (hopefully i'll put up an example in a later post). </p>
 
-<p>Next steps for the rubik's application (yeah, like i'll get around to it) would be:
-* Supply "twist" information in the configuration so I can show cubes in various stages of completion.
-* Animate the twists, allowing a viewer to step through the twists, for example to see how to solve a particular part of a cube.
-* Interactive mode where the viewer can play with the cube.
-* In a separate direction, the z-buffer i've built up in order to render the cubes could be improved in lots of nice ways too.</p>
+<p>Next steps for the rubik's application (yeah, like i'll get around to it) would be:</p>
+
+<ul>
+<li>Supply "twist" information in the configuration so I can show cubes in various stages of completion.</li>
+<li>Animate the twists, allowing a viewer to step through the twists, for example to see how to solve a particular part of a cube.</li>
+<li>Interactive mode where the viewer can play with the cube.</li>
+<li>In a separate direction, the z-buffer i've built up in order to render the cubes could be improved in lots of nice ways too.</li>
+</ul>
 
 <p>Just before I finish off with a few more views of the cube, I wanted to mention that I had a few issues finding a way to host the scripts and use them in Blogger. Annoyingly you can't host javascript or html files directly from Blogger, so I had to find somewhere else to put them.</p>
 
