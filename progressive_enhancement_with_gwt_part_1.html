@@ -4,8 +4,11 @@
     <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-          <meta name="keywords" content="fonts" itemprop="keywords">
-      <meta name="keywords" content="ubuntu" itemprop="keywords">
+          <meta name="keywords" content="ajax" itemprop="keywords">
+      <meta name="keywords" content="designer" itemprop="keywords">
+      <meta name="keywords" content="gwt" itemprop="keywords">
+      <meta name="keywords" content="seo" itemprop="keywords">
+      <meta name="keywords" content="progressive enhancement" itemprop="keywords">
     <script type="text/javascript" src="google-analytics.js"></script>
   </head>
   <body>
@@ -32,7 +35,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,709">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,771">
               <span class="meta" itemprop="datePublished"><time datetime="2011-01-30">January 30, 2011</time></span>
               <a itemprop="url" href="progressive_enhancement_with_gwt_part_1.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 1</h1></a>
               <span itemprop="articleBody"><p>This is the first part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
@@ -73,7 +76,7 @@
 
 <p>Rather than try to build two almost parallel versions of your application (one for SEO, one for real users), why not build one with a layered approach that allows graceful degradation for browsers with javascript disabled (of which search-engines could be considered a sub-set).</p>
 
-<p>The base-layer that non-javascript browsers would render, and which search-engines would see, would be generated  by some typical server-side technology - php, jsp, struts, jfaces, ... take your pick. This would build a "wireframe" of your page, giving it a basic shape and layout, and filling in some starter content. The markup would ideally be meaningful, in the sense that headings would appear in <h1> tags to indicate that they are headings, rather than to give them any particular styling.</p>
+<p>The base-layer that non-javascript browsers would render, and which search-engines would see, would be generated  by some typical server-side technology - php, jsp, struts, jfaces, ... take your pick. This would build a "wireframe" of your page, giving it a basic shape and layout, and filling in some starter content. The markup would ideally be meaningful, in the sense that headings would appear in <code>&lt;h1&gt;</code> tags to indicate that they are headings, rather than to give them any particular styling.</p>
 
 <p>This base layer would be something that designers could work on directly, including any and all css styling.</p>
 
@@ -97,13 +100,16 @@
       &lt;li&gt;News story 1&lt;/li&gt;
       &lt;li&gt;News story 2&lt;/li&gt;
       ...
-      &lt;!-- this last listitem gives a link that a search engine can follow to get more data --&gt;
+      &lt;!-- this last listitem gives a link that 
+               a search engine can follow to get more data --&gt;
       &lt;li&gt;&lt;a href=".."&gt;older stories&lt;/a&gt;&lt;/li&gt;
     &lt;/ol&gt;
 
 
-    &lt;script type="text/javascript" language="javascript" src="widgets/navigation-widget.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript" language="javascript" src="widgets/news-ticker-widget.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" language="javascript" 
+                src="widgets/navigation-widget.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" language="javascript" 
+                src="widgets/news-ticker-widget.js"&gt;&lt;/script&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -128,7 +134,7 @@
 
 <p>In my simple example I showed the scripts being loaded separately, just for clarity, but I'm sure you wouldn't want to load each widget as a separate script - that would lose a good chunk of GWT's advantage. Rather, the whole widget-set could be loaded as one script, cached forever, and used all over.</p>
 
-<p>Now, if you want to see an example of GWT-activated pages at work, just take a look at my older post on <a href="todo">rendering 3D Rubiks Cubes with GWT and HTML5 Canvas</a>, where the rubik's cubes are rendered by a gwt widget that "activates" a <div> element containing the configuration for the cube.</p>
+<p>Now, if you want to see an example of GWT-activated pages at work, just take a look at my older post on <a href="3d_graphics_using_the_html5_canvas.html">rendering 3D Rubiks Cubes with GWT and HTML5 Canvas</a>, where the rubik's cubes are rendered by a gwt widget that "activates" a <code>&lt;div&gt;</code> element containing the configuration for the cube.</p>
 
 <p>OK, but what are the down-sides? Here's a few...</p>
 
@@ -154,8 +160,11 @@
               </script-->
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=fonts">fonts</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=seo">seo</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>
@@ -177,8 +186,8 @@
       </div>
       <nav>
         <div class="links">
-          <div class="prev"><a title="previous" href="progressive_enhancement_with_gwt_part_2.html">Progressive Enhancement with GWT, part 2</a></div>
-          
+          <div class="prev"><a title="previous" href="progressive_enhancement_with_gwt_part_2.html">Progressive Enhancement wit...</a></div>
+          <div class="next"><a title="next" href="3d_graphics_using_the_html5_canvas.html">3D graphics using the html5...</a></div>
         </div>
       </nav>
     </div>

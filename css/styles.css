@@ -395,3 +395,11 @@ nav .next a, nav .prev a {
   text-shadow: 1px 1px 1px #fff;
   margin-bottom:20px;
 }
+
+.rubiks {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
+  margin:2px;
+  border:1px dotted #bac7da;
+  background-color:#dae7fa;    
+}

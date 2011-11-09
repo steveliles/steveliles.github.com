@@ -121,14 +121,13 @@
               <ul class="keywords">
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=enhancement">enhancement</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive">progressive</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,709">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,771">
               <span class="meta" itemprop="datePublished"><time datetime="2011-01-30">January 30, 2011</time></span>
               <a itemprop="url" href="progressive_enhancement_with_gwt_part_1.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 1</h1></a>
               <span itemprop="articleBody"><p>This is the first part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
@@ -169,7 +168,7 @@
 
 <p>Rather than try to build two almost parallel versions of your application (one for SEO, one for real users), why not build one with a layered approach that allows graceful degradation for browsers with javascript disabled (of which search-engines could be considered a sub-set).</p>
 
-<p>The base-layer that non-javascript browsers would render, and which search-engines would see, would be generated  by some typical server-side technology - php, jsp, struts, jfaces, ... take your pick. This would build a "wireframe" of your page, giving it a basic shape and layout, and filling in some starter content. The markup would ideally be meaningful, in the sense that headings would appear in <h1> tags to indicate that they are headings, rather than to give them any particular styling.</p>
+<p>The base-layer that non-javascript browsers would render, and which search-engines would see, would be generated  by some typical server-side technology - php, jsp, struts, jfaces, ... take your pick. This would build a "wireframe" of your page, giving it a basic shape and layout, and filling in some starter content. The markup would ideally be meaningful, in the sense that headings would appear in <code>&lt;h1&gt;</code> tags to indicate that they are headings, rather than to give them any particular styling.</p>
 
 <p>This base layer would be something that designers could work on directly, including any and all css styling.</p>
 
@@ -193,13 +192,16 @@
       &lt;li&gt;News story 1&lt;/li&gt;
       &lt;li&gt;News story 2&lt;/li&gt;
       ...
-      &lt;!-- this last listitem gives a link that a search engine can follow to get more data --&gt;
+      &lt;!-- this last listitem gives a link that 
+               a search engine can follow to get more data --&gt;
       &lt;li&gt;&lt;a href=".."&gt;older stories&lt;/a&gt;&lt;/li&gt;
     &lt;/ol&gt;
 
 
-    &lt;script type="text/javascript" language="javascript" src="widgets/navigation-widget.js"&gt;&lt;/script&gt;
-    &lt;script type="text/javascript" language="javascript" src="widgets/news-ticker-widget.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" language="javascript" 
+                src="widgets/navigation-widget.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" language="javascript" 
+                src="widgets/news-ticker-widget.js"&gt;&lt;/script&gt;
   &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
@@ -224,7 +226,7 @@
 
 <p>In my simple example I showed the scripts being loaded separately, just for clarity, but I'm sure you wouldn't want to load each widget as a separate script - that would lose a good chunk of GWT's advantage. Rather, the whole widget-set could be loaded as one script, cached forever, and used all over.</p>
 
-<p>Now, if you want to see an example of GWT-activated pages at work, just take a look at my older post on <a href="todo">rendering 3D Rubiks Cubes with GWT and HTML5 Canvas</a>, where the rubik's cubes are rendered by a gwt widget that "activates" a <div> element containing the configuration for the cube.</p>
+<p>Now, if you want to see an example of GWT-activated pages at work, just take a look at my older post on <a href="3d_graphics_using_the_html5_canvas.html">rendering 3D Rubiks Cubes with GWT and HTML5 Canvas</a>, where the rubik's cubes are rendered by a gwt widget that "activates" a <code>&lt;div&gt;</code> element containing the configuration for the cube.</p>
 
 <p>OK, but what are the down-sides? Here's a few...</p>
 
@@ -250,8 +252,105 @@
               </script-->
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=fonts">fonts</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=seo">seo</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="885">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-01-02">January 02, 2011</time></span>
+              <a itemprop="url" href="3d_graphics_using_the_html5_canvas.html"><h1 itemprop="name" itemprop="headline">3D graphics using the html5 canvas</h1></a>
+              <span itemprop="articleBody"><p>I thought i'd put up a quick sample of my latest play-thing - a 3D rendering of a rubik's cube, using javascript (GWT) to implement the z-buffer and the html5 canvas as the display.  I originally built this in plain old javascript, but have now converted it to GWT - partly just for fun and partly to make the code a bit more manageable and refactorable (if that's even a word). Along the way I made a few optimisations like caching radian, sin and cosine values of angles.</p>
+
+<p>The cube is made from 27 "blocks", each of which has a face in each of the rubik-cube face colours. When the 27 blocks are put together we get the completed cube. Admittedly the 27th block isn't really necessary (its right in the middle where it is never visible), but it made life just that little bit simpler to ignore that and go with it.</p>
+
+<p>The cubes you can see below are rendered when the page loads. The scenes are pretty simple, so render very quickly. You may have seen the cube configuration instead of the cubes for a short while until the javascript loaded, at which point the configuration is replaced by the rendered cubes.</p>
+
+<p>Configuring a cube to display is as simple as adding a <code>&lt;div&gt;</code> element like this:</p>
+
+<pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
+  {"rubik-cube":{}, "camera":{}}}
+&lt;/div&gt;
+</code></pre>
+
+<p>This sets up the default position and orientation for both camera and cube, which looks like this:</p>
+
+<div class="rubiks" style="height: 150px; width: 150px; margin:auto;">{"rubik-cube":{}, "camera":{}}</div>
+
+<p>That's a pretty boring view, so lets rotate the cube so that we can see more than just the red-face nearest us. To do that we supply some rotations around the x and y axis like this:</p>
+
+<pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
+  { 
+    "rubik-cube":{ 
+      "rotate-x":35, 
+      "rotate-y":35, 
+      "rotate-z":35 
+    }, 
+    "camera":{}
+  }
+&lt;/div&gt;
+</code></pre>
+
+<p>This results in the following cube:</p>
+
+<div class="rubiks" style="height: 150px; width: 150px; margin:auto;">{ "rubik-cube": { "rotate-x":35, "rotate-y":35, "rotate-z":35 }, "camera":{} }</div>
+
+<p>I'm quite pleased with the results so far, and the performance is not bad either it seems. The speed of actually drawing on the canvas seems to be plenty good enough to get away with a bit of animation. On my (Core i7) laptop I can spin the cube on all 3 axis at a couple-hundred frames per second (hopefully i'll put up an example in a later post). </p>
+
+<p>Next steps for the rubik's application (yeah, like i'll get around to it) would be:
+* Supply "twist" information in the configuration so I can show cubes in various stages of completion.
+* Animate the twists, allowing a viewer to step through the twists, for example to see how to solve a particular part of a cube.
+* Interactive mode where the viewer can play with the cube.
+* In a separate direction, the z-buffer i've built up in order to render the cubes could be improved in lots of nice ways too.</p>
+
+<p>Just before I finish off with a few more views of the cube, I wanted to mention that I had a few issues finding a way to host the scripts and use them in Blogger. Annoyingly you can't host javascript or html files directly from Blogger, so I had to find somewhere else to put them.</p>
+
+<p>My usual approach for hosting source code is to use github "gists", which provides a neat way of showing prettified source, but also lets you view the "raw" source. That allowed me to host the js somewhere, but I had to work around a cross-site scripting issue loading the GWT sources from a different domain. </p>
+
+<p>Fortunately GWT makes that easy with its "xs" linker, which produces a bunch of ".no-cache.js" files instead of "no-cache.html" files, and solves the XSS problem. To use the xs linker you just add a single line to your .gwt.xml file:</p>
+
+<pre><code>&lt;add-linker name="xs" /&gt;
+</code></pre>
+
+<p>Sadly that prevents hosted mode from working (currently), but that's easy enough to work around :)</p>
+
+<table cellpadding="0" cellspacing="0"><tbody>
+<tr> <td><br />
+<div class="rubiks" style="height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":35, "rotate-y":35 }, "camera":{} }</div></td> <td><br />
+<div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-y":135 }, "camera":{} }</div></td>  <td><br />
+<div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-z":135 }, "camera":{} }</div></td>  <td><br />
+<div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-y":215 }, "camera":{} }</div></td>  </tr>
+<tr> <td><br />
+<div class="rubiks" style="height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":135, "rotate-y":35 }, "camera":{} }</div></td> <td><br />
+<div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":95, "rotate-y":125 }, "camera":{} }</div></td>  <td><br />
+<div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":15, "rotate-y":15, "rotate-z":15 }, "camera":{} }</div></td>  <td><br />
+<div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":25, "rotate-y":-25 }, "camera":{} }</div></td>  </tr>
+</tbody></table>
+
+<script language="javascript" src="rubiks/rubiks.nocache.js" type="text/javascript">
+</script>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=canvas">canvas</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=graphics">graphics</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=html5">html5</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=XSS linker">XSS linker</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>

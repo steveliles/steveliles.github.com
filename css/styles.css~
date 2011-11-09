@@ -358,8 +358,6 @@ nav .next, .prev {
 }
 
 nav .next a, nav .prev a {
-    max-width:450px;
-overflow:ellipsize;
   margin:0px;
   margin-left:2px;
   margin-right:2px;
@@ -396,4 +394,10 @@ overflow:ellipsize;
   letter-spacing:1px;
   text-shadow: 1px 1px 1px #fff;
   margin-bottom:20px;
+}
+
+.rubiks {
+  margin:2px;
+  border:1px dotted #bac7da;
+  background-color:#dae7fa;    
 }
