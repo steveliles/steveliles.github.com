@@ -37,11 +37,15 @@ body > div {
 
 .site-header > div.left {
   float:left;
+  padding:15px;
+  padding-left:55px;
 }
 
 .site-header > div.right {
   float:right;
   margin-right:35px;
+  padding:15px;
+  padding-right:55px;
 }
 
 .site-header > img {
@@ -397,6 +401,8 @@ nav .next a, nav .prev a {
 }
 
 .rubiks {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
   margin:2px;
   border:1px dotted #bac7da;
   background-color:#dae7fa;    

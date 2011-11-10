@@ -23,7 +23,6 @@ body > div {
 .site-header {
   width:100%;
   display:table;
-  padding:15px 55px 15px 55px;
   background-color:#263347;
   
   background:-webkit-gradient(
@@ -37,11 +36,15 @@ body > div {
 
 .site-header > div.left {
   float:left;
+  padding:15px;
+  padding-left:55px;
 }
 
 .site-header > div.right {
   float:right;
   margin-right:35px;
+  padding:15px;
+  padding-right:55px;
 }
 
 .site-header > img {
