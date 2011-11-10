@@ -15,6 +15,10 @@
   </url>  
 
       <url> 
+      <loc>http://steveliles.github.com/most_geeky_thing_i_ever_saw.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/popularity_contest_ubuntu_vs_osx_lion_vs_win7.html</loc>
       <changefreq>hourly</changefreq>
     </url>

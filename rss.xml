@@ -13,6 +13,35 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Most geeky thing I ever saw]]></title>
+        <link><![CDATA[http://steveliles.github.com/most_geeky_thing_i_ever_saw.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/most_geeky_thing_i_ever_saw.html</guid>
+        <description><![CDATA[<p>There's something fabulously, deliciously geeky about using Curl to call a url-shortening service for url's to the web-management console of an online source-code-control system! <a href="http://git.io/help">Githubber's you ROCK!</a></p>
+
+<p><code>curl -i http://git.io -F "url=https://github.com/blog/985-git-io-github-url-shortener" -F "code=geek"</code></p>
+
+<p>gives:</p>
+
+<pre><code>HTTP/1.1 201 Created
+Server: nginx/1.0.4
+X-Node: gitio2
+X-Sha: 50f8f21981a362dfbaa5fbc85193621e56379dfb
+Content-Type: text/html;charset=utf-8
+Date: Thu, 10 Nov 2011 23:23:12 GMT
+Status: 201 Created
+Location: http://git.io/help
+X-Runtime: 0.008420
+Connection: keep-alive
+Content-Length: 0
+</code></pre>
+]]></description>
+          <category>github</category>
+          <category>geek</category>
+          <category>url-shortener</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Thu, 10 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[ Popularity contest - Ubuntu vs OSX Lion vs Win7]]></title>
         <link><![CDATA[http://steveliles.github.com/popularity_contest_ubuntu_vs_osx_lion_vs_win7.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/popularity_contest_ubuntu_vs_osx_lion_vs_win7.html</guid>
