@@ -88,6 +88,10 @@ nav {
   border:none;
 }
 
+nav span {
+  padding-right:10px;
+}
+
 div.content {  
   display:table;
   width:1000px;
