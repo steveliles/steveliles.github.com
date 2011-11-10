@@ -13,6 +13,29 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[ Popularity contest - Ubuntu vs OSX Lion vs Win7]]></title>
+        <link><![CDATA[http://steveliles.github.com/popularity_contest_ubuntu_vs_osx_lion_vs_win7.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/popularity_contest_ubuntu_vs_osx_lion_vs_win7.html</guid>
+        <description><![CDATA[<p>A while back I played with Google Trends to compare <a href="linux_distro_popularity.html">Linux distribution popularity</a>. Ubuntu was the clear winner.</p>
+
+<p>In that post I also tried to compare OSX and Windows7 against the Linux supremo, but I think I didn't hit on the right search term for OSX.</p>
+
+<p>I tried again today out of curiosity, and I think I got better results, though perhaps still not really reflecting the true state of the world (I'm <em>sure</em> OSX kicks Ubuntu's pants in reality).</p>
+
+<p><img src="https://lh3.googleusercontent.com/-Dzc_zxe0T1c/Trw6VrnoVgI/AAAAAAAAHo4/wA3dBag5IFw/s900/ubuntu-vs-lion-vs-win7-2011-11-10.png" alt="ubuntu(blue), windows7(red), OSX Lion(orange)" /></p>
+
+<p><code>ubuntu(blue), windows7(red), OSX Lion(orange)</code></p>
+
+<p>More at <a href="http://www.google.com/trends?q=ubuntu%2C+windows+7%2C+lion&amp;ctab=0&amp;geo=all&amp;date=all&amp;sort=0">Google Trends</a>.</p>
+]]></description>
+          <category>Linux</category>
+          <category>Ubuntu</category>
+          <category>OSX Lion</category>
+          <category>Windows7</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Thu, 10 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Eclipse code template for GWT jsni methods]]></title>
         <link><![CDATA[http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html</guid>
@@ -986,6 +1009,9 @@ jMock takes a little getting used to, as it involves quite a different way of th
 ]]></description>
           <category>ElasticSearch</category>
           <category>SOLRCloud</category>
+          <category>Lucene</category>
+          <category>Search</category>
+          <category>Scalability</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Thu, 24 Feb 2011 00:00:00 +0000</pubDate>
       </item>
@@ -1330,6 +1356,66 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>progressive enhancement</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sun, 30 Jan 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Reading List, 17-01-2011]]></title>
+        <link><![CDATA[http://steveliles.github.com/reading_list_17_01_2011.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/reading_list_17_01_2011.html</guid>
+        <description><![CDATA[<p>I love it when I get a box from Amazon. Today's new arrivals: five (count 'em) new tech books:
+<br />
+<table cellpadding="2" cellspacing="0" style="border:0px; padding:0px; margin:0px;"><tr>
+<td><br />
+<a href="http://www.amazon.co.uk/gp/product/0137030428?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0137030428"><img border="0" src="http://4.bp.blogspot.com/_hG-kje6-TJM/TTRSN0S4WzI/AAAAAAAAHBU/AAA_9H_2vL0/s1600/scalability.jpg" /></a><br />
+</td>
+<td><br />
+<a href="http://www.amazon.co.uk/gp/product/0596153813?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0596153813"><img border="0" src="http://2.bp.blogspot.com/_hG-kje6-TJM/TTRSM-wm1rI/AAAAAAAAHBI/00iR-DpdRQk/s1600/semantic.jpg" /></a><br />
+</td>
+<td><br />
+<a href="http://www.amazon.co.uk/gp/product/0596805829?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0596805829"><img border="0" src="http://2.bp.blogspot.com/_hG-kje6-TJM/TTRSNFhjZNI/AAAAAAAAHBM/6cPI6CzmaMU/s1600/rest.jpg" /></a><br />
+</td>
+<td><br />
+<a href="http://www.amazon.co.uk/gp/product/0321601912?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0321601912"><img border="0" src="http://2.bp.blogspot.com/_hG-kje6-TJM/TTRSNs49zyI/AAAAAAAAHBQ/AN8rHxCWlpY/s1600/delivery.jpg" /></a><br />
+</td>
+<td><br />
+<a href="http://www.amazon.co.uk/gp/product/0321712943?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0321712943"><img border="0" src="http://3.bp.blogspot.com/_hG-kje6-TJM/TTRSOD2aquI/AAAAAAAAHBY/b04xakC9YiI/s1600/dslbook.jpg" /></a><br />
+</td>
+</tr>
+</table><br />
+I'm particularly intrigued to read "The Art of Scalability" - I've never come across a book quite like this that addresses the organisational aspects of scaling a company and processes alongside the architectural aspects of developing scalable software.</p>
+]]></description>
+          <category>books</category>
+          <category>reading list</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 17 Jan 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Linux Distro popularity]]></title>
+        <link><![CDATA[http://steveliles.github.com/linux_distro_popularity.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/linux_distro_popularity.html</guid>
+        <description><![CDATA[<p>Interesting to see how Ubuntu has overtaken its sire Debian in recent years - Google Trends really is amazing.</p>
+
+<p><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TSIqrAJk8gI/AAAAAAAAG_g/e1VdMyp4pJ4/s1600/ubuntu-vs-debian.png" alt="Google Trends chart of Ubuntu (blue), Debian (red), CentOS (green) and Suse (orange)." /></p>
+
+<p><code>Ubuntu (blue), Debian (red), CentOS (green) and Suse (orange)</code></p>
+
+<p>Here's the link to see the full <a href="http://www.google.com/trends?q=ubuntu,+debian,+centos,+suse&amp;ctab=0&amp;geo=all&amp;date=all&amp;sort=0">google-trends page</a> for this comparison.</p>
+
+<p>I love the spikes on the ubuntu line every 6 months - I imagine these coincide with the 6-monthly .4 and .10 releases (April and October).</p>
+
+<p>Interestingly, when I compare Ubuntu with Windows 7 and OSX, OSX loses out strongly to Ubuntu (perhaps I'm using the wrong term, but I tried a number of different combinations), while Win7 is around 3x more popular than Ubuntu.  Also interesting to note how OSX beats Ubuntu in the "news" mentions (below the x-axis) presumably because of the Apple PR machine:</p>
+
+<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TSIsA8ZS4hI/AAAAAAAAG_k/x90cJQmmGJE/s1600/ubuntu-vs-windows.png" alt="Google Trends chart of Ubuntu (blue), Windows 7 (red), OSX (orange)" /></p>
+
+<p><code>Ubuntu (blue), Windows 7 (red), OSX (orange)</code></p>
+]]></description>
+          <category>linux</category>
+          <category>ubuntu</category>
+          <category>centos</category>
+          <category>debian</category>
+          <category>suse</category>
+          <category>distro</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 03 Jan 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[3D graphics using the html5 canvas]]></title>

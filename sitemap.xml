@@ -15,6 +15,10 @@
   </url>  
 
       <url> 
+      <loc>http://steveliles.github.com/popularity_contest_ubuntu_vs_osx_lion_vs_win7.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html</loc>
       <changefreq>hourly</changefreq>
     </url>
@@ -68,6 +72,14 @@
     </url>
     <url> 
       <loc>http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/reading_list_17_01_2011.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/linux_distro_popularity.html</loc>
       <changefreq>hourly</changefreq>
     </url>
     <url> 
