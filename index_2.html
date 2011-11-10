@@ -1,0 +1,605 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+        <script type="text/javascript" src="google-analytics.js"></script>
+  </head>
+  <body>
+    <div>
+      <header class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="about_me.html"><img src="images/lego.png"></a>          
+        </div>
+      </header>
+      <nav>
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954/posts?hl=en"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"/></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </nav>
+      <div class="content">
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="66">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-12-07">December 07, 2010</time></span>
+              <a itemprop="url" href="using_non_standard_css_properties_in_gwt.html"><h1 itemprop="name" itemprop="headline">Using non-standard css properties in GWT</h1></a>
+              <span itemprop="articleBody"><p>Sometimes you'll want to use a non-standard CSS property in GWT - say to use rounded-corners on your borders using <code>-moz-border-radius</code> and <code>-webkit-border-radius</code>.</p>
+
+<p>However, if you just plonk those properties in your CSSResource you're in for some warnings.  GWT doesn't like property names that start with "-".  The solution is very simple: escape the leading "-" with a "\", e.g. <code>\-moz-border-radius: 5px</code>.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CSS">CSS</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CssResource">CssResource</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="41">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-12-06">December 06, 2010</time></span>
+              <a itemprop="url" href="dumping_and_restoring_mysql_db_s.html"><h1 itemprop="name" itemprop="headline">Dumping and restoring mysql db's</h1></a>
+              <span itemprop="articleBody"><p>Dump a db with:</p>
+
+<pre><code>mysqldump -h&lt;host-or-ip&gt; -u&lt;username&gt; -p&lt;password&gt; &lt;db-name&gt; &gt; dump.sql
+</code></pre>
+
+<p>To import, first create the target db, then import the dump with:</p>
+
+<pre><code>mysql -h&lt;host-or-ip&gt; -u&lt;username&gt; -p&lt;password&gt; &lt;db-name&gt; &lt; dump.sql
+</code></pre>
+
+<p>Yep, its that easy.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=mysql">mysql</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dump">dump</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=restore">restore</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="410">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-30">October 30, 2010</time></span>
+              <a itemprop="url" href="some_old_sketches.html"><h1 itemprop="name" itemprop="headline">Some old sketches ...</h1></a>
+              <span itemprop="articleBody"><p>I decided it was high time I got a copy of my photos from the last 10 years or so backed-up somewhere. I downloaded Picasa (3.0-beta for ubuntu x64) and signed up for web-albums and started rummaging through my pics.  Picasa tells me I have 5,773 pictures in my ~/Pictures directory, so I could be having to spend rather a long time sorting through that lot!</p>
+
+<p>Scrolling through I came across some old sketches from way back (2002 and older), some of which I had scanned at various stages during the sketch. After a bit of fighting with Picasa (I didn't want it to throw away my original tif files) I got it to pick up the extra converted jpg copies which i made, and tried to upload them ... no go on that score, its still doing incrementally backing-off retries and failing to upload with no explanation. The log file location says "c:\Documents and settings...", which is a bit of a laugh given i'm running ubuntu :)</p>
+
+<p>Instead I uploaded those converted jpg's via the web-albums website, and shared the album. Here's a sample:</p>
+
+<table>
+  <tr>
+    <th>
+      <a href="http://4.bp.blogspot.com/_hG-kje6-TJM/TMwiO_1m3kI/AAAAAAAAAD8/HknmMmIraVU/s1600/foal-1.jpg"><img src="http://4.bp.blogspot.com/_hG-kje6-TJM/TMwiO_1m3kI/AAAAAAAAAD8/HknmMmIraVU/s240/foal-1.jpg"></a>
+    </th>
+    <th>
+      <a href="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj5dm7MKI/AAAAAAAAAD8/AYuh-yFIdRo/s1600/foal-2.jpg"><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj5dm7MKI/AAAAAAAAAD8/AYuh-yFIdRo/s240/foal-2.jpg"></a>
+    </th>
+    <th>
+      <a href="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj6ExdTZI/AAAAAAAAAD8/R_kZa1xqNcQ/s1600/foal-3.jpg"><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj6ExdTZI/AAAAAAAAAD8/R_kZa1xqNcQ/s240/foal-3.jpg"></a>
+    </th>
+  </tr>
+  <tr>
+    <th><code>pony sketch, step 1</code></th>
+    <th><code>pony sketch, step 2</code></th>
+    <th><code>pony sketch, finished</code></th>
+  </tr>
+</table>
+
+<p>Honestly no idea why the last one has a blue-ish tint to it - I must have screwed up scanning it or something. I'll balance the colours and re-upload if I get a chance.</p>
+
+<p>This was drawn from a photo I took at Llyn-Brianne in mid Wales, some time around 2002. There was a whole herd of what I can only assume are wild ponies just wandering around up there, and this little guy was one of them.</p>
+
+<p>This sketch is a full side of A4, drawn with Derwent studio colour pencils. I saw someone drawing with these at an art show I went to with my dad years ago, and bought the 72 pack there and then - they really are fantastic.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=sketch">sketch</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=foal">foal</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=lynn-brianne">lynn-brianne</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Faber Castell Polychromos">Faber Castell Polychromos</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pencil">pencil</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="700">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-25">October 25, 2010</time></span>
+              <a itemprop="url" href="making_pretty_diagrams_with_graphviz.html"><h1 itemprop="name" itemprop="headline">Making pretty diagrams with GraphViz</h1></a>
+              <span itemprop="articleBody"><p>So recently I needed to draw some directed-graph diagrams - work-flow diagrams in this particular instance. After a bit of googling I came across some nice examples of diagrams produced by <a href="http://www.graphviz.org/">graphviz</a> - actually what really turned me on to graphviz was this <a href="http://www.flickr.com/photos/kentbye/sets/72157601523153827/">nice set of examples</a> from Kent Bye.</p>
+
+<p>A little tinkering and I soon had my workflow definitions (declared in xml in our application) rendered nicely with GraphViz. The markup language is deadly simple and intuitive, and the directed graphs which it produces are really good looking (I didn't try any other types).</p>
+
+<p>Lets take a look at some examples, starting simply with two nodes related in one direction only. The markup would look like this:</p>
+
+<pre><code>digraph {
+  "Start" -&gt; "End" [];
+}
+</code></pre>
+
+<p>That's it.  No really.  This is all you need to create a simple, two-node directed graph diagram.  To draw the diagram you need to install graphviz (with a quality OS like ubuntu you just need the magic incantation <code>sudo apt-get install graphviz</code> and you're up and running). Once installed invoke graphviz like this:</p>
+
+<pre><code>dot -Tpng -oMyGraph.png MyGraph.dot
+</code></pre>
+
+<p>This invokes the directed-graph drawing tool, tells it to produce a png image from the input file <code>MyGraph.dot</code> and store it in the output file <code>MyGraph.png</code>. The resulting diagram looks like this:</p>
+
+<p><img src="http://4.bp.blogspot.com/_hG-kje6-TJM/TMXyojkLHhI/AAAAAAAAABc/fNd8MB0KVHQ/s1600/graph1.png" alt="first graphviz diagram" /></p>
+
+<p>Coolness!</p>
+
+<p>Lets get a bit more trick! We can control the size and shape of our nodes, and label the edges:</p>
+
+<pre><code>digraph {
+  "A" [shape="circle"];
+  "B" [shape="rectangle"];
+  "C" [shape="diamond"];
+
+  "A" -&gt; "B" [label="A to B"];
+  "B" -&gt; "C" [label="B to C"];
+  "A" -&gt; "B" [label="A to C"];
+}
+</code></pre>
+
+<p>Here's the diagram:</p>
+
+<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TMX0xR56twI/AAAAAAAAABg/m1Qmknip5hg/s1600/graph2.png" alt="second graphviz diagram" /></p>
+
+<p>Isn't it just too cool? Last one coming up - this time with colours:</p>
+
+<pre><code>digraph {
+  "Back" [shape="egg" color="green" style="filled" fillcolor="yellow"];
+  "Forth" [shape="house" color="red"];
+  "Other" [shape="invtriangle" color="blue"];
+
+  "Back" -&gt; "Forth" [color="orange" label="weee"];
+  "Forth" -&gt; "Back" [color="purple" label="eeew"];
+
+  "Other" -&gt; "Forth"
+  "Other" -&gt; "Back"
+}
+</code></pre>
+
+<p>And here's how it looks:</p>
+
+<p><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMX3xBFNcTI/AAAAAAAAABk/YrBxMds9R28/s1600/graph3.png" alt="third graphviz diagram" /></p>
+
+<p>I realize this just scratches the surface - there's a whole bunch of other node shapes you can use, you can define defaults for nodes and edges once at the beginning of your *.dot file, and much much more.</p>
+
+<p>I only discovered GraphViz about 2 months ago, but since I did i've been using it quite a lot. Its very handy for drawing simple representations of work-flows, navigational flows, any kind of hierarchical structures (trees and graphs), etc., and just <em>so simple</em> to write. Generating the <code>*.dot</code> syntax programmatically is extremely easy - I now have our app invoking "dot" to generate the graphs on the fly.</p>
+
+<p>Note: Google Charts now has experimental support for (a subset of) graphviz. Check it out <a href="http://code.google.com/apis/chart/image/docs/gallery/graphviz.html">here</a>.You don't even have to install graphviz :)</p>
+
+<p>I'll leave you with one more example - a visualisation of a subset of a work-flow from a work-flow system I've been building recently for our Editorial System. The work-flow engine we've built is basically a Finite State Machine (FSM), and a work-flow diagram like this is basically a State diagram for the machine. A workflow thus forms a very nice directed graph, making GraphViz ideal for rendering work-flows:</p>
+
+<pre><code>digraph { 
+
+  node [shape=circle,fontsize=8,fixedsize=true,width=0.9]; 
+  edge [fontsize=8]; 
+  rankdir=LR;
+
+  "low-priority" [shape="doublecircle" color="orange"];
+  "high-priority" [shape="doublecircle" color="orange"];
+
+  "s1" -&gt; "low-priority";
+  "s2" -&gt; "low-priority";
+  "s3" -&gt; "low-priority";
+
+  "low-priority" -&gt; "s4";
+  "low-priority" -&gt; "s5";
+  "low-priority" -&gt; "high-priority" [label="wait-time exceeded"];
+
+  "high-priority" -&gt; "s4";
+  "high-priority" -&gt; "s5";
+
+}
+</code></pre>
+
+<p>And here's the GraphViz output:</p>
+
+<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TQZdtzUGmtI/AAAAAAAAG5I/FxhlCaItHLM/s600/work-queue-3.png" alt="workflow" /></p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=graphviz">graphviz</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=visualization">visualization</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=diagram">diagram</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=graph">graph</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=example">example</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="144">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
+              <a itemprop="url" href="gwt_widgets_with_html_id_attributes.html"><h1 itemprop="name" itemprop="headline">GWT Widgets with html id attributes</h1></a>
+              <span itemprop="articleBody"><p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
+
+<p>To make your widgets produce id attributes you need to invoke the <code>ensureDebugId</code> method with an id string, e.g.</p>
+
+<pre><code>Label myLabel = new Label("Say something");
+myLabel.ensureDebugId("myLabel");
+</code></pre>
+
+<p>Now, if you run that you still won't get any id attributes. The clue is in the method name <code>ensureDebugId</code>. You actually need to inherit the <code>Debug</code> module in your module descriptor (<code>.gwt.xml</code>) file.  The module to inherit is: </p>
+
+<pre><code>&lt;inherits name="com.google.gwt.user.Debug"/&gt;
+</code></pre>
+
+<p>Now if you view the source of your label you'll see that it has an id attribute, but you might be surprised that it doesn't quite match the id you supplied (<code>myLabel</code>). In fact it will say <code>gwt-debug-myLabel</code>.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=selenium">selenium</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,634">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
+              <a itemprop="url" href="testing_gwt_apps_in_dev_mode_with_webdriver.html"><h1 itemprop="name" itemprop="headline">Testing GWT apps in dev-mode with WebDriver</h1></a>
+              <span itemprop="articleBody"><p>Today I've been playing a little with WebDriver for testing GWT apps.  First impressions:
+* WebDriver is awesome - can't wait to try testing more complex web-apps!
+* WebDriver opens up all kinds of possibilities beyond testing web-apps - for example to drive interactive demos and tutorials.
+* Did I mention WebDriver is awesome? :)</p>
+
+<h2>Preparing the Eclipse project</h2>
+
+<p>To get started I made a new toy project to play in. I don't use the Google Eclipse plugins for GWT dev - if you do you could create this project using the wizards instead. I develop in Eclipse, but always set up my projects with Maven, so the first step for me was to create a new maven project:</p>
+
+<pre><code>mvn archetype:create -DgroupId=com.sjl -DartifactId=webdriver
+</code></pre>
+
+<p>Next, create the Eclipse project so I can use eclipse to edit the maven pom...</p>
+
+<pre><code>mvn eclipse:eclipse
+</code></pre>
+
+<p>And then edit <code>pom.xml</code> in Eclipse to add the GWT, JUnit4 and WebDriver dependencies (by default maven adds JUnit 3.8, so I replace that with JUnit 4.4).</p>
+
+<p>To add the GWT dependencies you also need a repository that actually has them - I use the CodeHaus gwt maven plugins during the build step, which also exposes the CodeHaus repository for fetching the dependences:</p>
+
+<pre><code>  &lt;pluginRepositories&gt;
+    &lt;pluginRepository&gt;
+      &lt;id&gt;codehaus-snapshots&lt;/id&gt;
+      &lt;name&gt;Codehaus plugin snapshot repository&lt;/name&gt;
+      &lt;url&gt;http://snapshots.repository.codehaus.org&lt;/url&gt;
+    &lt;/pluginRepository&gt;
+  &lt;/pluginRepositories&gt; 
+  ...
+  &lt;dependencies&gt;
+   &lt;dependency&gt;
+      &lt;groupId&gt;com.google.gwt&lt;/groupId&gt;
+      &lt;artifactId&gt;gwt-dev&lt;/artifactId&gt;
+      &lt;version&gt;2.0.4&lt;/version&gt;
+      &lt;optional&gt;true&lt;/optional&gt;
+   &lt;/dependency&gt;
+   &lt;dependency&gt;
+      &lt;groupId&gt;com.google.gwt&lt;/groupId&gt;
+      &lt;artifactId&gt;gwt-user&lt;/artifactId&gt;
+      &lt;version&gt;2.0.4&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+   &lt;/dependency&gt;
+   ...
+</code></pre>
+
+<p>Next the WebDriver dependencies - I got these as transitive dependencies of selenium2:</p>
+
+<pre><code>  &lt;dependency&gt;
+     &lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
+     &lt;artifactId&gt;selenium&lt;/artifactId&gt;
+     &lt;version&gt;2.0a4&lt;/version&gt;
+  &lt;/dependency&gt;
+</code></pre>
+
+<p>Having edited the <code>pom.xml</code> file you need to rebuild the eclipse project using the eclipse maven plugin:</p>
+
+<pre><code>mvn eclipse:eclipse
+</code></pre>
+
+<p>This will take a little while to download the dependencies if you don't already have them - the gwt dependencies in particular are quite large.  Once the command completes you need to refresh the project in Eclipse for it to reload the project classpath.</p>
+
+<h2>Creating a simple GWT app</h2>
+
+<p>I made a really simple application to play with, consisting of just an EntryPoint that displays a Label, and a PushButton which adds more Label's when clicked.  I had just a handful of aims in mind for this first attempt:
+1. Get a GWT app to load via WebDriver
+2. Find an element which GWT has created (the first Label)
+3. Interact with an element that does something (the PushButton)
+4. Check that the something actually happened and that we can test for it.</p>
+
+<p>The GWT code for this is extremely simple:</p>
+
+<pre><code>package com.sjl.webdriver.client;
+
+import com.google.gwt.core.client.*;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.ui.*;
+
+public class SimpleApp implements EntryPoint {
+
+  public void onModuleLoad() {
+    final RootPanel _root = RootPanel.get();
+    _root.add(new Label("Hello"));
+    _root.add(newButton());
+  }
+
+  private PushButton newButton() {
+    PushButton _b = new PushButton("push me");
+    _b.ensureDebugId("button");
+
+    _b.addClickHandler(new ClickHandler(){
+    public void onClick(ClickEvent event) {
+    _root.add(new Label("whoop"));
+      }
+    });
+
+    return _b;
+  }
+}
+</code></pre>
+
+<p>Pushing the button adds a new Label for each push - something we should be able to detect pretty easily.</p>
+
+<p>My gwt module file looks like this:</p>
+
+<pre><code> &lt;module rename-to="webdriver"&gt;  
+  &lt;inherits name="com.google.gwt.user.User"/&gt;
+  &lt;inherits name="com.google.gwt.user.Debug"/&gt;
+  &lt;entry-point class="com.sjl.webdriver.client.SimpleApp" /&gt;  
+ &lt;/module&gt;
+</code></pre>
+
+<p>Next I made an <code>ApplicationDriver</code> class to wrap up the details of getting WebDriver to interact with the web app and let our tests deal with the web app in terms of a ubiquitous domain language - overkill for this simple example i'm sure, but if you want to write expressive tests for a complex web app you really need to do so at a higher level than WebDriver invocations. </p>
+
+<p>The <code>ApplicationDriver</code> class looks like this:</p>
+
+<pre><code>package com.sjl.webdriver;
+
+import java.util.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.firefox.*;
+
+public class ApplicationDriver {
+
+  private WebDriver driver;
+
+  public ApplicationDriver() {
+    System.setProperty("webdriver.firefox.profile", "default");
+    driver = new FirefoxDriver();
+    driver.get(
+    "http://127.0.0.1:8888/index.html?" + 
+    "gwt.codesvr=127.0.0.1:9997"); 
+  }
+
+  public void pushTheButton() { 
+    WebElement _element = driver.findElement(
+    By.id("gwt-debug-button"));
+    _element.click();
+  }
+
+  public int countLabels() {
+    List&lt;WebElement&gt; _elements = driver.findElements(
+    By.className("gwt-Label"));
+    return _elements.size();
+  }
+
+  public void quit() {
+    driver.close();
+  }
+}
+</code></pre>
+
+<p>Now there are a few things worth noting here, as it took me a while to arrive at this point with something that actually worked.</p>
+
+<p>First of all, notice that i'm using the <code>FirefoxDriver</code> implementation. I had started out with <code>HtmlUnitDriver</code> which works just fine for testing a compiled GWT app (provided you create it with javascript support - <code>new HtmlUnitDriver(true)</code> - and ignore the warnings about x-javascript) but I wanted to test during development by running OOPHM. </p>
+
+<p>Stupidly I was trying to get this to work with the <code>HtmlUnitDriver</code> for a while, til I had a Homer Simpson moment (doh!) and realized that of course <code>HtmlUnitDriver</code> can't work - it doesn't have a GWT plugin :).</p>
+
+<p>Secondly, the <code>FirefoxDriver</code> implementation starts up an instance of Firefox with a profile called "WebDriver". If you don't have a profile with that name Firefox will create one when it starts, but it won't have any of your plugins (including the GWT plugin!). </p>
+
+<p>Its easy to create a new profile (close all instances of firefox down completely then run it from the cmdline with the -profilemanager switch) - <a href="http://kb.mozillazine.org/Profile_manager">precise instructions vary by platform</a>. I created the profile then just copied my existing profile contents to it to save installing all the plugins again. In the sample code above i've told WebDriver to use the "default" profile instead by setting a system property.</p>
+
+<p>Finally, note that I'm finding the <code>PushButton</code> by id lookup. To make this work you have to force GWT to spit out an id for the element, and allow for the fact that GWT adds a prefix ("gwt-debug-") to the id you specify. To force GWT to produce id's for your Widget elements:</p>
+
+<ul>
+<li>Inherit the Debug module in your module descriptor file (.gwt.xml)</li>
+<li>Set an id on the Widget using widget.ensureDebugId("theId");</li>
+</ul>
+
+<p>Finally I built the testcase on top of the <code>ApplicationDriver</code>, starting with a test to detect the first Label, then a test to click the PushButton and check that a new Label is added.  The testcase looks like this:</p>
+
+<pre><code>package com.sjl.webdriver;
+
+import static junit.framework.Assert.*;
+import org.junit.*;
+
+public class TestSimpleApp {
+
+  private ApplicationDriver driver;
+
+  @Before
+  public void openBrowser() {
+    driver = new ApplicationDriver();
+  }
+
+  @After
+  public void closeBrowser() {
+    driver.quit();
+  }
+
+  @Test
+  public void canDetectALabel() {
+    assertEquals(1, driver.countLabels());
+  }
+
+  @Test
+  public void pushingTheButtonAddsALabel() {
+    assertEquals(1, driver.countLabels());
+    driver.pushTheButton();
+    assertEquals(2, driver.countLabels());
+  }
+
+  @Test
+  public void pushingTheButtonAgainAddsAnotherLabel() {
+    assertEquals(1, driver.countLabels());
+    driver.pushTheButton();
+    assertEquals(2, driver.countLabels());
+    driver.pushTheButton();
+    assertEquals(3, driver.countLabels());
+  }
+}
+</code></pre>
+
+<p>That's it ... start up GWT OOPHM, run the Junit testcase, and marvel as Firefox starts up, runs the app, and shuts down again (3 times - once for each test), leaving you with a nice green bar in JUnit. I'm sure that restarting firefox between each test would be a bad idea - slooooow - in practice, I just wanted to try it to see that it worked :)</p>
+
+<p>The next interesting test to play with will be testing asynchronous activity like AJAX requests.  I'm hoping there'll be some nice Patterns described by the WebDriver community for writing such tests.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=development mode">development mode</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=hosted">hosted</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
+              <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
+              <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
+
+<p>Flushing the mysql buffers is as easy as restarting mysql (<code>sudo service mysql restart</code> in Maverick). Flushing the OS buffers is also dead easy:</p>
+
+<pre><code>sudo sh -c "sync; echo 3 &gt; /proc/sys/vm/drop_caches"
+</code></pre>
+
+<p>I have system-monitor gauges on my taskbar showing cpu, memory and disk activity, and its a beautiful thing to see the cache suddenly get wiped :)</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=cache">cache</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=buffers">buffers</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=memory">memory</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="5" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav>
+        <div class="links">
+          <div class="prev"><a title="previous" href="index_1.html">Newer Posts</a></div>
+          
+        </div>
+      </nav>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

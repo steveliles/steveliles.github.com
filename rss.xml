@@ -1507,6 +1507,25 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
         <pubDate>Sun, 02 Jan 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
+        <title><![CDATA[Amazing trilobyte fossils]]></title>
+        <link><![CDATA[http://steveliles.github.com/amazing_trilobyte_fossils.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/amazing_trilobyte_fossils.html</guid>
+        <description><![CDATA[<p>I was watching a David Attenborough program the other day on the origins of life on Earth. He visited a place in Morocco where some enterprising locals are grinding down a mountain of sandstone looking for trilobyte fossils which they clean up and sell, in some cases for thousands of dollars. These fossils are pretty small - easily fit in the palm of your hand - but the detail is amazing.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-yLgF0gCDPUc/TrxVsgobgCI/AAAAAAAAHpQ/xWNzRUH3QgE/s600/2007-7446-trilobites.jpg"></p>
+
+<p>Click <a href="http://www.google.co.uk/images?q=trilobite+morocco&amp;um=1&amp;ie=UTF-8&amp;source=univ&amp;ei=yKwETe6_O8vFswat9pmBCg&amp;sa=X&amp;oi=image_result_group&amp;ct=title&amp;resnum=3&amp;ved=0CDwQsAQwAg&amp;biw=1920&amp;bih=944">here</a> to go see the original on the smithsonianmag's blog (click the image again when you get there - they have an enormous hi-res image). Here's some more <a href="http://www.google.co.uk/images?q=trilobite+morocco&amp;um=1&amp;ie=UTF-8&amp;source=univ&amp;ei=yKwETe6_O8vFswat9pmBCg&amp;sa=X&amp;oi=image_result_group&amp;ct=title&amp;resnum=3&amp;ved=0CDwQsAQwAg&amp;biw=1920&amp;bih=944">for your viewing pleasure</a>.</p>
+
+<p>Wikipedia, of course, has a very nice page on <a href="http://en.wikipedia.org/wiki/Trilobite">trilobytes</a> with some more nice photos, notably this one of an <a href="http://en.wikipedia.org/wiki/File:Erbenochile_eye.JPG">eye column</a>. Apparently the lenses are <a href="http://en.wikipedia.org/wiki/Calcite">calcite</a> (yes, they had eyes made of rock - before they were fossilized). </p>
+
+<p>Now that's cool.</p>
+]]></description>
+          <category>trilobyte</category>
+          <category>fossil</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sun, 12 Dec 2010 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[More old sketches]]></title>
         <link><![CDATA[http://steveliles.github.com/more_old_sketches.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/more_old_sketches.html</guid>
@@ -1525,8 +1544,46 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <category>sketch</category>
           <category>jaguar</category>
           <category>red squirrel</category>
+          <category>pencil</category>
+          <category>Faber Castell Polychromos</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Fri, 10 Dec 2010 00:00:00 +0000</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Using non-standard css properties in GWT]]></title>
+        <link><![CDATA[http://steveliles.github.com/using_non_standard_css_properties_in_gwt.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/using_non_standard_css_properties_in_gwt.html</guid>
+        <description><![CDATA[<p>Sometimes you'll want to use a non-standard CSS property in GWT - say to use rounded-corners on your borders using <code>-moz-border-radius</code> and <code>-webkit-border-radius</code>.</p>
+
+<p>However, if you just plonk those properties in your CSSResource you're in for some warnings.  GWT doesn't like property names that start with "-".  The solution is very simple: escape the leading "-" with a "\", e.g. <code>\-moz-border-radius: 5px</code>.</p>
+]]></description>
+          <category>GWT</category>
+          <category>CSS</category>
+          <category>CssResource</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Tue, 07 Dec 2010 00:00:00 +0000</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Dumping and restoring mysql db's]]></title>
+        <link><![CDATA[http://steveliles.github.com/dumping_and_restoring_mysql_db_s.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/dumping_and_restoring_mysql_db_s.html</guid>
+        <description><![CDATA[<p>Dump a db with:</p>
+
+<pre><code>mysqldump -h&lt;host-or-ip&gt; -u&lt;username&gt; -p&lt;password&gt; &lt;db-name&gt; &gt; dump.sql
+</code></pre>
+
+<p>To import, first create the target db, then import the dump with:</p>
+
+<pre><code>mysql -h&lt;host-or-ip&gt; -u&lt;username&gt; -p&lt;password&gt; &lt;db-name&gt; &lt; dump.sql
+</code></pre>
+
+<p>Yep, its that easy.</p>
+]]></description>
+          <category>mysql</category>
+          <category>dump</category>
+          <category>restore</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 06 Dec 2010 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Some old sketches ...]]></title>
@@ -1566,8 +1623,142 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <category>sketch</category>
           <category>foal</category>
           <category>lynn-brianne</category>
+          <category>Faber Castell Polychromos</category>
+          <category>pencil</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 30 Oct 2010 00:00:00 +0100</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Making pretty diagrams with GraphViz]]></title>
+        <link><![CDATA[http://steveliles.github.com/making_pretty_diagrams_with_graphviz.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/making_pretty_diagrams_with_graphviz.html</guid>
+        <description><![CDATA[<p>So recently I needed to draw some directed-graph diagrams - work-flow diagrams in this particular instance. After a bit of googling I came across some nice examples of diagrams produced by <a href="http://www.graphviz.org/">graphviz</a> - actually what really turned me on to graphviz was this <a href="http://www.flickr.com/photos/kentbye/sets/72157601523153827/">nice set of examples</a> from Kent Bye.</p>
+
+<p>A little tinkering and I soon had my workflow definitions (declared in xml in our application) rendered nicely with GraphViz. The markup language is deadly simple and intuitive, and the directed graphs which it produces are really good looking (I didn't try any other types).</p>
+
+<p>Lets take a look at some examples, starting simply with two nodes related in one direction only. The markup would look like this:</p>
+
+<pre><code>digraph {
+  "Start" -&gt; "End" [];
+}
+</code></pre>
+
+<p>That's it.  No really.  This is all you need to create a simple, two-node directed graph diagram.  To draw the diagram you need to install graphviz (with a quality OS like ubuntu you just need the magic incantation <code>sudo apt-get install graphviz</code> and you're up and running). Once installed invoke graphviz like this:</p>
+
+<pre><code>dot -Tpng -oMyGraph.png MyGraph.dot
+</code></pre>
+
+<p>This invokes the directed-graph drawing tool, tells it to produce a png image from the input file <code>MyGraph.dot</code> and store it in the output file <code>MyGraph.png</code>. The resulting diagram looks like this:</p>
+
+<p><img src="http://4.bp.blogspot.com/_hG-kje6-TJM/TMXyojkLHhI/AAAAAAAAABc/fNd8MB0KVHQ/s1600/graph1.png" alt="first graphviz diagram" /></p>
+
+<p>Coolness!</p>
+
+<p>Lets get a bit more trick! We can control the size and shape of our nodes, and label the edges:</p>
+
+<pre><code>digraph {
+  "A" [shape="circle"];
+  "B" [shape="rectangle"];
+  "C" [shape="diamond"];
+
+  "A" -&gt; "B" [label="A to B"];
+  "B" -&gt; "C" [label="B to C"];
+  "A" -&gt; "B" [label="A to C"];
+}
+</code></pre>
+
+<p>Here's the diagram:</p>
+
+<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TMX0xR56twI/AAAAAAAAABg/m1Qmknip5hg/s1600/graph2.png" alt="second graphviz diagram" /></p>
+
+<p>Isn't it just too cool? Last one coming up - this time with colours:</p>
+
+<pre><code>digraph {
+  "Back" [shape="egg" color="green" style="filled" fillcolor="yellow"];
+  "Forth" [shape="house" color="red"];
+  "Other" [shape="invtriangle" color="blue"];
+
+  "Back" -&gt; "Forth" [color="orange" label="weee"];
+  "Forth" -&gt; "Back" [color="purple" label="eeew"];
+
+  "Other" -&gt; "Forth"
+  "Other" -&gt; "Back"
+}
+</code></pre>
+
+<p>And here's how it looks:</p>
+
+<p><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMX3xBFNcTI/AAAAAAAAABk/YrBxMds9R28/s1600/graph3.png" alt="third graphviz diagram" /></p>
+
+<p>I realize this just scratches the surface - there's a whole bunch of other node shapes you can use, you can define defaults for nodes and edges once at the beginning of your *.dot file, and much much more.</p>
+
+<p>I only discovered GraphViz about 2 months ago, but since I did i've been using it quite a lot. Its very handy for drawing simple representations of work-flows, navigational flows, any kind of hierarchical structures (trees and graphs), etc., and just <em>so simple</em> to write. Generating the <code>*.dot</code> syntax programmatically is extremely easy - I now have our app invoking "dot" to generate the graphs on the fly.</p>
+
+<p>Note: Google Charts now has experimental support for (a subset of) graphviz. Check it out <a href="http://code.google.com/apis/chart/image/docs/gallery/graphviz.html">here</a>.You don't even have to install graphviz :)</p>
+
+<p>I'll leave you with one more example - a visualisation of a subset of a work-flow from a work-flow system I've been building recently for our Editorial System. The work-flow engine we've built is basically a Finite State Machine (FSM), and a work-flow diagram like this is basically a State diagram for the machine. A workflow thus forms a very nice directed graph, making GraphViz ideal for rendering work-flows:</p>
+
+<pre><code>digraph { 
+
+  node [shape=circle,fontsize=8,fixedsize=true,width=0.9]; 
+  edge [fontsize=8]; 
+  rankdir=LR;
+
+  "low-priority" [shape="doublecircle" color="orange"];
+  "high-priority" [shape="doublecircle" color="orange"];
+
+  "s1" -&gt; "low-priority";
+  "s2" -&gt; "low-priority";
+  "s3" -&gt; "low-priority";
+
+  "low-priority" -&gt; "s4";
+  "low-priority" -&gt; "s5";
+  "low-priority" -&gt; "high-priority" [label="wait-time exceeded"];
+
+  "high-priority" -&gt; "s4";
+  "high-priority" -&gt; "s5";
+
+}
+</code></pre>
+
+<p>And here's the GraphViz output:</p>
+
+<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TQZdtzUGmtI/AAAAAAAAG5I/FxhlCaItHLM/s600/work-queue-3.png" alt="workflow" /></p>
+]]></description>
+          <category>graphviz</category>
+          <category>visualization</category>
+          <category>diagram</category>
+          <category>graph</category>
+          <category>example</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 25 Oct 2010 00:00:00 +0100</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[GWT Widgets with html id attributes]]></title>
+        <link><![CDATA[http://steveliles.github.com/gwt_widgets_with_html_id_attributes.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/gwt_widgets_with_html_id_attributes.html</guid>
+        <description><![CDATA[<p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
+
+<p>To make your widgets produce id attributes you need to invoke the <code>ensureDebugId</code> method with an id string, e.g.</p>
+
+<pre><code>Label myLabel = new Label("Say something");
+myLabel.ensureDebugId("myLabel");
+</code></pre>
+
+<p>Now, if you run that you still won't get any id attributes. The clue is in the method name <code>ensureDebugId</code>. You actually need to inherit the <code>Debug</code> module in your module descriptor (<code>.gwt.xml</code>) file.  The module to inherit is: </p>
+
+<pre><code>&lt;inherits name="com.google.gwt.user.Debug"/&gt;
+</code></pre>
+
+<p>Now if you view the source of your label you'll see that it has an id attribute, but you might be surprised that it doesn't quite match the id you supplied (<code>myLabel</code>). In fact it will say <code>gwt-debug-myLabel</code>.</p>
+]]></description>
+          <category>GWT</category>
+          <category>selenium</category>
+          <category>webdriver</category>
+          <category>java</category>
+          <category>testing</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sat, 16 Oct 2010 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>

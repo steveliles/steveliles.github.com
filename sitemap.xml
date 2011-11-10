@@ -87,11 +87,39 @@
       <changefreq>hourly</changefreq>
     </url>
     <url> 
+      <loc>http://steveliles.github.com/amazing_trilobyte_fossils.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/more_old_sketches.html</loc>
       <changefreq>hourly</changefreq>
     </url>
     <url> 
+      <loc>http://steveliles.github.com/using_non_standard_css_properties_in_gwt.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/dumping_and_restoring_mysql_db_s.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/some_old_sketches.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/making_pretty_diagrams_with_graphviz.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/gwt_widgets_with_html_id_attributes.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/testing_gwt_apps_in_dev_mode_with_webdriver.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/how_to_clear_memory_caches_in_ubuntu.html</loc>
       <changefreq>hourly</changefreq>
     </url>
 

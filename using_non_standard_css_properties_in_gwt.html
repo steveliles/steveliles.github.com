@@ -5,11 +5,9 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-          <meta name="keywords" content="sketch" itemprop="keywords">
-      <meta name="keywords" content="jaguar" itemprop="keywords">
-      <meta name="keywords" content="red squirrel" itemprop="keywords">
-      <meta name="keywords" content="pencil" itemprop="keywords">
-      <meta name="keywords" content="Faber Castell Polychromos" itemprop="keywords">
+          <meta name="keywords" content="GWT" itemprop="keywords">
+      <meta name="keywords" content="CSS" itemprop="keywords">
+      <meta name="keywords" content="CssResource" itemprop="keywords">
     <script type="text/javascript" src="google-analytics.js"></script>
   </head>
   <body>
@@ -37,20 +35,12 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="252">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-12-10">December 10, 2010</time></span>
-              <a itemprop="url" href="more_old_sketches.html"><h1 itemprop="name" itemprop="headline">More old sketches</h1></a>
-              <span itemprop="articleBody"><p>Dug out a couple more old sketches.</p>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="66">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-12-07">December 07, 2010</time></span>
+              <a itemprop="url" href="using_non_standard_css_properties_in_gwt.html"><h1 itemprop="name" itemprop="headline">Using non-standard css properties in GWT</h1></a>
+              <span itemprop="articleBody"><p>Sometimes you'll want to use a non-standard CSS property in GWT - say to use rounded-corners on your borders using <code>-moz-border-radius</code> and <code>-webkit-border-radius</code>.</p>
 
-<p>I remember sitting at the kitchen table at my old house when I started this first one, which means it pre-dates March 2007 when I moved. Its drawn from a photo I took on a holiday with friends in Scotland in 2004 I think. Contrary to an earlier post my pencils aren't Derwent Studio's (oops), I checked and they are in fact Faber Castell Polychromos, which have a lovely soft feel, on 220gsm A2 (594mm x 420mm) Windsor &amp; Newton heavyweight cartwridge paper.</p>
-
-<p>The whole back-end of the squirrel is missing - can't squeeze enough into my A4 scanner (A4 is 1/4 the size of A2). I attempted to stitch a second scan onto this one to complete the squirrel, but the join is very clear to see, and i just can't summon the energy to wrestle The Gimp into blending the two images together nicely.</p>
-
-<p><img src="http://3.bp.blogspot.com/_hG-kje6-TJM/TQOhuCbs6YI/AAAAAAAAAIk/sx5qWNJqn2w/s640/squirrel-face.jpg" alt="Red squirrel, colour pencil on A2, drawn from photo I took in Scotland in 2004." /></p>
-
-<p>The next one pre-date's the squirrel, but again was drawn at my old house, after my holiday in Mexico (where I took the picture its drawn from). That dates it somewhere between September 2002 and March 2007. My guess is 2004. Again its Faber-Castell colour-pencil on Windsor &amp; Newton A2, scanned by my A4 scanner so the legs (to the right of this section) and the tail (above this section) are cut off here.</p>
-
-<p><img src="http://3.bp.blogspot.com/_hG-kje6-TJM/TQOSoyEnndI/AAAAAAAAAIY/-HnE5NI3vn0/s600/jaguar.jpg" alt="Jaguar, colour pencil sketch" /></p>
+<p>However, if you just plonk those properties in your CSSResource you're in for some warnings.  GWT doesn't like property names that start with "-".  The solution is very simple: escape the leading "-" with a "\", e.g. <code>\-moz-border-radius: 5px</code>.</p>
 </span>
 
               <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
@@ -65,11 +55,9 @@
               </script-->
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=sketch">sketch</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=jaguar">jaguar</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=red squirrel">red squirrel</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pencil">pencil</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Faber Castell Polychromos">Faber Castell Polychromos</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CSS">CSS</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CssResource">CssResource</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>
@@ -91,8 +79,8 @@
       </div>
       <nav>
         <div class="links">
-          <div class="prev"><a title="previous" href="amazing_trilobyte_fossils.html">Amazing trilobyte fossils</a></div>
-          <div class="next"><a title="next" href="using_non_standard_css_properties_in_gwt.html">Using non-standard css prop...</a></div>
+          <div class="prev"><a title="previous" href="more_old_sketches.html">More old sketches</a></div>
+          <div class="next"><a title="next" href="dumping_and_restoring_mysql_db_s.html">Dumping and restoring mysql...</a></div>
         </div>
       </nav>
     </div>
