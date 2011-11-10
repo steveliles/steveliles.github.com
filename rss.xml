@@ -14,8 +14,8 @@
     <generator>Steve's own home-grown blog generator</generator>
           <item>
         <title><![CDATA[Eclipse code template for GWT jsni methods]]></title>
-        <link><![CDATA[eclipse_code_template_for_gwt_jsni_methods.html]]></link>
-        <guid isPermaLink="true">eclipse_code_template_for_gwt_jsni_methods.html</guid>
+        <link><![CDATA[http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html</guid>
         <description><![CDATA[<p>GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them <a href="gwt_javascriptobjects_javascript_overlays.html">before</a>. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!</p>
 
 <p>Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:</p>
@@ -55,12 +55,12 @@
           <category>jsni</category>
           <category>gwt</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 20 Oct 2011 00:00:00 BST</pubDate>
+        <pubDate>Thu, 20 Oct 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[What makes a good developer?]]></title>
-        <link><![CDATA[what_makes_a_good_developer.html]]></link>
-        <guid isPermaLink="true">what_makes_a_good_developer.html</guid>
+        <link><![CDATA[http://steveliles.github.com/what_makes_a_good_developer.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/what_makes_a_good_developer.html</guid>
         <description><![CDATA[<p>At the beginning of the year I worked with our Operations Manager in Beirut - <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel Beaini</a> - to do annual reviews for our whole development (and UX) team there. </p>
 
 <p>As part of the review process we gave the developers an updated job specification, which I wanted to be both prescriptive and aspirational - the idea being to describe the role each should currently be playing, to make very clear what would be needed to move to the next level, and at the same time to make everyone want to up their game and take it to the next level.</p>
@@ -103,12 +103,12 @@
           <category>Developer</category>
           <category>Architect</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Wed, 19 Oct 2011 00:00:00 BST</pubDate>
+        <pubDate>Wed, 19 Oct 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[GWT JavaScriptObjects (Javascript Overlays)]]></title>
-        <link><![CDATA[gwt_javascriptobjects_javascript_overlays.html]]></link>
-        <guid isPermaLink="true">gwt_javascriptobjects_javascript_overlays.html</guid>
+        <link><![CDATA[http://steveliles.github.com/gwt_javascriptobjects_javascript_overlays.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/gwt_javascriptobjects_javascript_overlays.html</guid>
         <description><![CDATA[<p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example this one. The gist of it is, given some JSON like this:</p>
 
 <pre><code>{ "item": {
@@ -244,12 +244,12 @@
           <category>Parsing</category>
           <category>JSNI</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Wed, 12 Oct 2011 00:00:00 BST</pubDate>
+        <pubDate>Wed, 12 Oct 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[On 'Flow' and feeling productive]]></title>
-        <link><![CDATA[on_flow_and_feeling_productive.html]]></link>
-        <guid isPermaLink="true">on_flow_and_feeling_productive.html</guid>
+        <link><![CDATA[http://steveliles.github.com/on_flow_and_feeling_productive.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/on_flow_and_feeling_productive.html</guid>
         <description><![CDATA[<p>I like to feel productive. Actually that's a huge understatement. If I'm not feeling productive I get quite unhappy. For me feeling productive goes hand in hand with creative output - something that produces a tangible artifact - and I find it difficult to satisfy my need for productivity with intangible things like meetings.</p>
 
 <p>Even more than that, I need to be deeply involved in the creative activity - part of the group doing the creative stuff rather than managing it from a distance.</p>
@@ -301,12 +301,12 @@
           <category>Flow</category>
           <category>Productivity</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 22 Sep 2011 00:00:00 BST</pubDate>
+        <pubDate>Thu, 22 Sep 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[About Me]]></title>
-        <link><![CDATA[about_me.html]]></link>
-        <guid isPermaLink="true">about_me.html</guid>
+        <link><![CDATA[http://steveliles.github.com/about_me.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/about_me.html</guid>
         <description><![CDATA[<p>I didn't intend to have an about me page, but it turns out that to get google to display my mugshot next to search listings I have to have one. So here it is.</p>
 
 <table>
@@ -350,12 +350,12 @@
 ]]></description>
           <category>steve liles</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 11 Sep 2011 00:00:00 BST</pubDate>
+        <pubDate>Sun, 11 Sep 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[My first Android app (desktop widget)]]></title>
-        <link><![CDATA[my_first_android_app_desktop_widget.html]]></link>
-        <guid isPermaLink="true">my_first_android_app_desktop_widget.html</guid>
+        <link><![CDATA[http://steveliles.github.com/my_first_android_app_desktop_widget.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/my_first_android_app_desktop_widget.html</guid>
         <description><![CDATA[<p>Having spent quite a bit of time away from Eclipse lately I've been itching to play with some code again. During a short meeting this morning an idea hit me for a really simple Android desktop widget: a twitter search widget that you can drop on your desktop and configure with a hash-tag search.</p>
 
 <p>Here's how it looks in the Android emulator:</p>
@@ -713,12 +713,12 @@ public abstract class AbstractParser extends DefaultHandler
           <category>Desktop Widget</category>
           <category>Twitter</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 08 Sep 2011 00:00:00 BST</pubDate>
+        <pubDate>Thu, 08 Sep 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[Replicating Java threading issues between machines with different cpu counts]]></title>
-        <link><![CDATA[replicating_java_threading_issues_between_machines_with_different_cpu_counts.html]]></link>
-        <guid isPermaLink="true">replicating_java_threading_issues_between_machines_with_different_cpu_counts.html</guid>
+        <link><![CDATA[http://steveliles.github.com/replicating_java_threading_issues_between_machines_with_different_cpu_counts.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/replicating_java_threading_issues_between_machines_with_different_cpu_counts.html</guid>
         <description><![CDATA[<p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
 
 <p>To replicate I needed to run on a single-cpu but I didn't want to commit more potentially broken tests to source-control and run repeatedly breaking builds on the build-server.</p>
@@ -740,12 +740,12 @@ public abstract class AbstractParser extends DefaultHandler
           <category>Java</category>
           <category>Threading</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 19 Jul 2011 00:00:00 BST</pubDate>
+        <pubDate>Tue, 19 Jul 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[JQuery + HtmlUnit = runtimeError messages galore]]></title>
-        <link><![CDATA[jquery_htmlunit_runtimeerror_messages_galore.html]]></link>
-        <guid isPermaLink="true">jquery_htmlunit_runtimeerror_messages_galore.html</guid>
+        <link><![CDATA[http://steveliles.github.com/jquery_htmlunit_runtimeerror_messages_galore.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/jquery_htmlunit_runtimeerror_messages_galore.html</guid>
         <description><![CDATA[<p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
 
 <p>...
@@ -793,12 +793,12 @@ function doScrollCheck() {
           <category>HtmlUnit</category>
           <category>runtimeerror</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Fri, 27 May 2011 00:00:00 BST</pubDate>
+        <pubDate>Fri, 27 May 2011 00:00:00 +0100</pubDate>
       </item>
       <item>
         <title><![CDATA[Unit Testing code written in "Tell, Don't Ask" style]]></title>
-        <link><![CDATA[unit_testing_code_written_in_tell_don_t_ask_style.html]]></link>
-        <guid isPermaLink="true">unit_testing_code_written_in_tell_don_t_ask_style.html</guid>
+        <link><![CDATA[http://steveliles.github.com/unit_testing_code_written_in_tell_don_t_ask_style.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/unit_testing_code_written_in_tell_don_t_ask_style.html</guid>
         <description><![CDATA[<p>More and more I find myself enjoying the "Tell, Don't Ask" style of programming, to the extent that recently I've been challenging myself to write all my code that way. </p>
 
 <p>This brought up an interesting discussion while working on a proto-type with an excellent developer I've known and worked with for years - how do you test code written in this style?</p>
@@ -934,12 +934,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>Unit Testing</category>
           <category>Tell Dont Ask</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 15 Mar 2011 00:00:00 GMT</pubDate>
+        <pubDate>Tue, 15 Mar 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[ElasticSearch vs SOLRCloud]]></title>
-        <link><![CDATA[elasticsearch_vs_solrcloud.html]]></link>
-        <guid isPermaLink="true">elasticsearch_vs_solrcloud.html</guid>
+        <link><![CDATA[http://steveliles.github.com/elasticsearch_vs_solrcloud.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/elasticsearch_vs_solrcloud.html</guid>
         <description><![CDATA[<p>For an upcoming work project I need a scalable search platform - scalable to tens or hundreds of millions of documents (news articles), and millions of queries per day. We're a (mostly) Java shop, and have a lot of experience with Lucene, so two solutions that pique my curiosity are SOLRCloud (SOLR + ZooKeeper) and ElasticSearch.</p>
 
 <h3>Initial Impressions - ElasticSearch</h3>
@@ -987,12 +987,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>ElasticSearch</category>
           <category>SOLRCloud</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 24 Feb 2011 00:00:00 GMT</pubDate>
+        <pubDate>Thu, 24 Feb 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Progressive Enhancement with GWT, part 3]]></title>
-        <link><![CDATA[progressive_enhancement_with_gwt_part_3.html]]></link>
-        <guid isPermaLink="true">progressive_enhancement_with_gwt_part_3.html</guid>
+        <link><![CDATA[http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html</guid>
         <description><![CDATA[<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
 
 <p>In my previous posts I described an idea for progressive enhancement using GWT -  "activating" server-generated html, to combine GWT goodness with an SEO friendly server-generated website, and my findings after some initial trials. </p>
@@ -1135,12 +1135,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>TSA</category>
           <category>UiBinder</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 15 Feb 2011 00:00:00 GMT</pubDate>
+        <pubDate>Tue, 15 Feb 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Installing fonts in Ubuntu]]></title>
-        <link><![CDATA[installing_fonts_in_ubuntu.html]]></link>
-        <guid isPermaLink="true">installing_fonts_in_ubuntu.html</guid>
+        <link><![CDATA[http://steveliles.github.com/installing_fonts_in_ubuntu.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/installing_fonts_in_ubuntu.html</guid>
         <description><![CDATA[<p>Installing fonts in ubuntu is very easy these days - just open a ttf file and you are presented with a nice sample of the font (quick brown fox style), and a button in the bottom right corner to install the font.</p>
 
 <p>Nice'n'easy, but you're not quite done yet. You'll definitely need to restart running apps before the font becomes available to them, and quite possibly you'll need to rebuild the font cache, which you can do by rebooting (hah!) or:</p>
@@ -1153,12 +1153,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>fonts</category>
           <category>ubuntu</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 12 Feb 2011 00:00:00 GMT</pubDate>
+        <pubDate>Sat, 12 Feb 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Progressive Enhancement with GWT, part 2]]></title>
-        <link><![CDATA[progressive_enhancement_with_gwt_part_2.html]]></link>
-        <guid isPermaLink="true">progressive_enhancement_with_gwt_part_2.html</guid>
+        <link><![CDATA[http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html</guid>
         <description><![CDATA[<p>This is the second part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
 
 <p>Since my earlier post, I spent a little time (only a few hours really, so far) trying a few things out. Here's a smattering of things I learned...</p>
@@ -1208,12 +1208,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>progressive enhancement</category>
           <category>SEO</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 12 Feb 2011 00:00:00 GMT</pubDate>
+        <pubDate>Sat, 12 Feb 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Progressive Enhancement with GWT, part 1]]></title>
-        <link><![CDATA[progressive_enhancement_with_gwt_part_1.html]]></link>
-        <guid isPermaLink="true">progressive_enhancement_with_gwt_part_1.html</guid>
+        <link><![CDATA[http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html</guid>
         <description><![CDATA[<p>This is the first part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
 
 <p>GWT Is a superb framework for developing complex, componentized html &amp; javascript widgets.  You can have your cake and eat it:</p>
@@ -1329,12 +1329,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>seo</category>
           <category>progressive enhancement</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 30 Jan 2011 00:00:00 GMT</pubDate>
+        <pubDate>Sun, 30 Jan 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[3D graphics using the html5 canvas]]></title>
-        <link><![CDATA[3d_graphics_using_the_html5_canvas.html]]></link>
-        <guid isPermaLink="true">3d_graphics_using_the_html5_canvas.html</guid>
+        <link><![CDATA[http://steveliles.github.com/3d_graphics_using_the_html5_canvas.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/3d_graphics_using_the_html5_canvas.html</guid>
         <description><![CDATA[<p>I thought i'd put up a quick sample of my latest play-thing - a 3D rendering of a rubik's cube, using javascript (GWT) to implement the z-buffer and the html5 canvas as the display.  I originally built this in plain old javascript, but have now converted it to GWT - partly just for fun and partly to make the code a bit more manageable and refactorable (if that's even a word). Along the way I made a few optimisations like caching radian, sin and cosine values of angles.</p>
 
 <p>The cube is made from 27 "blocks", each of which has a face in each of the rubik-cube face colours. When the 27 blocks are put together we get the completed cube. Admittedly the 27th block isn't really necessary (its right in the middle where it is never visible), but it made life just that little bit simpler to ignore that and go with it.</p>
@@ -1418,12 +1418,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>html5</category>
           <category>XSS linker</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 02 Jan 2011 00:00:00 GMT</pubDate>
+        <pubDate>Sun, 02 Jan 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[More old sketches]]></title>
-        <link><![CDATA[more_old_sketches.html]]></link>
-        <guid isPermaLink="true">more_old_sketches.html</guid>
+        <link><![CDATA[http://steveliles.github.com/more_old_sketches.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/more_old_sketches.html</guid>
         <description><![CDATA[<p>Dug out a couple more old sketches.</p>
 
 <p>I remember sitting at the kitchen table at my old house when I started this first one, which means it pre-dates March 2007 when I moved. Its drawn from a photo I took on a holiday with friends in Scotland in 2004 I think. Contrary to an earlier post my pencils aren't Derwent Studio's (oops), I checked and they are in fact Faber Castell Polychromos, which have a lovely soft feel, on 220gsm A2 (594mm x 420mm) Windsor &amp; Newton heavyweight cartwridge paper.</p>
@@ -1440,12 +1440,12 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>jaguar</category>
           <category>red squirrel</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Fri, 10 Dec 2010 00:00:00 GMT</pubDate>
+        <pubDate>Fri, 10 Dec 2010 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Some old sketches ...]]></title>
-        <link><![CDATA[some_old_sketches.html]]></link>
-        <guid isPermaLink="true">some_old_sketches.html</guid>
+        <link><![CDATA[http://steveliles.github.com/some_old_sketches.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/some_old_sketches.html</guid>
         <description><![CDATA[<p>I decided it was high time I got a copy of my photos from the last 10 years or so backed-up somewhere. I downloaded Picasa (3.0-beta for ubuntu x64) and signed up for web-albums and started rummaging through my pics.  Picasa tells me I have 5,773 pictures in my ~/Pictures directory, so I could be having to spend rather a long time sorting through that lot!</p>
 
 <p>Scrolling through I came across some old sketches from way back (2002 and older), some of which I had scanned at various stages during the sketch. After a bit of fighting with Picasa (I didn't want it to throw away my original tif files) I got it to pick up the extra converted jpg copies which i made, and tried to upload them ... no go on that score, its still doing incrementally backing-off retries and failing to upload with no explanation. The log file location says "c:\Documents and settings...", which is a bit of a laugh given i'm running ubuntu :)</p>
@@ -1481,7 +1481,7 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>foal</category>
           <category>lynn-brianne</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 30 Oct 2010 00:00:00 BST</pubDate>
+        <pubDate>Sat, 30 Oct 2010 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>
