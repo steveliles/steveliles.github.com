@@ -36,7 +36,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="867">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="885">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-11">November 11, 2011</time></span>
               <a itemprop="url" href="templating_my_blog_with_freemarker.html"><h1 itemprop="name" itemprop="headline">Templating my Blog with FreeMarker</h1></a>
               <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
@@ -69,19 +69,19 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
     private Configuration cfg;
 
     public FreemarkerTemplateProcessor(File aTemplateDir) 
-        throws IOException
+    throws IOException
     {
-    cfg = new Configuration();
-    cfg.setDirectoryForTemplateLoading(aTemplateDir);
-    cfg.setObjectWrapper(new DefaultObjectWrapper());  
+        cfg = new Configuration();
+        cfg.setDirectoryForTemplateLoading(aTemplateDir);
+        cfg.setObjectWrapper(new DefaultObjectWrapper());
     }
 
     @Override
     public void process(Object aModel, String aTemplate, Writer aWriter) 
     throws IOException, TemplateException
     {
-    Template _tpl = cfg.getTemplate(aTemplate);
-    _tpl.process(aModel, aWriter);        
+        Template _tpl = cfg.getTemplate(aTemplate);
+        _tpl.process(aModel, aWriter);
     }
 }
 </code></pre>

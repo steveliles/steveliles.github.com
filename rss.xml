@@ -46,19 +46,19 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
     private Configuration cfg;
 
     public FreemarkerTemplateProcessor(File aTemplateDir) 
-        throws IOException
+    throws IOException
     {
-    cfg = new Configuration();
-    cfg.setDirectoryForTemplateLoading(aTemplateDir);
-    cfg.setObjectWrapper(new DefaultObjectWrapper());  
+        cfg = new Configuration();
+        cfg.setDirectoryForTemplateLoading(aTemplateDir);
+        cfg.setObjectWrapper(new DefaultObjectWrapper());
     }
 
     @Override
     public void process(Object aModel, String aTemplate, Writer aWriter) 
     throws IOException, TemplateException
     {
-    Template _tpl = cfg.getTemplate(aTemplate);
-    _tpl.process(aModel, aWriter);        
+        Template _tpl = cfg.getTemplate(aTemplate);
+        _tpl.process(aModel, aWriter);
     }
 }
 </code></pre>
