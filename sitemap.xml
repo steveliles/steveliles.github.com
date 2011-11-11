@@ -15,6 +15,10 @@
   </url>  
 
       <url> 
+      <loc>http://steveliles.github.com/templating_my_blog_with_freemarker.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/most_geeky_thing_i_ever_saw.html</loc>
       <changefreq>hourly</changefreq>
     </url>

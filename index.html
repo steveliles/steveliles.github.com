@@ -32,6 +32,137 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="867">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-11">November 11, 2011</time></span>
+              <a itemprop="url" href="templating_my_blog_with_freemarker.html"><h1 itemprop="name" itemprop="headline">Templating my Blog with FreeMarker</h1></a>
+              <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
+
+<p>I'm using <a href="http://code.google.com/p/markdownj/">MarkdownJ</a> to convert the Markdown syntax to HTML, and <a href="http://freemarker.sourceforge.net/">FreeMarker</a> for templating.</p>
+
+<p>FreeMarker for templating was an easy choice for me:</p>
+
+<ul>
+<li>It is a decent templating engine that I've used recently for a dynamic website,</li>
+<li>It is very easy to set up in Java for my one-hit templating needs,</li>
+<li>I like its syntax compared to, say, Velocity</li>
+</ul>
+
+<p>Yesterday I used FreeMarker to add two new productions to my site-generator: a sitemap, and an RSS feed, and thought I'd make some quick notes...</p>
+
+<p>FreeMarker strives to be a pure templating language, and as such resists the temptation to ... shall we say, make certain things easy that you probably shouldn't do in a template. </p>
+
+<p>This can make templating a little uncomfortable sometimes - all the more so if you try to use complex domain objects directly in your templates instead of producing model's specifically for output (YMMV depending on the complexity of your domain model of course).</p>
+
+<p>For the simple needs of my Blog FreeMarker has been great, allowing me to whiz up the sitemap template in a couple of minutes, and not much longer for the RSS-2.0 template.</p>
+
+<p>Setting up FreeMarker in Java is very very simple indeed. I chose to abstract FreeMarker away behind my own interface (<code>TemplateProcessor</code>), in case I want to use something different later:</p>
+
+<pre><code>import java.io.*;
+import freemarker.template.*;
+
+public class FreemarkerTemplateProcessor implements TemplateProcessor
+{
+    private Configuration cfg;
+
+    public FreemarkerTemplateProcessor(File aTemplateDir) 
+        throws IOException
+    {
+    cfg = new Configuration();
+    cfg.setDirectoryForTemplateLoading(aTemplateDir);
+    cfg.setObjectWrapper(new DefaultObjectWrapper());  
+    }
+
+    @Override
+    public void process(Object aModel, String aTemplate, Writer aWriter) 
+    throws IOException, TemplateException
+    {
+    Template _tpl = cfg.getTemplate(aTemplate);
+    _tpl.process(aModel, aWriter);        
+    }
+}
+</code></pre>
+
+<p>The templating language is quite neat, and very easy to write - as I mentioned before, it helps if your model is a good fit for the view you are trying to render so you don't need to squeeze to many conditionals into the template. </p>
+
+<p>There are only 3 lines of FreeMarker markup in my sitemap template:</p>
+
+<ul>
+<li><code>&lt;#list posts as post&gt;</code> which iterates over an <code>Iterable</code> containing <code>Post</code> objects,</li>
+<li>the closing <code>&lt;/#list&gt;</code>, and</li>
+<li>the line that reads the post's link <code>&lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;</code></li>
+</ul>
+
+<p>Here's the template in full:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
+&lt;urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+        "http://www.sitemaps.org/schemas/sitemap/0.9 
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt; 
+
+  &lt;url&gt;
+    &lt;loc&gt;${blog.url}/index.html&lt;/loc&gt;
+    &lt;changefreq&gt;daily&lt;/changefreq&gt;
+    &lt;priority&gt;1.0&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;${blog.url}/about_me.html&lt;/loc&gt;
+    &lt;changefreq&gt;daily&lt;/changefreq&gt;
+    &lt;priority&gt;0.9&lt;/priority&gt;
+  &lt;/url&gt;
+
+  &lt;#list posts as post&gt;
+    &lt;url&gt; 
+      &lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;
+      &lt;changefreq&gt;hourly&lt;/changefreq&gt;
+    &lt;/url&gt;
+  &lt;/#list&gt;
+
+&lt;/urlset&gt;
+</code></pre>
+
+<p>The RSS template is very similar to the sitemap template, as it deals with exactly the same model. Skipping the pre-amble, here's the part that actually involves any freemarker markup:</p>
+
+<pre><code>&lt;#list posts as post&gt;
+  &lt;item&gt;
+    &lt;title&gt;&lt;![CDATA[${post.title}]]&gt;&lt;/title&gt;
+    &lt;link&gt;&lt;![CDATA[http://${blog.url}/${post.link}]]&gt;&lt;/link&gt;
+    &lt;guid isPermaLink="true"&gt;${blog.url}/${post.link}&lt;/guid&gt;
+    &lt;description&gt;&lt;![CDATA[${post.body}]]&gt;&lt;/description&gt;
+    &lt;#list post.keywords as keyword&gt;
+      &lt;category&gt;${keyword}&lt;/category&gt;
+    &lt;/#list&gt;
+    &lt;dc:creator&gt;&lt;![CDATA[ Steve Liles ]]&gt;&lt;/dc:creator&gt;
+    &lt;pubDate&gt;${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}&lt;/pubDate&gt;
+  &lt;/item&gt;
+&lt;/#list&gt;
+</code></pre>
+
+<p>I like the date built-in here: <code>${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}</code> which keeps the date format in the template where it belongs. </p>
+
+<p>Of course, here I've just written it directly into this template because I only use this format once in my whole site - if I were using it more I could define a re-usable FreeMarker macro instead to avoid repetition.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=FreeMarker">FreeMarker</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Template">Template</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Sitemap">Sitemap</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=RSS">RSS</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="80">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
               <a itemprop="url" href="most_geeky_thing_i_ever_saw.html"><h1 itemprop="name" itemprop="headline">Most geeky thing I ever saw</h1></a>
@@ -919,71 +1050,6 @@ public abstract class AbstractParser extends DefaultHandler
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threading">Threading</a></li>
-              </ul>
-              <div style="clear:both"></div>
-            </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
-              <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
-              <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
-
-<p>...
-One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
-
-<pre><code>runtimeError: message=
-  [The data necessary to complete this operation is not yet available.]
-  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
-  lineSource=[null] lineOffset=[0]
-</code></pre>
-
-<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
-
-<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
-
-<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
-
-<pre><code>// The DOM ready check for Internet Explorer
-function doScrollCheck() {
- if ( jQuery.isReady ) {
-  return;
- }
-
- try {
-  // If IE is used, use the trick by Diego Perini
-  // http://javascript.nwbox.com/IEContentLoaded/
-     document.documentElement.doScroll("left");
- } catch(e) {
-  setTimeout( doScrollCheck, 1 );
-  return;
- }
-
- // and execute any waiting functions
- jQuery.ready();
-}
-</code></pre>
-
-<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
-
-<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
-
-<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
-</span>
-
-              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
-              <script type="text/javascript">
-                window.___gcfg = {lang: 'en-GB'};
-
-                (function() {
-                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                  po.src = 'https://apis.google.com/js/plusone.js';
-                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-                })();
-              </script-->
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>
