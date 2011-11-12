@@ -36,10 +36,285 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="6">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,997">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
               <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
-              <span itemprop="articleBody"><p>TODO: outline, examples, docs, etc...</p>
+              <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
+
+<p>Progressive-enhancement is a technique for delivering a basic website suitable for search-engines and older web-browsers, then gradually adding additional polish, interactivity and general goodness using targetted javascript.</p>
+
+<p>Traditionally <code>GWT</code> works the other way around - it builds all of the <code>DOM</code> structure of your web-app in script, so search-engines (and browsers with script disabled) only see an inscrutable mass of script.</p>
+
+<p><code>GWT.Progressive</code> helps to bring your ninja <code>GWT</code> skills to bear on web-sites that need progressive enhancement.</p>
+
+<h2>What can GWT.Progressive do for me?</h2>
+
+<ul>
+<li>Bind <code>GWT</code> widgets to html elements on static (or server-generated) html pages, using the html as a template and <code>GWT</code> magic to "enhance" the user-experience</li>
+<li>Automatically bind nested html elements to properties of widget classes (child widgets, grand-child widgets, etc)</li>
+<li>Bind repeated html elements to List&lt;MyWidgetClass> properties of widget classes</li>
+<li>Automatically bind attributes of html elements to properties of widget classes - with automatic type coercion</li>
+<li>Make partial page-updates a breeze (replacing parts of the <code>DOM</code> with new server-generated content)</li>
+</ul>
+
+<h2>Show me how it works</h2>
+
+<h3>Element Binding</h3>
+
+<p>You can bind a <code>GWT</code> widget to any html element on your website - just by adding an annotation to the widget class:</p>
+
+<pre><code>// bind by id
+@RootBinding(id="mywidget")
+class MyWidget extends Composite {
+    //...
+}
+
+// bind by tag name
+@RootBinding(tag="h1")
+class MyWidget extends Composite {
+   //...
+}
+
+// bind by css class
+@RootBinding(cssClass="bind-me")
+class MyWidget extends Composite {
+   //...
+}
+
+// bind by tag name and css class
+@RootBinding(tag="div", cssClass="bind-me")
+class MyWidget extends Composite {
+   //...
+}
+</code></pre>
+
+<p>Bind nested html to child widgets:</p>
+
+<pre><code>// bind the first &lt;h1&gt; tag we find by breadth first
+// search of the DOM within our widget's root element
+@RuntimeUiWidget(tag="h1") MyHeaderWidget header;
+
+// bind the first element we find by breadth first
+// search that has the css class "foo"
+@RuntimeUiWidget(cssClass="foo") MyFooWidget foo;
+</code></pre>
+
+<p>Bind repeated elements to a List of child widgets:</p>
+
+<pre><code>// bind all the &lt;img&gt; elements we find inside our
+// widget's root element to the list of Image widgets
+@RuntimeUiWidget(tag="img") List&lt;Image&gt; images;
+</code></pre>
+
+<h3>Attribute Binding</h3>
+
+<p>Bind html attributes as properties of your widgets, with automatic type coercion:</p>
+
+<pre><code>// the following attributes will have their default values (set below)
+// overridden by the values of attributes in the html, if they exist
+@RuntimeUiAttribute("text-attr") String textAttr = "default";
+@RuntimeUiAttribute("int-attr") Integer integerAttr = 22;
+@RuntimeUiAttribute("long-attr") Long longAttr = 9L;
+@RuntimeUiAttribute("float-attr") Float floatAttr = 2.3f;
+@RuntimeUiAttribute("double-attr") Double doubleAttr = 2222222.222d;
+@RuntimeUiAttribute("boolean-attr") Boolean booleanAttr = false;
+</code></pre>
+
+<p>Bind attributes to custom types by supplying converters - given html like: <code>&lt;div coords="200x400"&gt; ... &lt;/div&gt;</code>, automatically bind the coords property of our widget as an instance of Coords, converted by CoordsAttributeConverter...</p>
+
+<p>In the <code>Widget</code> we're binding:</p>
+
+<pre><code>// automatically bind our custom Coords class 
+@RuntimeUiAttribute("coords") Coords coords;
+</code></pre>
+
+<p>The <code>Coords</code> class:</p>
+
+<pre><code>class Coords {
+    public Integer x, y;
+    public Coords(Integer anX, Integer aY) {
+        x = anX;
+        y = aY;
+    }
+}
+</code></pre>
+
+<p>The <code>AttributeConverter</code>:</p>
+
+<pre><code>@RuntimeUiAttributeConverter
+public class CoordsAttributeConverter 
+extends AttributeConverter&lt;Coords&gt; {
+    public Coords convert(String aString) {
+        String[] _parts = aString.split("x");
+        return new Coords(
+            Integer.parseInt(_parts[0]), 
+            Integer.parseInt(_parts[1])
+        );
+    }
+}
+</code></pre>
+
+<h3>Partial Page Updates</h3>
+
+<p>Replace chunks of html with new html from the server. Your server can provide this html as it pleases - for example you can call servlets, jsp's, PHP or whatever you like to get the html for the replacement. Your widgets will re-bind to the new html after adding it to the <code>DOM</code>.</p>
+
+<pre><code>// UiBinder afficionados will be familiar with this plumbing
+// which we'll use to invoke our page update...
+interface MyActivator extends ElementActivator&lt;Partial&gt;{}
+MyActivator activator = GWT.create(MyActivator.class);
+
+// here's the widget we're going to update
+@RuntimeUiWidget(tag="div") UpdateMe updateMe;
+
+    ...
+
+// call this method to trigger the update
+private void someMethod() {
+    activator.update(
+        updateMe, "/update-me.jsp", 
+        new CallMeWhenUpdated()
+    );
+}
+</code></pre>
+
+<p>You can register callbacks to trigger when a partial update completes - successfully or otherwise. Here's a more complete partial update example:</p>
+
+<pre><code>@RootBinding(tag="div")
+public class Partial extends BoundRootPanel
+    // UiBinder afficionados will be familiar with this
+    interface MyActivator extends ElementActivator&lt;Partial&gt;{}
+    MyActivator activator = GWT.create(MyActivator.class);
+
+    @RuntimeUiWidget(tag="div") UpdateMe updateMe;
+
+    public Partial(Element anElement)
+    {
+        setElement(activator.activate(this, anElement));
+
+        // Update the page when we're clicked...
+        addDomHandler(new ClickHandler() {
+            public void onClick(ClickEvent aEvent) {
+                activator.update(
+                    Partial.this, "/update-me.jsp", 
+                    new CallMeWhenUpdated()
+                );
+            });
+        }            
+    }, ClickEvent.getType());
+
+    class CallMeWhenUpdated 
+    implements PageUpdateCallback&lt;Partial&gt;() {
+        public void onSuccess(Partial anUpdated) {
+            Window.alert("Updated!");
+        }
+
+        public void onError(Throwable anExc) {
+            GWT.log("oops, something bad happened", anExc);
+        }   
+    }
+}
+</code></pre>
+
+<h3>OK, Give me a complete example...</h3>
+
+<p>Here's the HTML we're going to enhance:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;div class="widget"&gt;
+      &lt;img class="first" src="/image-1.png"&gt;
+      &lt;img class="second" src="/image-2.png"&gt;
+    &lt;/div&gt;
+    &lt;!-- our script loads last, and progressive 
+         enhancement begins --&gt;
+    &lt;script 
+        type="text/javascript" language="javascript" 
+        src="example/example.nocache.js?cache=20111112180652"&gt;
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Here's the widget we're going to bind to the <code>&lt;div&gt;</code> of css-class "widget":</p>
+
+<pre><code>@RootBinding(cssClass="widget")
+class MyWidget extends BoundRootPanel {
+    interface MyActivator extends ElementActivator&lt;MyWidget&gt;{}
+    MyActivator activator = GWT.create(MyWidget.class);
+
+    @RuntimeUiWidget(cssClass="first") Image first;
+    @RuntimeUiWidget(cssClass="second") Image second;
+
+    public MyWidget(Element anElement) {
+        setElement(activator.activate(this, anElement);
+
+        // ... now we do some enhancements, e.g. add
+        // click-handlers to our image's our something
+    }
+}
+</code></pre>
+
+<p>We'll need an EntryPoint - this is still a <code>GWT</code> application:</p>
+
+<pre><code>class Example1 implements EntryPoint {
+    public void onModuleLoad() {
+        PageActivator _activator = GWT.create(PageActivator.class);
+        _activator.activate();
+    }
+}
+</code></pre>
+
+<p>... and a <code>GWT</code> module descriptor (<code>.gwt.xml</code>) of course:</p>
+
+<pre><code>&lt;module rename-to="example"&gt;
+  &lt;inherits name="com.google.gwt.user.User"/&gt;
+  &lt;inherits name="com.sjl.gwt.progressive.Progressive"/&gt;
+
+  &lt;entry-point class="com.sjl.example.client.Example" /&gt;
+
+  &lt;!-- for maximum compatibility, use the xs linker --&gt;
+  &lt;add-linker name="xs" /&gt;
+&lt;/module&gt;
+</code></pre>
+
+<h2>OK, I want to use it, so ...</h2>
+
+<h3>What are the rules?</h3>
+
+<p><code>GWT.Progressive</code> requires that you follow a few simple rules to ensure that your widgets get "activated" correctly, integrated into the GWT/browser eventing system, etc.</p>
+
+<p>Your widgets <em>must</em>:</p>
+
+<ul>
+<li>Have a public <code>Constructor</code> that takes a <code>com.google.gwt.dom.client.Element</code> argument, OR</li>
+<li>Have a <code>public static &lt;T&gt; wrap()</code> method that returns an instance of your widget class (this is how native GWT widgets like Image and Label are bound by GWT.Progressive).</li>
+<li><code>GWT.create()</code> a special class that allows <code>GWT.Progressive</code>'s generator to work its magic on your widgets (either <code>com.sjl.gwt.progressive.client.ElementActivator</code> or <code>com.sjl.gwt.progressive.client.WidgetActivator</code>).</li>
+<li>Set your Widget's Element as the return value from activation (<code>setElement(activator.activate(this, anElement))</code>) or init your Composite with it (<code>initWidget(activator.activate(this, anElement))</code>).</li>
+</ul>
+
+<p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
+
+<h3>Where can I find more examples?</h3>
+
+<p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
+
+<h3>Any examples in the wild?</h3>
+
+<p>The twitter feed in my blog side-bar for one...</p>
+
+<h3>Can I use this in my products?</h3>
+
+<p>Sure, its available under the Apache-2.0 license, but ... disclaimer: use at your own risk and discretion, I cannot accept responsibility for any issues that may arise from using this library.</p>
+
+<h3>Can I modify the code, fix bugs, etc?</h3>
+
+<p>Knock yourself out :) ... I'd love to hear about it if you do.</p>
+
+<h2>Final Words</h2>
+
+<p>I just want to say - props to my employer (<a href="http://www.knowledgeview.com">KnowledgeView ltd.</a>) for allowing me to release the code, some of which was developed on their dime. Mucho thanks KV :)</p>
+
+<p>You can find some more background on <code>GWT.Progressive</code> in some of my earlier blog posts: <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html">part-1</a>, <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html">part-2</a>, and <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html">part-3</a></p>
 </span>
 
               <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
