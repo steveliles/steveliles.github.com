@@ -13,6 +13,19 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[gwt.progressive]]></title>
+        <link><![CDATA[http://steveliles.github.com/gwt_progressive.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/gwt_progressive.html</guid>
+        <description><![CDATA[<p>TODO: outline, examples, docs, etc...</p>
+]]></description>
+          <category>GWT</category>
+          <category>Progressive-Enhancement</category>
+          <category>Library</category>
+          <category>Apache2 License</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sat, 12 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Templating my Blog with FreeMarker]]></title>
         <link><![CDATA[http://steveliles.github.com/templating_my_blog_with_freemarker.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/templating_my_blog_with_freemarker.html</guid>
