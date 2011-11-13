@@ -36,7 +36,7 @@
 <li>Make partial page-updates a breeze (replacing parts of the <code>DOM</code> with new server-generated content)</li>
 </ul>
 
-<h2>Show me how it works</h2>
+<h2>How GWT.Progressive works</h2>
 
 <h3>Element Binding</h3>
 
@@ -69,7 +69,7 @@ class MyWidget extends Composite {
 
 <p>Bind nested html to child widgets:</p>
 
-<pre><code>// bind the first &lt;h1&gt; tag we find by breadth first
+<pre><code>// bind the first &amp;lt;h1&gt; tag we find by breadth first
 // search of the DOM within our widget's root element
 @RuntimeUiWidget(tag="h1") MyHeaderWidget header;
 
@@ -80,7 +80,7 @@ class MyWidget extends Composite {
 
 <p>Bind repeated elements to a List of child widgets:</p>
 
-<pre><code>// bind all the &lt;img&gt; elements we find inside our
+<pre><code>// bind all the &amp;lt;img&gt; elements we find inside our
 // widget's root element to the list of Image widgets
 @RuntimeUiWidget(tag="img") List&lt;Image&gt; images;
 </code></pre>
@@ -156,6 +156,8 @@ private void someMethod() {
 }
 </code></pre>
 
+<h3>Partial Page Update callbacks</h3>
+
 <p>You can register callbacks to trigger when a partial update completes - successfully or otherwise. Here's a more complete partial update example:</p>
 
 <pre><code>@RootBinding(tag="div")
@@ -194,7 +196,7 @@ public class Partial extends BoundRootPanel
 }
 </code></pre>
 
-<h3>OK, Give me a complete example...</h3>
+<h3>Complete example - Progressive Enhancement with GWT</h3>
 
 <p>Here's the HTML we're going to enhance:</p>
 
@@ -256,9 +258,7 @@ class MyWidget extends BoundRootPanel {
 &lt;/module&gt;
 </code></pre>
 
-<h2>OK, I want to use it, so ...</h2>
-
-<h3>What are the rules?</h3>
+<h2>Rules of engagement</h2>
 
 <p><code>GWT.Progressive</code> requires that you follow a few simple rules to ensure that your widgets get "activated" correctly, integrated into the GWT/browser eventing system, etc.</p>
 
@@ -273,11 +273,11 @@ class MyWidget extends BoundRootPanel {
 
 <p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
 
-<h3>Where can I find more examples?</h3>
+<h3>Where can I find more examples of GWT.progressive?</h3>
 
 <p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
 
-<h3>Any examples in the wild?</h3>
+<h3>Are there any examples in the wild?</h3>
 
 <p>The twitter feed in my blog side-bar for one...</p>
 
@@ -296,9 +296,11 @@ class MyWidget extends BoundRootPanel {
 <p>You can find some more background on <code>GWT.Progressive</code> in some of my earlier blog posts: <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html">part-1</a>, <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html">part-2</a>, and <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html">part-3</a></p>
 ]]></description>
           <category>GWT</category>
-          <category>Progressive-Enhancement</category>
+          <category>Progressive</category>
+          <category>Enhancement</category>
           <category>Library</category>
-          <category>Apache2 License</category>
+          <category>Apache2</category>
+          <category>SEO</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 12 Nov 2011 00:00:00 +0000</pubDate>
       </item>
@@ -355,6 +357,8 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
 
 <p>The templating language is quite neat, and very easy to write - as I mentioned before, it helps if your model is a good fit for the view you are trying to render so you don't need to squeeze to many conditionals into the template. </p>
 
+<h2>Freemarker template for sitemap.xml</h2>
+
 <p>There are only 3 lines of FreeMarker markup in my sitemap template:</p>
 
 <ul>
@@ -392,6 +396,8 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
 
 &lt;/urlset&gt;
 </code></pre>
+
+<h2>Freemarker template for RSS 2.0</h2>
 
 <p>The RSS template is very similar to the sitemap template, as it deals with exactly the same model. Skipping the pre-amble, here's the part that actually involves any freemarker markup:</p>
 
@@ -1513,7 +1519,7 @@ jMock takes a little getting used to, as it involves quite a different way of th
 
 <p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
 
-<pre><code>// bind to the first &lt;div&gt; found by breadth-first 
+<pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
     // search of child elements
 @RuntimeUiField(tag="div") Label label;
 
@@ -1521,7 +1527,7 @@ jMock takes a little getting used to, as it involves quite a different way of th
     // found by breadth-first search
 @RuntimeUiField(cssClass="my-widget") Label label;
 
-// bind to first &lt;div&gt; with class="my-widget" 
+// bind to first &amp;lt;div&gt; with class="my-widget" 
     // found by breadth-first search
 @RuntimeUiField(tag="div", cssClass="my-widget") Label label;
 </code></pre>

@@ -6,9 +6,11 @@
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
           <meta name="keywords" content="GWT" itemprop="keywords">
-      <meta name="keywords" content="Progressive-Enhancement" itemprop="keywords">
+      <meta name="keywords" content="Progressive" itemprop="keywords">
+      <meta name="keywords" content="Enhancement" itemprop="keywords">
       <meta name="keywords" content="Library" itemprop="keywords">
-      <meta name="keywords" content="Apache2 License" itemprop="keywords">
+      <meta name="keywords" content="Apache2" itemprop="keywords">
+      <meta name="keywords" content="SEO" itemprop="keywords">
     <script type="text/javascript" src="google-analytics.js"></script>
   </head>
   <body>
@@ -36,7 +38,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,022">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,020">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
               <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
               <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
@@ -59,7 +61,7 @@
 <li>Make partial page-updates a breeze (replacing parts of the <code>DOM</code> with new server-generated content)</li>
 </ul>
 
-<h2>Show me how it works</h2>
+<h2>How GWT.Progressive works</h2>
 
 <h3>Element Binding</h3>
 
@@ -92,7 +94,7 @@ class MyWidget extends Composite {
 
 <p>Bind nested html to child widgets:</p>
 
-<pre><code>// bind the first &lt;h1&gt; tag we find by breadth first
+<pre><code>// bind the first &amp;lt;h1&gt; tag we find by breadth first
 // search of the DOM within our widget's root element
 @RuntimeUiWidget(tag="h1") MyHeaderWidget header;
 
@@ -103,7 +105,7 @@ class MyWidget extends Composite {
 
 <p>Bind repeated elements to a List of child widgets:</p>
 
-<pre><code>// bind all the &lt;img&gt; elements we find inside our
+<pre><code>// bind all the &amp;lt;img&gt; elements we find inside our
 // widget's root element to the list of Image widgets
 @RuntimeUiWidget(tag="img") List&lt;Image&gt; images;
 </code></pre>
@@ -179,6 +181,8 @@ private void someMethod() {
 }
 </code></pre>
 
+<h3>Partial Page Update callbacks</h3>
+
 <p>You can register callbacks to trigger when a partial update completes - successfully or otherwise. Here's a more complete partial update example:</p>
 
 <pre><code>@RootBinding(tag="div")
@@ -217,7 +221,7 @@ public class Partial extends BoundRootPanel
 }
 </code></pre>
 
-<h3>OK, Give me a complete example...</h3>
+<h3>Complete example - Progressive Enhancement with GWT</h3>
 
 <p>Here's the HTML we're going to enhance:</p>
 
@@ -279,9 +283,7 @@ class MyWidget extends BoundRootPanel {
 &lt;/module&gt;
 </code></pre>
 
-<h2>OK, I want to use it, so ...</h2>
-
-<h3>What are the rules?</h3>
+<h2>Rules of engagement</h2>
 
 <p><code>GWT.Progressive</code> requires that you follow a few simple rules to ensure that your widgets get "activated" correctly, integrated into the GWT/browser eventing system, etc.</p>
 
@@ -296,11 +298,11 @@ class MyWidget extends BoundRootPanel {
 
 <p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
 
-<h3>Where can I find more examples?</h3>
+<h3>Where can I find more examples of GWT.progressive?</h3>
 
 <p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
 
-<h3>Any examples in the wild?</h3>
+<h3>Are there any examples in the wild?</h3>
 
 <p>The twitter feed in my blog side-bar for one...</p>
 
@@ -332,9 +334,11 @@ class MyWidget extends BoundRootPanel {
 
               <ul class="keywords">
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Progressive-Enhancement">Progressive-Enhancement</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Progressive">Progressive</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Enhancement">Enhancement</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Library">Library</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Apache2 License">Apache2 License</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Apache2">Apache2</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>

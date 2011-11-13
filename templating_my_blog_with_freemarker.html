@@ -36,7 +36,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="885">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="898">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-11">November 11, 2011</time></span>
               <a itemprop="url" href="templating_my_blog_with_freemarker.html"><h1 itemprop="name" itemprop="headline">Templating my Blog with FreeMarker</h1></a>
               <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
@@ -88,6 +88,8 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
 
 <p>The templating language is quite neat, and very easy to write - as I mentioned before, it helps if your model is a good fit for the view you are trying to render so you don't need to squeeze to many conditionals into the template. </p>
 
+<h2>Freemarker template for sitemap.xml</h2>
+
 <p>There are only 3 lines of FreeMarker markup in my sitemap template:</p>
 
 <ul>
@@ -125,6 +127,8 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
 
 &lt;/urlset&gt;
 </code></pre>
+
+<h2>Freemarker template for RSS 2.0</h2>
 
 <p>The RSS template is very similar to the sitemap template, as it deals with exactly the same model. Skipping the pre-amble, here's the part that actually involves any freemarker markup:</p>
 

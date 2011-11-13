@@ -410,3 +410,27 @@ nav .next a, nav .prev a {
   border:1px dotted #bac7da;
   background-color:#dae7fa;    
 }
+
+.sh-comment {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
+  color:#060 !important; 
+}
+
+.sh-keyword {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
+  color:#603;        
+}
+
+.sh-literal {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
+  color:#00e;
+}
+
+.sh-annotation {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
+  color:#aab;
+}
