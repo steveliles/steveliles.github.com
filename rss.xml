@@ -13,6 +13,275 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Syntax Highlighting with GWT.Progressive]]></title>
+        <link><![CDATA[http://steveliles.github.com/syntax_highlighting_with_gwt_progressive.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/syntax_highlighting_with_gwt_progressive.html</guid>
+        <description><![CDATA[<p>There are many good syntax-highlighters available for progressively enhancing code on website's such as my blog. On my old blog I used <a href="http://alexgorbatchev.com/SyntaxHighlighter/">Alex Gorbachev's</a> - which is exceptionally good.</p>
+
+<p>For this blog, I really wanted to write my own. Why? Well, for the same reason I wrote the site-generation software that builds the blog from Markdown templates - because I love programming, and doing this stuff is FUN!</p>
+
+<p>Having just released my <code>GWT.Progressive</code> library I had two very good reasons to write a syntax-highlighter that works by progressive-enhancement:</p>
+
+<ol>
+<li>I need good examples of progressive enhancement written in <code>GWT</code> using <code>GWT.Progressive</code></li>
+<li>Those very same code-samples need syntax-highlighting to aid readability!</li>
+</ol>
+
+<p>For this first attempt I'm not setting out to write the world's greatest syntax-highlighter. My aims are more modest: merely to illustrate the <code>GWT.Progressive</code> library and add basic syntax-highlighting (Java) capabilities to my blog.</p>
+
+<p>The syntax-highlighter will work as follows:</p>
+
+<ol>
+<li>After the page is loaded, identify <code>&lt;pre&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt;</code> blocks on my blog.</li>
+<li>Try to ascertain if the text in the block is Java, or a similar language (e.g. JavaScript).</li>
+<li>Mark keywords, literals, comments, and a few other choice elements using inline html markup to add css classes, allowing the actual colours and styles to be selected independently of the process of identify the parts to highlight.</li>
+</ol>
+
+<p>The script that kicks this off is loaded by the very last line in the html body of each page on my blog:</p>
+
+<pre><code>&lt;script 
+  type="text/javascript" language="javascript" 
+  src="blog/blog.nocache.js"&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>The Java class that uses the <code>GWT.Progressive</code> library to scan for <code>&lt;pre&gt;&lt;code&gt;</code> blocks is, in full, as follows:</p>
+
+<pre><code>package com.sjl.blog.client.syntax;
+
+import com.google.gwt.core.client.*;
+import com.google.gwt.dom.client.*;
+import com.knowledgeview.gwt.activator.client.*;
+import com.knowledgeview.gwt.activator.client.widgets.*;
+
+@RootBinding(tag="code")
+public class Code extends BoundRootPanel {
+    interface MyActivator extends ElementActivator&lt;Code&gt;{}
+    static MyActivator activator = GWT.create(MyActivator.class);
+
+    static JavaSyntaxHighlighter highlighter = 
+        new JavaSyntaxHighlighter();
+
+    public Code(Element anElement) {
+        setElement(activator.activate(this, anElement));
+
+        if (isJavaCode(getElement().getInnerText())) {
+            getElement().setInnerHTML(
+                highlighter.highlight(getElement().getInnerText()));
+        }
+    }
+
+    private boolean isJavaCode(String aString) {
+        return !aString.trim().startsWith("&lt;");
+    }
+}
+</code></pre>
+
+<p>The <code>GWT</code> module descriptor looks like this:</p>
+
+<pre><code>&lt;module rename-to="blog"&gt;
+  &lt;inherits name="com.google.gwt.user.User"/&gt;
+  &lt;inherits name="com.google.gwt.user.Debug"/&gt;
+
+  &lt;inherits name="com.sjl.gwt.progressive.Progressive"/&gt;
+  &lt;entry-point class="com.sjl.blog.client.BlogApplication" /&gt;
+
+      &lt;!-- allows the script to be used cross domain --&gt;
+  &lt;add-linker name="xs" /&gt;
+&lt;/module&gt;
+</code></pre>
+
+<p>I will take the time to write a better highlighter some time in the future (using ANTLR or similar to generate a parser), but for now I knocked up a simple version using regular expressions.</p>
+
+<p>This highlighter was built by TDD'ing my way through highlighting the different components, starting simple with keywords. The design changed a few times along the way, but in total, including the <code>Code</code> class, the finished highlighter took around 90 minutes to build.</p>
+
+<p>The slowest part, actually, was round-trip testing and fixing "for real" with GWT production mode, since the <a href="http://google-web-toolkit.googlecode.com/svn/javadoc/2.4/com/google/gwt/regexp/shared/RegExp.html">difference in regular expression engines</a> between development and production mode caught me out.</p>
+
+<p>Here's the Java syntax highlighter in full:</p>
+
+<pre><code>public class JavaSyntaxHighlighter implements SyntaxHighlighter {
+    private List&amp;lt;Replacement&gt; replacements;
+
+    public JavaSyntaxHighlighter() {
+        replacements = new ArrayList&amp;lt;Replacement&gt;();
+
+        // order is important
+        replacements.add(new CommentReplacement());
+        replacements.add(new AnnotationReplacement());
+        replacements.add(new LiteralReplacement());
+        replacements.add(new KeywordReplacement());
+    }
+
+    public String highlight(String anInput) {
+        List&amp;lt;Component&gt; _components = new ArrayList&amp;lt;Component&gt;();
+        _components.add(new SplittableComponent(anInput));
+
+        for (Replacement _r : replacements) {
+        _components = _r.process(_components);
+        }
+
+        StringBuilder _sb = new StringBuilder();
+        for (Component _c : _components) {
+        _sb.append(_c);
+        }
+        return _sb.toString();
+    }
+}
+
+interface Component {
+    boolean canSplit();
+    String toString();
+}
+
+class SplittableComponent implements Component {
+    protected String value;
+
+    public SplittableComponent(String aValue) {
+        value = aValue;
+    }
+
+    public boolean canSplit() {
+        return true;
+    }
+
+    public String toString() {
+        return value;
+    }
+}
+
+class UnsplittableComponent extends SplittableComponent {
+    public UnsplittableComponent(String aValue) {
+        super(aValue);
+    }
+
+    public boolean canSplit() {
+        return false;
+    }
+}
+
+interface Replacement {
+    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; anInput);
+}
+
+abstract class AbstractReplacement implements Replacement {
+    private String cssClass;
+
+    public AbstractReplacement(String aCssClass) {
+        cssClass = aCssClass;
+    }
+
+    protected abstract String replace(String aString);
+
+    @Override
+    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; aComponents)
+    {
+        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
+        for (Component _c : aComponents) {
+        if (_c.canSplit()) {
+            String _replaced = replace(_c.toString());
+            _result.addAll(createComponents(_replaced, cssClass));
+        } else {
+            _result.add(_c);
+        }
+        }
+        return _result;
+    }
+
+    private List&amp;lt;Component&gt; createComponents(
+        String anInput, String aClass) {
+        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
+        for (String _s : anInput.split("\\[\\[\\[|\\]\\]\\]")) {
+        if (_s.startsWith("&amp;lt;span class=\"" + aClass)) {
+            _result.add(new UnsplittableComponent(_s));
+        } else {
+            _result.add(new SplittableComponent(_s));
+        }
+        }
+        return _result;
+    }
+
+    protected String replacement(String aClass) {
+        return "[ [ [&amp;lt;span class=\"" + aClass + "\"&amp;gt;$1&amp;lt;/span&amp;gt;] ] ]";
+    }
+}
+
+class KeywordReplacement extends AbstractReplacement
+{
+    public static String[] KEYWORDS = new String[] {
+        "class", "package", "import", "public", "private", "protected", 
+        "interface", "extends", "this", "implements", "throws", "try", 
+        "catch", "finally", "final", "return", "new", "void", "for", 
+        "if", "else", "while", "static", "transient", "synchronized", 
+        "byte", "short", "int ", "char ", "long ", "float ", "double ", 
+        "boolean ", "true", "false", "abstract", "volatile", "switch", 
+        "case"
+    };
+
+    public KeywordReplacement() {
+        super("sh-keyword");
+    }
+
+    protected String replace(String aString) {
+        String _result = aString;
+        for (String _k : KEYWORDS) {
+        _result = _result.replaceAll("(" + _k + ")", 
+                replacement("sh-keyword"));
+        }
+        return _result;
+    }
+}
+
+class LiteralReplacement extends AbstractReplacement {
+
+    public LiteralReplacement() {
+        super("sh-literal");
+    }
+
+    protected String replace(String aString) {
+        return aString.replaceAll("(\"[^\"]*\")", 
+            replacement("sh-literal"));
+    }
+}
+
+class CommentReplacement extends AbstractReplacement {
+    public CommentReplacement() {
+        super("sh-comment");
+    }
+
+    protected String replace(String aString) {
+        String _result = aString.replaceAll("(//.*)", 
+            replacement("sh-comment"));
+        _result = _result.replaceAll("(\\/\\*[\\*]?.*\\*\\/)", 
+            replacement("sh-comment"));
+        return _result;
+    }
+}
+
+class AnnotationReplacement extends AbstractReplacement {
+    public AnnotationReplacement() {
+        super("sh-annotation");
+    }
+
+    protected String replace(String aString) {
+        return aString.replaceAll("(@\\w+)", 
+            replacement("sh-annotation"));
+    }
+}
+</code></pre>
+
+<p>You can find out more about <code>GWT.Progressive</code> in the <a href="gwt_progressive.html">release announcement</a>, or at the <a href="https://github.com/steveliles/gwt-progressive">github repository</a>.</p>
+]]></description>
+          <category>syntax</category>
+          <category>highlight</category>
+          <category>java</category>
+          <category>GWT</category>
+          <category>progressive</category>
+          <category>enhancement</category>
+          <category>regexp</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sun, 13 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[gwt.progressive]]></title>
         <link><![CDATA[http://steveliles.github.com/gwt_progressive.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/gwt_progressive.html</guid>
@@ -273,13 +542,15 @@ class MyWidget extends BoundRootPanel {
 
 <p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
 
+<p>Also, make sure to use the "xs" linker by specifying <code>&lt;add-linker name="xs"/&gt;</code> in your gwt module descriptor for maximum compatibility.</p>
+
 <h3>Where can I find more examples of GWT.progressive?</h3>
 
 <p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
 
 <h3>Are there any examples in the wild?</h3>
 
-<p>The twitter feed in my blog side-bar for one...</p>
+<p>There are two examples on this page! - The Twitter feed in the sidebar, and the code syntax-highlighting are both implemented using <code>gwt.progressive</code>.</p>
 
 <h3>Can I use this in my products?</h3>
 
@@ -1488,7 +1759,7 @@ jMock takes a little getting used to, as it involves quite a different way of th
                 Window.alert("clicked!");
             }
         });
-    }   
+    }
 }
 </code></pre>
 
@@ -1520,15 +1791,15 @@ jMock takes a little getting used to, as it involves quite a different way of th
 <p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
 
 <pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
-    // search of child elements
+// search of child elements
 @RuntimeUiField(tag="div") Label label;
 
 // bind to first element with class="my-widget" 
-    // found by breadth-first search
+// found by breadth-first search
 @RuntimeUiField(cssClass="my-widget") Label label;
 
 // bind to first &amp;lt;div&gt; with class="my-widget" 
-    // found by breadth-first search
+// found by breadth-first search
 @RuntimeUiField(tag="div", cssClass="my-widget") Label label;
 </code></pre>
 

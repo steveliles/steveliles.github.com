@@ -40,7 +40,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,541">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,517">
               <span class="meta" itemprop="datePublished"><time datetime="2011-02-15">February 15, 2011</time></span>
               <a itemprop="url" href="progressive_enhancement_with_gwt_part_3.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 3</h1></a>
               <span itemprop="articleBody"><p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
@@ -68,7 +68,7 @@
                 Window.alert("clicked!");
             }
         });
-    }   
+    }
 }
 </code></pre>
 
@@ -100,15 +100,15 @@
 <p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
 
 <pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
-    // search of child elements
+// search of child elements
 @RuntimeUiField(tag="div") Label label;
 
 // bind to first element with class="my-widget" 
-    // found by breadth-first search
+// found by breadth-first search
 @RuntimeUiField(cssClass="my-widget") Label label;
 
 // bind to first &amp;lt;div&gt; with class="my-widget" 
-    // found by breadth-first search
+// found by breadth-first search
 @RuntimeUiField(tag="div", cssClass="my-widget") Label label;
 </code></pre>
 

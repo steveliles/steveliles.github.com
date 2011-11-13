@@ -32,7 +32,288 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,020">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,097">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-13">November 13, 2011</time></span>
+              <a itemprop="url" href="syntax_highlighting_with_gwt_progressive.html"><h1 itemprop="name" itemprop="headline">Syntax Highlighting with GWT.Progressive</h1></a>
+              <span itemprop="articleBody"><p>There are many good syntax-highlighters available for progressively enhancing code on website's such as my blog. On my old blog I used <a href="http://alexgorbatchev.com/SyntaxHighlighter/">Alex Gorbachev's</a> - which is exceptionally good.</p>
+
+<p>For this blog, I really wanted to write my own. Why? Well, for the same reason I wrote the site-generation software that builds the blog from Markdown templates - because I love programming, and doing this stuff is FUN!</p>
+
+<p>Having just released my <code>GWT.Progressive</code> library I had two very good reasons to write a syntax-highlighter that works by progressive-enhancement:</p>
+
+<ol>
+<li>I need good examples of progressive enhancement written in <code>GWT</code> using <code>GWT.Progressive</code></li>
+<li>Those very same code-samples need syntax-highlighting to aid readability!</li>
+</ol>
+
+<p>For this first attempt I'm not setting out to write the world's greatest syntax-highlighter. My aims are more modest: merely to illustrate the <code>GWT.Progressive</code> library and add basic syntax-highlighting (Java) capabilities to my blog.</p>
+
+<p>The syntax-highlighter will work as follows:</p>
+
+<ol>
+<li>After the page is loaded, identify <code>&lt;pre&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt;</code> blocks on my blog.</li>
+<li>Try to ascertain if the text in the block is Java, or a similar language (e.g. JavaScript).</li>
+<li>Mark keywords, literals, comments, and a few other choice elements using inline html markup to add css classes, allowing the actual colours and styles to be selected independently of the process of identify the parts to highlight.</li>
+</ol>
+
+<p>The script that kicks this off is loaded by the very last line in the html body of each page on my blog:</p>
+
+<pre><code>&lt;script 
+  type="text/javascript" language="javascript" 
+  src="blog/blog.nocache.js"&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>The Java class that uses the <code>GWT.Progressive</code> library to scan for <code>&lt;pre&gt;&lt;code&gt;</code> blocks is, in full, as follows:</p>
+
+<pre><code>package com.sjl.blog.client.syntax;
+
+import com.google.gwt.core.client.*;
+import com.google.gwt.dom.client.*;
+import com.knowledgeview.gwt.activator.client.*;
+import com.knowledgeview.gwt.activator.client.widgets.*;
+
+@RootBinding(tag="code")
+public class Code extends BoundRootPanel {
+    interface MyActivator extends ElementActivator&lt;Code&gt;{}
+    static MyActivator activator = GWT.create(MyActivator.class);
+
+    static JavaSyntaxHighlighter highlighter = 
+        new JavaSyntaxHighlighter();
+
+    public Code(Element anElement) {
+        setElement(activator.activate(this, anElement));
+
+        if (isJavaCode(getElement().getInnerText())) {
+            getElement().setInnerHTML(
+                highlighter.highlight(getElement().getInnerText()));
+        }
+    }
+
+    private boolean isJavaCode(String aString) {
+        return !aString.trim().startsWith("&lt;");
+    }
+}
+</code></pre>
+
+<p>The <code>GWT</code> module descriptor looks like this:</p>
+
+<pre><code>&lt;module rename-to="blog"&gt;
+  &lt;inherits name="com.google.gwt.user.User"/&gt;
+  &lt;inherits name="com.google.gwt.user.Debug"/&gt;
+
+  &lt;inherits name="com.sjl.gwt.progressive.Progressive"/&gt;
+  &lt;entry-point class="com.sjl.blog.client.BlogApplication" /&gt;
+
+      &lt;!-- allows the script to be used cross domain --&gt;
+  &lt;add-linker name="xs" /&gt;
+&lt;/module&gt;
+</code></pre>
+
+<p>I will take the time to write a better highlighter some time in the future (using ANTLR or similar to generate a parser), but for now I knocked up a simple version using regular expressions.</p>
+
+<p>This highlighter was built by TDD'ing my way through highlighting the different components, starting simple with keywords. The design changed a few times along the way, but in total, including the <code>Code</code> class, the finished highlighter took around 90 minutes to build.</p>
+
+<p>The slowest part, actually, was round-trip testing and fixing "for real" with GWT production mode, since the <a href="http://google-web-toolkit.googlecode.com/svn/javadoc/2.4/com/google/gwt/regexp/shared/RegExp.html">difference in regular expression engines</a> between development and production mode caught me out.</p>
+
+<p>Here's the Java syntax highlighter in full:</p>
+
+<pre><code>public class JavaSyntaxHighlighter implements SyntaxHighlighter {
+    private List&amp;lt;Replacement&gt; replacements;
+
+    public JavaSyntaxHighlighter() {
+        replacements = new ArrayList&amp;lt;Replacement&gt;();
+
+        // order is important
+        replacements.add(new CommentReplacement());
+        replacements.add(new AnnotationReplacement());
+        replacements.add(new LiteralReplacement());
+        replacements.add(new KeywordReplacement());
+    }
+
+    public String highlight(String anInput) {
+        List&amp;lt;Component&gt; _components = new ArrayList&amp;lt;Component&gt;();
+        _components.add(new SplittableComponent(anInput));
+
+        for (Replacement _r : replacements) {
+        _components = _r.process(_components);
+        }
+
+        StringBuilder _sb = new StringBuilder();
+        for (Component _c : _components) {
+        _sb.append(_c);
+        }
+        return _sb.toString();
+    }
+}
+
+interface Component {
+    boolean canSplit();
+    String toString();
+}
+
+class SplittableComponent implements Component {
+    protected String value;
+
+    public SplittableComponent(String aValue) {
+        value = aValue;
+    }
+
+    public boolean canSplit() {
+        return true;
+    }
+
+    public String toString() {
+        return value;
+    }
+}
+
+class UnsplittableComponent extends SplittableComponent {
+    public UnsplittableComponent(String aValue) {
+        super(aValue);
+    }
+
+    public boolean canSplit() {
+        return false;
+    }
+}
+
+interface Replacement {
+    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; anInput);
+}
+
+abstract class AbstractReplacement implements Replacement {
+    private String cssClass;
+
+    public AbstractReplacement(String aCssClass) {
+        cssClass = aCssClass;
+    }
+
+    protected abstract String replace(String aString);
+
+    @Override
+    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; aComponents)
+    {
+        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
+        for (Component _c : aComponents) {
+        if (_c.canSplit()) {
+            String _replaced = replace(_c.toString());
+            _result.addAll(createComponents(_replaced, cssClass));
+        } else {
+            _result.add(_c);
+        }
+        }
+        return _result;
+    }
+
+    private List&amp;lt;Component&gt; createComponents(
+        String anInput, String aClass) {
+        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
+        for (String _s : anInput.split("\\[\\[\\[|\\]\\]\\]")) {
+        if (_s.startsWith("&amp;lt;span class=\"" + aClass)) {
+            _result.add(new UnsplittableComponent(_s));
+        } else {
+            _result.add(new SplittableComponent(_s));
+        }
+        }
+        return _result;
+    }
+
+    protected String replacement(String aClass) {
+        return "[ [ [&amp;lt;span class=\"" + aClass + "\"&amp;gt;$1&amp;lt;/span&amp;gt;] ] ]";
+    }
+}
+
+class KeywordReplacement extends AbstractReplacement
+{
+    public static String[] KEYWORDS = new String[] {
+        "class", "package", "import", "public", "private", "protected", 
+        "interface", "extends", "this", "implements", "throws", "try", 
+        "catch", "finally", "final", "return", "new", "void", "for", 
+        "if", "else", "while", "static", "transient", "synchronized", 
+        "byte", "short", "int ", "char ", "long ", "float ", "double ", 
+        "boolean ", "true", "false", "abstract", "volatile", "switch", 
+        "case"
+    };
+
+    public KeywordReplacement() {
+        super("sh-keyword");
+    }
+
+    protected String replace(String aString) {
+        String _result = aString;
+        for (String _k : KEYWORDS) {
+        _result = _result.replaceAll("(" + _k + ")", 
+                replacement("sh-keyword"));
+        }
+        return _result;
+    }
+}
+
+class LiteralReplacement extends AbstractReplacement {
+
+    public LiteralReplacement() {
+        super("sh-literal");
+    }
+
+    protected String replace(String aString) {
+        return aString.replaceAll("(\"[^\"]*\")", 
+            replacement("sh-literal"));
+    }
+}
+
+class CommentReplacement extends AbstractReplacement {
+    public CommentReplacement() {
+        super("sh-comment");
+    }
+
+    protected String replace(String aString) {
+        String _result = aString.replaceAll("(//.*)", 
+            replacement("sh-comment"));
+        _result = _result.replaceAll("(\\/\\*[\\*]?.*\\*\\/)", 
+            replacement("sh-comment"));
+        return _result;
+    }
+}
+
+class AnnotationReplacement extends AbstractReplacement {
+    public AnnotationReplacement() {
+        super("sh-annotation");
+    }
+
+    protected String replace(String aString) {
+        return aString.replaceAll("(@\\w+)", 
+            replacement("sh-annotation"));
+    }
+}
+</code></pre>
+
+<p>You can find out more about <code>GWT.Progressive</code> in the <a href="gwt_progressive.html">release announcement</a>, or at the <a href="https://github.com/steveliles/gwt-progressive">github repository</a>.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=syntax">syntax</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=highlight">highlight</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive">progressive</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=enhancement">enhancement</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=regexp">regexp</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,055">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
               <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
               <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
@@ -292,13 +573,15 @@ class MyWidget extends BoundRootPanel {
 
 <p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
 
+<p>Also, make sure to use the "xs" linker by specifying <code>&lt;add-linker name="xs"/&gt;</code> in your gwt module descriptor for maximum compatibility.</p>
+
 <h3>Where can I find more examples of GWT.progressive?</h3>
 
 <p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
 
 <h3>Are there any examples in the wild?</h3>
 
-<p>The twitter feed in my blog side-bar for one...</p>
+<p>There are two examples on this page! - The Twitter feed in the sidebar, and the code syntax-highlighting are both implemented using <code>gwt.progressive</code>.</p>
 
 <h3>Can I use this in my products?</h3>
 
@@ -944,381 +1227,6 @@ Content-Length: 0
 
               <ul class="keywords">
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=steve liles">steve liles</a></li>
-              </ul>
-              <div style="clear:both"></div>
-            </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,551">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-09-08">September 08, 2011</time></span>
-              <a itemprop="url" href="my_first_android_app_desktop_widget.html"><h1 itemprop="name" itemprop="headline">My first Android app (desktop widget)</h1></a>
-              <span itemprop="articleBody"><p>Having spent quite a bit of time away from Eclipse lately I've been itching to play with some code again. During a short meeting this morning an idea hit me for a really simple Android desktop widget: a twitter search widget that you can drop on your desktop and configure with a hash-tag search.</p>
-
-<p>Here's how it looks in the Android emulator:</p>
-
-<p><img src="https://lh5.googleusercontent.com/-vquQDRX3D2Y/TmjCGIscAiI/AAAAAAAAHlw/g0nU2gdPnug/s815/tweet-widget.png" alt="Screenshot" /></p>
-
-<p>I know, not exactly eye-candy, but that wasn't really the point :)</p>
-
-<h3>The important pieces of the puzzle are:</h3>
-
-<ul>
-<li>A BroadcastReceiver that receives events telling the widget to update. Here I extended AppWidgetProvider to override onUpdate only.</li>
-<li>A Service that does the Twitter API request asynchronously - we don't want to use the UI thread and fail the responsiveness criteria</li>
-<li>The "widget info" descriptor xml</li>
-<li>Android manifest entries that register the Service and the broadcast receiver</li>
-<li>SAX ContentHandler implementation to parse the Tweet text from the atom response to the Twitter API request</li>
-</ul>
-
-<p>Here's the code, currently wired to display a search for "#uml"</p>
-
-<h4>The BroadcastReceiver</h4>
-
-<pre><code>import android.appwidget.*;
-import android.content.*;
-
-public class NewsTicker extends AppWidgetProvider
-{
-    @Override
-    public void onUpdate(Context aContext, 
-                             AppWidgetManager aAppWidgetManager, 
-                             int[] aAppWidgetIds)
-    {
-    super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
-    aContext.startService(
-                new Intent(aContext, NewsTickerDataService.class));
-    }
-}
-The Service
-public class NewsTickerDataService extends Service
-{
-    @Override
-    public void onStart(Intent aIntent, int aStartId)
-    {
-    super.onStart(aIntent, aStartId);
-
-    RemoteViews _views = buildUpdatedViews(this);
-
-    ComponentName _widget = 
-            new ComponentName(this, NewsTicker.class);
-    AppWidgetManager _manager = 
-                AppWidgetManager.getInstance(this);
-
-    _manager.updateAppWidget(_widget, _views);            
-    }
-
-    @Override
-    public IBinder onBind(Intent aParamIntent)
-    {
-    // not supporting binding
-
-    return null;
-    }
-
-    private RemoteViews buildUpdatedViews(Context aContext)
-    {
-    List&lt;Story&gt; _stories = getStories();
-
-    RemoteViews _result = new RemoteViews(
-            aContext.getPackageName(), 
-            R.layout.newsticker_widget
-        );
-
-    if (_stories.isEmpty())
-    {
-        _result.setTextViewText(R.id.title, 
-                    "Sadly there's nothing to read today.");
-    }
-    else
-    {
-        _result.setTextViewText(
-                R.id.title, _stories.get(0).getTitle());
-    }
-
-    return _result;
-    }
-
-    private List&lt;Story&gt; getStories()
-    {
-    try
-    {
-        URL _url = new URL("http://search.twitter.com" +
-                "/search.atom?q=%23uml&amp;" + 
-                "result_type=mixed&amp;count=5");
-        InputStream _in = _url.openStream();
-
-        return parse(new InputSource(_in));
-    }
-    catch (Exception anExc)
-    {
-        Log.e("NewsTicker", anExc.getMessage(), anExc);
-        return new ArrayList&lt;Story&gt;();
-    }                        
-    }
-
-    private List&lt;Story&gt; parse(InputSource aSource)
-    throws Exception
-    {
-    SAXParserFactory _f = SAXParserFactory.newInstance();
-    SAXParser _p = _f.newSAXParser();
-    XMLReader _r = _p.getXMLReader();
-
-    AbstractParser _h = new AtomParser();
-    _r.setContentHandler(_h);
-
-    _r.parse(aSource);
-
-    return _h.getStories();
-    }
-}
-</code></pre>
-
-<h4>The SAX ContentHandler</h4>
-
-<pre><code>package com.knowledgeview.android.ticker.parse;
-
-import java.util.*;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-
-import com.knowledgeview.android.ticker.*;
-
-public abstract class AbstractParser extends DefaultHandler
-{
-    static interface Handler
-    {
-    Handler startElement(String aName);     
-    Handler characters(char[] aChars, int aStart, int aLength);
-    Handler endElement(String aName);
-    }
-
-    public static AbstractParser newAtomParser()
-    {
-    return new AbstractParser() 
-    {
-        protected String getStoryElementName()
-        {
-            return "entry";
-        }
-    };
-    }
-
-    private Handler handler;
-    private List&lt;Story&gt; stories;
-
-    public AbstractParser()
-    {
-    stories = new ArrayList&lt;Story&gt;();        
-    handler = newDefaultHandler();
-    }
-
-    protected abstract String getStoryElementName();
-
-    @Override
-    public void startElement(String aUri, String aLocalName, 
-            String aQName, Attributes aAttributes) 
-    throws SAXException
-    {
-    handler = handler.startElement(aLocalName);        
-    }
-
-    @Override
-    public void characters(char[] aCh, int aStart, int aLength) 
-    throws SAXException
-    {
-    handler = handler.characters(aCh, aStart, aLength);
-    }
-
-    @Override
-    public void endElement(
-        String aUri, String aLocalName, String aQName) 
-    throws SAXException
-    {
-    handler = handler.endElement(aLocalName);
-    }
-
-    public List&lt;Story&gt; getStories()
-    {
-    return stories;
-    }
-
-    private Handler newDefaultHandler()
-    {
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            if (aName.equals(getStoryElementName()))
-            {
-                return newItemHandler(this);
-            }
-            return this;
-        }
-
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            return this;
-        }
-
-        @Override
-        public Handler endElement(String aName)
-        {
-            return this;
-        }
-    };
-    }
-
-    private Handler newItemHandler(final Handler aParent)
-    {
-    stories.add(new StoryImpl());
-
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            if ("title".equals(aName))
-            {
-                return newTitleHandler(this);
-            }
-            return this;
-        }
-
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            return this;
-        }
-
-        @Override
-        public Handler endElement(String aName)
-        {
-            if (getStoryElementName().equals(aName))
-            {
-                return aParent;
-            }
-            return this;
-        }
-    };
-    }
-
-    private Handler newTitleHandler(final Handler aParent)
-    {
-    final StringBuilder _title = new StringBuilder();
-
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            return this;
-        }
-
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            _title.append(aChars, aStart, aLength);
-            return this;
-        }
-
-        @Override
-        public Handler endElement(String aName)
-        {
-            if ("title".equals(aName))
-            {
-                StoryImpl _s = (StoryImpl) 
-                            stories.get(stories.size()-1);
-                _s.setTitle(_title.toString());
-                return aParent;
-            }
-
-            return this;
-        }
-    };
-    }
-}
-</code></pre>
-
-<h4>The Android Manifest</h4>
-
-<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;manifest 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.knowledgeview.android.ticker"
-    android:versionCode="1"
-    android:versionName="1.0"&gt;
-  &lt;uses-sdk android:minSdkVersion="7" /&gt;
-  &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
-  &lt;application 
-        android:icon="@drawable/icon" 
-        android:label="@string/app_name"&gt;
-    &lt;receiver android:name=".NewsTicker"&gt;
-      &lt;intent-filter&gt;
-    &lt;action 
-          android:name="android.appwidget.action.APPWIDGET_UPDATE"/&gt;
-      &lt;/intent-filter&gt;
-      &lt;meta-data 
-            android:name="android.appwidget.provider"
-    android:resource="@xml/newsticker_widget_info"/&gt;
-    &lt;/receiver&gt;
-    &lt;service android:name=".NewsTickerDataService"/&gt;
-  &lt;/application&gt;
-&lt;/manifest&gt;
-</code></pre>
-
-<h4>The Widget descriptor</h4>
-
-<pre><code>&lt;appwidget-provider 
-      xmlns:android="http://schemas.android.com/apk/res/android"
-  android:minWidth="294dp"
-  android:minHeight="72dp"
-  android:updatePeriodMillis="86400000"
-  android:initialLayout="@layout/newsticker_widget"&gt;
-&lt;/appwidget-provider&gt;
-</code></pre>
-
-<h4>The layout descriptor</h4>
-
-<pre><code>&lt;LinearLayout 
-      android:id="@+id/linearLayout1" 
-      android:layout_width="fill_parent" 
-      android:layout_height="fill_parent" 
-      xmlns:android="http://schemas.android.com/apk/res/android"&gt;
-  &lt;TextView
-    android:textAppearance="?android:attr/textAppearanceSmall"
-    android:id="@+id/title"
-    android:text="TextView"
-    android:textSize="10sp"
-    android:textColor="#fff"
-    android:layout_height="60dp"
-    android:layout_width="fill_parent"
-    android:background="#c333"
-    android:padding="3dp"
-    android:layout_margin="5dp"&gt;
-  &lt;/TextView&gt;
-&lt;/LinearLayout&gt;
-</code></pre>
-</span>
-
-              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
-              <script type="text/javascript">
-                window.___gcfg = {lang: 'en-GB'};
-
-                (function() {
-                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                  po.src = 'https://apis.google.com/js/plusone.js';
-                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-                })();
-              </script-->
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Desktop Widget">Desktop Widget</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Twitter">Twitter</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>

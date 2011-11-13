@@ -38,7 +38,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,020">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,055">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
               <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
               <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
@@ -298,13 +298,15 @@ class MyWidget extends BoundRootPanel {
 
 <p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
 
+<p>Also, make sure to use the "xs" linker by specifying <code>&lt;add-linker name="xs"/&gt;</code> in your gwt module descriptor for maximum compatibility.</p>
+
 <h3>Where can I find more examples of GWT.progressive?</h3>
 
 <p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
 
 <h3>Are there any examples in the wild?</h3>
 
-<p>The twitter feed in my blog side-bar for one...</p>
+<p>There are two examples on this page! - The Twitter feed in the sidebar, and the code syntax-highlighting are both implemented using <code>gwt.progressive</code>.</p>
 
 <h3>Can I use this in my products?</h3>
 
@@ -360,7 +362,7 @@ class MyWidget extends BoundRootPanel {
       </div>
       <nav>
         <div class="links">
-          
+          <div class="prev"><a title="previous" href="syntax_highlighting_with_gwt_progressive.html">Syntax Highlighting with GW...</a></div>
           <div class="next"><a title="next" href="templating_my_blog_with_freemarker.html">Templating my Blog with Fre...</a></div>
         </div>
       </nav>
