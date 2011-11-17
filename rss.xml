@@ -13,9 +13,9 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
-        <title><![CDATA[Image Processing with Java 2D]]></title>
-        <link><![CDATA[http://steveliles.github.com/image_processing_with_java_2d.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/image_processing_with_java_2d.html</guid>
+        <title><![CDATA[Creating a "Vectorisation" effect with Java2D]]></title>
+        <link><![CDATA[http://steveliles.github.com/creating_a_vectorisation_effect_with_java2d.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/creating_a_vectorisation_effect_with_java2d.html</guid>
         <description><![CDATA[<p>On my <a href="http://steveliles.github.com/about_me.html">about me</a> page I have a picture of myself wearing a stupid hat and an even more stupid grin. This picture started out as an old photograph from which I removed the background using GIMP, then vectorized using an online tool called <a href="http://vectormagic.com/home">Vector Magic</a>.</p>
 
 <p>Vector Magic is a very cool tool - it converts bitmap's to vector images by "tracing" the bitmap. Once vectorised you can rescale the image as large as you like without losing the smooth edges.</p>
