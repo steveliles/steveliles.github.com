@@ -35,7 +35,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,551">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,904">
               <span class="meta" itemprop="datePublished"><time datetime="2011-09-08">September 08, 2011</time></span>
               <a itemprop="url" href="my_first_android_app_desktop_widget.html"><h1 itemprop="name" itemprop="headline">My first Android app (desktop widget)</h1></a>
               <span itemprop="articleBody"><p>Having spent quite a bit of time away from Eclipse lately I've been itching to play with some code again. During a short meeting this morning an idea hit me for a really simple Android desktop widget: a twitter search widget that you can drop on your desktop and configure with a hash-tag search.</p>
@@ -60,273 +60,215 @@
 
 <h4>The BroadcastReceiver</h4>
 
-<pre><code>import android.appwidget.*;
-import android.content.*;
-
-public class NewsTicker extends AppWidgetProvider
-{
+<pre><code>public class NewsTicker extends AppWidgetProvider {
     @Override
     public void onUpdate(Context aContext, 
-                             AppWidgetManager aAppWidgetManager, 
-                             int[] aAppWidgetIds)
-    {
-    super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
-    aContext.startService(
-                new Intent(aContext, NewsTickerDataService.class));
+        AppWidgetManager aAppWidgetManager, 
+        int[] aAppWidgetIds) {
+        super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
+        aContext.startService(
+            new Intent(aContext, NewsTickerDataService.class));
     }
 }
-The Service
-public class NewsTickerDataService extends Service
-{
+</code></pre>
+
+<h4>The Service</h4>
+
+<pre><code>public class NewsTickerDataService extends Service {
+
     @Override
-    public void onStart(Intent aIntent, int aStartId)
-    {
-    super.onStart(aIntent, aStartId);
-
-    RemoteViews _views = buildUpdatedViews(this);
-
-    ComponentName _widget = 
+    public void onStart(Intent aIntent, int aStartId) {
+        super.onStart(aIntent, aStartId);   
+        RemoteViews _views = buildUpdatedViews(this);   
+        ComponentName _widget = 
             new ComponentName(this, NewsTicker.class);
-    AppWidgetManager _manager = 
-                AppWidgetManager.getInstance(this);
-
-    _manager.updateAppWidget(_widget, _views);            
+        AppWidgetManager _manager = 
+            AppWidgetManager.getInstance(this); 
+        _manager.updateAppWidget(_widget, _views);
     }
 
     @Override
-    public IBinder onBind(Intent aParamIntent)
-    {
-    // not supporting binding
-
-    return null;
+    public IBinder onBind(Intent aParamIntent) {
+        // not supporting binding   
+        return null;
     }
 
-    private RemoteViews buildUpdatedViews(Context aContext)
-    {
-    List&lt;Story&gt; _stories = getStories();
-
-    RemoteViews _result = new RemoteViews(
+    private RemoteViews buildUpdatedViews(Context aContext) {
+        List&amp;lt;Story&gt; _stories = getStories();
+        RemoteViews _result = new RemoteViews(
             aContext.getPackageName(), 
             R.layout.newsticker_widget
         );
 
-    if (_stories.isEmpty())
-    {
-        _result.setTextViewText(R.id.title, 
-                    "Sadly there's nothing to read today.");
-    }
-    else
-    {
-        _result.setTextViewText(
+        if (_stories.isEmpty()) {
+            _result.setTextViewText(R.id.title, 
+                "Sadly there's nothing to read today.");
+        } else {
+            _result.setTextViewText(
                 R.id.title, _stories.get(0).getTitle());
+        }
+        return _result;
     }
 
-    return _result;
-    }
-
-    private List&lt;Story&gt; getStories()
-    {
-    try
-    {
-        URL _url = new URL("http://search.twitter.com" +
+    private List&amp;lt;Story&gt; getStories() {
+        try {
+            URL _url = new URL("http://search.twitter.com" +
                 "/search.atom?q=%23uml&amp;" + 
-                "result_type=mixed&amp;count=5");
-        InputStream _in = _url.openStream();
-
-        return parse(new InputSource(_in));
-    }
-    catch (Exception anExc)
-    {
-        Log.e("NewsTicker", anExc.getMessage(), anExc);
-        return new ArrayList&lt;Story&gt;();
-    }                        
+                "result_type=mixed&amp;count=5"
+            );
+            InputStream _in = _url.openStream();
+            return parse(new InputSource(_in));
+        } catch (Exception anExc) {
+            Log.e("NewsTicker", anExc.getMessage(), anExc);
+            return new ArrayList&amp;lt;Story&gt;();
+        }
     }
 
-    private List&lt;Story&gt; parse(InputSource aSource)
-    throws Exception
-    {
-    SAXParserFactory _f = SAXParserFactory.newInstance();
-    SAXParser _p = _f.newSAXParser();
-    XMLReader _r = _p.getXMLReader();
+    private List&amp;lt;Story&gt; parse(InputSource aSource)
+    throws Exception {
+        SAXParserFactory _f = SAXParserFactory.newInstance();
+        SAXParser _p = _f.newSAXParser();
+        XMLReader _r = _p.getXMLReader();
 
-    AbstractParser _h = new AtomParser();
-    _r.setContentHandler(_h);
+        AbstractParser _h = new AtomParser();
+        _r.setContentHandler(_h);   
+        _r.parse(aSource);
 
-    _r.parse(aSource);
-
-    return _h.getStories();
+        return _h.getStories();
     }
 }
 </code></pre>
 
 <h4>The SAX ContentHandler</h4>
 
-<pre><code>package com.knowledgeview.android.ticker.parse;
+<pre><code>public abstract class AbstractParser extends DefaultHandler {
 
-import java.util.*;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-
-import com.knowledgeview.android.ticker.*;
-
-public abstract class AbstractParser extends DefaultHandler
-{
-    static interface Handler
-    {
-    Handler startElement(String aName);     
-    Handler characters(char[] aChars, int aStart, int aLength);
-    Handler endElement(String aName);
+    static interface Handler {
+        Handler startElement(String aName);
+        Handler characters(char[] aChars, int aStart, int aLength);
+        Handler endElement(String aName);
     }
 
-    public static AbstractParser newAtomParser()
-    {
-    return new AbstractParser() 
-    {
-        protected String getStoryElementName()
-        {
-            return "entry";
-        }
-    };
+    public static AbstractParser newAtomParser() {
+        return new AbstractParser() {
+            protected String getStoryElementName() {
+                return "entry";
+            }
+        };
     }
 
     private Handler handler;
-    private List&lt;Story&gt; stories;
+    private List&amp;lt;Story&gt; stories;
 
-    public AbstractParser()
-    {
-    stories = new ArrayList&lt;Story&gt;();        
-    handler = newDefaultHandler();
+    public AbstractParser() {
+        stories = new ArrayList&amp;lt;Story&gt;();
+        handler = newDefaultHandler();
     }
 
     protected abstract String getStoryElementName();
 
     @Override
-    public void startElement(String aUri, String aLocalName, 
-            String aQName, Attributes aAttributes) 
-    throws SAXException
-    {
-    handler = handler.startElement(aLocalName);        
+    public void startElement(
+        String aUri, String aLocalName, 
+        String aQName, Attributes aAttributes) 
+    throws SAXException {
+        handler = handler.startElement(aLocalName);
     }
 
     @Override
     public void characters(char[] aCh, int aStart, int aLength) 
-    throws SAXException
-    {
-    handler = handler.characters(aCh, aStart, aLength);
+    throws SAXException {
+        handler = handler.characters(aCh, aStart, aLength);
     }
 
     @Override
-    public void endElement(
-        String aUri, String aLocalName, String aQName) 
-    throws SAXException
-    {
-    handler = handler.endElement(aLocalName);
+    public void endElement(String aUri, String aLocalName, String aQName) 
+    throws SAXException {
+        handler = handler.endElement(aLocalName);
     }
 
-    public List&lt;Story&gt; getStories()
-    {
-    return stories;
+    public List&amp;lt;Story&gt; getStories() {
+        return stories;
     }
 
-    private Handler newDefaultHandler()
-    {
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            if (aName.equals(getStoryElementName()))
-            {
-                return newItemHandler(this);
+    private Handler newDefaultHandler() {
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if (aName.equals(getStoryElementName())) {
+                    return newItemHandler(this);
+                }
+                return this;
             }
-            return this;
-        }
 
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            return this;
-        }
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
+            }
 
-        @Override
-        public Handler endElement(String aName)
-        {
-            return this;
-        }
-    };
+            @Override
+            public Handler endElement(String aName) {
+                return this;
+            }
+        };
     }
 
-    private Handler newItemHandler(final Handler aParent)
-    {
-    stories.add(new StoryImpl());
+    private Handler newItemHandler(final Handler aParent) {
+        stories.add(new StoryImpl());
 
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            if ("title".equals(aName))
-            {
-                return newTitleHandler(this);
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if ("title".equals(aName)) {
+                    return newTitleHandler(this);
+                }
+                return this;
             }
-            return this;
-        }
 
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            return this;
-        }
-
-        @Override
-        public Handler endElement(String aName)
-        {
-            if (getStoryElementName().equals(aName))
-            {
-                return aParent;
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
             }
-            return this;
-        }
-    };
+
+            @Override
+            public Handler endElement(String aName) {
+                if (getStoryElementName().equals(aName)) {
+                    return aParent;
+                }
+                return this;
+            }
+        };
     }
 
-    private Handler newTitleHandler(final Handler aParent)
-    {
-    final StringBuilder _title = new StringBuilder();
+    private Handler newTitleHandler(final Handler aParent) {
+        final StringBuilder _title = new StringBuilder();
 
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            return this;
-        }
-
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            _title.append(aChars, aStart, aLength);
-            return this;
-        }
-
-        @Override
-        public Handler endElement(String aName)
-        {
-            if ("title".equals(aName))
-            {
-                StoryImpl _s = (StoryImpl) 
-                            stories.get(stories.size()-1);
-                _s.setTitle(_title.toString());
-                return aParent;
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                return this;
             }
 
-            return this;
-        }
-    };
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                _title.append(aChars, aStart, aLength);
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                if ("title".equals(aName)) {
+                    StoryImpl _s = (StoryImpl) 
+                    stories.get(stories.size()-1);
+                    _s.setTitle(_title.toString());
+                    return aParent;
+                }
+                return this;
+            }
+        };
     }
 }
 </code></pre>

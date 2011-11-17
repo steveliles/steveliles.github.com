@@ -13,66 +13,6 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
-        <title><![CDATA[Mortgage/Loan Overpayment Calculator]]></title>
-        <link><![CDATA[http://steveliles.github.com/mortgage_loan_overpayment_calculator.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/mortgage_loan_overpayment_calculator.html</guid>
-        <description><![CDATA[<p>A few weeks back I was talking with someone who was looking into over-paying a loan. The premise is that, provided your lender allows overpayments, by over-paying you can save a fortune in interest payments.</p>
-
-<p>The amount you can save isn't all that straight-forward to work out, due to the miracle that is compound interest. I knocked up a quick <a href="http://steveliles.website.s3-website-eu-west-1.amazonaws.com/">overpayment calculator</a> using <code>gwt.progressive</code>, which I'm hosting at Amazon S3 for now as it doesn't feel right to abuse GitHub's hospitality for something like this.</p>
-
-<p>Here's one of the classes that's being bound - or "activated" if you like - by gwt.progressive:</p>
-
-<pre><code>public class OverpaymentSummary extends Composite {
-    interface MyActivator extends WidgetActivator&amp;lt;OverpaymentSummary&gt;{}
-    MyActivator activator = GWT.create(MyActivator.class);
-
-    @RuntimeUiWidget(id="saving") InlineLabel saving;
-    @RuntimeUiWidget(id="years") InlineLabel years;
-    @RuntimeUiWidget(id="months") InlineLabel months;
-
-    public OverpaymentSummary(Element anElement) {
-        initWidget(activator.activate(this, anElement));
-    }
-
-    public void setResults(
-        Money aStandardTotal, int aStandardMonths, 
-        Money anOverpaidTotal, int anOverMonths) {
-        saving.setText(aStandardTotal.minus(anOverpaidTotal).toString());
-
-        int _monthsSaved = aStandardMonths - anOverMonths;
-        setYears(_monthsSaved/12);
-        setMonths(_monthsSaved - ((_monthsSaved/12)*12));
-
-        removeStyleName("hidden");
-    }
-
-    private void setYears(int aYears) {
-        years.setText(""+aYears);
-    }
-
-    private void setMonths(int aMonths) {
-        months.setText(""+aMonths);
-    }
-}
-</code></pre>
-
-<p>Which is bound onto html that looks like this:</p>
-
-<pre><code>&amp;lt;div class="summary hidden"&gt;By overpaying you could save
-&amp;lt;span id="saving"&gt;???&amp;lt;/span&gt;, and reduce your mortgage 
-term by &amp;lt;span id="years"&gt;?&amp;lt;/span&gt; years and 
-&amp;lt;span id="months"&gt;?&amp;lt;/span&gt; months!&amp;lt;/div&gt;
-</code></pre>
-]]></description>
-          <category>Mortgage</category>
-          <category>Loan</category>
-          <category>Overpayment</category>
-          <category>Calculator</category>
-          <category>GWT</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 17 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
         <title><![CDATA[Creating a "Vectorisation" effect with Java2D]]></title>
         <link><![CDATA[http://steveliles.github.com/creating_a_vectorisation_effect_with_java2d.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/creating_a_vectorisation_effect_with_java2d.html</guid>
@@ -1525,273 +1465,215 @@ Content-Length: 0
 
 <h4>The BroadcastReceiver</h4>
 
-<pre><code>import android.appwidget.*;
-import android.content.*;
-
-public class NewsTicker extends AppWidgetProvider
-{
+<pre><code>public class NewsTicker extends AppWidgetProvider {
     @Override
     public void onUpdate(Context aContext, 
-                             AppWidgetManager aAppWidgetManager, 
-                             int[] aAppWidgetIds)
-    {
-    super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
-    aContext.startService(
-                new Intent(aContext, NewsTickerDataService.class));
+        AppWidgetManager aAppWidgetManager, 
+        int[] aAppWidgetIds) {
+        super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
+        aContext.startService(
+            new Intent(aContext, NewsTickerDataService.class));
     }
 }
-The Service
-public class NewsTickerDataService extends Service
-{
+</code></pre>
+
+<h4>The Service</h4>
+
+<pre><code>public class NewsTickerDataService extends Service {
+
     @Override
-    public void onStart(Intent aIntent, int aStartId)
-    {
-    super.onStart(aIntent, aStartId);
-
-    RemoteViews _views = buildUpdatedViews(this);
-
-    ComponentName _widget = 
+    public void onStart(Intent aIntent, int aStartId) {
+        super.onStart(aIntent, aStartId);   
+        RemoteViews _views = buildUpdatedViews(this);   
+        ComponentName _widget = 
             new ComponentName(this, NewsTicker.class);
-    AppWidgetManager _manager = 
-                AppWidgetManager.getInstance(this);
-
-    _manager.updateAppWidget(_widget, _views);            
+        AppWidgetManager _manager = 
+            AppWidgetManager.getInstance(this); 
+        _manager.updateAppWidget(_widget, _views);
     }
 
     @Override
-    public IBinder onBind(Intent aParamIntent)
-    {
-    // not supporting binding
-
-    return null;
+    public IBinder onBind(Intent aParamIntent) {
+        // not supporting binding   
+        return null;
     }
 
-    private RemoteViews buildUpdatedViews(Context aContext)
-    {
-    List&lt;Story&gt; _stories = getStories();
-
-    RemoteViews _result = new RemoteViews(
+    private RemoteViews buildUpdatedViews(Context aContext) {
+        List&amp;lt;Story&gt; _stories = getStories();
+        RemoteViews _result = new RemoteViews(
             aContext.getPackageName(), 
             R.layout.newsticker_widget
         );
 
-    if (_stories.isEmpty())
-    {
-        _result.setTextViewText(R.id.title, 
-                    "Sadly there's nothing to read today.");
-    }
-    else
-    {
-        _result.setTextViewText(
+        if (_stories.isEmpty()) {
+            _result.setTextViewText(R.id.title, 
+                "Sadly there's nothing to read today.");
+        } else {
+            _result.setTextViewText(
                 R.id.title, _stories.get(0).getTitle());
+        }
+        return _result;
     }
 
-    return _result;
-    }
-
-    private List&lt;Story&gt; getStories()
-    {
-    try
-    {
-        URL _url = new URL("http://search.twitter.com" +
+    private List&amp;lt;Story&gt; getStories() {
+        try {
+            URL _url = new URL("http://search.twitter.com" +
                 "/search.atom?q=%23uml&amp;" + 
-                "result_type=mixed&amp;count=5");
-        InputStream _in = _url.openStream();
-
-        return parse(new InputSource(_in));
-    }
-    catch (Exception anExc)
-    {
-        Log.e("NewsTicker", anExc.getMessage(), anExc);
-        return new ArrayList&lt;Story&gt;();
-    }                        
+                "result_type=mixed&amp;count=5"
+            );
+            InputStream _in = _url.openStream();
+            return parse(new InputSource(_in));
+        } catch (Exception anExc) {
+            Log.e("NewsTicker", anExc.getMessage(), anExc);
+            return new ArrayList&amp;lt;Story&gt;();
+        }
     }
 
-    private List&lt;Story&gt; parse(InputSource aSource)
-    throws Exception
-    {
-    SAXParserFactory _f = SAXParserFactory.newInstance();
-    SAXParser _p = _f.newSAXParser();
-    XMLReader _r = _p.getXMLReader();
+    private List&amp;lt;Story&gt; parse(InputSource aSource)
+    throws Exception {
+        SAXParserFactory _f = SAXParserFactory.newInstance();
+        SAXParser _p = _f.newSAXParser();
+        XMLReader _r = _p.getXMLReader();
 
-    AbstractParser _h = new AtomParser();
-    _r.setContentHandler(_h);
+        AbstractParser _h = new AtomParser();
+        _r.setContentHandler(_h);   
+        _r.parse(aSource);
 
-    _r.parse(aSource);
-
-    return _h.getStories();
+        return _h.getStories();
     }
 }
 </code></pre>
 
 <h4>The SAX ContentHandler</h4>
 
-<pre><code>package com.knowledgeview.android.ticker.parse;
+<pre><code>public abstract class AbstractParser extends DefaultHandler {
 
-import java.util.*;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-
-import com.knowledgeview.android.ticker.*;
-
-public abstract class AbstractParser extends DefaultHandler
-{
-    static interface Handler
-    {
-    Handler startElement(String aName);     
-    Handler characters(char[] aChars, int aStart, int aLength);
-    Handler endElement(String aName);
+    static interface Handler {
+        Handler startElement(String aName);
+        Handler characters(char[] aChars, int aStart, int aLength);
+        Handler endElement(String aName);
     }
 
-    public static AbstractParser newAtomParser()
-    {
-    return new AbstractParser() 
-    {
-        protected String getStoryElementName()
-        {
-            return "entry";
-        }
-    };
+    public static AbstractParser newAtomParser() {
+        return new AbstractParser() {
+            protected String getStoryElementName() {
+                return "entry";
+            }
+        };
     }
 
     private Handler handler;
-    private List&lt;Story&gt; stories;
+    private List&amp;lt;Story&gt; stories;
 
-    public AbstractParser()
-    {
-    stories = new ArrayList&lt;Story&gt;();        
-    handler = newDefaultHandler();
+    public AbstractParser() {
+        stories = new ArrayList&amp;lt;Story&gt;();
+        handler = newDefaultHandler();
     }
 
     protected abstract String getStoryElementName();
 
     @Override
-    public void startElement(String aUri, String aLocalName, 
-            String aQName, Attributes aAttributes) 
-    throws SAXException
-    {
-    handler = handler.startElement(aLocalName);        
+    public void startElement(
+        String aUri, String aLocalName, 
+        String aQName, Attributes aAttributes) 
+    throws SAXException {
+        handler = handler.startElement(aLocalName);
     }
 
     @Override
     public void characters(char[] aCh, int aStart, int aLength) 
-    throws SAXException
-    {
-    handler = handler.characters(aCh, aStart, aLength);
+    throws SAXException {
+        handler = handler.characters(aCh, aStart, aLength);
     }
 
     @Override
-    public void endElement(
-        String aUri, String aLocalName, String aQName) 
-    throws SAXException
-    {
-    handler = handler.endElement(aLocalName);
+    public void endElement(String aUri, String aLocalName, String aQName) 
+    throws SAXException {
+        handler = handler.endElement(aLocalName);
     }
 
-    public List&lt;Story&gt; getStories()
-    {
-    return stories;
+    public List&amp;lt;Story&gt; getStories() {
+        return stories;
     }
 
-    private Handler newDefaultHandler()
-    {
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            if (aName.equals(getStoryElementName()))
-            {
-                return newItemHandler(this);
+    private Handler newDefaultHandler() {
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if (aName.equals(getStoryElementName())) {
+                    return newItemHandler(this);
+                }
+                return this;
             }
-            return this;
-        }
 
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            return this;
-        }
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
+            }
 
-        @Override
-        public Handler endElement(String aName)
-        {
-            return this;
-        }
-    };
+            @Override
+            public Handler endElement(String aName) {
+                return this;
+            }
+        };
     }
 
-    private Handler newItemHandler(final Handler aParent)
-    {
-    stories.add(new StoryImpl());
+    private Handler newItemHandler(final Handler aParent) {
+        stories.add(new StoryImpl());
 
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            if ("title".equals(aName))
-            {
-                return newTitleHandler(this);
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if ("title".equals(aName)) {
+                    return newTitleHandler(this);
+                }
+                return this;
             }
-            return this;
-        }
 
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            return this;
-        }
-
-        @Override
-        public Handler endElement(String aName)
-        {
-            if (getStoryElementName().equals(aName))
-            {
-                return aParent;
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
             }
-            return this;
-        }
-    };
+
+            @Override
+            public Handler endElement(String aName) {
+                if (getStoryElementName().equals(aName)) {
+                    return aParent;
+                }
+                return this;
+            }
+        };
     }
 
-    private Handler newTitleHandler(final Handler aParent)
-    {
-    final StringBuilder _title = new StringBuilder();
+    private Handler newTitleHandler(final Handler aParent) {
+        final StringBuilder _title = new StringBuilder();
 
-    return new Handler()
-    {
-        @Override
-        public Handler startElement(String aName)
-        {
-            return this;
-        }
-
-        @Override
-        public Handler characters(
-                char[] aChars, int aStart, int aLength)
-        {
-            _title.append(aChars, aStart, aLength);
-            return this;
-        }
-
-        @Override
-        public Handler endElement(String aName)
-        {
-            if ("title".equals(aName))
-            {
-                StoryImpl _s = (StoryImpl) 
-                            stories.get(stories.size()-1);
-                _s.setTitle(_title.toString());
-                return aParent;
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                return this;
             }
 
-            return this;
-        }
-    };
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                _title.append(aChars, aStart, aLength);
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                if ("title".equals(aName)) {
+                    StoryImpl _s = (StoryImpl) 
+                    stories.get(stories.size()-1);
+                    _s.setTitle(_title.toString());
+                    return aParent;
+                }
+                return this;
+            }
+        };
     }
 }
 </code></pre>
