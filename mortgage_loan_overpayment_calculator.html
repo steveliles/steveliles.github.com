@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+          <meta name="keywords" content="Mortgage" itemprop="keywords">
+      <meta name="keywords" content="Loan" itemprop="keywords">
+      <meta name="keywords" content="Overpayment" itemprop="keywords">
+      <meta name="keywords" content="Calculator" itemprop="keywords">
+      <meta name="keywords" content="GWT" itemprop="keywords">
+    <script type="text/javascript" src="google-analytics.js"></script>
+  </head>
+  <body>
+    <div>
+      <header class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="about_me.html"><img src="images/lego.png"></a>          
+        </div>
+      </header>
+      <nav>
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954/posts?hl=en"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"/></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </nav>
+      <div class="content">
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="407">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-17">November 17, 2011</time></span>
+              <a itemprop="url" href="mortgage_loan_overpayment_calculator.html"><h1 itemprop="name" itemprop="headline">Mortgage/Loan Overpayment Calculator</h1></a>
+              <span itemprop="articleBody"><p>A few weeks back I was talking with someone who was looking into over-paying a loan. The premise is that, provided your lender allows overpayments, by over-paying you can save a fortune in interest payments.</p>
+
+<p>The amount you can save isn't all that straight-forward to work out, due to the miracle that is compound interest. I knocked up a quick <a href="http://steveliles.website.s3-website-eu-west-1.amazonaws.com/">overpayment calculator</a> using <code>gwt.progressive</code>, which I'm hosting at Amazon S3 for now as it doesn't feel right to abuse GitHub's hospitality for something like this.</p>
+
+<p>Here's one of the classes that's being bound - or "activated" if you like - by gwt.progressive:</p>
+
+<pre><code>public class OverpaymentSummary extends Composite {
+    interface MyActivator extends WidgetActivator&amp;lt;OverpaymentSummary&gt;{}
+    MyActivator activator = GWT.create(MyActivator.class);
+
+    @RuntimeUiWidget(id="saving") InlineLabel saving;
+    @RuntimeUiWidget(id="years") InlineLabel years;
+    @RuntimeUiWidget(id="months") InlineLabel months;
+
+    public OverpaymentSummary(Element anElement) {
+        initWidget(activator.activate(this, anElement));
+    }
+
+    public void setResults(
+        Money aStandardTotal, int aStandardMonths, 
+        Money anOverpaidTotal, int anOverMonths) {
+        saving.setText(aStandardTotal.minus(anOverpaidTotal).toString());
+
+        int _monthsSaved = aStandardMonths - anOverMonths;
+        setYears(_monthsSaved/12);
+        setMonths(_monthsSaved - ((_monthsSaved/12)*12));
+
+        removeStyleName("hidden");
+    }
+
+    private void setYears(int aYears) {
+        years.setText(""+aYears);
+    }
+
+    private void setMonths(int aMonths) {
+        months.setText(""+aMonths);
+    }
+}
+</code></pre>
+
+<p>Which is bound onto html that looks like this:</p>
+
+<pre><code>&amp;lt;div class="summary hidden"&gt;By overpaying you could save
+&amp;lt;span id="saving"&gt;???&amp;lt;/span&gt;, and reduce your mortgage 
+term by &amp;lt;span id="years"&gt;?&amp;lt;/span&gt; years and 
+&amp;lt;span id="months"&gt;?&amp;lt;/span&gt; months!&amp;lt;/div&gt;
+</code></pre>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Mortgage">Mortgage</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Loan">Loan</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Overpayment">Overpayment</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Calculator">Calculator</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="5" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav>
+        <div class="links">
+          
+          <div class="next"><a title="next" href="creating_a_vectorisation_effect_with_java2d.html">Creating a "Vectorisation" ...</a></div>
+        </div>
+      </nav>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

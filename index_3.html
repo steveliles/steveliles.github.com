@@ -32,6 +32,45 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="144">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
+              <a itemprop="url" href="gwt_widgets_with_html_id_attributes.html"><h1 itemprop="name" itemprop="headline">GWT Widgets with html id attributes</h1></a>
+              <span itemprop="articleBody"><p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
+
+<p>To make your widgets produce id attributes you need to invoke the <code>ensureDebugId</code> method with an id string, e.g.</p>
+
+<pre><code>Label myLabel = new Label("Say something");
+myLabel.ensureDebugId("myLabel");
+</code></pre>
+
+<p>Now, if you run that you still won't get any id attributes. The clue is in the method name <code>ensureDebugId</code>. You actually need to inherit the <code>Debug</code> module in your module descriptor (<code>.gwt.xml</code>) file.  The module to inherit is: </p>
+
+<pre><code>&lt;inherits name="com.google.gwt.user.Debug"/&gt;
+</code></pre>
+
+<p>Now if you view the source of your label you'll see that it has an id attribute, but you might be surprised that it doesn't quite match the id you supplied (<code>myLabel</code>). In fact it will say <code>gwt-debug-myLabel</code>.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=selenium">selenium</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
+              </ul>
+              <div style="clear:both"></div>
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,634">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
               <a itemprop="url" href="testing_gwt_apps_in_dev_mode_with_webdriver.html"><h1 itemprop="name" itemprop="headline">Testing GWT apps in dev-mode with WebDriver</h1></a>
