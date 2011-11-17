@@ -235,6 +235,15 @@ nav img {
   margin:auto;
 }
 
+article table {
+  width:100%;
+}
+
+article img {
+  vertical-align:middle;
+  margin:auto;
+}
+
 span.meta {
   font-family: 'Ubuntu Mono', sans-serif;
   font-size:18px;
@@ -412,17 +421,25 @@ nav .next a, nav .prev a {
 }
 
 .sh-comment {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
   color:#060 !important; 
 }
 
 .sh-keyword {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
   color:#603;        
 }
 
 .sh-literal {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
   color:#00e;
 }
 
 .sh-annotation {
+  font-family:'Ubuntu Mono', monospace;
+  font-size:15px; 
   color:#aab;
 }

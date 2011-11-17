@@ -235,6 +235,19 @@ nav img {
   margin:auto;
 }
 
+article table {
+  width:100%;
+}
+
+article img {
+  vertical-align:middle;
+  margin:auto;
+}
+
+.caption {
+  font-family:'Ubuntu Mono', sans-serif;
+}
+
 span.meta {
   font-family: 'Ubuntu Mono', sans-serif;
   font-size:18px;

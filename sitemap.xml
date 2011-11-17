@@ -15,6 +15,10 @@
   </url>  
 
       <url> 
+      <loc>http://steveliles.github.com/image_processing_with_java_2d.html</loc>
+      <changefreq>hourly</changefreq>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/syntax_highlighting_with_gwt_progressive.html</loc>
       <changefreq>hourly</changefreq>
     </url>
