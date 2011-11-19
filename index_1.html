@@ -34,6 +34,178 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,154" description="An overview of JavaScript Overlay Types, JavaScriptObject, JSNI and JSON parsing in general using GWT">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-10-12">October 12, 2011</time></span>
+              <a itemprop="url" href="gwt_javascriptobjects_javascript_overlays.html"><h1 itemprop="name" itemprop="headline">GWT JavaScriptObjects (Javascript Overlays)</h1></a>
+              <span itemprop="articleBody"><p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example <a href="http://code.google.com/webtoolkit/doc/latest/DevGuideCodingBasicsOverlay.html">this one</a>. The gist of it is, given some JSON like this:</p>
+
+<pre><code>{ "item": {
+    "id": 123,
+    "name": "cheese",
+    "type": "food"
+  }
+}
+</code></pre>
+
+<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us. </p>
+
+<h2>JavaScript Overlay Types</h2>
+
+<p>We do that by writing a JavaScript Overlay Type class that maps the native json data back to the the world of your Java code, and looks like this:</p>
+
+<pre><code>public class Item extends JavaScriptObject
+{
+    protected Item(){}
+
+    public final native Integer getId()/*-{ 
+        return this.id; 
+    }-*/;
+
+    public final native String getName()/*-{ 
+        return this.name; 
+    }-*/;
+
+    public final native String getType()/*-{ 
+        return this.id; 
+    }-*/;
+}
+</code></pre>
+
+<h2>JSNI Methods</h2>
+
+<p>Those three native methods are known in GWT-land as JSNI methods (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. </p>
+
+<p>In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
+
+<p>The return values from our JSNI can be Java's primitive wrappers or String, any class that extends JavaScriptObject (JSO), or one of a number of special JSO classes GWT provides such as JsArray, JsIterable, JsArrayString, etc.</p>
+
+<p>I have exclusively used jsni methods in my example above, but you can include pure java methods as well (provided they are final) - say, for example, we need to parse a date from some json:</p>
+
+<pre><code>public class Item extends JavaScriptObject
+{
+    private static final DateTimeFormat df = 
+        DateTimeFormat.getFormat("yyyyMMdd");
+
+    protected Item(){}
+
+    public final Date whenCreated() {
+        return df.parse(getCreateDateString());
+    }
+
+    public final native Integer getId()/*-{ 
+        return this.id; 
+    }-*/;
+
+    public final native String getName()/*-{ 
+        return this.name; 
+    }-*/;
+
+    public final native String getType()/*-{ 
+        return this.id; 
+    }-*/;
+
+    public final native String getCreateDateString()/*-{ 
+        return this.createDate; 
+    }-*/;
+}
+</code></pre>
+
+<h2>Mapping complex types</h2>
+
+<p>These are simple examples of course, but i've had no trouble mapping even the most complex JSON objects using JSO's. You can map arrays easily enough using the built in GWT JsArray types, like this:</p>
+
+<pre><code>public class Items extends JavaScriptObject
+{
+    protected Items(){}
+
+    public final native JsArray getItems()/*-{ 
+        return this.items; 
+    }-*/;
+}
+</code></pre>
+
+<p>Which would map the following JSON:</p>
+
+<pre><code>{ items: [
+  {
+    "id": 123,
+    "name": "cheese",
+    "type": "food"
+  },
+  {
+    "id": 456,
+    "name": "ham",
+    "type": "food"
+  },
+  {
+    "id": 789,
+    "name": "eggs",
+    "type": "food"
+  }]
+}
+</code></pre>
+
+<h2>JavaScriptObject rules</h2>
+
+<p>There are a couple of basic rules to follow:</p>
+
+<ul>
+<li>Must have a protected no-arg constructor</li>
+<li><em>All</em> methods must be "final"</li>
+<li>Must not have any instance fields</li>
+<li>May only implement a single Interface</li>
+</ul>
+
+<h2>JavaScriptObject "gotchas"</h2>
+
+<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise...</p>
+
+<p>The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
+
+<p>If you try to implement the same interface in more than one of your JSO's you don't (currently) get any warnings from the compiler ... instead you get crazy runtime behaviour due to the wrong JSO class's methods being invoked (because one of your JSO's will receive all method invocations for the interface, regardless of which class the method should have been invoked against).</p>
+
+<p>Interestingly I ran into a problem in the latest GWT release (2.4) that reported a very unhelpful error message (I'm sure the messages in earlier releases of GWT were much more helpful actually). Here's the error message I got:</p>
+
+<pre><code>java.lang.ClassFormatError: Illegal method name "$"
+ in class com/xxx/xxx/client/model/UserResult
+ at java.lang.ClassLoader.defineClass1(Native Method)
+ at java.lang.ClassLoader.defineClassCond(ClassLoader.java:631)
+ at java.lang.ClassLoader.defineClass(ClassLoader.java:615)
+ at java.lang.ClassLoader.defineClass(ClassLoader.java:465)
+ at com.google.gwt.dev.shell.CompilingClassLoader.findClass
+    (CompilingClassLoader.java:1085)
+ at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+ at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+</code></pre>
+
+<p>... as it turns out, the problem actually was that I broke one of the rules - I had a non-final method in my JavaScriptObject. Not a very helpful error message in this case, which is fairly unusual in my experience of GWT.</p>
+</span>
+
+              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
+              <script type="text/javascript">
+                window.___gcfg = {lang: 'en-GB'};
+
+                (function() {
+                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                  po.src = 'https://apis.google.com/js/plusone.js';
+                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                })();
+              </script-->
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JavaScript">JavaScript</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Overlay">Overlay</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSO">JSO</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSON">JSON</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Parsing">Parsing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSNI">JSNI</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="gwt_javascriptobjects_javascript_overlays.html#comments">Comment on this post</a>
+
+            </article>            
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="829" description="An essay on productivity and the state of flow">
               <span class="meta" itemprop="datePublished"><time datetime="2011-09-22">September 22, 2011</time></span>
               <a itemprop="url" href="on_flow_and_feeling_productive.html"><h1 itemprop="name" itemprop="headline">On 'Flow' and feeling productive</h1></a>
@@ -1023,78 +1195,6 @@ jMock takes a little getting used to, as it involves quite a different way of th
               <div style="clear:both"></div>
 
 	        <a href="installing_fonts_in_ubuntu.html#comments">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="738" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 2">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-12">February 12, 2011</time></span>
-              <a itemprop="url" href="progressive_enhancement_with_gwt_part_2.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 2</h1></a>
-              <span itemprop="articleBody"><p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
-
-<p>This is the second part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
-
-<p>Since my earlier post, I spent a little time (only a few hours really, so far) trying a few things out. Here's a smattering of things I learned...</p>
-
-<p>Scanning for elements and binding widgets onto them is easy. Making those widgets behave just like widgets in any normal GWT app needs a little more work.</p>
-
-<h3>Who's the daddy?</h3>
-
-<p>One big problem to get around is that normally GWT widgets are attached via a hierarchy of other widgets (parents) leading back to the RootPanel, whereas when you bind onto some arbitrary element that is already on the page you don't get this hierarchy for free.</p>
-
-<p>When widgets are added to a parent widget some magic happens to set up things like the eventing system. Without that magic you can add as much event-handling plumbing as you like, but it won't work because your widget isn't wired into the eventing system.</p>
-
-<p>Actually getting around this is not all that difficult. Simply invoking onAttach() will wire up your widget, though its a little unpleasant to have to do that.</p>
-
-<p>Another problem with the lack of hierarchy is, well, there's no hierarchy. Things that you would normally do in GWT widgets - like adding, removing or replacing child widgets - gets a little trickier. If you want to use the technique recursively (and why wouldn't you?), you need to allow widgets to bind to elements inside other widgets without causing them to be removed from and re-attached to the DOM, but crucially you still need to add them as 'logical' children of the parent widget, otherwise the parent knows nothing about the child widgets and can't do any of those "normal" operations with them.</p>
-
-<p>To do that there are two problems to overcome:</p>
-
-<ol>
-<li>The parent needs to have the children added to it, so that the set of child widgets is known and available for manipulation (say by extending ComplexPanel and using the getChildren() method).</li>
-<li>Some of the child widgets might need hard, typed references in the parent widget to allow direct manipulation of the child widget - just like in a "normal" GWT widget you would keep a reference to the Button you added in the constructor in order that you can bind ClickHandler's to it or toggle its enabled-ness.</li>
-</ol>
-
-<p>Point 1 is easily solved - any widget that wants to play this way needs to support adding other widgets without triggering an attachment to the current element. When you add a normal child widget to a normal  parent widget, the child is detached from its current parent - logically and physically - so that its html element is actually inserted into the DOM under the parent's element. This is not what we want when binding onto a template - we just want the logical attachment step, so we need to support an add method something like:</p>
-
-<pre><code>public void logicalAdd(Widget aWidget) {
-  getChildren().add(aWidget);
-  adopt(aWidget);     
-}
-</code></pre>
-
-<p>I've yet to try to solve point 2. So far I've built:</p>
-
-<ul>
-<li>Tools to help with scanning for elements to bind to, and then binding the right widget.</li>
-<li>Plumbing to allow recursively binding widgets with logical hierarchy intact (point 1 above).</li>
-<li>An example that binds widgets recursively - an outer container, an inner container, and a bunch of widgets inside that are manipulated by the inner container.</li>
-</ul>
-
-<p>I'll try to update the post with an example at some point. Meanwhile my next challenge is to solve point 2 such that widget developers can build their widgets in a fairly typical GWT way.</p>
-
-<p>As an aside, I lay awake for a while last night pondering the ability to give designers a client-side templating system, where they can write the html for a component once (declaring it to be a template, which may include recursive binding points for GWT-activated widgets) and then re-use it elsewhere within their html by reference to the template. I'm sure this would be possible, though its utility might extend only to mock-ups.</p>
-</span>
-
-              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
-              <script type="text/javascript">
-                window.___gcfg = {lang: 'en-GB'};
-
-                (function() {
-                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                  po.src = 'https://apis.google.com/js/plusone.js';
-                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-                })();
-              </script-->
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="progressive_enhancement_with_gwt_part_2.html#comments">Comment on this post</a>
 
             </article>            
         </div>

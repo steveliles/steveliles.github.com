@@ -15,6 +15,11 @@
   </url>  
 
       <url> 
+      <loc>http://steveliles.github.com/creating_a_vectorisation_effect_with_java2d_part_2.html</loc>
+      <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/mortgage_loan_overpayment_calculator.html</loc>
       <changefreq>hourly</changefreq>
       <priority>0.8</priority>
