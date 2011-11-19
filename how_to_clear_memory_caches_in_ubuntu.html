@@ -5,10 +5,11 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-          <meta name="keywords" content="ubuntu" itemprop="keywords">
-      <meta name="keywords" content="cache" itemprop="keywords">
-      <meta name="keywords" content="buffers" itemprop="keywords">
-      <meta name="keywords" content="memory" itemprop="keywords">
+          <meta name="keywords" content="ubuntu" itemprop="keywords"></meta>
+      <meta name="keywords" content="cache" itemprop="keywords"></meta>
+      <meta name="keywords" content="buffers" itemprop="keywords"></meta>
+      <meta name="keywords" content="memory" itemprop="keywords"></meta>
+    <meta name="description" content="command-line to quickly clear ubuntu memory buffers"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
     <title>How to clear memory caches in ubuntu</title>
   </head>
@@ -37,7 +38,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
               <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
               <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>

@@ -5,9 +5,10 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-          <meta name="keywords" content="GWT" itemprop="keywords">
-      <meta name="keywords" content="CSS" itemprop="keywords">
-      <meta name="keywords" content="CssResource" itemprop="keywords">
+          <meta name="keywords" content="GWT" itemprop="keywords"></meta>
+      <meta name="keywords" content="CSS" itemprop="keywords"></meta>
+      <meta name="keywords" content="CssResource" itemprop="keywords"></meta>
+    <meta name="description" content="Escaping non standard css properties for use in Google Web Toolkit CssResource"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
     <title>Using non-standard css properties in GWT</title>
   </head>
@@ -36,10 +37,10 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="66">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="68" description="Escaping non standard css properties for use in Google Web Toolkit CssResource">
               <span class="meta" itemprop="datePublished"><time datetime="2010-12-07">December 07, 2010</time></span>
               <a itemprop="url" href="using_non_standard_css_properties_in_gwt.html"><h1 itemprop="name" itemprop="headline">Using non-standard css properties in GWT</h1></a>
-              <span itemprop="articleBody"><p>Sometimes you'll want to use a non-standard CSS property in GWT - say to use rounded-corners on your borders using <code>-moz-border-radius</code> and <code>-webkit-border-radius</code>.</p>
+              <span itemprop="articleBody"><p>Sometimes you'll want to use a non-standard CSS property in GWT via CSSResource - say to use rounded-corners on your borders using <code>-moz-border-radius</code> and <code>-webkit-border-radius</code>.</p>
 
 <p>However, if you just plonk those properties in your CSSResource you're in for some warnings.  GWT doesn't like property names that start with "-".  The solution is very simple: escape the leading "-" with a "\", e.g. <code>\-moz-border-radius: 5px</code>.</p>
 </span>

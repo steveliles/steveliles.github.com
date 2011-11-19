@@ -1248,9 +1248,10 @@ Content-Length: 0
 
 <p>If you're in Beirut, are a serious Java or Objective-C hacker, and would like to work with us, drop a comment, contact <a href="http://uk.linkedin.com/in/steveliles">me</a> or <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel</a> via linked-in, or tweet me (<a href="http://twitter.com/#!/steveliles">@steveliles</a>)</p>
 ]]></description>
-          <category>Job Description</category>
           <category>Developer</category>
           <category>Architect</category>
+          <category>Engineer</category>
+          <category>Qualities</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Wed, 19 Oct 2011 00:00:00 +0100</pubDate>
       </item>
@@ -1258,7 +1259,7 @@ Content-Length: 0
         <title><![CDATA[GWT JavaScriptObjects (Javascript Overlays)]]></title>
         <link><![CDATA[http://steveliles.github.com/gwt_javascriptobjects_javascript_overlays.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/gwt_javascriptobjects_javascript_overlays.html</guid>
-        <description><![CDATA[<p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example this one. The gist of it is, given some JSON like this:</p>
+        <description><![CDATA[<p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example <a href="http://code.google.com/webtoolkit/doc/latest/DevGuideCodingBasicsOverlay.html">this one</a>. The gist of it is, given some JSON like this:</p>
 
 <pre><code>{ "item": {
     "id": 123,
@@ -1268,7 +1269,11 @@ Content-Length: 0
 }
 </code></pre>
 
-<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us, by writing a class that looks like this:</p>
+<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us. </p>
+
+<h2>JavaScript Overlay Types</h2>
+
+<p>We do that by writing a JavaScript Overlay Type class that maps the native json data back to the the world of your Java code, and looks like this:</p>
 
 <pre><code>public class Item extends JavaScriptObject
 {
@@ -1288,7 +1293,11 @@ Content-Length: 0
 }
 </code></pre>
 
-<p>Those three native methods are known in GWT-land as "JSNI" (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
+<h2>JSNI Methods</h2>
+
+<p>Those three native methods are known in GWT-land as JSNI methods (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. </p>
+
+<p>In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
 
 <p>The return values from our JSNI can be Java's primitive wrappers or String, any class that extends JavaScriptObject (JSO), or one of a number of special JSO classes GWT provides such as JsArray, JsIterable, JsArrayString, etc.</p>
 
@@ -1323,6 +1332,8 @@ Content-Length: 0
 }
 </code></pre>
 
+<h2>Mapping complex types</h2>
+
 <p>These are simple examples of course, but i've had no trouble mapping even the most complex JSON objects using JSO's. You can map arrays easily enough using the built in GWT JsArray types, like this:</p>
 
 <pre><code>public class Items extends JavaScriptObject
@@ -1356,6 +1367,8 @@ Content-Length: 0
 }
 </code></pre>
 
+<h2>JavaScriptObject rules</h2>
+
 <p>There are a couple of basic rules to follow:</p>
 
 <ul>
@@ -1365,7 +1378,11 @@ Content-Length: 0
 <li>May only implement a single Interface</li>
 </ul>
 
-<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise. The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
+<h2>JavaScriptObject "gotchas"</h2>
+
+<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise...</p>
+
+<p>The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
 
 <p>If you try to implement the same interface in more than one of your JSO's you don't (currently) get any warnings from the compiler ... instead you get crazy runtime behaviour due to the wrong JSO class's methods being invoked (because one of your JSO's will receive all method invocations for the interface, regardless of which class the method should have been invoked against).</p>
 
@@ -2087,7 +2104,9 @@ jMock takes a little getting used to, as it involves quite a different way of th
         <title><![CDATA[Progressive Enhancement with GWT, part 3]]></title>
         <link><![CDATA[http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html</guid>
-        <description><![CDATA[<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
+        <description><![CDATA[<p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
+
+<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
 
 <p>In my previous posts I described an idea for progressive enhancement using GWT -  "activating" server-generated html, to combine GWT goodness with an SEO friendly server-generated website, and my findings after some initial trials. </p>
 
@@ -2253,7 +2272,9 @@ jMock takes a little getting used to, as it involves quite a different way of th
         <title><![CDATA[Progressive Enhancement with GWT, part 2]]></title>
         <link><![CDATA[http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html</guid>
-        <description><![CDATA[<p>This is the second part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
+        <description><![CDATA[<p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
+
+<p>This is the second part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
 
 <p>Since my earlier post, I spent a little time (only a few hours really, so far) trying a few things out. Here's a smattering of things I learned...</p>
 
@@ -2495,7 +2516,7 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
 
 <p>The cubes you can see below are rendered when the page loads. The scenes are pretty simple, so render very quickly. You may have seen the cube configuration instead of the cubes for a short while until the javascript loaded, at which point the configuration is replaced by the rendered cubes.</p>
 
-<p>Configuring a cube to display is as simple as adding a <code>&lt;div&gt;</code> element like this:</p>
+<p>Configuring a cube to display is done <a href="http://steveliles.github.com/gwt_progressive.html">progressive enhancement</a> style -  simply by adding a <code>&lt;div&gt;</code> element like this:</p>
 
 <pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
   {"rubik-cube":{}, "camera":{}}}
@@ -2621,7 +2642,7 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
         <title><![CDATA[Using non-standard css properties in GWT]]></title>
         <link><![CDATA[http://steveliles.github.com/using_non_standard_css_properties_in_gwt.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/using_non_standard_css_properties_in_gwt.html</guid>
-        <description><![CDATA[<p>Sometimes you'll want to use a non-standard CSS property in GWT - say to use rounded-corners on your borders using <code>-moz-border-radius</code> and <code>-webkit-border-radius</code>.</p>
+        <description><![CDATA[<p>Sometimes you'll want to use a non-standard CSS property in GWT via CSSResource - say to use rounded-corners on your borders using <code>-moz-border-radius</code> and <code>-webkit-border-radius</code>.</p>
 
 <p>However, if you just plonk those properties in your CSSResource you're in for some warnings.  GWT doesn't like property names that start with "-".  The solution is very simple: escape the leading "-" with a "\", e.g. <code>\-moz-border-radius: 5px</code>.</p>
 ]]></description>
@@ -2991,6 +3012,8 @@ public class ApplicationDriver {
 
 <p>Secondly, the <code>FirefoxDriver</code> implementation starts up an instance of Firefox with a profile called "WebDriver". If you don't have a profile with that name Firefox will create one when it starts, but it won't have any of your plugins (including the GWT plugin!). </p>
 
+<h3>Creating a Firefox profile for WebDriver</h3>
+
 <p>Its easy to create a new profile (close all instances of firefox down completely then run it from the cmdline with the -profilemanager switch) - <a href="http://kb.mozillazine.org/Profile_manager">precise instructions vary by platform</a>. I created the profile then just copied my existing profile contents to it to save installing all the plugins again. In the sample code above i've told WebDriver to use the "default" profile instead by setting a system property.</p>
 
 <p>Finally, note that I'm finding the <code>PushButton</code> by id lookup. To make this work you have to force GWT to spit out an id for the element, and allow for the fact that GWT adds a prefix ("gwt-debug-") to the id you specify. To force GWT to produce id's for your Widget elements:</p>
@@ -3000,7 +3023,7 @@ public class ApplicationDriver {
 <li>Set an id on the Widget using widget.ensureDebugId("theId");</li>
 </ul>
 
-<p>Finally I built the testcase on top of the <code>ApplicationDriver</code>, starting with a test to detect the first Label, then a test to click the PushButton and check that a new Label is added.  The testcase looks like this:</p>
+<p>Last of all I built the testcase on top of the <code>ApplicationDriver</code>, starting with a test to detect the first Label, then a test to click the PushButton and check that a new Label is added.  The testcase looks like this:</p>
 
 <pre><code>package com.sjl.webdriver;
 
@@ -3053,7 +3076,7 @@ public class TestSimpleApp {
           <category>maven</category>
           <category>testing</category>
           <category>webdriver</category>
-          <category>development mode</category>
+          <category>development</category>
           <category>hosted</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 16 Oct 2010 00:00:00 +0100</pubDate>

@@ -5,7 +5,8 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-        <script type="text/javascript" src="google-analytics.js"></script>
+        <meta name="description" content="Thoughts on Java, GWT, programming, and other geek stuff"></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
     <title>Steve Liles' Blog</title>
   </head>
   <body>
@@ -33,7 +34,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="144">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="144" description="Instructions for how to make Google Web Toolkit (GWT) output id attributes on html elements produced by its widgets">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
               <a itemprop="url" href="gwt_widgets_with_html_id_attributes.html"><h1 itemprop="name" itemprop="headline">GWT Widgets with html id attributes</h1></a>
               <span itemprop="articleBody"><p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
@@ -72,7 +73,7 @@ myLabel.ensureDebugId("myLabel");
               </ul>
               <div style="clear:both"></div>
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,634">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,644" description="A description of how to set up eclipse and firefox to test Google Web Toolkit apps in hosted development mode with WebDriver and maven">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
               <a itemprop="url" href="testing_gwt_apps_in_dev_mode_with_webdriver.html"><h1 itemprop="name" itemprop="headline">Testing GWT apps in dev-mode with WebDriver</h1></a>
               <span itemprop="articleBody"><p>Today I've been playing a little with WebDriver for testing GWT apps.  First impressions:
@@ -234,6 +235,8 @@ public class ApplicationDriver {
 
 <p>Secondly, the <code>FirefoxDriver</code> implementation starts up an instance of Firefox with a profile called "WebDriver". If you don't have a profile with that name Firefox will create one when it starts, but it won't have any of your plugins (including the GWT plugin!). </p>
 
+<h3>Creating a Firefox profile for WebDriver</h3>
+
 <p>Its easy to create a new profile (close all instances of firefox down completely then run it from the cmdline with the -profilemanager switch) - <a href="http://kb.mozillazine.org/Profile_manager">precise instructions vary by platform</a>. I created the profile then just copied my existing profile contents to it to save installing all the plugins again. In the sample code above i've told WebDriver to use the "default" profile instead by setting a system property.</p>
 
 <p>Finally, note that I'm finding the <code>PushButton</code> by id lookup. To make this work you have to force GWT to spit out an id for the element, and allow for the fact that GWT adds a prefix ("gwt-debug-") to the id you specify. To force GWT to produce id's for your Widget elements:</p>
@@ -243,7 +246,7 @@ public class ApplicationDriver {
 <li>Set an id on the Widget using widget.ensureDebugId("theId");</li>
 </ul>
 
-<p>Finally I built the testcase on top of the <code>ApplicationDriver</code>, starting with a test to detect the first Label, then a test to click the PushButton and check that a new Label is added.  The testcase looks like this:</p>
+<p>Last of all I built the testcase on top of the <code>ApplicationDriver</code>, starting with a test to detect the first Label, then a test to click the PushButton and check that a new Label is added.  The testcase looks like this:</p>
 
 <pre><code>package com.sjl.webdriver;
 
@@ -309,12 +312,12 @@ public class TestSimpleApp {
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=development mode">development mode</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=development">development</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=hosted">hosted</a></li>
               </ul>
               <div style="clear:both"></div>
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
               <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
               <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>

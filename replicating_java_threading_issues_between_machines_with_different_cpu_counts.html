@@ -5,10 +5,11 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-          <meta name="keywords" content="CPU affinity" itemprop="keywords">
-      <meta name="keywords" content="Linux" itemprop="keywords">
-      <meta name="keywords" content="Java" itemprop="keywords">
-      <meta name="keywords" content="Threading" itemprop="keywords">
+          <meta name="keywords" content="CPU affinity" itemprop="keywords"></meta>
+      <meta name="keywords" content="Linux" itemprop="keywords"></meta>
+      <meta name="keywords" content="Java" itemprop="keywords"></meta>
+      <meta name="keywords" content="Threading" itemprop="keywords"></meta>
+    <meta name="description" content="Binding Java processes - and thus threads - to a single CPU"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
     <title>Replicating Java threading issues between machines with different cpu counts</title>
   </head>
@@ -37,7 +38,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198" description="Binding Java processes - and thus threads - to a single CPU">
               <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
               <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
               <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>

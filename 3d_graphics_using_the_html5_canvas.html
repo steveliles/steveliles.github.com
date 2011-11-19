@@ -5,11 +5,12 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-          <meta name="keywords" content="canvas" itemprop="keywords">
-      <meta name="keywords" content="graphics" itemprop="keywords">
-      <meta name="keywords" content="gwt" itemprop="keywords">
-      <meta name="keywords" content="html5" itemprop="keywords">
-      <meta name="keywords" content="XSS linker" itemprop="keywords">
+          <meta name="keywords" content="canvas" itemprop="keywords"></meta>
+      <meta name="keywords" content="graphics" itemprop="keywords"></meta>
+      <meta name="keywords" content="gwt" itemprop="keywords"></meta>
+      <meta name="keywords" content="html5" itemprop="keywords"></meta>
+      <meta name="keywords" content="XSS linker" itemprop="keywords"></meta>
+    <meta name="description" content="fun 3d project rendering 3d rubiks cubes in a html5 canvas element in real time using a z-buffer implemented in javascript with Google Web Toolkit and progressive enhancement techniques"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
     <title>3D graphics using the html5 canvas</title>
   </head>
@@ -38,7 +39,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="875">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="880" description="fun 3d project rendering 3d rubiks cubes in a html5 canvas element in real time using a z-buffer implemented in javascript with Google Web Toolkit and progressive enhancement techniques">
               <span class="meta" itemprop="datePublished"><time datetime="2011-01-02">January 02, 2011</time></span>
               <a itemprop="url" href="3d_graphics_using_the_html5_canvas.html"><h1 itemprop="name" itemprop="headline">3D graphics using the html5 canvas</h1></a>
               <span itemprop="articleBody"><p>I thought i'd put up a quick sample of my latest play-thing - a 3D rendering of a rubik's cube, using javascript (GWT) to implement the z-buffer and the html5 canvas as the display.  I originally built this in plain old javascript, but have now converted it to GWT - partly just for fun and partly to make the code a bit more manageable and refactorable (if that's even a word). Along the way I made a few optimisations like caching radian, sin and cosine values of angles.</p>
@@ -47,7 +48,7 @@
 
 <p>The cubes you can see below are rendered when the page loads. The scenes are pretty simple, so render very quickly. You may have seen the cube configuration instead of the cubes for a short while until the javascript loaded, at which point the configuration is replaced by the rendered cubes.</p>
 
-<p>Configuring a cube to display is as simple as adding a <code>&lt;div&gt;</code> element like this:</p>
+<p>Configuring a cube to display is done <a href="http://steveliles.github.com/gwt_progressive.html">progressive enhancement</a> style -  simply by adding a <code>&lt;div&gt;</code> element like this:</p>
 
 <pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
   {"rubik-cube":{}, "camera":{}}}

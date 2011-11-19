@@ -5,13 +5,14 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-          <meta name="keywords" content="GWT" itemprop="keywords">
-      <meta name="keywords" content="JavaScript" itemprop="keywords">
-      <meta name="keywords" content="Overlay" itemprop="keywords">
-      <meta name="keywords" content="JSO" itemprop="keywords">
-      <meta name="keywords" content="JSON" itemprop="keywords">
-      <meta name="keywords" content="Parsing" itemprop="keywords">
-      <meta name="keywords" content="JSNI" itemprop="keywords">
+          <meta name="keywords" content="GWT" itemprop="keywords"></meta>
+      <meta name="keywords" content="JavaScript" itemprop="keywords"></meta>
+      <meta name="keywords" content="Overlay" itemprop="keywords"></meta>
+      <meta name="keywords" content="JSO" itemprop="keywords"></meta>
+      <meta name="keywords" content="JSON" itemprop="keywords"></meta>
+      <meta name="keywords" content="Parsing" itemprop="keywords"></meta>
+      <meta name="keywords" content="JSNI" itemprop="keywords"></meta>
+    <meta name="description" content="An overview of JavaScript Overlay Types, JavaScriptObject, JSNI and JSON parsing in general using GWT"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
     <title>GWT JavaScriptObjects (Javascript Overlays)</title>
   </head>
@@ -40,10 +41,10 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,105">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,154" description="An overview of JavaScript Overlay Types, JavaScriptObject, JSNI and JSON parsing in general using GWT">
               <span class="meta" itemprop="datePublished"><time datetime="2011-10-12">October 12, 2011</time></span>
               <a itemprop="url" href="gwt_javascriptobjects_javascript_overlays.html"><h1 itemprop="name" itemprop="headline">GWT JavaScriptObjects (Javascript Overlays)</h1></a>
-              <span itemprop="articleBody"><p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example this one. The gist of it is, given some JSON like this:</p>
+              <span itemprop="articleBody"><p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example <a href="http://code.google.com/webtoolkit/doc/latest/DevGuideCodingBasicsOverlay.html">this one</a>. The gist of it is, given some JSON like this:</p>
 
 <pre><code>{ "item": {
     "id": 123,
@@ -53,7 +54,11 @@
 }
 </code></pre>
 
-<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us, by writing a class that looks like this:</p>
+<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us. </p>
+
+<h2>JavaScript Overlay Types</h2>
+
+<p>We do that by writing a JavaScript Overlay Type class that maps the native json data back to the the world of your Java code, and looks like this:</p>
 
 <pre><code>public class Item extends JavaScriptObject
 {
@@ -73,7 +78,11 @@
 }
 </code></pre>
 
-<p>Those three native methods are known in GWT-land as "JSNI" (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
+<h2>JSNI Methods</h2>
+
+<p>Those three native methods are known in GWT-land as JSNI methods (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. </p>
+
+<p>In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
 
 <p>The return values from our JSNI can be Java's primitive wrappers or String, any class that extends JavaScriptObject (JSO), or one of a number of special JSO classes GWT provides such as JsArray, JsIterable, JsArrayString, etc.</p>
 
@@ -108,6 +117,8 @@
 }
 </code></pre>
 
+<h2>Mapping complex types</h2>
+
 <p>These are simple examples of course, but i've had no trouble mapping even the most complex JSON objects using JSO's. You can map arrays easily enough using the built in GWT JsArray types, like this:</p>
 
 <pre><code>public class Items extends JavaScriptObject
@@ -141,6 +152,8 @@
 }
 </code></pre>
 
+<h2>JavaScriptObject rules</h2>
+
 <p>There are a couple of basic rules to follow:</p>
 
 <ul>
@@ -150,7 +163,11 @@
 <li>May only implement a single Interface</li>
 </ul>
 
-<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise. The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
+<h2>JavaScriptObject "gotchas"</h2>
+
+<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise...</p>
+
+<p>The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
 
 <p>If you try to implement the same interface in more than one of your JSO's you don't (currently) get any warnings from the compiler ... instead you get crazy runtime behaviour due to the wrong JSO class's methods being invoked (because one of your JSO's will receive all method invocations for the interface, regardless of which class the method should have been invoked against).</p>
 
