@@ -155,17 +155,6 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
 <p>Of course, here I've just written it directly into this template because I only use this format once in my whole site - if I were using it more I could define a re-usable FreeMarker macro instead to avoid repetition.</p>
 </span>
 
-              <!--div class="g-plusone" data-size="medium" data-annotation="none"></div>
-              <script type="text/javascript">
-                window.___gcfg = {lang: 'en-GB'};
-
-                (function() {
-                  var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                  po.src = 'https://apis.google.com/js/plusone.js';
-                  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-                })();
-              </script-->
-
               <ul class="keywords">
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=FreeMarker">FreeMarker</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Template">Template</a></li>
@@ -173,6 +162,7 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=RSS">RSS</a></li>
               </ul>
               <div style="clear:both"></div>
+
 
                 <a name="comments"></a>
                 <div id="disqus_thread"></div>
@@ -184,7 +174,24 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
 	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 	          })();
 	        </script>
-	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>                
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles http://steveliles.github.com/templating_my_blog_with_freemarker.html" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
 
             </article>            
         </div>

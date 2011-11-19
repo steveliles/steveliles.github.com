@@ -449,6 +449,36 @@ nav .next a, nav .prev a {
   color:#aab;
 }
 
+.sharing {
+  position:fixed;
+  right:0px;
+  top:200px;
+}
+
+.sharing ul {
+  list-style:none;
+}
+
+.sharing ul li {
+  background-color:#666;
+  border-top-left-radius:8px;
+  border-bottom-left-radius:8px;
+  margin-bottom:20px;
+  height:32px;
+}
+
+.sharing a {
+  height:32px;
+  width:32px;
+  margin:10px;
+  display: block;
+  text-indent:-9999px;
+}
+
+.sharing .twitter {
+  background:url(https://si0.twimg.com/images/dev/cms/intents/bird/bird_black/bird_32_black.png) no-repeat top left;
+}
+
 #disqus_thread {
   margin-top:50px;
   margin-bottom:50px;
