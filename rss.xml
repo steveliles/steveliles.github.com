@@ -158,7 +158,7 @@ private int count(int anOffset, int[] aSurrounding) {
         <guid isPermaLink="true">http://steveliles.github.com/weighted_average_smoothing_with_java2d.html</guid>
         <description><![CDATA[<p>Since my <a href="creating_a_vectorisation_effect_with_java2d.html">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
 
-<pre><code>interface Counter {
+<pre><code>interface ColourCalculator {
     // add a colour channel value for one of 
     // the neighbouring pixels
     public void add(int aValue);
@@ -166,7 +166,7 @@ private int count(int anOffset, int[] aSurrounding) {
     // calculates the value we should use
     // for the current colour channel of the
     // current pixel based on its neighbours
-    public int mostFrequent();
+    public int calculate();
 }
 </code></pre>
 
@@ -174,25 +174,25 @@ private int count(int anOffset, int[] aSurrounding) {
 
 <pre><code>// calculate the colour 
 private int count(int anOffset, int[] aSurrounding) {
-    Counter _c = getCounter();
+    ColourCalculator _c = getCalculator();
     int _length = aSurrounding.length-(2-anOffset);
     for (int i=anOffset; i&amp;lt;_length; i+=3) {
         _c.add(aSurrounding[i]);
     }
-    return _c.mostFrequent();
+    return _c.calculate();
 }
 </code></pre>
 
-<p>Here you can see that I can easily supply different implementations of Counter, so I can try different algorithms easily.</p>
+<p>Here you can see that I can easily supply different implementations of ColourCalculator, so I can try different algorithms easily.</p>
 
 <h3>The original colour-selection algorithm</h3>
 
 <p>The original algorithm simply takes the most frequent value of each colour channel so that, for example, if 51% of the surrounding pixels are bright blue, and the other 49% are bright red, this pixel will be bright red.</p>
 
-<pre><code>class SimpleCounter implements Counter {
+<pre><code>class SimpleColourCalculator implements ColourCalculator {
     int[] values = new int[256];
 
-    public SimpleCounter() {
+    public SimpleColourCalculator() {
         Arrays.fill(values, -1);
     }
 
@@ -200,7 +200,7 @@ private int count(int anOffset, int[] aSurrounding) {
         values[aValue] += 1;
     }
 
-    public int mostFrequent() {
+    public int calculate() {
         int _highest = -1;
         int _colour = -1;
         for (int i=0; i&amp;lt;256; i++) {
@@ -220,10 +220,10 @@ private int count(int anOffset, int[] aSurrounding) {
 
 <p>This algorithm weights the values of the surrounding pixels relative to the most common value, so we get a weighted average that does take some account of less popular colours in the neighbourhood of the current pixel.</p>
 
-<pre><code>class WeightedAverageCounter implements Counter {
+<pre><code>class WeightedAverageColourCalculator implements ColourCalculator {
     int[] values = new int[256];
 
-    public WeightedAverageCounter() {
+    public WeightedAverageColourCalculator() {
         Arrays.fill(values, 0);
     }
 
@@ -231,7 +231,7 @@ private int count(int anOffset, int[] aSurrounding) {
         values[aValue] += 1;
     }
 
-    public int mostFrequent() {
+    public int calculate() {
         int _max = max();
         double _weight=0, _colour=0, _count=0;
         for (int i=0; i&amp;lt;256; i++) {
