@@ -170,7 +170,7 @@ private int count(int anOffset, int[] aSurrounding) {
 }
 </code></pre>
 
-<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green /blue). The client code looks like this:</p>
+<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green / blue). The client code looks like this:</p>
 
 <pre><code>// calculate the colour 
 private int count(int anOffset, int[] aSurrounding) {

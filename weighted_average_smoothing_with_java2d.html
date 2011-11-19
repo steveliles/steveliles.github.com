@@ -40,7 +40,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,219" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
               <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
               <span itemprop="articleBody"><p>Since my <a href="creating_a_vectorisation_effect_with_java2d.html">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
@@ -57,7 +57,7 @@
 }
 </code></pre>
 
-<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green /blue). The client code looks like this:</p>
+<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green / blue). The client code looks like this:</p>
 
 <pre><code>// calculate the colour 
 private int count(int anOffset, int[] aSurrounding) {
