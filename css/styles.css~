@@ -464,8 +464,6 @@ nav .next a, nav .prev a {
   border-top-left-radius:8px;
   border-bottom-left-radius:8px;
   margin-bottom:20px;
-  height:36px;
-  padding:1px;
 }
 
 .sharing a {
@@ -478,6 +476,12 @@ nav .next a, nav .prev a {
 
 .sharing .twitter {
   background:url(https://si0.twimg.com/images/dev/cms/intents/bird/bird_black/bird_32_black.png) no-repeat top left;
+}
+
+.sharing .gplus {
+  height:27px;
+  padding-left:12px;
+  padding-top:7px;
 }
 
 #disqus_thread {
