@@ -179,150 +179,6 @@ private int count(int anOffset, int[] aSurrounding) {
 	        <a href="weighted_average_smoothing_with_java2d.html">Comment on this post</a>
 
             </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,219" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
-              <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
-              <span itemprop="articleBody"><p>Since my <a href="creating_a_vectorisation_effect_with_java2d.html">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
-
-<pre><code>interface ColourCalculator {
-    // add a colour channel value for one of 
-    // the neighbouring pixels
-    public void add(int aValue);
-
-    // calculates the value we should use
-    // for the current colour channel of the
-    // current pixel based on its neighbours
-    public int calculate();
-}
-</code></pre>
-
-<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green / blue). The client code looks like this:</p>
-
-<pre><code>// calculate the colour 
-private int count(int anOffset, int[] aSurrounding) {
-    ColourCalculator _c = getCalculator();
-    int _length = aSurrounding.length-(2-anOffset);
-    for (int i=anOffset; i&amp;lt;_length; i+=3) {
-        _c.add(aSurrounding[i]);
-    }
-    return _c.calculate();
-}
-</code></pre>
-
-<p>Here you can see that I can easily supply different implementations of ColourCalculator, so I can try different algorithms easily.</p>
-
-<h3>The original colour-selection algorithm</h3>
-
-<p>The original algorithm simply takes the most frequent value of each colour channel so that, for example, if 51% of the surrounding pixels are bright blue, and the other 49% are bright red, this pixel will be bright red.</p>
-
-<pre><code>class SimpleColourCalculator implements ColourCalculator {
-    int[] values = new int[256];
-
-    public SimpleColourCalculator() {
-        Arrays.fill(values, -1);
-    }
-
-    public void add(int aValue) {
-        values[aValue] += 1;
-    }
-
-    public int calculate() {
-        int _highest = -1;
-        int _colour = -1;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &amp;gt; _highest) {
-            _highest = values[i];
-            _colour = i;
-            }
-        }
-        return _colour;
-    }
-}
-</code></pre>
-
-<p>This algorithm does produce the effect I'm looking for, but I get some sharp edges and colour bleeding that I don't really want (see example output below).</p>
-
-<h3>The weighted-average algorithm</h3>
-
-<p>This algorithm weights the values of the surrounding pixels relative to the most common value, so we get a weighted average that does take some account of less popular colours in the neighbourhood of the current pixel.</p>
-
-<pre><code>class WeightedAverageColourCalculator implements ColourCalculator {
-    int[] values = new int[256];
-
-    public WeightedAverageColourCalculator() {
-        Arrays.fill(values, 0);
-    }
-
-    public void add(int aValue) {
-        values[aValue] += 1;
-    }
-
-    public int calculate() {
-        int _max = max();
-        double _weight=0, _colour=0, _count=0;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &gt; 0) {
-                _weight = (((double)values[i]) / _max);
-                _weight = Math.pow(_weight, 5);
-                _colour += _weight * i;
-                _count += _weight;
-            }
-        }
-        return (int) (_colour / _count);
-    }
-
-    private int max() {
-        int _highest = 0;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &gt; _highest) {
-                _highest = values[i];
-            }
-        }
-        return _highest;
-    }
-}
-</code></pre>
-
-<p>The result of the weighted average algorithm is a much smoother colour composition with a reduction in the aliasing effects that can be seen in the more simple algorithm's output. It does have a significant performance penalty however - on my quad core i7 laptop on an image of 600x650 pixels and a 16x16 neighbourhood, the simple algorithm completes in 10 seconds, whereas the weighted-average needs 90 seconds!</p>
-
-<h3>Output for comparison</h3>
-
-<p>Here are some examples for comparison. First is the original image, then then the image processed with the simple colour selection algorithm, followed by the weighted average algorithm.</p>
-
-<p><img alt="The original photograph" width="600" height="654" src="https://lh3.googleusercontent.com/-zPwUf1ZwEes/TsfLHPhDT0I/AAAAAAAAHuI/Rpt4as1QyIE/s600/duck.jpg"></p>
-
-<div class="caption">The original image</div>
-
-<p><img alt="Processed with 'Simple' algorithm" width="600" height="654" src="https://lh6.googleusercontent.com/--uqph05DLD4/TsfLMt4MJ3I/AAAAAAAAHuU/aJ_bXBLOFEw/s600/duck-16x16-simple.png"></p>
-
-<div class="caption">Processed with 'Simple' algorithm</div>
-
-<p><img alt="Processed with 'Weighted Average' algorithm" width="600" height="654" src="https://lh5.googleusercontent.com/-C6hRgaQDTtA/TsfLRfOMKLI/AAAAAAAAHuc/gLLTePCCUfo/s600/duck-16x16-weighted-average.png"></p>
-
-<div class="caption">Processed with 'Weighted Average' algorithm</div>
-
-<p>It might be a little difficult to see the difference, so here's one final composite image showing the difference close-up and side-by-side</p>
-
-<p><img alt="composite - left-side 'simple', right-side 'weighted average'" width="600" height="327" src="https://lh6.googleusercontent.com/-i6hEeV2vdC0/TsfYihtEPaI/AAAAAAAAHu8/Yx2b4FTSvBM/s600/duck-composite.jpg"></p>
-
-<div class="caption">Composite for comparison</div>
-
-<p>The left-side shows the image processed with the simple algorithm, whilst the right-side shows the smoother result of the weighted-average algorithm.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image">Image</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Processing">Processing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java2D">Java2D</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Convolve">Convolve</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Kernel">Kernel</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Vectorize">Vectorize</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="weighted_average_smoothing_with_java2d.html">Comment on this post</a>
-
-            </article>            
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="431" description="Description and code samples for a mortgage or loan overpayment calculator written using Google Web Toolkit and progressive enhancement techniques">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-17">November 17, 2011</time></span>
               <a itemprop="url" href="mortgage_loan_overpayment_calculator.html"><h1 itemprop="name" itemprop="headline">Mortgage/Loan Overpayment Calculator</h1></a>
@@ -1547,6 +1403,59 @@ Content-Length: 0
               <div style="clear:both"></div>
 
 	        <a href="eclipse_code_template_for_gwt_jsni_methods.html">Comment on this post</a>
+
+            </article>            
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,054" description="An essay on the qualities, personality and behaviours of a good software engineer">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-10-19">October 19, 2011</time></span>
+              <a itemprop="url" href="what_makes_a_good_developer.html"><h1 itemprop="name" itemprop="headline">What makes a good developer?</h1></a>
+              <span itemprop="articleBody"><p>At the beginning of the year I worked with our Operations Manager in Beirut - <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel Beaini</a> - to do annual reviews for our whole development (and UX) team there. </p>
+
+<p>As part of the review process we gave the developers an updated job specification, which I wanted to be both prescriptive and aspirational - the idea being to describe the role each should currently be playing, to make very clear what would be needed to move to the next level, and at the same time to make everyone want to up their game and take it to the next level.</p>
+
+<p>The end result, I guess, is my attempt at a technology agnostic description of what makes a good developer. Being a developer myself I'm fairly biased towards the technical aspects of the role and probably tend to somewhat overlook the human side of things (team-work, interaction with other parts of the business incl. non-programmers, etc). I'd love to hear constructive feedback on how I could improve these descriptions for next year :)</p>
+
+<p>Here are the "aspirational" parts of the job descriptions I wrote for the top-tiers - architect/expert and senior developer:</p>
+
+<h2>Architect/Expert Developer</h2>
+
+<p>A passionate technologist, you demonstrate excitement, deep interest and knowledge of all aspects of development: languages; paradigms; patterns; idioms; platforms; performance; reliability; scalability; quality; tools and technologies. You relish the challenge of hugely complex problems.</p>
+
+<p>Possessing true mastery of at least one modern programming language and paradigm, along with advanced knowledge of idioms and Design Patterns and when (or when not) to apply them, you will be able to recognize opportunities to improve code at a glance, and have the confidence and competence to take these opportunities to refactor towards better design.</p>
+
+<p>You must be able to explain at length the reasons behind (micro)architectural decisions you make - or help others to make - so that others may learn from you. Your code has a finesse and indescribable quality that is the envy of all who read and work with it. You have exceptional ability to narrow down potential sources of a problem, hone in on the root-cause, and propose a range of solutions and explain their pros and cons.</p>
+
+<p>Your architectural skills allow you both to describe designs at a high level to the business, and also to hone in on the complexities and details that allow a design to be implemented successfully. You are able to interpret and translate abstract ideas from more business oriented colleagues and customers, and from those ideas produce designs and specifications for developers to implement. You will be able to identify and separate the real requirements from the incidental details that inevitably form part of such brain-storming or business driven interaction.</p>
+
+<p>You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have no prior experience. You will be aware of facets of these tools and processes that are not in daily use, such that you will be able to turn these tools even more to your advantage in specific situations. You will be constantly looking for new ways to streamline your working practices and those of the team through use of new and existing tools and technologies.</p>
+
+<p>As one of the most senior members of the development team you will set an excellent example of engineering discipline to your colleagues, and will be passionate about achieving the very best quality and helping those around you to do so. You will recognize and evangelize the benefits of engineering disciplines such as source-code control, unit-testing, and code-review, and have a very self-critical view of what constitutes "done".</p>
+
+<p>You will delight in tackling a range of tasks, recognizing the pleasure to be found in a polished solution to the smallest problem, as well as the challenges of a more significant undertaking, and you will enjoy mentoring and engaging in discussion about all aspects of development with your colleagues.</p>
+
+<h2>Senior Developer</h2>
+
+<p>You are the kind of person who develops software for fun in your spare time - whether personal projects or open-source contributions. You are deeply interested in languages, paradigms, idioms, tools and technologies, and in solving difficult problems.</p>
+
+<p>You take great pride in your work, and it shows clearly in the way your code speaks to others - simple, clean, thoroughly unit-tested and easily understood and maintained. You are able to recognize and fix many code-smells and can gently point them out to your less experienced colleagues during code-review. You are keen to develop your skills further through interaction with your colleagues - junior and senior - and by consistently executing any task, large or small, with the attitude that there is always something new to learn. You can quickly identify and fix problems from minimal descriptions.</p>
+
+<p>You are accomplished at taking high level designs and specifications from Architects and implementing them successfully, including creating and assigning suitable sub-tasks to less advanced members of your team. You can articulately explain the reasons behind micro-architectural choices you make during implementation, and evaluate the pros and cons of such decisions.</p>
+
+<p>You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have little or no prior experience. You will be so confident with and reliant upon these tools that you use them even for your personal projects, knowing that the benefits are well worth the extra up-front effort.</p>
+
+<p>You will set an excellent example of engineering discipline to your peers and junior colleagues, and you understand and truly believe in the need for engineering discipline and processes in delivering high quality software. Your attitude toward any task is to produce the best solution you can and learn from the experience. You will actively seek feedback on your solutions from peers and senior colleagues, whether by code-review or less formal discussion.</p>
+
+<p>If you're in Beirut, are a serious Java or Objective-C hacker, and would like to work with us, drop a comment, contact <a href="http://uk.linkedin.com/in/steveliles">me</a> or <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel</a> via linked-in, or tweet me (<a href="http://twitter.com/#!/steveliles">@steveliles</a>)</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Developer">Developer</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Architect">Architect</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Engineer">Engineer</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Qualities">Qualities</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="what_makes_a_good_developer.html">Comment on this post</a>
 
             </article>            
         </div>
