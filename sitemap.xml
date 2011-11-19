@@ -6,7 +6,7 @@
   <url>
     <loc>http://steveliles.github.com/index.html</loc>
     <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <priority>0.4</priority>
   </url>
   <url>
     <loc>http://steveliles.github.com/about_me.html</loc>
@@ -17,134 +17,167 @@
       <url> 
       <loc>http://steveliles.github.com/mortgage_loan_overpayment_calculator.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/creating_a_vectorisation_effect_with_java2d.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/syntax_highlighting_with_gwt_progressive.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/gwt_progressive.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/templating_my_blog_with_freemarker.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/most_geeky_thing_i_ever_saw.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/popularity_contest_ubuntu_vs_osx_lion_vs_win7.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/what_makes_a_good_developer.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/gwt_javascriptobjects_javascript_overlays.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/on_flow_and_feeling_productive.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/about_me.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/my_first_android_app_desktop_widget.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/replicating_java_threading_issues_between_machines_with_different_cpu_counts.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/jquery_htmlunit_runtimeerror_messages_galore.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/unit_testing_code_written_in_tell_don_t_ask_style.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/elasticsearch_vs_solrcloud.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/installing_fonts_in_ubuntu.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/reading_list_17_01_2011.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/linux_distro_popularity.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/3d_graphics_using_the_html5_canvas.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/amazing_trilobyte_fossils.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/more_old_sketches.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/using_non_standard_css_properties_in_gwt.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/dumping_and_restoring_mysql_db_s.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/some_old_sketches.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/making_pretty_diagrams_with_graphviz.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/gwt_widgets_with_html_id_attributes.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/testing_gwt_apps_in_dev_mode_with_webdriver.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
     <url> 
       <loc>http://steveliles.github.com/how_to_clear_memory_caches_in_ubuntu.html</loc>
       <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
     </url>
 
 </urlset>
