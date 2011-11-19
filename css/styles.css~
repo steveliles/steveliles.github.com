@@ -244,6 +244,10 @@ article img {
   margin:auto;
 }
 
+.caption {
+  font-family:'Ubuntu Mono', sans-serif;
+}
+
 span.meta {
   font-family: 'Ubuntu Mono', sans-serif;
   font-size:18px;

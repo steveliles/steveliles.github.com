@@ -447,3 +447,8 @@ nav .next a, nav .prev a {
   font-size:15px; 
   color:#aab;
 }
+
+#disqus_thread {
+  margin-top:20px;
+  margin-bottom:20px;
+}
