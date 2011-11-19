@@ -449,6 +449,10 @@ nav .next a, nav .prev a {
 }
 
 #disqus_thread {
-  margin-top:20px;
-  margin-bottom:20px;
+  margin-top:50px;
+  margin-bottom:50px;
+}
+
+#disqus_thread h3 {
+  font-size:20px;
 }
