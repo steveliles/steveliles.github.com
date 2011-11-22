@@ -1,9 +1,10 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html >
+<html>
   <head>
     <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
     <link rel="author" href="about_me.html" />
+    <link rel="publisher" href="about_me.html" />
         <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
       <meta name="keywords" content="Image" itemprop="keywords"></meta>
@@ -24,14 +25,14 @@
           <h2>Because I'll forget it if I don't write it down...</h2>
         </div>
         <div class="right">
-	  <a rel="author" href="about_me.html"><img src="images/lego.png"></a>          
+	  <a href="about_me.html"><img src="images/lego.png"></a>          
         </div>
       </header>
       <nav>
         <span>
-          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
-          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
-	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+          <a href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
 	  <form action="http://www.google.com/search" method="get">
             <input type="hidden" name="q" value="site:steveliles.github.com">
             <input type="text" name="q" placeholder="search"></input>
@@ -41,12 +42,12 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,219" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
               <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
-              <span itemprop="articleBody"><p>Since my <a href="creating_a_vectorisation_effect_with_java2d.html">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
+              <span itemprop="articleBody"><p>Since my <a href="">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
 
-<pre><code>interface ColourCalculator {
+<pre><code>interface Counter {
     // add a colour channel value for one of 
     // the neighbouring pixels
     public void add(int aValue);
@@ -54,33 +55,33 @@
     // calculates the value we should use
     // for the current colour channel of the
     // current pixel based on its neighbours
-    public int calculate();
+    public int mostFrequent();
 }
 </code></pre>
 
-<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green / blue). The client code looks like this:</p>
+<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green /blue). The client code looks like this:</p>
 
 <pre><code>// calculate the colour 
 private int count(int anOffset, int[] aSurrounding) {
-    ColourCalculator _c = getCalculator();
+    Counter _c = getCounter();
     int _length = aSurrounding.length-(2-anOffset);
     for (int i=anOffset; i&amp;lt;_length; i+=3) {
         _c.add(aSurrounding[i]);
     }
-    return _c.calculate();
+    return _c.mostFrequent();
 }
 </code></pre>
 
-<p>Here you can see that I can easily supply different implementations of ColourCalculator, so I can try different algorithms easily.</p>
+<p>Here you can see that I can easily supply different implementations of Counter, so I can try different algorithms easily.</p>
 
 <h3>The original colour-selection algorithm</h3>
 
 <p>The original algorithm simply takes the most frequent value of each colour channel so that, for example, if 51% of the surrounding pixels are bright blue, and the other 49% are bright red, this pixel will be bright red.</p>
 
-<pre><code>class SimpleColourCalculator implements ColourCalculator {
+<pre><code>class SimpleCounter implements Counter {
     int[] values = new int[256];
 
-    public SimpleColourCalculator() {
+    public SimpleCounter() {
         Arrays.fill(values, -1);
     }
 
@@ -88,7 +89,7 @@ private int count(int anOffset, int[] aSurrounding) {
         values[aValue] += 1;
     }
 
-    public int calculate() {
+    public int mostFrequent() {
         int _highest = -1;
         int _colour = -1;
         for (int i=0; i&amp;lt;256; i++) {
@@ -108,10 +109,10 @@ private int count(int anOffset, int[] aSurrounding) {
 
 <p>This algorithm weights the values of the surrounding pixels relative to the most common value, so we get a weighted average that does take some account of less popular colours in the neighbourhood of the current pixel.</p>
 
-<pre><code>class WeightedAverageColourCalculator implements ColourCalculator {
+<pre><code>class WeightedAverageCounter implements Counter {
     int[] values = new int[256];
 
-    public WeightedAverageColourCalculator() {
+    public WeightedAverageCounter() {
         Arrays.fill(values, 0);
     }
 
@@ -119,7 +120,7 @@ private int count(int anOffset, int[] aSurrounding) {
         values[aValue] += 1;
     }
 
-    public int calculate() {
+    public int mostFrequent() {
         int _max = max();
         double _weight=0, _colour=0, _count=0;
         for (int i=0; i&amp;lt;256; i++) {
@@ -231,7 +232,7 @@ private int count(int anOffset, int[] aSurrounding) {
       </div>
       <nav>
         <div class="links">
-          <div class="prev"><a title="previous" href="weighted_average_smoothing_with_java2d.html">Weighted Average smoothing ...</a></div>
+          
           <div class="next"><a title="next" href="mortgage_loan_overpayment_calculator.html">Mortgage/Loan Overpayment C...</a></div>
         </div>
       </nav>
