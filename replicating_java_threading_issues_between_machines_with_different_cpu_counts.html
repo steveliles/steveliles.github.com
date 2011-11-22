@@ -23,14 +23,14 @@
           <h2>Because I'll forget it if I don't write it down...</h2>
         </div>
         <div class="right">
-	  <a href="about_me.html"><img src="images/lego.png"></a>          
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>          
         </div>
       </header>
       <nav>
         <span>
-          <a href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
-          <a href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
-	  <a href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
 	  <form action="http://www.google.com/search" method="get">
             <input type="hidden" name="q" value="site:steveliles.github.com">
             <input type="text" name="q" placeholder="search"></input>
@@ -43,7 +43,7 @@
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198" description="Binding Java processes - and thus threads - to a single CPU">
               <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
               <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
-              <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
+	      <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
 
 <p>To replicate I needed to run on a single-cpu but I didn't want to commit more potentially broken tests to source-control and run repeatedly breaking builds on the build-server.</p>
 

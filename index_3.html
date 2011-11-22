@@ -19,14 +19,14 @@
           <h2>Because I'll forget it if I don't write it down...</h2>
         </div>
         <div class="right">
-	  <a href="about_me.html"><img src="images/lego.png"></a>          
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>          
         </div>
       </header>
       <nav>
         <span>
-          <a href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
-          <a href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
-	  <a href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
 	  <form action="http://www.google.com/search" method="get">
             <input type="hidden" name="q" value="site:steveliles.github.com">
             <input type="text" name="q" placeholder="search"></input>
@@ -39,7 +39,7 @@
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="700" description="Some simple graphviz examples for drawing directed graphs">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-25">October 25, 2010</time></span>
               <a itemprop="url" href="making_pretty_diagrams_with_graphviz.html"><h1 itemprop="name" itemprop="headline">Making pretty diagrams with GraphViz</h1></a>
-              <span itemprop="articleBody"><p>So recently I needed to draw some directed-graph diagrams - work-flow diagrams in this particular instance. After a bit of googling I came across some nice examples of diagrams produced by <a href="http://www.graphviz.org/">graphviz</a> - actually what really turned me on to graphviz was this <a href="http://www.flickr.com/photos/kentbye/sets/72157601523153827/">nice set of examples</a> from Kent Bye.</p>
+	      <span itemprop="articleBody"><p>So recently I needed to draw some directed-graph diagrams - work-flow diagrams in this particular instance. After a bit of googling I came across some nice examples of diagrams produced by <a href="http://www.graphviz.org/">graphviz</a> - actually what really turned me on to graphviz was this <a href="http://www.flickr.com/photos/kentbye/sets/72157601523153827/">nice set of examples</a> from Kent Bye.</p>
 
 <p>A little tinkering and I soon had my workflow definitions (declared in xml in our application) rendered nicely with GraphViz. The markup language is deadly simple and intuitive, and the directed graphs which it produces are really good looking (I didn't try any other types).</p>
 
@@ -148,7 +148,7 @@
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="144" description="Instructions for how to make Google Web Toolkit (GWT) output id attributes on html elements produced by its widgets">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
               <a itemprop="url" href="gwt_widgets_with_html_id_attributes.html"><h1 itemprop="name" itemprop="headline">GWT Widgets with html id attributes</h1></a>
-              <span itemprop="articleBody"><p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
+	      <span itemprop="articleBody"><p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
 
 <p>To make your widgets produce id attributes you need to invoke the <code>ensureDebugId</code> method with an id string, e.g.</p>
 
@@ -179,7 +179,7 @@ myLabel.ensureDebugId("myLabel");
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,644" description="A description of how to set up eclipse and firefox to test Google Web Toolkit apps in hosted development mode with WebDriver and maven">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
               <a itemprop="url" href="testing_gwt_apps_in_dev_mode_with_webdriver.html"><h1 itemprop="name" itemprop="headline">Testing GWT apps in dev-mode with WebDriver</h1></a>
-              <span itemprop="articleBody"><p>Today I've been playing a little with WebDriver for testing GWT apps.  First impressions:
+	      <span itemprop="articleBody"><p>Today I've been playing a little with WebDriver for testing GWT apps.  First impressions:
 * WebDriver is awesome - can't wait to try testing more complex web-apps!
 * WebDriver opens up all kinds of possibilities beyond testing web-apps - for example to drive interactive demos and tutorials.
 * Did I mention WebDriver is awesome? :)</p>
@@ -415,7 +415,7 @@ public class TestSimpleApp {
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
               <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
-              <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
+	      <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
 
 <p>Flushing the mysql buffers is as easy as restarting mysql (<code>sudo service mysql restart</code> in Maverick). Flushing the OS buffers is also dead easy:</p>
 

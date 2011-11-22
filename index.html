@@ -19,14 +19,14 @@
           <h2>Because I'll forget it if I don't write it down...</h2>
         </div>
         <div class="right">
-	  <a href="about_me.html"><img src="images/lego.png"></a>          
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>          
         </div>
       </header>
       <nav>
         <span>
-          <a href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
-          <a href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
-	  <a href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
 	  <form action="http://www.google.com/search" method="get">
             <input type="hidden" name="q" value="site:steveliles.github.com">
             <input type="text" name="q" placeholder="search"></input>
@@ -39,7 +39,7 @@
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
               <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
-              <span itemprop="articleBody"><p>Since my <a href="">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
+	      <span itemprop="articleBody"><p>Since my <a href="">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
 
 <pre><code>interface Counter {
     // add a colour channel value for one of 
@@ -183,7 +183,7 @@ private int count(int anOffset, int[] aSurrounding) {
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="431" description="Description and code samples for a mortgage or loan overpayment calculator written using Google Web Toolkit and progressive enhancement techniques">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-17">November 17, 2011</time></span>
               <a itemprop="url" href="mortgage_loan_overpayment_calculator.html"><h1 itemprop="name" itemprop="headline">Mortgage/Loan Overpayment Calculator</h1></a>
-              <span itemprop="articleBody"><p>A few weeks back I was talking with someone who was looking into over-paying a loan. The premise is that, provided your lender allows overpayments, by over-paying you can save a fortune in interest payments.</p>
+	      <span itemprop="articleBody"><p>A few weeks back I was talking with someone who was looking into over-paying a loan. The premise is that, provided your lender allows overpayments, by over-paying you can save a fortune in interest payments.</p>
 
 <p>The amount you can save isn't all that straight-forward to work out, due to the miracle that is compound interest. I knocked up a quick <a href="http://steveliles.website.s3-website-eu-west-1.amazonaws.com/">overpayment calculator</a> using <code>gwt.progressive</code>, which I'm hosting at Amazon S3 for now as it doesn't feel right to abuse GitHub's hospitality for something like this.</p>
 
@@ -249,7 +249,7 @@ term by &amp;lt;span id="years"&gt;?&amp;lt;/span&gt; years and
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,956" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-16">November 16, 2011</time></span>
               <a itemprop="url" href="creating_a_vectorisation_effect_with_java2d.html"><h1 itemprop="name" itemprop="headline">Creating a "Vectorisation" effect with Java2D</h1></a>
-              <span itemprop="articleBody"><p>On my <a href="http://steveliles.github.com/about_me.html">about me</a> page I have a picture of myself wearing a stupid hat and an even more stupid grin. This picture started out as an old photograph from which I removed the background using GIMP, then vectorized using an online tool called <a href="http://vectormagic.com/home">Vector Magic</a>.</p>
+	      <span itemprop="articleBody"><p>On my <a href="http://steveliles.github.com/about_me.html">about me</a> page I have a picture of myself wearing a stupid hat and an even more stupid grin. This picture started out as an old photograph from which I removed the background using GIMP, then vectorized using an online tool called <a href="http://vectormagic.com/home">Vector Magic</a>.</p>
 
 <p>Vector Magic is a very cool tool - it converts bitmap's to vector images by "tracing" the bitmap. Once vectorised you can rescale the image as large as you like without losing the smooth edges.</p>
 
@@ -600,7 +600,7 @@ class Counter {
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,097" description="Description and code for a progressive enhancement syntax highlighter written in javascript using Google Web Toolkit">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-13">November 13, 2011</time></span>
               <a itemprop="url" href="syntax_highlighting_with_gwt_progressive.html"><h1 itemprop="name" itemprop="headline">Syntax Highlighting with GWT.Progressive</h1></a>
-              <span itemprop="articleBody"><p>There are many good syntax-highlighters available for progressively enhancing code on website's such as my blog. On my old blog I used <a href="http://alexgorbatchev.com/SyntaxHighlighter/">Alex Gorbachev's</a> - which is exceptionally good.</p>
+	      <span itemprop="articleBody"><p>There are many good syntax-highlighters available for progressively enhancing code on website's such as my blog. On my old blog I used <a href="http://alexgorbatchev.com/SyntaxHighlighter/">Alex Gorbachev's</a> - which is exceptionally good.</p>
 
 <p>For this blog, I really wanted to write my own. Why? Well, for the same reason I wrote the site-generation software that builds the blog from Markdown templates - because I love programming, and doing this stuff is FUN!</p>
 
@@ -873,7 +873,7 @@ class AnnotationReplacement extends AbstractReplacement {
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,069" description="Description and code samples for progressive enhancement using Google Web Toolkit and a new open source library called gwt.progressive">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
               <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
-              <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
+	      <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
 
 <p>Progressive-enhancement is a technique for delivering a basic website suitable for search-engines and older web-browsers, then layering on polish, effects, interactivity and general goodness using javascript - the idea being to have a graceful degradation of service, not an all-or-nothing experience.</p>
 
@@ -1173,7 +1173,7 @@ class MyWidget extends BoundRootPanel {
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="898" description="Description and code for creating a sitemap xml using freemarker">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-11">November 11, 2011</time></span>
               <a itemprop="url" href="templating_my_blog_with_freemarker.html"><h1 itemprop="name" itemprop="headline">Templating my Blog with FreeMarker</h1></a>
-              <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
+	      <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
 
 <p>I'm using <a href="http://code.google.com/p/markdownj/">MarkdownJ</a> to convert the Markdown syntax to HTML, and <a href="http://freemarker.sourceforge.net/">FreeMarker</a> for templating.</p>
 
@@ -1300,7 +1300,7 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="80" description="A quick test of github's url shortener, invoked using curl">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
               <a itemprop="url" href="most_geeky_thing_i_ever_saw.html"><h1 itemprop="name" itemprop="headline">Most geeky thing I ever saw</h1></a>
-              <span itemprop="articleBody"><p>There's something fabulously, deliciously geeky about using Curl to call a url-shortening service for url's to the web-management console of an online source-code-control system! <a href="http://git.io/help">Githubber's you ROCK!</a></p>
+	      <span itemprop="articleBody"><p>There's something fabulously, deliciously geeky about using Curl to call a url-shortening service for url's to the web-management console of an online source-code-control system! <a href="http://git.io/help">Githubber's you ROCK!</a></p>
 
 <p><code>curl -i http://git.io -F "url=https://github.com/blog/985-git-io-github-url-shortener" -F "code=geek"</code></p>
 
@@ -1333,7 +1333,7 @@ Content-Length: 0
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="98" description="A comparison of linux distribution popularity using Google Trends">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
               <a itemprop="url" href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html"><h1 itemprop="name" itemprop="headline"> Popularity contest - Ubuntu vs OSX Lion vs Win7</h1></a>
-              <span itemprop="articleBody"><p>A while back I played with Google Trends to compare <a href="linux_distro_popularity.html">Linux distribution popularity</a>. Ubuntu was the clear winner.</p>
+	      <span itemprop="articleBody"><p>A while back I played with Google Trends to compare <a href="linux_distro_popularity.html">Linux distribution popularity</a>. Ubuntu was the clear winner.</p>
 
 <p>In that post I also tried to compare OSX and Windows7 against the Linux supremo, but I think I didn't hit on the right search term for OSX.</p>
 
@@ -1360,7 +1360,7 @@ Content-Length: 0
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="303" description="Instructions for how to set up an Eclipse code template for easily writing GWT jsni methods">
               <span class="meta" itemprop="datePublished"><time datetime="2011-10-20">October 20, 2011</time></span>
               <a itemprop="url" href="eclipse_code_template_for_gwt_jsni_methods.html"><h1 itemprop="name" itemprop="headline">Eclipse code template for GWT jsni methods</h1></a>
-              <span itemprop="articleBody"><p>GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them <a href="gwt_javascriptobjects_javascript_overlays.html">before</a>. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!</p>
+	      <span itemprop="articleBody"><p>GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them <a href="gwt_javascriptobjects_javascript_overlays.html">before</a>. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!</p>
 
 <p>Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:</p>
 
@@ -1409,7 +1409,7 @@ Content-Length: 0
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,054" description="An essay on the qualities, personality and behaviours of a good software engineer">
               <span class="meta" itemprop="datePublished"><time datetime="2011-10-19">October 19, 2011</time></span>
               <a itemprop="url" href="what_makes_a_good_developer.html"><h1 itemprop="name" itemprop="headline">What makes a good developer?</h1></a>
-              <span itemprop="articleBody"><p>At the beginning of the year I worked with our Operations Manager in Beirut - <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel Beaini</a> - to do annual reviews for our whole development (and UX) team there. </p>
+	      <span itemprop="articleBody"><p>At the beginning of the year I worked with our Operations Manager in Beirut - <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel Beaini</a> - to do annual reviews for our whole development (and UX) team there. </p>
 
 <p>As part of the review process we gave the developers an updated job specification, which I wanted to be both prescriptive and aspirational - the idea being to describe the role each should currently be playing, to make very clear what would be needed to move to the next level, and at the same time to make everyone want to up their game and take it to the next level.</p>
 
