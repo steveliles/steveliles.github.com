@@ -103,28 +103,28 @@ Several times while working on the styling of this blog I've wanted to style ele
 &lt;/div&gt;
 </code></pre>
 
-<p>Double nasty, take it away! Now I've had to change my html markup to nest <code>important</code> under <code>urgent</code>, just so I can style things as I want them. It also doesn't work if I nest them the other way around. This is really stupid and annoying: styling should be separate from markup.</p>
+<p>Double nasty, take it away! Now I've had to change my html markup to nest <code>.important</code> under <code>.urgent</code>, just so I can style things as I want them. It also doesn't work if I nest them the other way around. This is really stupid and annoying: styling should be separate from markup.</p>
 
 <p>OK, so here's the right way to do it, and I just can't believe it took me so long to feel the pain hard enough to go looking for a solution...</p>
 
 <h3>Option 3: use the union selector</h3>
 
 <pre><code>&lt;style&gt;
-  .classA { color:red; }
-  .classB { font-weight:bold; }
-  .classA.classB { font-style:italic; }
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent.important { font-style:italic; }
 &lt;/style&gt;
 
-&lt;div class="classA"&gt;Red Text&lt;/div&gt;
-&lt;div class="classB"&gt;Bold Text&lt;/div&gt;
-&lt;div class="classA classB"&gt;Bold Italic Red Text&lt;/div&gt;
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Text&lt;/div&gt;
+&lt;div class="urgent important"&gt;Bold Italic Red Text&lt;/div&gt;
 </code></pre>
 
 <p>The difference in the css declaration between option-2 and option-3 is so small I'll point it out, just in case you missed it: </p>
 
 <ul>
-<li>the union selector uses <em>both</em> class names <em>without</em> the space separating them - like this <code>.classA.classB</code>.</li>
-<li>whereas the example in option-2 <code>.classA .classB</code> separates the two classes with a space, and matches on an element with <code>.classB</code> descending from an element with <code>.classA</code>.</li>
+<li>the union selector uses <em>both</em> class names <em>without</em> the space separating them - like this <code>.urgent.important</code>.</li>
+<li>whereas the example in option-2 <code>.urgent .important</code> separates the two classes with a space, and matches on an element with <code>.important</code> descending from an element with <code>.urgent</code>.</li>
 </ul>
 
 <p>CSS can be a thumping great pain, but just occasionally it comes up trumps.</p>
