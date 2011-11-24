@@ -35,1088 +35,540 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,054" description="An essay on the qualities, personality and behaviours of a good software engineer">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-10-19">October 19, 2011</time></span>
-              <a itemprop="url" href="what_makes_a_good_developer.html"><h1 itemprop="name" itemprop="headline">What makes a good developer?</h1></a>
-	      <span itemprop="articleBody"><p>At the beginning of the year I worked with our Operations Manager in Beirut - <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel Beaini</a> - to do annual reviews for our whole development (and UX) team there. </p>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,069" description="Description and code samples for progressive enhancement using Google Web Toolkit and a new open source library called gwt.progressive">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
+              <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
+	      <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
 
-<p>As part of the review process we gave the developers an updated job specification, which I wanted to be both prescriptive and aspirational - the idea being to describe the role each should currently be playing, to make very clear what would be needed to move to the next level, and at the same time to make everyone want to up their game and take it to the next level.</p>
+<p>Progressive-enhancement is a technique for delivering a basic website suitable for search-engines and older web-browsers, then layering on polish, effects, interactivity and general goodness using javascript - the idea being to have a graceful degradation of service, not an all-or-nothing experience.</p>
 
-<p>The end result, I guess, is my attempt at a technology agnostic description of what makes a good developer. Being a developer myself I'm fairly biased towards the technical aspects of the role and probably tend to somewhat overlook the human side of things (team-work, interaction with other parts of the business incl. non-programmers, etc). I'd love to hear constructive feedback on how I could improve these descriptions for next year :)</p>
+<p>Traditionally <code>GWT</code> works the other way around - it builds all of the <code>DOM</code> structure of your web-app in script, so search-engines (and browsers with script disabled) only see an inscrutable mass of script.</p>
 
-<p>Here are the "aspirational" parts of the job descriptions I wrote for the top-tiers - architect/expert and senior developer:</p>
+<p><code>GWT.Progressive</code> helps to bring your ninja <code>GWT</code> skills to bear on web-sites that need progressive enhancement.</p>
 
-<h2>Architect/Expert Developer</h2>
+<p>You can get <code>GWT.Progressive</code> from the <a href="https://github.com/steveliles/gwt-progressive">git repository</a> at github.</p>
 
-<p>A passionate technologist, you demonstrate excitement, deep interest and knowledge of all aspects of development: languages; paradigms; patterns; idioms; platforms; performance; reliability; scalability; quality; tools and technologies. You relish the challenge of hugely complex problems.</p>
-
-<p>Possessing true mastery of at least one modern programming language and paradigm, along with advanced knowledge of idioms and Design Patterns and when (or when not) to apply them, you will be able to recognize opportunities to improve code at a glance, and have the confidence and competence to take these opportunities to refactor towards better design.</p>
-
-<p>You must be able to explain at length the reasons behind (micro)architectural decisions you make - or help others to make - so that others may learn from you. Your code has a finesse and indescribable quality that is the envy of all who read and work with it. You have exceptional ability to narrow down potential sources of a problem, hone in on the root-cause, and propose a range of solutions and explain their pros and cons.</p>
-
-<p>Your architectural skills allow you both to describe designs at a high level to the business, and also to hone in on the complexities and details that allow a design to be implemented successfully. You are able to interpret and translate abstract ideas from more business oriented colleagues and customers, and from those ideas produce designs and specifications for developers to implement. You will be able to identify and separate the real requirements from the incidental details that inevitably form part of such brain-storming or business driven interaction.</p>
-
-<p>You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have no prior experience. You will be aware of facets of these tools and processes that are not in daily use, such that you will be able to turn these tools even more to your advantage in specific situations. You will be constantly looking for new ways to streamline your working practices and those of the team through use of new and existing tools and technologies.</p>
-
-<p>As one of the most senior members of the development team you will set an excellent example of engineering discipline to your colleagues, and will be passionate about achieving the very best quality and helping those around you to do so. You will recognize and evangelize the benefits of engineering disciplines such as source-code control, unit-testing, and code-review, and have a very self-critical view of what constitutes "done".</p>
-
-<p>You will delight in tackling a range of tasks, recognizing the pleasure to be found in a polished solution to the smallest problem, as well as the challenges of a more significant undertaking, and you will enjoy mentoring and engaging in discussion about all aspects of development with your colleagues.</p>
-
-<h2>Senior Developer</h2>
-
-<p>You are the kind of person who develops software for fun in your spare time - whether personal projects or open-source contributions. You are deeply interested in languages, paradigms, idioms, tools and technologies, and in solving difficult problems.</p>
-
-<p>You take great pride in your work, and it shows clearly in the way your code speaks to others - simple, clean, thoroughly unit-tested and easily understood and maintained. You are able to recognize and fix many code-smells and can gently point them out to your less experienced colleagues during code-review. You are keen to develop your skills further through interaction with your colleagues - junior and senior - and by consistently executing any task, large or small, with the attitude that there is always something new to learn. You can quickly identify and fix problems from minimal descriptions.</p>
-
-<p>You are accomplished at taking high level designs and specifications from Architects and implementing them successfully, including creating and assigning suitable sub-tasks to less advanced members of your team. You can articulately explain the reasons behind micro-architectural choices you make during implementation, and evaluate the pros and cons of such decisions.</p>
-
-<p>You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have little or no prior experience. You will be so confident with and reliant upon these tools that you use them even for your personal projects, knowing that the benefits are well worth the extra up-front effort.</p>
-
-<p>You will set an excellent example of engineering discipline to your peers and junior colleagues, and you understand and truly believe in the need for engineering discipline and processes in delivering high quality software. Your attitude toward any task is to produce the best solution you can and learn from the experience. You will actively seek feedback on your solutions from peers and senior colleagues, whether by code-review or less formal discussion.</p>
-
-<p>If you're in Beirut, are a serious Java or Objective-C hacker, and would like to work with us, drop a comment, contact <a href="http://uk.linkedin.com/in/steveliles">me</a> or <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel</a> via linked-in, or tweet me (<a href="http://twitter.com/#!/steveliles">@steveliles</a>)</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Developer">Developer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Architect">Architect</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Engineer">Engineer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Qualities">Qualities</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="what_makes_a_good_developer.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,154" description="An overview of JavaScript Overlay Types, JavaScriptObject, JSNI and JSON parsing in general using GWT">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-10-12">October 12, 2011</time></span>
-              <a itemprop="url" href="gwt_javascriptobjects_javascript_overlays.html"><h1 itemprop="name" itemprop="headline">GWT JavaScriptObjects (Javascript Overlays)</h1></a>
-	      <span itemprop="articleBody"><p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example <a href="http://code.google.com/webtoolkit/doc/latest/DevGuideCodingBasicsOverlay.html">this one</a>. The gist of it is, given some JSON like this:</p>
-
-<pre><code>{ "item": {
-    "id": 123,
-    "name": "cheese",
-    "type": "food"
-  }
-}
-</code></pre>
-
-<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us. </p>
-
-<h2>JavaScript Overlay Types</h2>
-
-<p>We do that by writing a JavaScript Overlay Type class that maps the native json data back to the the world of your Java code, and looks like this:</p>
-
-<pre><code>public class Item extends JavaScriptObject
-{
-    protected Item(){}
-
-    public final native Integer getId()/*-{ 
-        return this.id; 
-    }-*/;
-
-    public final native String getName()/*-{ 
-        return this.name; 
-    }-*/;
-
-    public final native String getType()/*-{ 
-        return this.id; 
-    }-*/;
-}
-</code></pre>
-
-<h2>JSNI Methods</h2>
-
-<p>Those three native methods are known in GWT-land as JSNI methods (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. </p>
-
-<p>In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
-
-<p>The return values from our JSNI can be Java's primitive wrappers or String, any class that extends JavaScriptObject (JSO), or one of a number of special JSO classes GWT provides such as JsArray, JsIterable, JsArrayString, etc.</p>
-
-<p>I have exclusively used jsni methods in my example above, but you can include pure java methods as well (provided they are final) - say, for example, we need to parse a date from some json:</p>
-
-<pre><code>public class Item extends JavaScriptObject
-{
-    private static final DateTimeFormat df = 
-        DateTimeFormat.getFormat("yyyyMMdd");
-
-    protected Item(){}
-
-    public final Date whenCreated() {
-        return df.parse(getCreateDateString());
-    }
-
-    public final native Integer getId()/*-{ 
-        return this.id; 
-    }-*/;
-
-    public final native String getName()/*-{ 
-        return this.name; 
-    }-*/;
-
-    public final native String getType()/*-{ 
-        return this.id; 
-    }-*/;
-
-    public final native String getCreateDateString()/*-{ 
-        return this.createDate; 
-    }-*/;
-}
-</code></pre>
-
-<h2>Mapping complex types</h2>
-
-<p>These are simple examples of course, but i've had no trouble mapping even the most complex JSON objects using JSO's. You can map arrays easily enough using the built in GWT JsArray types, like this:</p>
-
-<pre><code>public class Items extends JavaScriptObject
-{
-    protected Items(){}
-
-    public final native JsArray getItems()/*-{ 
-        return this.items; 
-    }-*/;
-}
-</code></pre>
-
-<p>Which would map the following JSON:</p>
-
-<pre><code>{ items: [
-  {
-    "id": 123,
-    "name": "cheese",
-    "type": "food"
-  },
-  {
-    "id": 456,
-    "name": "ham",
-    "type": "food"
-  },
-  {
-    "id": 789,
-    "name": "eggs",
-    "type": "food"
-  }]
-}
-</code></pre>
-
-<h2>JavaScriptObject rules</h2>
-
-<p>There are a couple of basic rules to follow:</p>
+<h2>What can GWT.Progressive do for me?</h2>
 
 <ul>
-<li>Must have a protected no-arg constructor</li>
-<li><em>All</em> methods must be "final"</li>
-<li>Must not have any instance fields</li>
-<li>May only implement a single Interface</li>
+<li>Bind <code>GWT</code> widgets to html elements on static (or server-generated) html pages, using the html as a template and <code>GWT</code> magic to "enhance" the user-experience</li>
+<li>Automatically bind nested html elements to properties of widget classes (child widgets, grand-child widgets, etc)</li>
+<li>Bind repeated html elements to <code>List&lt;MyWidgetClass&gt;</code> properties of widget classes</li>
+<li>Automatically bind attributes of html elements to properties of widget classes - with automatic type coercion</li>
+<li>Make partial page-updates a breeze (replacing parts of the <code>DOM</code> with new server-generated content)</li>
 </ul>
 
-<h2>JavaScriptObject "gotchas"</h2>
+<h2>How GWT.Progressive works</h2>
 
-<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise...</p>
+<h3>Element Binding</h3>
 
-<p>The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
+<p>You can bind a <code>GWT</code> widget to any html element on your website - just by adding an annotation to the widget class:</p>
 
-<p>If you try to implement the same interface in more than one of your JSO's you don't (currently) get any warnings from the compiler ... instead you get crazy runtime behaviour due to the wrong JSO class's methods being invoked (because one of your JSO's will receive all method invocations for the interface, regardless of which class the method should have been invoked against).</p>
+<pre><code>// bind by id
+@RootBinding(id="mywidget")
+class MyWidget extends Composite {
+    //...
+}
 
-<p>Interestingly I ran into a problem in the latest GWT release (2.4) that reported a very unhelpful error message (I'm sure the messages in earlier releases of GWT were much more helpful actually). Here's the error message I got:</p>
+// bind by tag name
+@RootBinding(tag="h1")
+class MyWidget extends Composite {
+   //...
+}
 
-<pre><code>java.lang.ClassFormatError: Illegal method name "$"
- in class com/xxx/xxx/client/model/UserResult
- at java.lang.ClassLoader.defineClass1(Native Method)
- at java.lang.ClassLoader.defineClassCond(ClassLoader.java:631)
- at java.lang.ClassLoader.defineClass(ClassLoader.java:615)
- at java.lang.ClassLoader.defineClass(ClassLoader.java:465)
- at com.google.gwt.dev.shell.CompilingClassLoader.findClass
-    (CompilingClassLoader.java:1085)
- at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
- at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+// bind by css class
+@RootBinding(cssClass="bind-me")
+class MyWidget extends Composite {
+   //...
+}
+
+// bind by tag name and css class
+@RootBinding(tag="div", cssClass="bind-me")
+class MyWidget extends Composite {
+   //...
+}
 </code></pre>
 
-<p>... as it turns out, the problem actually was that I broke one of the rules - I had a non-final method in my JavaScriptObject. Not a very helpful error message in this case, which is fairly unusual in my experience of GWT.</p>
+<p>Bind nested html to child widgets:</p>
+
+<pre><code>// bind the first &amp;lt;h1&gt; tag we find by breadth first
+// search of the DOM within our widget's root element
+@RuntimeUiWidget(tag="h1") MyHeaderWidget header;
+
+// bind the first element we find by breadth first
+// search that has the css class "foo"
+@RuntimeUiWidget(cssClass="foo") MyFooWidget foo;
+</code></pre>
+
+<p>Bind repeated elements to a List of child widgets:</p>
+
+<pre><code>// bind all the &amp;lt;img&gt; elements we find inside our
+// widget's root element to the list of Image widgets
+@RuntimeUiWidget(tag="img") List&lt;Image&gt; images;
+</code></pre>
+
+<h3>Attribute Binding</h3>
+
+<p>Bind html attributes as properties of your widgets, with automatic type coercion:</p>
+
+<pre><code>// the following attributes will have their default values (set below)
+// overridden by the values of attributes in the html, if they exist
+@RuntimeUiAttribute("text-attr") String textAttr = "default";
+@RuntimeUiAttribute("int-attr") Integer integerAttr = 22;
+@RuntimeUiAttribute("long-attr") Long longAttr = 9L;
+@RuntimeUiAttribute("float-attr") Float floatAttr = 2.3f;
+@RuntimeUiAttribute("double-attr") Double doubleAttr = 2222222.222d;
+@RuntimeUiAttribute("boolean-attr") Boolean booleanAttr = false;
+</code></pre>
+
+<p>Bind attributes to custom types by supplying converters - given html like: <code>&lt;div coords="200x400"&gt; ... &lt;/div&gt;</code>, automatically bind the coords property of our widget as an instance of Coords, converted by CoordsAttributeConverter...</p>
+
+<p>In the <code>Widget</code> we're binding:</p>
+
+<pre><code>// automatically bind our custom Coords class 
+@RuntimeUiAttribute("coords") Coords coords;
+</code></pre>
+
+<p>The <code>Coords</code> class:</p>
+
+<pre><code>class Coords {
+    public Integer x, y;
+    public Coords(Integer anX, Integer aY) {
+        x = anX;
+        y = aY;
+    }
+}
+</code></pre>
+
+<p>The <code>AttributeConverter</code>:</p>
+
+<pre><code>@RuntimeUiAttributeConverter
+public class CoordsAttributeConverter 
+extends AttributeConverter&lt;Coords&gt; {
+    public Coords convert(String aString) {
+        String[] _parts = aString.split("x");
+        return new Coords(
+            Integer.parseInt(_parts[0]), 
+            Integer.parseInt(_parts[1])
+        );
+    }
+}
+</code></pre>
+
+<h3>Partial Page Updates</h3>
+
+<p>Replace chunks of html with new html from the server. Your server can provide this html as it pleases - for example you can call servlets, jsp's, PHP or whatever you like to get the html for the replacement. Your widgets will re-bind to the new html after adding it to the <code>DOM</code>.</p>
+
+<pre><code>// UiBinder afficionados will be familiar with this plumbing
+// which we'll use to invoke our page update...
+interface MyActivator extends ElementActivator&lt;Partial&gt;{}
+MyActivator activator = GWT.create(MyActivator.class);
+
+// here's the widget we're going to update
+@RuntimeUiWidget(tag="div") UpdateMe updateMe;
+
+    ...
+
+// call this method to trigger the update
+private void someMethod() {
+    activator.update(
+        updateMe, "/update-me.jsp", 
+        new CallMeWhenUpdated()
+    );
+}
+</code></pre>
+
+<h3>Partial Page Update callbacks</h3>
+
+<p>You can register callbacks to trigger when a partial update completes - successfully or otherwise. Here's a more complete partial update example:</p>
+
+<pre><code>@RootBinding(tag="div")
+public class Partial extends BoundRootPanel
+    // UiBinder afficionados will be familiar with this
+    interface MyActivator extends ElementActivator&lt;Partial&gt;{}
+    MyActivator activator = GWT.create(MyActivator.class);
+
+    @RuntimeUiWidget(tag="div") UpdateMe updateMe;
+
+    public Partial(Element anElement)
+    {
+        setElement(activator.activate(this, anElement));
+
+        // Update the page when we're clicked...
+        addDomHandler(new ClickHandler() {
+            public void onClick(ClickEvent aEvent) {
+                activator.update(
+                    Partial.this, "/update-me.jsp", 
+                    new CallMeWhenUpdated()
+                );
+            });
+        }            
+    }, ClickEvent.getType());
+
+    class CallMeWhenUpdated 
+    implements PageUpdateCallback&lt;Partial&gt;() {
+        public void onSuccess(Partial anUpdated) {
+            Window.alert("Updated!");
+        }
+
+        public void onError(Throwable anExc) {
+            GWT.log("oops, something bad happened", anExc);
+        }   
+    }
+}
+</code></pre>
+
+<h3>Complete example - Progressive Enhancement with GWT</h3>
+
+<p>Here's the HTML we're going to enhance:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;div class="widget"&gt;
+      &lt;img class="first" src="/image-1.png"&gt;
+      &lt;img class="second" src="/image-2.png"&gt;
+    &lt;/div&gt;
+    &lt;!-- our script loads last, and progressive 
+         enhancement begins --&gt;
+    &lt;script 
+        type="text/javascript" language="javascript" 
+        src="example/example.nocache.js?cache=20111112180652"&gt;
+    &lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Here's the widget we're going to bind to the <code>&lt;div&gt;</code> of css-class "widget":</p>
+
+<pre><code>@RootBinding(cssClass="widget")
+class MyWidget extends BoundRootPanel {
+    interface MyActivator extends ElementActivator&lt;MyWidget&gt;{}
+    MyActivator activator = GWT.create(MyWidget.class);
+
+    @RuntimeUiWidget(cssClass="first") Image first;
+    @RuntimeUiWidget(cssClass="second") Image second;
+
+    public MyWidget(Element anElement) {
+        setElement(activator.activate(this, anElement);
+
+        // ... now we do some enhancements, e.g. add
+        // click-handlers to our image's our something
+    }
+}
+</code></pre>
+
+<p>We'll need an EntryPoint - this is still a <code>GWT</code> application:</p>
+
+<pre><code>class Example1 implements EntryPoint {
+    public void onModuleLoad() {
+        PageActivator _activator = GWT.create(PageActivator.class);
+        _activator.activate();
+    }
+}
+</code></pre>
+
+<p>... and a <code>GWT</code> module descriptor (<code>.gwt.xml</code>) of course:</p>
+
+<pre><code>&lt;module rename-to="example"&gt;
+  &lt;inherits name="com.google.gwt.user.User"/&gt;
+  &lt;inherits name="com.sjl.gwt.progressive.Progressive"/&gt;
+
+  &lt;entry-point class="com.sjl.example.client.Example" /&gt;
+
+  &lt;!-- for maximum compatibility, use the xs linker --&gt;
+  &lt;add-linker name="xs" /&gt;
+&lt;/module&gt;
+</code></pre>
+
+<h2>Rules of engagement</h2>
+
+<p><code>GWT.Progressive</code> requires that you follow a few simple rules to ensure that your widgets get "activated" correctly, integrated into the GWT/browser eventing system, etc.</p>
+
+<p>Your widgets <em>must</em>:</p>
+
+<ul>
+<li>Have a public <code>Constructor</code> that takes a <code>com.google.gwt.dom.client.Element</code> argument, OR</li>
+<li>Have a <code>public static &lt;T&gt; wrap()</code> method that returns an instance of your widget class (this is how native GWT widgets like Image and Label are bound by GWT.Progressive).</li>
+<li><code>GWT.create()</code> a special class that allows <code>GWT.Progressive</code>'s generator to work its magic on your widgets (either <code>com.sjl.gwt.progressive.client.ElementActivator</code> or <code>com.sjl.gwt.progressive.client.WidgetActivator</code>).</li>
+<li>Set your Widget's Element as the return value from activation (<code>setElement(activator.activate(this, anElement))</code>) or init your Composite with it (<code>initWidget(activator.activate(this, anElement))</code>).</li>
+</ul>
+
+<p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
+
+<p>Also, make sure to use the "xs" linker by specifying <code>&lt;add-linker name="xs"/&gt;</code> in your gwt module descriptor for maximum compatibility.</p>
+
+<h3>Where can I find more examples of GWT.progressive?</h3>
+
+<p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
+
+<h3>Are there any examples in the wild?</h3>
+
+<p>There are two examples on this page! - The Twitter feed in the sidebar, and the code <a href="syntax_highlighting_with_gwt_progressive.html">syntax-highlighting</a> are both implemented using <code>gwt.progressive</code>.</p>
+
+<p>You can also try my mortgage/loan <a href="http://steveliles.website.s3-website-eu-west-1.amazonaws.com/">overpayment calculator</a> which is built with gwt.progressive.</p>
+
+<h3>Can I use this in my products?</h3>
+
+<p>Sure, its available under the Apache-2.0 license, but ... disclaimer: use at your own risk and discretion, I cannot accept responsibility for any issues that may arise from using this library.</p>
+
+<h3>Can I modify the code, fix bugs, etc?</h3>
+
+<p>Knock yourself out :) ... I'd love to hear about it if you do.</p>
+
+<h2>Final Words</h2>
+
+<p>I just want to say - props to my employer (<a href="http://www.knowledgeview.com">KnowledgeView ltd.</a>) for allowing me to release the code, some of which was developed on their dime. Mucho thanks KV :)</p>
+
+<p>You can find some more background on <code>GWT.Progressive</code> in some of my earlier blog posts: <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html">part-1</a>, <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html">part-2</a>, and <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html">part-3</a></p>
 </span>
 
               <ul class="keywords">
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JavaScript">JavaScript</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Overlay">Overlay</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSO">JSO</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSON">JSON</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Parsing">Parsing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSNI">JSNI</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="gwt_javascriptobjects_javascript_overlays.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="829" description="An essay on productivity and the state of flow">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-09-22">September 22, 2011</time></span>
-              <a itemprop="url" href="on_flow_and_feeling_productive.html"><h1 itemprop="name" itemprop="headline">On 'Flow' and feeling productive</h1></a>
-	      <span itemprop="articleBody"><p>I like to feel productive. Actually that's a huge understatement. If I'm not feeling productive I get quite unhappy. For me feeling productive goes hand in hand with creative output - something that produces a tangible artifact - and I find it difficult to satisfy my need for productivity with intangible things like meetings.</p>
-
-<p>Even more than that, I need to be deeply involved in the creative activity - part of the group doing the creative stuff rather than managing it from a distance.</p>
-
-<p>This post has been brewing for a while, and I finally began composing it last week. At the weekend I ran out of Kindle-fodder and bought <a href="http://twitter.com/#!/ericries">@ericries</a> 's new book <a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_il?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0670921602">The Lean Startup</a>, and was amazed and pleased to hit upon the following quote, which said it all much better than I could: </p>
-
-<table>
-<tr>
-<td>
-<a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_il?ie=UTF8&tag=stlibl-21&linkCode=as2&camp=1634&creative=19450&creativeASIN=0670921602"><img src="http://ecx.images-amazon.com/images/I/51qNUVObwFL._SL500_AA300_.jpg"></a>
-</td>
-<td>
-<blockquote>"When people are used to evaluating their productivity locally, they feel that a good day is one in which they did their job well all day.</blockquote>
-<blockquote>When I worked as a programmer, that meant eight straight hours of programming without interruption. That was a good day.</blockquote>
-<blockquote>In contrast, if I was interrupted with questions, process, or - heaven forbid - meetings, I felt bad. What did I really accomplish that day? Code and product features were tangible to me; I could see them, understand them, and show them off. Learning, by contrast, is frustratingly intangible."</blockquote>
--- Eric Ries, in The Lean Startup
-</td>
-</tr>
-</table>
-
-<p>Now I agree with almost all of that quote, except for the last sentence where I think the word "learning" is in some ways not fitting. I think Eric meant to encompass questions, process, meetings, and many other things in "learning", in which case I'd agree with him, but there certain kinds of "learning" which I find very productive. </p>
-
-<p>Recently I've been exploring some new avenues in my work - straying away from spending all day coding and venturing into developing product ideas. At first it felt very uncomfortable and I didn't feel at all productive. Lately though I'm coming around to it. </p>
-
-<p>For me part of the way through has been to find ways to turn what I'm thinking and doing into tangible artifacts that require some creative effort to produce - for example: drawing UI wireframes, writing up meetings and brainstorming sessions, and developing ideas in essay form. </p>
-
-<p>By committing &amp;ideas to disk I've started to feel productive again. Perhaps its just a safety blanket really, but it feels good, and the best bit is that with each new artifact, essay, description, and wireframe I can link to previous artifacts for reference, backup or explanation (all are available online in our basecamp account), and the conversation gets richer. </p>
-
-<p><img src="http://2.bp.blogspot.com/-zYYLyGL6IF8/Tnuwx1j5bHI/AAAAAAAAHmU/ohE6yl1bFQU/s554/Screenshot-Portable%2BDevices%2BBusiness%2BUnit%2B%253E%2BEasy%2BPublish%253A%2Bassumptions%2Band%2Buse-cases%2B-%2BGoogle%2BChrome-1.png" alt="Basecamp Messages" /> </p>
-
-<p>I've begun to wonder if some of my feeling of productivity actually comes from spending a certain amount of time each day in a state of <a href="http://en.wikipedia.org/wiki/Flow_(psychology">flow</a>), and if I don't get to spend some time each day in that state then I feel less happy and productive. </p>
-
-<p>There are a few activities - mostly creative in some way - during which I find myself zoning out and really getting immersed in what i'm doing: coding; drawing; reading (novels); and - with a bit of effort - writing. Once i'm tuned out I can go on for hours without feeling time passing. </p>
-
-<p>When I'm coding at home, with no distractions, I'll sit at the table in morning when my wife leaves for work and will hardly have moved by the time she comes home. I've noticed that I even realize, sometimes, that i'm in this state and have a "lucid flow" moment akin to lucid dreaming. Usually I get this when I hit a turning point in my work: when I've been working on a problem for a couple of hours and finally feel the complete shape of the solution in my head - I'm as deep into the problem as I'm going to get, I can start unwinding the mental stack, and from here on in progress is going to get quicker and quicker. Love that feeling. </p>
-
-<table>
-<tr>
-<td>
-<p>Coding is the creative activity that I spend most time on, so its also the activity that most often gets me into <a href="http://en.wikipedia.org/wiki/Flow_(psychology))">flow</a>, but I find the most powerful activity for flow is drawing.</p>
-<p>I suspect this has a lot to do with the difference between coding and drawing - the fact that coding requires the language centres of the brain to be active. Betty Edwards has quite a bit to say on this in Drawing on the Right Side of the Brain, which is an interesting read if you can draw reasonably well, but presumably a revelation if you've never been able to draw.</p>
-</td>
-<td>
-<a href="http://www.amazon.co.uk/gp/product/images/0007116454/ref=dp_image_0?ie=UTF8&n=266239&s=books)"><img src="http://ecx.images-amazon.com/images/I/5114QGDGH7L._SL500_AA300_.jpg"></a>
-</td>
-</tr>
-</table>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Flow">Flow</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Productivity">Productivity</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="on_flow_and_feeling_productive.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="445" description="A short profile on Steve Liles">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-09-11">September 11, 2011</time></span>
-              <a itemprop="url" href="about_me.html"><h1 itemprop="name" itemprop="headline">About Me</h1></a>
-	      <span itemprop="articleBody"><p>I didn't intend to have an about me page, but it turns out that to get google to display my mugshot next to search listings I have to have one. So here it is.</p>
-
-<table>
-<tr>
-<td>
-  <img src="images/viking.png">
-</td>
-<td>
-  <img src="images/arrow-left.png">
-</td>
-<td>
-  <p>This is me, the grinning idiot in the viking hat. Sadly I no longer have the hat.</p>
-  <p>If you're interested, I took an (old) picture and vectorised it using <a href="http://vectormagic.com/">Vector Magic</a>, which allows online vectorising of a couple of images for free (thanks VectorMagic!)</p>
-</td>
-</tr>
-</table>
-
-<p>I graduated from Reading University with a BSc hons. degree in Computer Science and <a href="http://www.reading.ac.uk/cybernetics/">Cybernetics</a>, and immediately started work as a programmer at <a href="http://www.baesystems.com/">British Aerospace</a>, where I stayed for about a year and a half.</p>
-
-<p>Next I moved on to work at a much smaller and more exciting company - <a href="http://www.knowledgeview.com">KnowledgeView</a> - where I have spent the last 11 years (oh me, oh my) developing a variety of web-based Editorial, Publishing and Syndication systems for news publishers - many based in the Middle-East and working and publishing in Arabic. We also build native and web apps for iPhone, iPad and Android devices to complement our publishing systems. </p>
-
-<p>My current title is "Development Manager", though I think the job description would be better represented by the title "Chief Engineer". (A peculiar quirk of being a programmer is that you become a <a href="http://rcm-uk.amazon.co.uk/e/cm?lt1=_blank&amp;bc1=000000&amp;IS2=1&amp;bg1=FFFFFF&amp;fc1=000000&amp;lc1=0000FF&amp;t=stlibl-21&amp;o=2&amp;p=8&amp;l=as4&amp;m=amazon&amp;f=ifr&amp;ref=ss_til&amp;asins=B005LI3W9W]">pedant for nomenclature</a>). </p>
-
-<p>I still code every day, for as many hours as I can. My "management style", if I have such a thing, is to lead by example. I care a lot about writing good code, using good tools, and leaving things in a better state than I found them. I try hard to <a href="what_makes_a_good_developer.html">enthuse my team</a> to the same ideals.</p>
-
-<p>KnowledgeView is still small, though we have a growing team in Beirut. It's also occasionally quite exciting, otherwise I wouldn't still be there. Over the years we've had many high-profile customers, including:</p>
-
-<ul>
-<li><a href="http://www.newsint.co.uk/">News International</a></li>
-<li><a href="http://www.cnnarabic.com">CNN arabic</a></li>
-<li><a href="http://www.inmplc.com/">Independent News and Media</a></li>
-<li><a href="http://www.srmg.com/en">Saudi Research and Media Group</a></li>
-<li><a href="http://www.daralhayat.com/">Al-Hayat Newspaper</a></li>
-<li><a href="http://www.alquds.co.uk/">Al-Quds</a></li>
-<li>... and many more besides</li>
-</ul>
-
-<p>When I'm not at work I divide my time between growing veg on my allotment (conveniently just outside my garden gate) and working on my personal programming projects. </p>
-
-<p>I believe that programming is the most fun a person can have on their own, and I often wonder if non-programmers know what they are missing out on. I sometimes find time to <a href="some_old_sketches.html">draw</a>, and wish I could find <a href="more_old_sketches.html">more</a>.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=steve liles">steve liles</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="about_me.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,904" description="Description and code for an Android desktop widget and backing Service for displaying tweets">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-09-08">September 08, 2011</time></span>
-              <a itemprop="url" href="my_first_android_app_desktop_widget.html"><h1 itemprop="name" itemprop="headline">My first Android app (desktop widget)</h1></a>
-	      <span itemprop="articleBody"><p>Having spent quite a bit of time away from Eclipse lately I've been itching to play with some code again. During a short meeting this morning an idea hit me for a really simple Android desktop widget: a twitter search widget that you can drop on your desktop and configure with a hash-tag search.</p>
-
-<p>Here's how it looks in the Android emulator:</p>
-
-<p><img src="https://lh5.googleusercontent.com/-vquQDRX3D2Y/TmjCGIscAiI/AAAAAAAAHlw/g0nU2gdPnug/s815/tweet-widget.png" alt="Screenshot" /></p>
-
-<p>I know, not exactly eye-candy, but that wasn't really the point :)</p>
-
-<h3>The important pieces of the puzzle are:</h3>
-
-<ul>
-<li>A BroadcastReceiver that receives events telling the widget to update. Here I extended AppWidgetProvider to override onUpdate only.</li>
-<li>A Service that does the Twitter API request asynchronously - we don't want to use the UI thread and fail the responsiveness criteria</li>
-<li>The "widget info" descriptor xml</li>
-<li>Android manifest entries that register the Service and the broadcast receiver</li>
-<li>SAX ContentHandler implementation to parse the Tweet text from the atom response to the Twitter API request</li>
-</ul>
-
-<p>Here's the code, currently wired to display a search for "#uml"</p>
-
-<h4>The BroadcastReceiver</h4>
-
-<pre><code>public class NewsTicker extends AppWidgetProvider {
-    @Override
-    public void onUpdate(Context aContext, 
-        AppWidgetManager aAppWidgetManager, 
-        int[] aAppWidgetIds) {
-        super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
-        aContext.startService(
-            new Intent(aContext, NewsTickerDataService.class));
-    }
-}
-</code></pre>
-
-<h4>The Service</h4>
-
-<pre><code>public class NewsTickerDataService extends Service {
-
-    @Override
-    public void onStart(Intent aIntent, int aStartId) {
-        super.onStart(aIntent, aStartId);   
-        RemoteViews _views = buildUpdatedViews(this);   
-        ComponentName _widget = 
-            new ComponentName(this, NewsTicker.class);
-        AppWidgetManager _manager = 
-            AppWidgetManager.getInstance(this); 
-        _manager.updateAppWidget(_widget, _views);
-    }
-
-    @Override
-    public IBinder onBind(Intent aParamIntent) {
-        // not supporting binding   
-        return null;
-    }
-
-    private RemoteViews buildUpdatedViews(Context aContext) {
-        List&amp;lt;Story&gt; _stories = getStories();
-        RemoteViews _result = new RemoteViews(
-            aContext.getPackageName(), 
-            R.layout.newsticker_widget
-        );
-
-        if (_stories.isEmpty()) {
-            _result.setTextViewText(R.id.title, 
-                "Sadly there's nothing to read today.");
-        } else {
-            _result.setTextViewText(
-                R.id.title, _stories.get(0).getTitle());
-        }
-        return _result;
-    }
-
-    private List&amp;lt;Story&gt; getStories() {
-        try {
-            URL _url = new URL("http://search.twitter.com" +
-                "/search.atom?q=%23uml&amp;" + 
-                "result_type=mixed&amp;count=5"
-            );
-            InputStream _in = _url.openStream();
-            return parse(new InputSource(_in));
-        } catch (Exception anExc) {
-            Log.e("NewsTicker", anExc.getMessage(), anExc);
-            return new ArrayList&amp;lt;Story&gt;();
-        }
-    }
-
-    private List&amp;lt;Story&gt; parse(InputSource aSource)
-    throws Exception {
-        SAXParserFactory _f = SAXParserFactory.newInstance();
-        SAXParser _p = _f.newSAXParser();
-        XMLReader _r = _p.getXMLReader();
-
-        AbstractParser _h = new AtomParser();
-        _r.setContentHandler(_h);   
-        _r.parse(aSource);
-
-        return _h.getStories();
-    }
-}
-</code></pre>
-
-<h4>The SAX ContentHandler</h4>
-
-<pre><code>public abstract class AbstractParser extends DefaultHandler {
-
-    static interface Handler {
-        Handler startElement(String aName);
-        Handler characters(char[] aChars, int aStart, int aLength);
-        Handler endElement(String aName);
-    }
-
-    public static AbstractParser newAtomParser() {
-        return new AbstractParser() {
-            protected String getStoryElementName() {
-                return "entry";
-            }
-        };
-    }
-
-    private Handler handler;
-    private List&amp;lt;Story&gt; stories;
-
-    public AbstractParser() {
-        stories = new ArrayList&amp;lt;Story&gt;();
-        handler = newDefaultHandler();
-    }
-
-    protected abstract String getStoryElementName();
-
-    @Override
-    public void startElement(
-        String aUri, String aLocalName, 
-        String aQName, Attributes aAttributes) 
-    throws SAXException {
-        handler = handler.startElement(aLocalName);
-    }
-
-    @Override
-    public void characters(char[] aCh, int aStart, int aLength) 
-    throws SAXException {
-        handler = handler.characters(aCh, aStart, aLength);
-    }
-
-    @Override
-    public void endElement(String aUri, String aLocalName, String aQName) 
-    throws SAXException {
-        handler = handler.endElement(aLocalName);
-    }
-
-    public List&amp;lt;Story&gt; getStories() {
-        return stories;
-    }
-
-    private Handler newDefaultHandler() {
-        return new Handler() {
-            @Override
-            public Handler startElement(String aName) {
-                if (aName.equals(getStoryElementName())) {
-                    return newItemHandler(this);
-                }
-                return this;
-            }
-
-            @Override
-            public Handler characters(
-                char[] aChars, int aStart, int aLength) {
-                return this;
-            }
-
-            @Override
-            public Handler endElement(String aName) {
-                return this;
-            }
-        };
-    }
-
-    private Handler newItemHandler(final Handler aParent) {
-        stories.add(new StoryImpl());
-
-        return new Handler() {
-            @Override
-            public Handler startElement(String aName) {
-                if ("title".equals(aName)) {
-                    return newTitleHandler(this);
-                }
-                return this;
-            }
-
-            @Override
-            public Handler characters(
-                char[] aChars, int aStart, int aLength) {
-                return this;
-            }
-
-            @Override
-            public Handler endElement(String aName) {
-                if (getStoryElementName().equals(aName)) {
-                    return aParent;
-                }
-                return this;
-            }
-        };
-    }
-
-    private Handler newTitleHandler(final Handler aParent) {
-        final StringBuilder _title = new StringBuilder();
-
-        return new Handler() {
-            @Override
-            public Handler startElement(String aName) {
-                return this;
-            }
-
-            @Override
-            public Handler characters(
-                char[] aChars, int aStart, int aLength) {
-                _title.append(aChars, aStart, aLength);
-                return this;
-            }
-
-            @Override
-            public Handler endElement(String aName) {
-                if ("title".equals(aName)) {
-                    StoryImpl _s = (StoryImpl) 
-                    stories.get(stories.size()-1);
-                    _s.setTitle(_title.toString());
-                    return aParent;
-                }
-                return this;
-            }
-        };
-    }
-}
-</code></pre>
-
-<h4>The Android Manifest</h4>
-
-<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-&lt;manifest 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.knowledgeview.android.ticker"
-    android:versionCode="1"
-    android:versionName="1.0"&gt;
-  &lt;uses-sdk android:minSdkVersion="7" /&gt;
-  &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
-  &lt;application 
-        android:icon="@drawable/icon" 
-        android:label="@string/app_name"&gt;
-    &lt;receiver android:name=".NewsTicker"&gt;
-      &lt;intent-filter&gt;
-    &lt;action 
-          android:name="android.appwidget.action.APPWIDGET_UPDATE"/&gt;
-      &lt;/intent-filter&gt;
-      &lt;meta-data 
-            android:name="android.appwidget.provider"
-    android:resource="@xml/newsticker_widget_info"/&gt;
-    &lt;/receiver&gt;
-    &lt;service android:name=".NewsTickerDataService"/&gt;
-  &lt;/application&gt;
-&lt;/manifest&gt;
-</code></pre>
-
-<h4>The Widget descriptor</h4>
-
-<pre><code>&lt;appwidget-provider 
-      xmlns:android="http://schemas.android.com/apk/res/android"
-  android:minWidth="294dp"
-  android:minHeight="72dp"
-  android:updatePeriodMillis="86400000"
-  android:initialLayout="@layout/newsticker_widget"&gt;
-&lt;/appwidget-provider&gt;
-</code></pre>
-
-<h4>The layout descriptor</h4>
-
-<pre><code>&lt;LinearLayout 
-      android:id="@+id/linearLayout1" 
-      android:layout_width="fill_parent" 
-      android:layout_height="fill_parent" 
-      xmlns:android="http://schemas.android.com/apk/res/android"&gt;
-  &lt;TextView
-    android:textAppearance="?android:attr/textAppearanceSmall"
-    android:id="@+id/title"
-    android:text="TextView"
-    android:textSize="10sp"
-    android:textColor="#fff"
-    android:layout_height="60dp"
-    android:layout_width="fill_parent"
-    android:background="#c333"
-    android:padding="3dp"
-    android:layout_margin="5dp"&gt;
-  &lt;/TextView&gt;
-&lt;/LinearLayout&gt;
-</code></pre>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Desktop Widget">Desktop Widget</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Twitter">Twitter</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="my_first_android_app_desktop_widget.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198" description="Binding Java processes - and thus threads - to a single CPU">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
-              <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
-	      <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
-
-<p>To replicate I needed to run on a single-cpu but I didn't want to commit more potentially broken tests to source-control and run repeatedly breaking builds on the build-server.</p>
-
-<p>I discovered that its possible to bind an exec'd process to a single CPU in newer 'nix's using taskset. Invoking my maven build using taskset to bind the test-run to a single CPU core replicated the failure immediately, and from there it was an easy fix. Here's the cmdline to bind a maven build to a single CPU (I'm running Ubuntu, YMMV):</p>
-
-<pre><code>taskset -pc 0 mvn clean test
-</code></pre>
-
-<p>tasket is part of schedutils, which you may or may not have installed. It was installed on my machine already, possibly because of other things i've installed in the past. If needed you can install it with:</p>
-
-<pre><code>sudo apt-get install schedutils
-</code></pre>
-
-<p>It basically sets processor affinity by setting some process properties that tell the linux cpu scheduler to only allow the process to run on the stated CPU's.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CPU affinity">CPU affinity</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threading">Threading</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403" description="Problem description and solution for runtime error messages pertaining to testing a web app that uses JQuery using HtmlUnit.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
-              <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
-	      <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
-
-<p>...
-One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
-
-<pre><code>runtimeError: message=
-  [The data necessary to complete this operation is not yet available.]
-  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
-  lineSource=[null] lineOffset=[0]
-</code></pre>
-
-<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
-
-<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
-
-<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
-
-<pre><code>// The DOM ready check for Internet Explorer
-function doScrollCheck() {
- if ( jQuery.isReady ) {
-  return;
- }
-
- try {
-  // If IE is used, use the trick by Diego Perini
-  // http://javascript.nwbox.com/IEContentLoaded/
-     document.documentElement.doScroll("left");
- } catch(e) {
-  setTimeout( doScrollCheck, 1 );
-  return;
- }
-
- // and execute any waiting functions
- jQuery.ready();
-}
-</code></pre>
-
-<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
-
-<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
-
-<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="jquery_htmlunit_runtimeerror_messages_galore.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,658" description="Tell dont ask programming style, and how to unit test code written in that style - with examples.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-03-15">March 15, 2011</time></span>
-              <a itemprop="url" href="unit_testing_code_written_in_tell_don_t_ask_style.html"><h1 itemprop="name" itemprop="headline">Unit Testing code written in "Tell, Don't Ask" style</h1></a>
-	      <span itemprop="articleBody"><p>More and more I find myself enjoying the "Tell, Don't Ask" style of programming, to the extent that recently I've been challenging myself to write all my code that way. </p>
-
-<p>This brought up an interesting discussion while working on a proto-type with an excellent developer I've known and worked with for years - how do you test code written in this style?</p>
-
-<h3>Setting the scene</h3>
-
-<p>The idea of the proto-type was to play with and test out several Entity-Extraction and Text-Clustering algorithms - some that we had researched, some using existing libraries, and others of our own devising. We collected a few dozen Mb-worth of sample data to toy with, and I knocked up a quick harness to feed the test data into the Entity-Extraction and Test-Clustering routines, which just needed to implement a bunch of Java interfaces I'd written (using "Tell, Don't Ask" style). Each of us then proceeded to implement some of the algorithms, which we plugged in Strategy-Pattern style.</p>
-
-<p>Every so often as we were working, my colleague would turn and say something like "I need to add Xxxx to the Yyyy interface, so I can unit-test my implementation". His feeling was that whilst in principle "Tell, Don't Ask" is laudable, it makes testing very awkward and ungainly.</p>
-
-<p>As a result the interfaces drifted away from "Tell, Don't Ask" so that, whilst they still included the callback-style methods, they now presented a more typical "Ask" style API too - a simple example being: implementing <code>Iterable&lt;T&gt;</code> as well as providing <code>each(T)</code> methods.</p>
-
-<h3>Example Tests</h3>
-
-<p>Let's look at a simple example of the kind of tests that appear to be made difficult due to the "Tell, Don't Ask" style. Note that I'm using junit 3.8 style for these examples.</p>
-
-<p>Say we have a Stuff interface, which is an immutable container of Thing's, and a ThingMaker that creates many Thing's and returns them packed in a Stuff.  Here are the "Tell, Don't Ask" interfaces we might have started off with:</p>
-
-<pre><code>  public interface Thing {
-    public String getName();
-    public void doThings();
-  }
-
-  public interface ThingCallback {
-    public void with(Thing thing);
-  }
-
-  public interface Stuff {
-    public void each(ThingCallback callback);
-  }
-
-  public interface ThingMaker {
-    public Stuff makeThings(int howMany);
-  }
-</code></pre>
-
-<p>Pretty straight-forward. Now, lets see what happens when we want to test that when we ask the ThingMaker to make two Thing's, we actually get two non-null Thing's. Here's what the test method might look like:</p>
-
-<pre><code>public void testMakesCorrectNumberOfThings() {
-  ThingMaker tm = new SimpleThingMaker();
-  Stuff result = tm.makeThings(2);
-
-  final boolean[] calledBack = new boolean[1];
-  final int[] count = new int[1];
-
-  result.each(new ThingCallback() {
-    public void with(Thing thing) {
-      calledBack[0] = true;
-      if (thing != null) {
-        count[0] = count[0]++;
-      }
-    }
-  });
-
-  assertTrue(calledBack[0]);
-  assertEquals(2, count.length);
-}
-</code></pre>
-
-<p>Yikes, that's pretty nasty. What's all that nonsense with the final arrays? Well, given that we're working in an anonymous inner class (the callback) we can't just update a boolean or an int that we've declared in the enclosing scope, the only option we have is to cheat and use final variables that have mutable content - arrays are a cheap way to do that. But I think you'll agree this is hideous.</p>
-
-<p>An alternative is to make the inner class do the checking and counting. To do that we have to raise its profile somewhat, to make it a named inner class:</p>
-
-<pre><code>  class TestThingCallback implements ThingCallback {
-    boolean called;
-    int count;
-
-    public void with(Thing thing) {
-      called = true;
-      count++;
-    }
-  }
-
-  public void testMakesCorrectNumberOfThings() {
-    ThingMaker tm = new SimpleThingMaker();
-    Stuff result = tm.makeThings(2);
-
-    TestThingCallback cb = new TestThingCallback();
-    result.each(cb);
-
-    assertTrue(cb.called);
-    assertEquals(2, cb.count);
-  }
-</code></pre>
-
-<p>OK, well that's a lot better, but the effort of making these "Test Spy" objects grows very quickly, and although this is more readable it somehow feels less concise, and by moving code outside of the test-method it makes it just that little bit more awkward to read.</p>
-
-<p>I think this shows that "classical" unit testing of "Tell, Don't Ask" style code is actually awkward enough to want to find a better way. But can we do any better? Absolutely ...</p>
-
-<h3>Enter, jMock</h3>
-
-<p>jMock is an astonishingly useful tool in the testing arsenal. It makes truly unit testing your code possible without masses of work creating Test Double's, because it does all the grunt work for you. Lets quickly re-write our test using jmock.</p>
-
-<pre><code>  public class TestCaseThingMaker extends MockObjectTestCase {
-    public void testMakesCorrectNumberOfThings() {
-      final ThingCallback callback = mock(ThingCallback.class);
-      checking(new Expectations(){{
-        exactly(2).of(callback).each(with(any(Thing.class)));
-      }});
-
-      ThingMaker tm = new SimpleThingMaker();
-      Stuff result = tm.makeThings(2);
-      result.each(callback);
-    }
-  }
-</code></pre>
-
-<p>Some of that might need a little explanation, so here goes:</p>
-
-<p>The first thing we do inside our test method is create a "mock" instance of the ThingCallback interface. jMock does this for you in the invocation of the mock method.</p>
-
-<p>Next we set up our "expectations" of what will happen to the mock ThingCallback during our test. The slightly funky syntax with the double braces is just an instance initializer on an anonymous inner class. The interesting bit is the declaration of what we expect to happen to our mock object - this is the bit inside those {{ ... }} written in jMock's intuitive internal DSL. To understand it you just have to read the whole line from left to right - we're expecting exactly 2 invocations of callback.each() with any instance of Thing.</p>
-
-<p>Once we've set up our expectations it only remains to build the object under test - SimpleThingMaker - and invoke the methods we want to test.
-If you are staring at that and wondering how JMock knows that the test is finished and the expectations should have been met (and that it should fail the test if not), notice that I'm using the JUnit-3 integration here - extending MockObjectTestCase - and the behind the scenes plumbing is taking care of that last step for me. </p>
-
-<p>If you're using the JUnit-4 integration you need to explicitly invoke assertIsSatisfied on the mock object context (org.jmock.Mockery) which supplied your mock objects.
-jMock takes a little getting used to, as it involves quite a different way of thinking about your test. If you want to write good tests with it it certainly involves considerable effort to learn how to use it well (its easy to use it badly and end up with tests which are very difficult to understand). Once you get used to it though, it really does make tests much easier to write and, more importantly, to read.</p>
-
-<p>I find that jMock really comes into its own when testing Tell, Don't Ask code - the code under test is clean and, by nature of the improved data-hiding, more robust, whilst jMock provides a very neat way to test that code with a minimum of fuss and boiler-plate. </p>
-
-<p><em>UPDATE:</em> After ruminating on this for a while I came to the conclusion that JMock is so good at testing "Tell, don't ask" code that I was sure the designers of JMock must have set out with that in mind. I found a very nice post from @natpryce (one of the JMock authors) which confirmed my suspicions - Nat describes tell don't ask very succinctly:</p>
-
-<blockquote>
-  <p>"...objects tell each other what to do by sending commands to one another, they don't ask each other for information and then make decisions upon the results of those queries. </p>
-  
-  <p>The end result of this style is that it is easy to swap one object for another that can respond to the same commands but in a different way. This is because the behaviour of one object is not tied to the internal structure of the objects that it talks to."</p>
-</blockquote>
-
-<p>Nat goes on to say that the only way to test tell-dont-ask code is to see how the state of the world is affected when objects are told to do something (because you can't ask them about their state), and that this is best achieved with mock objects, whereas "train wreck" code (Nat's description of code that is not written tell-dont-ask style, and commonly violates demeter's law) is hard to test with mock objects.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TDD">TDD</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Unit Testing">Unit Testing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Tell Dont Ask">Tell Dont Ask</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="unit_testing_code_written_in_tell_don_t_ask_style.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="536" description="A quick overview of pro's and con's of ElasticSearch vs SOLRCloud from some brief initial research into both">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-24">February 24, 2011</time></span>
-              <a itemprop="url" href="elasticsearch_vs_solrcloud.html"><h1 itemprop="name" itemprop="headline">ElasticSearch vs SOLRCloud</h1></a>
-	      <span itemprop="articleBody"><p>For an upcoming work project I need a scalable search platform - scalable to tens or hundreds of millions of documents (news articles), and millions of queries per day. We're a (mostly) Java shop, and have a lot of experience with Lucene, so two solutions that pique my curiosity are SOLRCloud (SOLR + ZooKeeper) and ElasticSearch.</p>
-
-<h3>Initial Impressions - ElasticSearch</h3>
-
-<p>ElasticSearch is impressive. Its clean, simple, and elegant. For those who are familiar with Compass, ElasticSearch can be considered as Compass 3.0 (quoting Shay Bannon, author of Compass). ElasticSearch has been under development for about 9 months at time of writing, and is currently at version 0.15. It appears to be very actively developed, with new features and fixes flowing steadily. </p>
-
-<p>My main worry at this point is that there appears to be only one "resource" active on the project - Shay Bannon (@kimchy) himself, who seems to be architect, developer, documentation-writer, and a prolific commenter on forums.</p>
-
-<h4>Noteworthy features include:</h4>
-
-<ul>
-<li>Document-oriented / Schema-free (JSON documents)</li>
-<li>Store, retrieve, index and search multiple versions of documents</li>
-<li>Self-hosting RESTful web-service api</li>
-<li>Exposes the full power of lucene queries</li>
-<li>Multiple Indexes in one cluster (described as Multi-Tenancy)</li>
-<li>Built from the ground-up with scalability and distributed-operation in mind - supporting distributed search, automatic fail-over and re-balancing, with no single point of failure</li>
-<li>Support for async write/backup to shared storage (Gateway, in ElasticSearch parlance)</li>
-<li>"Percolator" (aka. prospective search)</li>
-</ul>
-
-<h3>Initial Impressions - SOLRCloud</h3>
-
-<p>SOLR is a project from the same (Apache) stable as Lucene itself, and the projects have recently merged to some degree. SOLRCloud is an extension that integrates ZooKeeper with SOLR with the express aim of "enabling and simplifying the creation and use of Solr clusters."</p>
-
-<p>SOLRCloud is described as "still under development", ie., not yet a GA release. </p>
-
-<h4>Currently proclaimed features include:</h4>
-
-<ul>
-<li>Central configuration of the entire cluster</li>
-<li>Automatic load-balancing and fail-over for queries</li>
-<li>ZooKeeper integration for cluster coordination and configuration (not sure I would have listed that as a feature personally!)</li>
-<li>I'll add that SOLRCloud is part of the SOLR code-base, and is being developed by core Lucene and SOLR committers including Mark Miller and Yonik Seeley. This can only be a good thing :). On top of all that, SOLR has been around for a good long time now, so it is battle-tested and there's lots of information available (including numerous books).</li>
-</ul>
-
-<p>That said, I still have two big worries about SOLRCloud:
-* Setup/deployment just sounds fiddly - it is recommended not to deploy zookeeper embedded with SOLR (though I cannot find any explanation to back up that recommendation), which means you need both a ZooKeeper ensemble - multiple ZooKeeper instances - and a SOLRCloud ... er ... cloud.
-* No GA release as yet, and no roadmap that I can find (this is the closest I got).</p>
-
-<h3>Next Steps</h3>
-
-<p>My next steps are to dive in to both technologies and really get to see which best suits our needs, and really how difficult these things are likely to be to manage in a medium/large-scale deployment.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ElasticSearch">ElasticSearch</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOLRCloud">SOLRCloud</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Lucene">Lucene</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Search">Search</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Scalability">Scalability</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="elasticsearch_vs_solrcloud.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,532" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 3">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-15">February 15, 2011</time></span>
-              <a itemprop="url" href="progressive_enhancement_with_gwt_part_3.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 3</h1></a>
-	      <span itemprop="articleBody"><p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
-
-<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
-
-<p>In my previous posts I described an idea for progressive enhancement using GWT -  "activating" server-generated html, to combine GWT goodness with an SEO friendly server-generated website, and my findings after some initial trials. </p>
-
-<p>One of the problems I described in that second post was that it would be very difficult to work with these widgets if nested widgets could not be automatically (or at least easily) bound to fields within this widget.</p>
-
-<p>After a little playing around and learning about GWT Generators I now have what seems like a nice solution, using a Generator to do almost all of the donkey work. Think of it like UiBinder, but with the templates provided at runtime (courtesy of the server). Here's an example class that automatically binds sub-widgets - an Image in this case - to a field of that class:</p>
-
-<pre><code>public class MyWidget extends Widget {
-
-    interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}
-    private static MyActivator activator = GWT.create(MyActivator.class);
-
-    @RuntimeUiField(tag="img", cssClass="small") Image small;
-
-    public MyWidget(Element anElement) {
-        // this will set our element and bind our image field.
-        setElement(activator.activate(this, anElement));
-
-        // now we can play with our fields.
-        small.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent aEvent) {
-                Window.alert("clicked!");
-            }
-        });
-    }
-}
-</code></pre>
-
-<p>This class will bind onto any html that has an image tag somewhere in its inner-html, for example:</p>
-
-<pre><code>&lt;div&gt; &lt;!-- Say our MyWidget is bound here --&gt;
-  &lt;div&gt;
-    &lt;span&gt;
-          &lt;!-- will be bound to our Image widget --&gt;
-      &lt;img class="small" src="/images/image.jpg"&gt;
-    &lt;/span&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-</code></pre>
-
-<p>Anyone familiar with UiBinder will recognize the pattern I've used for the "activator":</p>
-
-<ul>
-<li>Extend an interface with no methods
-<code>interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}</code></li>
-<li>GWT.create() an instance of that interface
-<code>private static MyActivator activator = GWT.create(MyActivator.class);</code></li>
-<li>Then use it to initialize your widget
-<code>setElement(activator.activate(this, anElement));</code></li>
-</ul>
-
-<p>The nice thing about this is we can automatically bind as many widgets as we like onto various sites within the inner-html of our current widget's element. It doesn't mess with the structure (unless you explicitly do so after the binding is done for you), and you can have as much other html within the elements as you like - it will just be left alone, which gives your designers the flexibility to change the layout quite a lot without necessarily needing to re-compile your GWT code. </p>
-
-<p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
-
-<pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
-// search of child elements
-@RuntimeUiField(tag="div") Label label;
-
-// bind to first element with class="my-widget" 
-// found by breadth-first search
-@RuntimeUiField(cssClass="my-widget") Label label;
-
-// bind to first &amp;lt;div&gt; with class="my-widget" 
-// found by breadth-first search
-@RuntimeUiField(tag="div", cssClass="my-widget") Label label;
-</code></pre>
-
-<p>Notice in my examples so far I'm binding standard GWT widgets onto the nested elements. This works for the elements I've used in these examples because they all have a <code>public static Type wrap(Element anElement)</code> method which allows those widgets to be bound onto elements that are already attached to the DOM.</p>
-
-<p>It is also possible to bind widgets of your own making in one of two ways:</p>
-
-<ol>
-<li>Create a wrap method like 
-<code>public static MyWidget wrap(Element anElement)</code></li>
-<li>Create a single-argument public Constructor that accepts an <code>Element</code> as its argument.</li>
-</ol>
-
-<p>Activate-able widgets can be nested within other such widgets - with no limits that I am aware of so far - and it is also possible to assign nested widgets to a List field in the enclosing widget, like this:</p>
-
-<pre><code>@RuntimeUiField(tag="img") List&lt;Image&gt; images;
-</code></pre>
-
-<p>This will search recursively for any <code>&lt;img&gt;</code> tags inside the enclosing widget's element and bind them all to Image widget's that will be added to the List. The current limitations here are that the List must be declared either as List or ArrayList, and parameterized with a concrete type that meets the criteria defined above (i.e. has a static <code>wrap(Element)</code> method, or a single-arg constructor that takes an <code>Element</code> as the argument).</p>
-
-<p>A remaining question is how to bind the outer-most Widget. Currently I'm doing that using the DOM scanning code I wrote during earlier experiments and which I'm also using in the automatic scanning process set up by the Generator. For example to find the outer-most widgets and kick off the binding process I have something like this in my EntryPoint:</p>
-
-<pre><code>public void onModuleLoad() {
-    List&lt;MyWidget&gt; _myWidgets = new ArrayList&lt;mywidget&gt;();
-    for (Element _e : Elements.getByCssClass("outer-most-widget")) {
-        new MyWidget(_e);
-    }
-    // do stuff with our widgets ...
-}
-</code></pre>
-
-<p>I think of this as very similar to the RootPanel situation - "normal" GWT apps kick off by getting a RootPanel(body tag) or RootPanel's (looked up by id), to which everything else is added. It would be nice to hide away some of that scanning code inside a "top-level" widget - much like RootPanel does for the normal case. I can imagine this might look something like:</p>
-
-<pre><code>public void onModuleLoad() {
-    Page _page = Page.activate();
-    _page.doStuffWithWidgets();
-    // ...
-}
-</code></pre>
-
-<p>I still have lots of things to figure out and questions to answer, for example:</p>
-
-<ul>
-<li>What's the performance like when binding many hundreds of widgets?</li>
-<li>How will this really work when I make ajax requests for more data? (should I make ajax requests for html snippets which I add to the DOM and then bind onto, or switch to json for ajax requests and make my widgets able to replicate themselves from an initial html template?)</li>
-<li>What's the best way to divide labour between developers and designers, and for them to organize their interaction? (Ideally I'd like there to be something of a cycle between them, where the designer can rough-out a page design, agree the componentisation with the developer, the developer knocks out some components and a build which the designer can use to activate their static designs, add fidelity, work on other pages with the same components, etc).</li>
-<li>Where is the sweet-spot between creating high-fidelity html server-side and decorating it client-side using GWT? Should the GWT components really be just for adding dynamism, or is it a good idea to use them to build additional html sweetness? - I mean the server could dish out html that is more of a model than a view (just enough "view" to satisfy SEO), and the GWT layer acts as a client-side controller and view (<a href="http://www.thinserverarchitecture.com/home">SOFEA/TSA</a> with a nod to SEO).</li>
-</ul>
-
-<p>I'll try to keep posting as I work things out.</p>
-
-<p>This probably belongs in a separate post, but with reference to that last point on TSA (Thin Server Architecture) - the working group list the following points to define the concept:</p>
-
-<blockquote>
-  <ol>
-  <li>Do not use server-side templating to create the web page.</li>
-  <li>Use a classical and simple client-server model, where the client runs in the browser.</li>
-  <li>Separate concerns using protocol between client and server and get a much more efficient and less costly development model.</li>
-  </ol>
-</blockquote>
-
-<p>I'm right behind them on (2) and (3), and also on (1) for "enterprise" apps where SEO is a non-goal. However, for an app that needs SEO, (1) is a deal-breaker, so I'd offer this alternative 1st rule instead:</p>
-
-<ol>
-<li>Use server-side templating to produce a model for the client to consume which minimally satisfies the needs of SEO.</li>
-</ol>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Progressive">Progressive</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Enhancement">Enhancement</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Library">Library</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Apache2">Apache2</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOFEA">SOFEA</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TSA">TSA</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=UiBinder">UiBinder</a></li>
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="progressive_enhancement_with_gwt_part_3.html">Comment on this post</a>
+	        <a href="gwt_progressive.html">Comment on this post</a>
+
+            </article>            
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="898" description="Description and code for creating a sitemap xml using freemarker">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-11">November 11, 2011</time></span>
+              <a itemprop="url" href="templating_my_blog_with_freemarker.html"><h1 itemprop="name" itemprop="headline">Templating my Blog with FreeMarker</h1></a>
+	      <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
+
+<p>I'm using <a href="http://code.google.com/p/markdownj/">MarkdownJ</a> to convert the Markdown syntax to HTML, and <a href="http://freemarker.sourceforge.net/">FreeMarker</a> for templating.</p>
+
+<p>FreeMarker for templating was an easy choice for me:</p>
+
+<ul>
+<li>It is a decent templating engine that I've used recently for a dynamic website,</li>
+<li>It is very easy to set up in Java for my one-hit templating needs,</li>
+<li>I like its syntax compared to, say, Velocity</li>
+</ul>
+
+<p>Yesterday I used FreeMarker to add two new productions to my site-generator: a sitemap, and an RSS feed, and thought I'd make some quick notes...</p>
+
+<p>FreeMarker strives to be a pure templating language, and as such resists the temptation to ... shall we say, make certain things easy that you probably shouldn't do in a template. </p>
+
+<p>This can make templating a little uncomfortable sometimes - all the more so if you try to use complex domain objects directly in your templates instead of producing model's specifically for output (YMMV depending on the complexity of your domain model of course).</p>
+
+<p>For the simple needs of my Blog FreeMarker has been great, allowing me to whiz up the sitemap template in a couple of minutes, and not much longer for the RSS-2.0 template.</p>
+
+<p>Setting up FreeMarker in Java is very very simple indeed. I chose to abstract FreeMarker away behind my own interface (<code>TemplateProcessor</code>), in case I want to use something different later:</p>
+
+<pre><code>import java.io.*;
+import freemarker.template.*;
+
+public class FreemarkerTemplateProcessor implements TemplateProcessor
+{
+    private Configuration cfg;
+
+    public FreemarkerTemplateProcessor(File aTemplateDir) 
+    throws IOException
+    {
+        cfg = new Configuration();
+        cfg.setDirectoryForTemplateLoading(aTemplateDir);
+        cfg.setObjectWrapper(new DefaultObjectWrapper());
+    }
+
+    @Override
+    public void process(Object aModel, String aTemplate, Writer aWriter) 
+    throws IOException, TemplateException
+    {
+        Template _tpl = cfg.getTemplate(aTemplate);
+        _tpl.process(aModel, aWriter);
+    }
+}
+</code></pre>
+
+<p>The templating language is quite neat, and very easy to write - as I mentioned before, it helps if your model is a good fit for the view you are trying to render so you don't need to squeeze to many conditionals into the template. </p>
+
+<h2>Freemarker template for sitemap.xml</h2>
+
+<p>There are only 3 lines of FreeMarker markup in my sitemap template:</p>
+
+<ul>
+<li><code>&lt;#list posts as post&gt;</code> which iterates over an <code>Iterable</code> containing <code>Post</code> objects,</li>
+<li>the closing <code>&lt;/#list&gt;</code>, and</li>
+<li>the line that reads the post's link <code>&lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;</code></li>
+</ul>
+
+<p>Here's the template in full:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
+&lt;urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+        "http://www.sitemaps.org/schemas/sitemap/0.9 
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt; 
+
+  &lt;url&gt;
+    &lt;loc&gt;${blog.url}/index.html&lt;/loc&gt;
+    &lt;changefreq&gt;daily&lt;/changefreq&gt;
+    &lt;priority&gt;1.0&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;${blog.url}/about_me.html&lt;/loc&gt;
+    &lt;changefreq&gt;daily&lt;/changefreq&gt;
+    &lt;priority&gt;0.9&lt;/priority&gt;
+  &lt;/url&gt;
+
+  &lt;#list posts as post&gt;
+    &lt;url&gt; 
+      &lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;
+      &lt;changefreq&gt;hourly&lt;/changefreq&gt;
+    &lt;/url&gt;
+  &lt;/#list&gt;
+
+&lt;/urlset&gt;
+</code></pre>
+
+<h2>Freemarker template for RSS 2.0</h2>
+
+<p>The RSS template is very similar to the sitemap template, as it deals with exactly the same model. Skipping the pre-amble, here's the part that actually involves any freemarker markup:</p>
+
+<pre><code>&lt;#list posts as post&gt;
+  &lt;item&gt;
+    &lt;title&gt;&lt;![CDATA[${post.title}]]&gt;&lt;/title&gt;
+    &lt;link&gt;&lt;![CDATA[http://${blog.url}/${post.link}]]&gt;&lt;/link&gt;
+    &lt;guid isPermaLink="true"&gt;${blog.url}/${post.link}&lt;/guid&gt;
+    &lt;description&gt;&lt;![CDATA[${post.body}]]&gt;&lt;/description&gt;
+    &lt;#list post.keywords as keyword&gt;
+      &lt;category&gt;${keyword}&lt;/category&gt;
+    &lt;/#list&gt;
+    &lt;dc:creator&gt;&lt;![CDATA[ Steve Liles ]]&gt;&lt;/dc:creator&gt;
+    &lt;pubDate&gt;${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}&lt;/pubDate&gt;
+  &lt;/item&gt;
+&lt;/#list&gt;
+</code></pre>
+
+<p>I like the date built-in here: <code>${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}</code> which keeps the date format in the template where it belongs. </p>
+
+<p>Of course, here I've just written it directly into this template because I only use this format once in my whole site - if I were using it more I could define a re-usable FreeMarker macro instead to avoid repetition.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=FreeMarker">FreeMarker</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Template">Template</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Sitemap">Sitemap</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=RSS">RSS</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="templating_my_blog_with_freemarker.html">Comment on this post</a>
+
+            </article>            
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="80" description="A quick test of github's url shortener, invoked using curl">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
+              <a itemprop="url" href="most_geeky_thing_i_ever_saw.html"><h1 itemprop="name" itemprop="headline">Most geeky thing I ever saw</h1></a>
+	      <span itemprop="articleBody"><p>There's something fabulously, deliciously geeky about using Curl to call a url-shortening service for url's to the web-management console of an online source-code-control system! <a href="http://git.io/help">Githubber's you ROCK!</a></p>
+
+<p><code>curl -i http://git.io -F "url=https://github.com/blog/985-git-io-github-url-shortener" -F "code=geek"</code></p>
+
+<p>gives:</p>
+
+<pre><code>HTTP/1.1 201 Created
+Server: nginx/1.0.4
+X-Node: gitio2
+X-Sha: 50f8f21981a362dfbaa5fbc85193621e56379dfb
+Content-Type: text/html;charset=utf-8
+Date: Thu, 10 Nov 2011 23:23:12 GMT
+Status: 201 Created
+Location: http://git.io/help
+X-Runtime: 0.008420
+Connection: keep-alive
+Content-Length: 0
+</code></pre>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=github">github</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=geek">geek</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=url-shortener">url-shortener</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="most_geeky_thing_i_ever_saw.html">Comment on this post</a>
+
+            </article>            
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="98" description="A comparison of linux distribution popularity using Google Trends">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
+              <a itemprop="url" href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html"><h1 itemprop="name" itemprop="headline"> Popularity contest - Ubuntu vs OSX Lion vs Win7</h1></a>
+	      <span itemprop="articleBody"><p>A while back I played with Google Trends to compare <a href="linux_distro_popularity.html">Linux distribution popularity</a>. Ubuntu was the clear winner.</p>
+
+<p>In that post I also tried to compare OSX and Windows7 against the Linux supremo, but I think I didn't hit on the right search term for OSX.</p>
+
+<p>I tried again today out of curiosity, and I think I got better results, though perhaps still not really reflecting the true state of the world (I'm <em>sure</em> OSX kicks Ubuntu's pants in reality).</p>
+
+<p><img src="https://lh3.googleusercontent.com/-Dzc_zxe0T1c/Trw6VrnoVgI/AAAAAAAAHo4/wA3dBag5IFw/s900/ubuntu-vs-lion-vs-win7-2011-11-10.png" alt="ubuntu(blue), windows7(red), OSX Lion(orange)" /></p>
+
+<p><code>ubuntu(blue), windows7(red), OSX Lion(orange)</code></p>
+
+<p>More at <a href="http://www.google.com/trends?q=ubuntu%2C+windows+7%2C+lion&amp;ctab=0&amp;geo=all&amp;date=all&amp;sort=0">Google Trends</a>.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Ubuntu">Ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=OSX Lion">OSX Lion</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Windows7">Windows7</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html">Comment on this post</a>
+
+            </article>            
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="303" description="Instructions for how to set up an Eclipse code template for easily writing GWT jsni methods">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-10-20">October 20, 2011</time></span>
+              <a itemprop="url" href="eclipse_code_template_for_gwt_jsni_methods.html"><h1 itemprop="name" itemprop="headline">Eclipse code template for GWT jsni methods</h1></a>
+	      <span itemprop="articleBody"><p>GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them <a href="gwt_javascriptobjects_javascript_overlays.html">before</a>. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!</p>
+
+<p>Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:</p>
+
+<pre><code>public final native ${return_type} ${newName}()/*-{ 
+    ${cursor} 
+}-*/;
+</code></pre>
+
+<p>To add this in Eclipse:</p>
+
+<ol>
+<li>Open the preferences dialog (Window -> Preferences)</li>
+<li>Type "templates" into the filter box (it should have focus already so you can just start typing)</li>
+<li>Select the bold entry under "Java -> Editor -> Templates"</li>
+<li>In the right hand panel you'll see all the existing templates, and some buttons ... Click "New"</li>
+<li>The "name" is also the shortcut for your new template, so enter "jsni"</li>
+<li>Paste in the template text (copy from the code block above).</li>
+<li>Click ok to return to prefs, and ok again to return to the editor and try it out ...</li>
+</ol>
+
+<p>To use your new template:</p>
+
+<ol>
+<li>Type "jsni" (without quotes) into a java editor and hit ctrl-space (or whatever your auto-complete shortcut is)</li>
+<li>The first option in the auto-complete suggestions should be your "jsni" template - hit return to use it</li>
+<li>Your template appears, and eclipse focuses the first part (the return type) for you to modify</li>
+<li>Modify each part of the template in turn and press tab to move to the next part</li>
+<li>Enjoy!</li>
+</ol>
+
+<p>Recent releases of the Google Eclipse plugin include some <a href="http://code.google.com/eclipse/docs/gwt_jsni.html">nice jsni features</a> that you definitely don't want to miss out on - including code-completion and syntax highlighting.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=code">code</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=template">template</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=jsni">jsni</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="eclipse_code_template_for_gwt_jsni_methods.html">Comment on this post</a>
 
             </article>            
         </div>

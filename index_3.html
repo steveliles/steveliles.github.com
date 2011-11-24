@@ -35,451 +35,451 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="410" description="Some of my colour pencil sketches">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-10-30">October 30, 2010</time></span>
-              <a itemprop="url" href="some_old_sketches.html"><h1 itemprop="name" itemprop="headline">Some old sketches ...</h1></a>
-	      <span itemprop="articleBody"><p>I decided it was high time I got a copy of my photos from the last 10 years or so backed-up somewhere. I downloaded Picasa (3.0-beta for ubuntu x64) and signed up for web-albums and started rummaging through my pics.  Picasa tells me I have 5,773 pictures in my ~/Pictures directory, so I could be having to spend rather a long time sorting through that lot!</p>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198" description="Binding Java processes - and thus threads - to a single CPU">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
+              <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
+	      <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
 
-<p>Scrolling through I came across some old sketches from way back (2002 and older), some of which I had scanned at various stages during the sketch. After a bit of fighting with Picasa (I didn't want it to throw away my original tif files) I got it to pick up the extra converted jpg copies which i made, and tried to upload them ... no go on that score, its still doing incrementally backing-off retries and failing to upload with no explanation. The log file location says "c:\Documents and settings...", which is a bit of a laugh given i'm running ubuntu :)</p>
+<p>To replicate I needed to run on a single-cpu but I didn't want to commit more potentially broken tests to source-control and run repeatedly breaking builds on the build-server.</p>
 
-<p>Instead I uploaded those converted jpg's via the web-albums website, and shared the album. Here's a sample:</p>
+<p>I discovered that its possible to bind an exec'd process to a single CPU in newer 'nix's using taskset. Invoking my maven build using taskset to bind the test-run to a single CPU core replicated the failure immediately, and from there it was an easy fix. Here's the cmdline to bind a maven build to a single CPU (I'm running Ubuntu, YMMV):</p>
 
-<table>
-  <tr>
-    <th>
-      <a href="http://4.bp.blogspot.com/_hG-kje6-TJM/TMwiO_1m3kI/AAAAAAAAAD8/HknmMmIraVU/s1600/foal-1.jpg"><img src="http://4.bp.blogspot.com/_hG-kje6-TJM/TMwiO_1m3kI/AAAAAAAAAD8/HknmMmIraVU/s240/foal-1.jpg"></a>
-    </th>
-    <th>
-      <a href="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj5dm7MKI/AAAAAAAAAD8/AYuh-yFIdRo/s1600/foal-2.jpg"><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj5dm7MKI/AAAAAAAAAD8/AYuh-yFIdRo/s240/foal-2.jpg"></a>
-    </th>
-    <th>
-      <a href="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj6ExdTZI/AAAAAAAAAD8/R_kZa1xqNcQ/s1600/foal-3.jpg"><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj6ExdTZI/AAAAAAAAAD8/R_kZa1xqNcQ/s240/foal-3.jpg"></a>
-    </th>
-  </tr>
-  <tr>
-    <th><code>pony sketch, step 1</code></th>
-    <th><code>pony sketch, step 2</code></th>
-    <th><code>pony sketch, finished</code></th>
-  </tr>
-</table>
+<pre><code>taskset -pc 0 mvn clean test
+</code></pre>
 
-<p>Honestly no idea why the last one has a blue-ish tint to it - I must have screwed up scanning it or something. I'll balance the colours and re-upload if I get a chance.</p>
+<p>tasket is part of schedutils, which you may or may not have installed. It was installed on my machine already, possibly because of other things i've installed in the past. If needed you can install it with:</p>
 
-<p>This was drawn from a photo I took at Llyn-Brianne in mid Wales, some time around 2002. There was a whole herd of what I can only assume are wild ponies just wandering around up there, and this little guy was one of them.</p>
+<pre><code>sudo apt-get install schedutils
+</code></pre>
 
-<p>This sketch is a full side of A4, drawn with Derwent studio colour pencils. I saw someone drawing with these at an art show I went to with my dad years ago, and bought the 72 pack there and then - they really are fantastic.</p>
+<p>It basically sets processor affinity by setting some process properties that tell the linux cpu scheduler to only allow the process to run on the stated CPU's.</p>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=sketch">sketch</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=foal">foal</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=lynn-brianne">lynn-brianne</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Faber Castell Polychromos">Faber Castell Polychromos</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pencil">pencil</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CPU affinity">CPU affinity</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threading">Threading</a></li>
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="some_old_sketches.html">Comment on this post</a>
+	        <a href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html">Comment on this post</a>
 
             </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="700" description="Some simple graphviz examples for drawing directed graphs">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-10-25">October 25, 2010</time></span>
-              <a itemprop="url" href="making_pretty_diagrams_with_graphviz.html"><h1 itemprop="name" itemprop="headline">Making pretty diagrams with GraphViz</h1></a>
-	      <span itemprop="articleBody"><p>So recently I needed to draw some directed-graph diagrams - work-flow diagrams in this particular instance. After a bit of googling I came across some nice examples of diagrams produced by <a href="http://www.graphviz.org/">graphviz</a> - actually what really turned me on to graphviz was this <a href="http://www.flickr.com/photos/kentbye/sets/72157601523153827/">nice set of examples</a> from Kent Bye.</p>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403" description="Problem description and solution for runtime error messages pertaining to testing a web app that uses JQuery using HtmlUnit.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
+              <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
+	      <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
 
-<p>A little tinkering and I soon had my workflow definitions (declared in xml in our application) rendered nicely with GraphViz. The markup language is deadly simple and intuitive, and the directed graphs which it produces are really good looking (I didn't try any other types).</p>
+<p>...
+One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
 
-<p>Lets take a look at some examples, starting simply with two nodes related in one direction only. The markup would look like this:</p>
+<pre><code>runtimeError: message=
+  [The data necessary to complete this operation is not yet available.]
+  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
+  lineSource=[null] lineOffset=[0]
+</code></pre>
 
-<pre><code>digraph {
-  "Start" -&gt; "End" [];
+<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
+
+<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
+
+<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
+
+<pre><code>// The DOM ready check for Internet Explorer
+function doScrollCheck() {
+ if ( jQuery.isReady ) {
+  return;
+ }
+
+ try {
+  // If IE is used, use the trick by Diego Perini
+  // http://javascript.nwbox.com/IEContentLoaded/
+     document.documentElement.doScroll("left");
+ } catch(e) {
+  setTimeout( doScrollCheck, 1 );
+  return;
+ }
+
+ // and execute any waiting functions
+ jQuery.ready();
 }
 </code></pre>
 
-<p>That's it.  No really.  This is all you need to create a simple, two-node directed graph diagram.  To draw the diagram you need to install graphviz (with a quality OS like ubuntu you just need the magic incantation <code>sudo apt-get install graphviz</code> and you're up and running). Once installed invoke graphviz like this:</p>
+<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
 
-<pre><code>dot -Tpng -oMyGraph.png MyGraph.dot
-</code></pre>
+<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
 
-<p>This invokes the directed-graph drawing tool, tells it to produce a png image from the input file <code>MyGraph.dot</code> and store it in the output file <code>MyGraph.png</code>. The resulting diagram looks like this:</p>
-
-<p><img src="http://4.bp.blogspot.com/_hG-kje6-TJM/TMXyojkLHhI/AAAAAAAAABc/fNd8MB0KVHQ/s1600/graph1.png" alt="first graphviz diagram" /></p>
-
-<p>Coolness!</p>
-
-<p>Lets get a bit more trick! We can control the size and shape of our nodes, and label the edges:</p>
-
-<pre><code>digraph {
-  "A" [shape="circle"];
-  "B" [shape="rectangle"];
-  "C" [shape="diamond"];
-
-  "A" -&gt; "B" [label="A to B"];
-  "B" -&gt; "C" [label="B to C"];
-  "A" -&gt; "B" [label="A to C"];
-}
-</code></pre>
-
-<p>Here's the diagram:</p>
-
-<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TMX0xR56twI/AAAAAAAAABg/m1Qmknip5hg/s1600/graph2.png" alt="second graphviz diagram" /></p>
-
-<p>Isn't it just too cool? Last one coming up - this time with colours:</p>
-
-<pre><code>digraph {
-  "Back" [shape="egg" color="green" style="filled" fillcolor="yellow"];
-  "Forth" [shape="house" color="red"];
-  "Other" [shape="invtriangle" color="blue"];
-
-  "Back" -&gt; "Forth" [color="orange" label="weee"];
-  "Forth" -&gt; "Back" [color="purple" label="eeew"];
-
-  "Other" -&gt; "Forth"
-  "Other" -&gt; "Back"
-}
-</code></pre>
-
-<p>And here's how it looks:</p>
-
-<p><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMX3xBFNcTI/AAAAAAAAABk/YrBxMds9R28/s1600/graph3.png" alt="third graphviz diagram" /></p>
-
-<p>I realize this just scratches the surface - there's a whole bunch of other node shapes you can use, you can define defaults for nodes and edges once at the beginning of your *.dot file, and much much more.</p>
-
-<p>I only discovered GraphViz about 2 months ago, but since I did i've been using it quite a lot. Its very handy for drawing simple representations of work-flows, navigational flows, any kind of hierarchical structures (trees and graphs), etc., and just <em>so simple</em> to write. Generating the <code>*.dot</code> syntax programmatically is extremely easy - I now have our app invoking "dot" to generate the graphs on the fly.</p>
-
-<p>Note: Google Charts now has experimental support for (a subset of) graphviz. Check it out <a href="http://code.google.com/apis/chart/image/docs/gallery/graphviz.html">here</a>.You don't even have to install graphviz :)</p>
-
-<p>I'll leave you with one more example - a visualisation of a subset of a work-flow from a work-flow system I've been building recently for our Editorial System. The work-flow engine we've built is basically a Finite State Machine (FSM), and a work-flow diagram like this is basically a State diagram for the machine. A workflow thus forms a very nice directed graph, making GraphViz ideal for rendering work-flows:</p>
-
-<pre><code>digraph { 
-
-  node [shape=circle,fontsize=8,fixedsize=true,width=0.9]; 
-  edge [fontsize=8]; 
-  rankdir=LR;
-
-  "low-priority" [shape="doublecircle" color="orange"];
-  "high-priority" [shape="doublecircle" color="orange"];
-
-  "s1" -&gt; "low-priority";
-  "s2" -&gt; "low-priority";
-  "s3" -&gt; "low-priority";
-
-  "low-priority" -&gt; "s4";
-  "low-priority" -&gt; "s5";
-  "low-priority" -&gt; "high-priority" [label="wait-time exceeded"];
-
-  "high-priority" -&gt; "s4";
-  "high-priority" -&gt; "s5";
-
-}
-</code></pre>
-
-<p>And here's the GraphViz output:</p>
-
-<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TQZdtzUGmtI/AAAAAAAAG5I/FxhlCaItHLM/s600/work-queue-3.png" alt="workflow" /></p>
+<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=graphviz">graphviz</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=visualization">visualization</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=diagram">diagram</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=graph">graph</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=example">example</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="making_pretty_diagrams_with_graphviz.html">Comment on this post</a>
+	        <a href="jquery_htmlunit_runtimeerror_messages_galore.html">Comment on this post</a>
 
             </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="144" description="Instructions for how to make Google Web Toolkit (GWT) output id attributes on html elements produced by its widgets">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
-              <a itemprop="url" href="gwt_widgets_with_html_id_attributes.html"><h1 itemprop="name" itemprop="headline">GWT Widgets with html id attributes</h1></a>
-	      <span itemprop="articleBody"><p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,658" description="Tell dont ask programming style, and how to unit test code written in that style - with examples.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-03-15">March 15, 2011</time></span>
+              <a itemprop="url" href="unit_testing_code_written_in_tell_don_t_ask_style.html"><h1 itemprop="name" itemprop="headline">Unit Testing code written in "Tell, Don't Ask" style</h1></a>
+	      <span itemprop="articleBody"><p>More and more I find myself enjoying the "Tell, Don't Ask" style of programming, to the extent that recently I've been challenging myself to write all my code that way. </p>
 
-<p>To make your widgets produce id attributes you need to invoke the <code>ensureDebugId</code> method with an id string, e.g.</p>
+<p>This brought up an interesting discussion while working on a proto-type with an excellent developer I've known and worked with for years - how do you test code written in this style?</p>
 
-<pre><code>Label myLabel = new Label("Say something");
-myLabel.ensureDebugId("myLabel");
-</code></pre>
+<h3>Setting the scene</h3>
 
-<p>Now, if you run that you still won't get any id attributes. The clue is in the method name <code>ensureDebugId</code>. You actually need to inherit the <code>Debug</code> module in your module descriptor (<code>.gwt.xml</code>) file.  The module to inherit is: </p>
+<p>The idea of the proto-type was to play with and test out several Entity-Extraction and Text-Clustering algorithms - some that we had researched, some using existing libraries, and others of our own devising. We collected a few dozen Mb-worth of sample data to toy with, and I knocked up a quick harness to feed the test data into the Entity-Extraction and Test-Clustering routines, which just needed to implement a bunch of Java interfaces I'd written (using "Tell, Don't Ask" style). Each of us then proceeded to implement some of the algorithms, which we plugged in Strategy-Pattern style.</p>
 
-<pre><code>&lt;inherits name="com.google.gwt.user.Debug"/&gt;
-</code></pre>
+<p>Every so often as we were working, my colleague would turn and say something like "I need to add Xxxx to the Yyyy interface, so I can unit-test my implementation". His feeling was that whilst in principle "Tell, Don't Ask" is laudable, it makes testing very awkward and ungainly.</p>
 
-<p>Now if you view the source of your label you'll see that it has an id attribute, but you might be surprised that it doesn't quite match the id you supplied (<code>myLabel</code>). In fact it will say <code>gwt-debug-myLabel</code>.</p>
-</span>
+<p>As a result the interfaces drifted away from "Tell, Don't Ask" so that, whilst they still included the callback-style methods, they now presented a more typical "Ask" style API too - a simple example being: implementing <code>Iterable&lt;T&gt;</code> as well as providing <code>each(T)</code> methods.</p>
 
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=selenium">selenium</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
-              </ul>
-              <div style="clear:both"></div>
+<h3>Example Tests</h3>
 
-	        <a href="gwt_widgets_with_html_id_attributes.html">Comment on this post</a>
+<p>Let's look at a simple example of the kind of tests that appear to be made difficult due to the "Tell, Don't Ask" style. Note that I'm using junit 3.8 style for these examples.</p>
 
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,644" description="A description of how to set up eclipse and firefox to test Google Web Toolkit apps in hosted development mode with WebDriver and maven">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
-              <a itemprop="url" href="testing_gwt_apps_in_dev_mode_with_webdriver.html"><h1 itemprop="name" itemprop="headline">Testing GWT apps in dev-mode with WebDriver</h1></a>
-	      <span itemprop="articleBody"><p>Today I've been playing a little with WebDriver for testing GWT apps.  First impressions:
-* WebDriver is awesome - can't wait to try testing more complex web-apps!
-* WebDriver opens up all kinds of possibilities beyond testing web-apps - for example to drive interactive demos and tutorials.
-* Did I mention WebDriver is awesome? :)</p>
+<p>Say we have a Stuff interface, which is an immutable container of Thing's, and a ThingMaker that creates many Thing's and returns them packed in a Stuff.  Here are the "Tell, Don't Ask" interfaces we might have started off with:</p>
 
-<h2>Preparing the Eclipse project</h2>
-
-<p>To get started I made a new toy project to play in. I don't use the Google Eclipse plugins for GWT dev - if you do you could create this project using the wizards instead. I develop in Eclipse, but always set up my projects with Maven, so the first step for me was to create a new maven project:</p>
-
-<pre><code>mvn archetype:create -DgroupId=com.sjl -DartifactId=webdriver
-</code></pre>
-
-<p>Next, create the Eclipse project so I can use eclipse to edit the maven pom...</p>
-
-<pre><code>mvn eclipse:eclipse
-</code></pre>
-
-<p>And then edit <code>pom.xml</code> in Eclipse to add the GWT, JUnit4 and WebDriver dependencies (by default maven adds JUnit 3.8, so I replace that with JUnit 4.4).</p>
-
-<p>To add the GWT dependencies you also need a repository that actually has them - I use the CodeHaus gwt maven plugins during the build step, which also exposes the CodeHaus repository for fetching the dependences:</p>
-
-<pre><code>  &lt;pluginRepositories&gt;
-    &lt;pluginRepository&gt;
-      &lt;id&gt;codehaus-snapshots&lt;/id&gt;
-      &lt;name&gt;Codehaus plugin snapshot repository&lt;/name&gt;
-      &lt;url&gt;http://snapshots.repository.codehaus.org&lt;/url&gt;
-    &lt;/pluginRepository&gt;
-  &lt;/pluginRepositories&gt; 
-  ...
-  &lt;dependencies&gt;
-   &lt;dependency&gt;
-      &lt;groupId&gt;com.google.gwt&lt;/groupId&gt;
-      &lt;artifactId&gt;gwt-dev&lt;/artifactId&gt;
-      &lt;version&gt;2.0.4&lt;/version&gt;
-      &lt;optional&gt;true&lt;/optional&gt;
-   &lt;/dependency&gt;
-   &lt;dependency&gt;
-      &lt;groupId&gt;com.google.gwt&lt;/groupId&gt;
-      &lt;artifactId&gt;gwt-user&lt;/artifactId&gt;
-      &lt;version&gt;2.0.4&lt;/version&gt;
-      &lt;scope&gt;provided&lt;/scope&gt;
-   &lt;/dependency&gt;
-   ...
-</code></pre>
-
-<p>Next the WebDriver dependencies - I got these as transitive dependencies of selenium2:</p>
-
-<pre><code>  &lt;dependency&gt;
-     &lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
-     &lt;artifactId&gt;selenium&lt;/artifactId&gt;
-     &lt;version&gt;2.0a4&lt;/version&gt;
-  &lt;/dependency&gt;
-</code></pre>
-
-<p>Having edited the <code>pom.xml</code> file you need to rebuild the eclipse project using the eclipse maven plugin:</p>
-
-<pre><code>mvn eclipse:eclipse
-</code></pre>
-
-<p>This will take a little while to download the dependencies if you don't already have them - the gwt dependencies in particular are quite large.  Once the command completes you need to refresh the project in Eclipse for it to reload the project classpath.</p>
-
-<h2>Creating a simple GWT app</h2>
-
-<p>I made a really simple application to play with, consisting of just an EntryPoint that displays a Label, and a PushButton which adds more Label's when clicked.  I had just a handful of aims in mind for this first attempt:
-1. Get a GWT app to load via WebDriver
-2. Find an element which GWT has created (the first Label)
-3. Interact with an element that does something (the PushButton)
-4. Check that the something actually happened and that we can test for it.</p>
-
-<p>The GWT code for this is extremely simple:</p>
-
-<pre><code>package com.sjl.webdriver.client;
-
-import com.google.gwt.core.client.*;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.user.client.ui.*;
-
-public class SimpleApp implements EntryPoint {
-
-  public void onModuleLoad() {
-    final RootPanel _root = RootPanel.get();
-    _root.add(new Label("Hello"));
-    _root.add(newButton());
+<pre><code>  public interface Thing {
+    public String getName();
+    public void doThings();
   }
 
-  private PushButton newButton() {
-    PushButton _b = new PushButton("push me");
-    _b.ensureDebugId("button");
+  public interface ThingCallback {
+    public void with(Thing thing);
+  }
 
-    _b.addClickHandler(new ClickHandler(){
-    public void onClick(ClickEvent event) {
-    _root.add(new Label("whoop"));
+  public interface Stuff {
+    public void each(ThingCallback callback);
+  }
+
+  public interface ThingMaker {
+    public Stuff makeThings(int howMany);
+  }
+</code></pre>
+
+<p>Pretty straight-forward. Now, lets see what happens when we want to test that when we ask the ThingMaker to make two Thing's, we actually get two non-null Thing's. Here's what the test method might look like:</p>
+
+<pre><code>public void testMakesCorrectNumberOfThings() {
+  ThingMaker tm = new SimpleThingMaker();
+  Stuff result = tm.makeThings(2);
+
+  final boolean[] calledBack = new boolean[1];
+  final int[] count = new int[1];
+
+  result.each(new ThingCallback() {
+    public void with(Thing thing) {
+      calledBack[0] = true;
+      if (thing != null) {
+        count[0] = count[0]++;
       }
-    });
+    }
+  });
 
-    return _b;
-  }
+  assertTrue(calledBack[0]);
+  assertEquals(2, count.length);
 }
 </code></pre>
 
-<p>Pushing the button adds a new Label for each push - something we should be able to detect pretty easily.</p>
+<p>Yikes, that's pretty nasty. What's all that nonsense with the final arrays? Well, given that we're working in an anonymous inner class (the callback) we can't just update a boolean or an int that we've declared in the enclosing scope, the only option we have is to cheat and use final variables that have mutable content - arrays are a cheap way to do that. But I think you'll agree this is hideous.</p>
 
-<p>My gwt module file looks like this:</p>
+<p>An alternative is to make the inner class do the checking and counting. To do that we have to raise its profile somewhat, to make it a named inner class:</p>
 
-<pre><code> &lt;module rename-to="webdriver"&gt;  
-  &lt;inherits name="com.google.gwt.user.User"/&gt;
-  &lt;inherits name="com.google.gwt.user.Debug"/&gt;
-  &lt;entry-point class="com.sjl.webdriver.client.SimpleApp" /&gt;  
- &lt;/module&gt;
+<pre><code>  class TestThingCallback implements ThingCallback {
+    boolean called;
+    int count;
+
+    public void with(Thing thing) {
+      called = true;
+      count++;
+    }
+  }
+
+  public void testMakesCorrectNumberOfThings() {
+    ThingMaker tm = new SimpleThingMaker();
+    Stuff result = tm.makeThings(2);
+
+    TestThingCallback cb = new TestThingCallback();
+    result.each(cb);
+
+    assertTrue(cb.called);
+    assertEquals(2, cb.count);
+  }
 </code></pre>
 
-<p>Next I made an <code>ApplicationDriver</code> class to wrap up the details of getting WebDriver to interact with the web app and let our tests deal with the web app in terms of a ubiquitous domain language - overkill for this simple example i'm sure, but if you want to write expressive tests for a complex web app you really need to do so at a higher level than WebDriver invocations. </p>
+<p>OK, well that's a lot better, but the effort of making these "Test Spy" objects grows very quickly, and although this is more readable it somehow feels less concise, and by moving code outside of the test-method it makes it just that little bit more awkward to read.</p>
 
-<p>The <code>ApplicationDriver</code> class looks like this:</p>
+<p>I think this shows that "classical" unit testing of "Tell, Don't Ask" style code is actually awkward enough to want to find a better way. But can we do any better? Absolutely ...</p>
 
-<pre><code>package com.sjl.webdriver;
+<h3>Enter, jMock</h3>
 
-import java.util.*;
-import org.openqa.selenium.*;
-import org.openqa.selenium.firefox.*;
+<p>jMock is an astonishingly useful tool in the testing arsenal. It makes truly unit testing your code possible without masses of work creating Test Double's, because it does all the grunt work for you. Lets quickly re-write our test using jmock.</p>
 
-public class ApplicationDriver {
+<pre><code>  public class TestCaseThingMaker extends MockObjectTestCase {
+    public void testMakesCorrectNumberOfThings() {
+      final ThingCallback callback = mock(ThingCallback.class);
+      checking(new Expectations(){{
+        exactly(2).of(callback).each(with(any(Thing.class)));
+      }});
 
-  private WebDriver driver;
-
-  public ApplicationDriver() {
-    System.setProperty("webdriver.firefox.profile", "default");
-    driver = new FirefoxDriver();
-    driver.get(
-    "http://127.0.0.1:8888/index.html?" + 
-    "gwt.codesvr=127.0.0.1:9997"); 
+      ThingMaker tm = new SimpleThingMaker();
+      Stuff result = tm.makeThings(2);
+      result.each(callback);
+    }
   }
-
-  public void pushTheButton() { 
-    WebElement _element = driver.findElement(
-    By.id("gwt-debug-button"));
-    _element.click();
-  }
-
-  public int countLabels() {
-    List&lt;WebElement&gt; _elements = driver.findElements(
-    By.className("gwt-Label"));
-    return _elements.size();
-  }
-
-  public void quit() {
-    driver.close();
-  }
-}
 </code></pre>
 
-<p>Now there are a few things worth noting here, as it took me a while to arrive at this point with something that actually worked.</p>
+<p>Some of that might need a little explanation, so here goes:</p>
 
-<p>First of all, notice that i'm using the <code>FirefoxDriver</code> implementation. I had started out with <code>HtmlUnitDriver</code> which works just fine for testing a compiled GWT app (provided you create it with javascript support - <code>new HtmlUnitDriver(true)</code> - and ignore the warnings about x-javascript) but I wanted to test during development by running OOPHM. </p>
+<p>The first thing we do inside our test method is create a "mock" instance of the ThingCallback interface. jMock does this for you in the invocation of the mock method.</p>
 
-<p>Stupidly I was trying to get this to work with the <code>HtmlUnitDriver</code> for a while, til I had a Homer Simpson moment (doh!) and realized that of course <code>HtmlUnitDriver</code> can't work - it doesn't have a GWT plugin :).</p>
+<p>Next we set up our "expectations" of what will happen to the mock ThingCallback during our test. The slightly funky syntax with the double braces is just an instance initializer on an anonymous inner class. The interesting bit is the declaration of what we expect to happen to our mock object - this is the bit inside those {{ ... }} written in jMock's intuitive internal DSL. To understand it you just have to read the whole line from left to right - we're expecting exactly 2 invocations of callback.each() with any instance of Thing.</p>
 
-<p>Secondly, the <code>FirefoxDriver</code> implementation starts up an instance of Firefox with a profile called "WebDriver". If you don't have a profile with that name Firefox will create one when it starts, but it won't have any of your plugins (including the GWT plugin!). </p>
+<p>Once we've set up our expectations it only remains to build the object under test - SimpleThingMaker - and invoke the methods we want to test.
+If you are staring at that and wondering how JMock knows that the test is finished and the expectations should have been met (and that it should fail the test if not), notice that I'm using the JUnit-3 integration here - extending MockObjectTestCase - and the behind the scenes plumbing is taking care of that last step for me. </p>
 
-<h3>Creating a Firefox profile for WebDriver</h3>
+<p>If you're using the JUnit-4 integration you need to explicitly invoke assertIsSatisfied on the mock object context (org.jmock.Mockery) which supplied your mock objects.
+jMock takes a little getting used to, as it involves quite a different way of thinking about your test. If you want to write good tests with it it certainly involves considerable effort to learn how to use it well (its easy to use it badly and end up with tests which are very difficult to understand). Once you get used to it though, it really does make tests much easier to write and, more importantly, to read.</p>
 
-<p>Its easy to create a new profile (close all instances of firefox down completely then run it from the cmdline with the -profilemanager switch) - <a href="http://kb.mozillazine.org/Profile_manager">precise instructions vary by platform</a>. I created the profile then just copied my existing profile contents to it to save installing all the plugins again. In the sample code above i've told WebDriver to use the "default" profile instead by setting a system property.</p>
+<p>I find that jMock really comes into its own when testing Tell, Don't Ask code - the code under test is clean and, by nature of the improved data-hiding, more robust, whilst jMock provides a very neat way to test that code with a minimum of fuss and boiler-plate. </p>
 
-<p>Finally, note that I'm finding the <code>PushButton</code> by id lookup. To make this work you have to force GWT to spit out an id for the element, and allow for the fact that GWT adds a prefix ("gwt-debug-") to the id you specify. To force GWT to produce id's for your Widget elements:</p>
+<p><em>UPDATE:</em> After ruminating on this for a while I came to the conclusion that JMock is so good at testing "Tell, don't ask" code that I was sure the designers of JMock must have set out with that in mind. I found a very nice post from @natpryce (one of the JMock authors) which confirmed my suspicions - Nat describes tell don't ask very succinctly:</p>
+
+<blockquote>
+  <p>"...objects tell each other what to do by sending commands to one another, they don't ask each other for information and then make decisions upon the results of those queries. </p>
+  
+  <p>The end result of this style is that it is easy to swap one object for another that can respond to the same commands but in a different way. This is because the behaviour of one object is not tied to the internal structure of the objects that it talks to."</p>
+</blockquote>
+
+<p>Nat goes on to say that the only way to test tell-dont-ask code is to see how the state of the world is affected when objects are told to do something (because you can't ask them about their state), and that this is best achieved with mock objects, whereas "train wreck" code (Nat's description of code that is not written tell-dont-ask style, and commonly violates demeter's law) is hard to test with mock objects.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TDD">TDD</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Unit Testing">Unit Testing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Tell Dont Ask">Tell Dont Ask</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="unit_testing_code_written_in_tell_don_t_ask_style.html">Comment on this post</a>
+
+            </article>            
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="536" description="A quick overview of pro's and con's of ElasticSearch vs SOLRCloud from some brief initial research into both">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-02-24">February 24, 2011</time></span>
+              <a itemprop="url" href="elasticsearch_vs_solrcloud.html"><h1 itemprop="name" itemprop="headline">ElasticSearch vs SOLRCloud</h1></a>
+	      <span itemprop="articleBody"><p>For an upcoming work project I need a scalable search platform - scalable to tens or hundreds of millions of documents (news articles), and millions of queries per day. We're a (mostly) Java shop, and have a lot of experience with Lucene, so two solutions that pique my curiosity are SOLRCloud (SOLR + ZooKeeper) and ElasticSearch.</p>
+
+<h3>Initial Impressions - ElasticSearch</h3>
+
+<p>ElasticSearch is impressive. Its clean, simple, and elegant. For those who are familiar with Compass, ElasticSearch can be considered as Compass 3.0 (quoting Shay Bannon, author of Compass). ElasticSearch has been under development for about 9 months at time of writing, and is currently at version 0.15. It appears to be very actively developed, with new features and fixes flowing steadily. </p>
+
+<p>My main worry at this point is that there appears to be only one "resource" active on the project - Shay Bannon (@kimchy) himself, who seems to be architect, developer, documentation-writer, and a prolific commenter on forums.</p>
+
+<h4>Noteworthy features include:</h4>
 
 <ul>
-<li>Inherit the Debug module in your module descriptor file (.gwt.xml)</li>
-<li>Set an id on the Widget using widget.ensureDebugId("theId");</li>
+<li>Document-oriented / Schema-free (JSON documents)</li>
+<li>Store, retrieve, index and search multiple versions of documents</li>
+<li>Self-hosting RESTful web-service api</li>
+<li>Exposes the full power of lucene queries</li>
+<li>Multiple Indexes in one cluster (described as Multi-Tenancy)</li>
+<li>Built from the ground-up with scalability and distributed-operation in mind - supporting distributed search, automatic fail-over and re-balancing, with no single point of failure</li>
+<li>Support for async write/backup to shared storage (Gateway, in ElasticSearch parlance)</li>
+<li>"Percolator" (aka. prospective search)</li>
 </ul>
 
-<p>Last of all I built the testcase on top of the <code>ApplicationDriver</code>, starting with a test to detect the first Label, then a test to click the PushButton and check that a new Label is added.  The testcase looks like this:</p>
+<h3>Initial Impressions - SOLRCloud</h3>
 
-<pre><code>package com.sjl.webdriver;
+<p>SOLR is a project from the same (Apache) stable as Lucene itself, and the projects have recently merged to some degree. SOLRCloud is an extension that integrates ZooKeeper with SOLR with the express aim of "enabling and simplifying the creation and use of Solr clusters."</p>
 
-import static junit.framework.Assert.*;
-import org.junit.*;
+<p>SOLRCloud is described as "still under development", ie., not yet a GA release. </p>
 
-public class TestSimpleApp {
+<h4>Currently proclaimed features include:</h4>
 
-  private ApplicationDriver driver;
+<ul>
+<li>Central configuration of the entire cluster</li>
+<li>Automatic load-balancing and fail-over for queries</li>
+<li>ZooKeeper integration for cluster coordination and configuration (not sure I would have listed that as a feature personally!)</li>
+<li>I'll add that SOLRCloud is part of the SOLR code-base, and is being developed by core Lucene and SOLR committers including Mark Miller and Yonik Seeley. This can only be a good thing :). On top of all that, SOLR has been around for a good long time now, so it is battle-tested and there's lots of information available (including numerous books).</li>
+</ul>
 
-  @Before
-  public void openBrowser() {
-    driver = new ApplicationDriver();
-  }
+<p>That said, I still have two big worries about SOLRCloud:
+* Setup/deployment just sounds fiddly - it is recommended not to deploy zookeeper embedded with SOLR (though I cannot find any explanation to back up that recommendation), which means you need both a ZooKeeper ensemble - multiple ZooKeeper instances - and a SOLRCloud ... er ... cloud.
+* No GA release as yet, and no roadmap that I can find (this is the closest I got).</p>
 
-  @After
-  public void closeBrowser() {
-    driver.quit();
-  }
+<h3>Next Steps</h3>
 
-  @Test
-  public void canDetectALabel() {
-    assertEquals(1, driver.countLabels());
-  }
+<p>My next steps are to dive in to both technologies and really get to see which best suits our needs, and really how difficult these things are likely to be to manage in a medium/large-scale deployment.</p>
+</span>
 
-  @Test
-  public void pushingTheButtonAddsALabel() {
-    assertEquals(1, driver.countLabels());
-    driver.pushTheButton();
-    assertEquals(2, driver.countLabels());
-  }
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ElasticSearch">ElasticSearch</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOLRCloud">SOLRCloud</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Lucene">Lucene</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Search">Search</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Scalability">Scalability</a></li>
+              </ul>
+              <div style="clear:both"></div>
 
-  @Test
-  public void pushingTheButtonAgainAddsAnotherLabel() {
-    assertEquals(1, driver.countLabels());
-    driver.pushTheButton();
-    assertEquals(2, driver.countLabels());
-    driver.pushTheButton();
-    assertEquals(3, driver.countLabels());
-  }
+	        <a href="elasticsearch_vs_solrcloud.html">Comment on this post</a>
+
+            </article>            
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,532" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 3">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-02-15">February 15, 2011</time></span>
+              <a itemprop="url" href="progressive_enhancement_with_gwt_part_3.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 3</h1></a>
+	      <span itemprop="articleBody"><p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
+
+<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
+
+<p>In my previous posts I described an idea for progressive enhancement using GWT -  "activating" server-generated html, to combine GWT goodness with an SEO friendly server-generated website, and my findings after some initial trials. </p>
+
+<p>One of the problems I described in that second post was that it would be very difficult to work with these widgets if nested widgets could not be automatically (or at least easily) bound to fields within this widget.</p>
+
+<p>After a little playing around and learning about GWT Generators I now have what seems like a nice solution, using a Generator to do almost all of the donkey work. Think of it like UiBinder, but with the templates provided at runtime (courtesy of the server). Here's an example class that automatically binds sub-widgets - an Image in this case - to a field of that class:</p>
+
+<pre><code>public class MyWidget extends Widget {
+
+    interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}
+    private static MyActivator activator = GWT.create(MyActivator.class);
+
+    @RuntimeUiField(tag="img", cssClass="small") Image small;
+
+    public MyWidget(Element anElement) {
+        // this will set our element and bind our image field.
+        setElement(activator.activate(this, anElement));
+
+        // now we can play with our fields.
+        small.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent aEvent) {
+                Window.alert("clicked!");
+            }
+        });
+    }
 }
 </code></pre>
 
-<p>That's it ... start up GWT OOPHM, run the Junit testcase, and marvel as Firefox starts up, runs the app, and shuts down again (3 times - once for each test), leaving you with a nice green bar in JUnit. I'm sure that restarting firefox between each test would be a bad idea - slooooow - in practice, I just wanted to try it to see that it worked :)</p>
+<p>This class will bind onto any html that has an image tag somewhere in its inner-html, for example:</p>
 
-<p>The next interesting test to play with will be testing asynchronous activity like AJAX requests.  I'm hoping there'll be some nice Patterns described by the WebDriver community for writing such tests.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=development">development</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=hosted">hosted</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="testing_gwt_apps_in_dev_mode_with_webdriver.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
-              <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
-	      <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
-
-<p>Flushing the mysql buffers is as easy as restarting mysql (<code>sudo service mysql restart</code> in Maverick). Flushing the OS buffers is also dead easy:</p>
-
-<pre><code>sudo sh -c "sync; echo 3 &gt; /proc/sys/vm/drop_caches"
+<pre><code>&lt;div&gt; &lt;!-- Say our MyWidget is bound here --&gt;
+  &lt;div&gt;
+    &lt;span&gt;
+          &lt;!-- will be bound to our Image widget --&gt;
+      &lt;img class="small" src="/images/image.jpg"&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
 </code></pre>
 
-<p>I have system-monitor gauges on my taskbar showing cpu, memory and disk activity, and its a beautiful thing to see the cache suddenly get wiped :)</p>
+<p>Anyone familiar with UiBinder will recognize the pattern I've used for the "activator":</p>
+
+<ul>
+<li>Extend an interface with no methods
+<code>interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}</code></li>
+<li>GWT.create() an instance of that interface
+<code>private static MyActivator activator = GWT.create(MyActivator.class);</code></li>
+<li>Then use it to initialize your widget
+<code>setElement(activator.activate(this, anElement));</code></li>
+</ul>
+
+<p>The nice thing about this is we can automatically bind as many widgets as we like onto various sites within the inner-html of our current widget's element. It doesn't mess with the structure (unless you explicitly do so after the binding is done for you), and you can have as much other html within the elements as you like - it will just be left alone, which gives your designers the flexibility to change the layout quite a lot without necessarily needing to re-compile your GWT code. </p>
+
+<p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
+
+<pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
+// search of child elements
+@RuntimeUiField(tag="div") Label label;
+
+// bind to first element with class="my-widget" 
+// found by breadth-first search
+@RuntimeUiField(cssClass="my-widget") Label label;
+
+// bind to first &amp;lt;div&gt; with class="my-widget" 
+// found by breadth-first search
+@RuntimeUiField(tag="div", cssClass="my-widget") Label label;
+</code></pre>
+
+<p>Notice in my examples so far I'm binding standard GWT widgets onto the nested elements. This works for the elements I've used in these examples because they all have a <code>public static Type wrap(Element anElement)</code> method which allows those widgets to be bound onto elements that are already attached to the DOM.</p>
+
+<p>It is also possible to bind widgets of your own making in one of two ways:</p>
+
+<ol>
+<li>Create a wrap method like 
+<code>public static MyWidget wrap(Element anElement)</code></li>
+<li>Create a single-argument public Constructor that accepts an <code>Element</code> as its argument.</li>
+</ol>
+
+<p>Activate-able widgets can be nested within other such widgets - with no limits that I am aware of so far - and it is also possible to assign nested widgets to a List field in the enclosing widget, like this:</p>
+
+<pre><code>@RuntimeUiField(tag="img") List&lt;Image&gt; images;
+</code></pre>
+
+<p>This will search recursively for any <code>&lt;img&gt;</code> tags inside the enclosing widget's element and bind them all to Image widget's that will be added to the List. The current limitations here are that the List must be declared either as List or ArrayList, and parameterized with a concrete type that meets the criteria defined above (i.e. has a static <code>wrap(Element)</code> method, or a single-arg constructor that takes an <code>Element</code> as the argument).</p>
+
+<p>A remaining question is how to bind the outer-most Widget. Currently I'm doing that using the DOM scanning code I wrote during earlier experiments and which I'm also using in the automatic scanning process set up by the Generator. For example to find the outer-most widgets and kick off the binding process I have something like this in my EntryPoint:</p>
+
+<pre><code>public void onModuleLoad() {
+    List&lt;MyWidget&gt; _myWidgets = new ArrayList&lt;mywidget&gt;();
+    for (Element _e : Elements.getByCssClass("outer-most-widget")) {
+        new MyWidget(_e);
+    }
+    // do stuff with our widgets ...
+}
+</code></pre>
+
+<p>I think of this as very similar to the RootPanel situation - "normal" GWT apps kick off by getting a RootPanel(body tag) or RootPanel's (looked up by id), to which everything else is added. It would be nice to hide away some of that scanning code inside a "top-level" widget - much like RootPanel does for the normal case. I can imagine this might look something like:</p>
+
+<pre><code>public void onModuleLoad() {
+    Page _page = Page.activate();
+    _page.doStuffWithWidgets();
+    // ...
+}
+</code></pre>
+
+<p>I still have lots of things to figure out and questions to answer, for example:</p>
+
+<ul>
+<li>What's the performance like when binding many hundreds of widgets?</li>
+<li>How will this really work when I make ajax requests for more data? (should I make ajax requests for html snippets which I add to the DOM and then bind onto, or switch to json for ajax requests and make my widgets able to replicate themselves from an initial html template?)</li>
+<li>What's the best way to divide labour between developers and designers, and for them to organize their interaction? (Ideally I'd like there to be something of a cycle between them, where the designer can rough-out a page design, agree the componentisation with the developer, the developer knocks out some components and a build which the designer can use to activate their static designs, add fidelity, work on other pages with the same components, etc).</li>
+<li>Where is the sweet-spot between creating high-fidelity html server-side and decorating it client-side using GWT? Should the GWT components really be just for adding dynamism, or is it a good idea to use them to build additional html sweetness? - I mean the server could dish out html that is more of a model than a view (just enough "view" to satisfy SEO), and the GWT layer acts as a client-side controller and view (<a href="http://www.thinserverarchitecture.com/home">SOFEA/TSA</a> with a nod to SEO).</li>
+</ul>
+
+<p>I'll try to keep posting as I work things out.</p>
+
+<p>This probably belongs in a separate post, but with reference to that last point on TSA (Thin Server Architecture) - the working group list the following points to define the concept:</p>
+
+<blockquote>
+  <ol>
+  <li>Do not use server-side templating to create the web page.</li>
+  <li>Use a classical and simple client-server model, where the client runs in the browser.</li>
+  <li>Separate concerns using protocol between client and server and get a much more efficient and less costly development model.</li>
+  </ol>
+</blockquote>
+
+<p>I'm right behind them on (2) and (3), and also on (1) for "enterprise" apps where SEO is a non-goal. However, for an app that needs SEO, (1) is a deal-breaker, so I'd offer this alternative 1st rule instead:</p>
+
+<ol>
+<li>Use server-side templating to produce a model for the client to consume which minimally satisfies the needs of SEO.</li>
+</ol>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=cache">cache</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=buffers">buffers</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=memory">memory</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOFEA">SOFEA</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TSA">TSA</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=UiBinder">UiBinder</a></li>
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="how_to_clear_memory_caches_in_ubuntu.html">Comment on this post</a>
+	        <a href="progressive_enhancement_with_gwt_part_3.html">Comment on this post</a>
 
             </article>            
         </div>
@@ -501,7 +501,7 @@ public class TestSimpleApp {
       <nav>
         <div class="links">
           <div class="prev"><a title="previous" href="index_2.html">Newer Posts</a></div>
-          
+          <div class="next"><a title="next" href="index_4.html">Older Posts</a></div>
         </div>
       </nav>
     </div>
