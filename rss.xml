@@ -13,6 +13,104 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[A CSS selector that only acts when two css classes combine]]></title>
+        <link><![CDATA[http://steveliles.github.com/a_css_selector_that_only_acts_when_two_css_classes_combine.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/a_css_selector_that_only_acts_when_two_css_classes_combine.html</guid>
+        <description><![CDATA[<p><style>
+  .example { 
+    margin:25px;
+    padding:20px;
+    border:1px dotted #aaccbb; 
+    background-color:#eeffdd;
+  }
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent.important { font-style:italic; }
+</style>
+Several times while working on the styling of this blog I've wanted to style elements differently when a <em>combination</em> or <em>union</em> of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
+
+<p>Here's the html I want to be able to write:</p>
+
+<pre><code>&lt;div class="urgent"&gt;something urgent&lt;/div&gt;
+&lt;div class="important"&gt;something important&lt;/div&gt;
+&lt;div class="urgent important"&gt;urgent &amp; important&lt;/div&gt;
+</code></pre>
+
+<p>And this is how that should look:</p>
+
+<div class="example">
+  <div class="urgent">something urgent</div>
+  <div class="important">something important</div>
+  <div class="urgent important">urgent & important</div>
+</div>
+
+<p>The urgent &amp; important text should be bold, red and italic in your browser (and if it isn't you must have stumbled on this page by accident while trying to use the interweb to find funny cat pictures on your circa 2003 PC. No cat pictures here, <a href="http://images.lmgtfy.com/?q=funny+cat+pictures">move along</a>).</p>
+
+<p>Here are three ways you can achieve the effect. Make sure you get to option-3, even if you have to skip options 1 and 2 (hint: they both suck).</p>
+
+<h3>Option 1: specific, separate css class</h3>
+
+<pre><code>&lt;style&gt;
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .both   { font-style:italic; }
+&lt;/style&gt;
+
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Red Text&lt;/div&gt;
+&lt;div class="urgent important both"&gt;Bold Italic Red Text&lt;/div&gt;
+</code></pre>
+
+<p>This is nasty. I want to define my css classes to be as orthogonal and meaningful as possible, and while creating my html markup I do not want to be "mixing concerns" that should be kept separate.</p>
+
+<h3>Option 2: nested html tags and ancestry selectors</h3>
+
+<pre><code>&lt;style&gt;
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent .important { font-style:italic }
+&lt;/style&gt;
+
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Red Text&lt;/div&gt;
+&lt;div class="urgent"&gt;
+  &lt;div class="important"&gt;Bold Italic Red Text&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>Double nasty, take it away! Now I've had to change my html markup to nest <code>classB</code> under <code>classA</code>, just so I can style things as I want them. That's really stupid and annoying: styling should be a separate issue from the markup.</p>
+
+<p>OK, so here's the right way to do it, and I just can't believe it took me so long to feel the pain hard enough to go looking for a solution...</p>
+
+<h3>Option 3: use the union selector</h3>
+
+<pre><code>&lt;style&gt;
+  .classA { color:red; }
+  .classB { font-weight:bold; }
+  .classA.classB { font-style:italic; }
+&lt;/style&gt;
+
+&lt;div class="classA"&gt;Red Text&lt;/div&gt;
+&lt;div class="classB"&gt;Bold Text&lt;/div&gt;
+&lt;div class="classA classB"&gt;Bold Italic Red Text&lt;/div&gt;
+</code></pre>
+
+<p>The difference in the css declaration between option-2 and option-3 is so small I'll point it out, just in case you missed it: </p>
+
+<ul>
+<li>the union selector uses <em>both</em> class names <em>without</em> the space separating them - like this <code>.classA.classB</code>.</li>
+<li>whereas the example in option-2 <code>.classA .classB</code> separates the two classes with a space, and matches on an element with <code>.classB</code> descending from an element with <code>.classA</code>.</li>
+</ul>
+
+<p>CSS can be a thumping great pain, but just occasionally it comes up trumps.</p>
+]]></description>
+          <category>css</category>
+          <category>selector</category>
+          <category>union</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Weighted Average smoothing with Java2d]]></title>
         <link><![CDATA[http://steveliles.github.com/weighted_average_smoothing_with_java2d.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/weighted_average_smoothing_with_java2d.html</guid>

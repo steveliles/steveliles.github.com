@@ -15,6 +15,11 @@
   </url>  
 
       <url> 
+      <loc>http://steveliles.github.com/a_css_selector_that_only_acts_when_two_css_classes_combine.html</loc>
+      <changefreq>hourly</changefreq>
+      <priority>0.8</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/weighted_average_smoothing_with_java2d.html</loc>
       <changefreq>hourly</changefreq>
       <priority>0.8</priority>

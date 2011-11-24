@@ -35,6 +35,108 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="608" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the union of the css classes">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
+              <a itemprop="url" href="a_css_selector_that_only_acts_when_two_css_classes_combine.html"><h1 itemprop="name" itemprop="headline">A CSS selector that only acts when two css classes combine</h1></a>
+	      <span itemprop="articleBody"><p><style>
+  .example { 
+    margin:25px;
+    padding:20px;
+    border:1px dotted #aaccbb; 
+    background-color:#eeffdd;
+  }
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent.important { font-style:italic; }
+</style>
+Several times while working on the styling of this blog I've wanted to style elements differently when a <em>combination</em> or <em>union</em> of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
+
+<p>Here's the html I want to be able to write:</p>
+
+<pre><code>&lt;div class="urgent"&gt;something urgent&lt;/div&gt;
+&lt;div class="important"&gt;something important&lt;/div&gt;
+&lt;div class="urgent important"&gt;urgent &amp; important&lt;/div&gt;
+</code></pre>
+
+<p>And this is how that should look:</p>
+
+<div class="example">
+  <div class="urgent">something urgent</div>
+  <div class="important">something important</div>
+  <div class="urgent important">urgent & important</div>
+</div>
+
+<p>The urgent &amp; important text should be bold, red and italic in your browser (and if it isn't you must have stumbled on this page by accident while trying to use the interweb to find funny cat pictures on your circa 2003 PC. No cat pictures here, <a href="http://images.lmgtfy.com/?q=funny+cat+pictures">move along</a>).</p>
+
+<p>Here are three ways you can achieve the effect. Make sure you get to option-3, even if you have to skip options 1 and 2 (hint: they both suck).</p>
+
+<h3>Option 1: specific, separate css class</h3>
+
+<pre><code>&lt;style&gt;
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .both   { font-style:italic; }
+&lt;/style&gt;
+
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Red Text&lt;/div&gt;
+&lt;div class="urgent important both"&gt;Bold Italic Red Text&lt;/div&gt;
+</code></pre>
+
+<p>This is nasty. I want to define my css classes to be as orthogonal and meaningful as possible, and while creating my html markup I do not want to be "mixing concerns" that should be kept separate.</p>
+
+<h3>Option 2: nested html tags and ancestry selectors</h3>
+
+<pre><code>&lt;style&gt;
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent .important { font-style:italic }
+&lt;/style&gt;
+
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Red Text&lt;/div&gt;
+&lt;div class="urgent"&gt;
+  &lt;div class="important"&gt;Bold Italic Red Text&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>Double nasty, take it away! Now I've had to change my html markup to nest <code>classB</code> under <code>classA</code>, just so I can style things as I want them. That's really stupid and annoying: styling should be a separate issue from the markup.</p>
+
+<p>OK, so here's the right way to do it, and I just can't believe it took me so long to feel the pain hard enough to go looking for a solution...</p>
+
+<h3>Option 3: use the union selector</h3>
+
+<pre><code>&lt;style&gt;
+  .classA { color:red; }
+  .classB { font-weight:bold; }
+  .classA.classB { font-style:italic; }
+&lt;/style&gt;
+
+&lt;div class="classA"&gt;Red Text&lt;/div&gt;
+&lt;div class="classB"&gt;Bold Text&lt;/div&gt;
+&lt;div class="classA classB"&gt;Bold Italic Red Text&lt;/div&gt;
+</code></pre>
+
+<p>The difference in the css declaration between option-2 and option-3 is so small I'll point it out, just in case you missed it: </p>
+
+<ul>
+<li>the union selector uses <em>both</em> class names <em>without</em> the space separating them - like this <code>.classA.classB</code>.</li>
+<li>whereas the example in option-2 <code>.classA .classB</code> separates the two classes with a space, and matches on an element with <code>.classB</code> descending from an element with <code>.classA</code>.</li>
+</ul>
+
+<p>CSS can be a thumping great pain, but just occasionally it comes up trumps.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=css">css</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=selector">selector</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=union">union</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="a_css_selector_that_only_acts_when_two_css_classes_combine.html">Comment on this post</a>
+
+            </article>            
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
               <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
@@ -1403,59 +1505,6 @@ Content-Length: 0
               <div style="clear:both"></div>
 
 	        <a href="eclipse_code_template_for_gwt_jsni_methods.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,054" description="An essay on the qualities, personality and behaviours of a good software engineer">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-10-19">October 19, 2011</time></span>
-              <a itemprop="url" href="what_makes_a_good_developer.html"><h1 itemprop="name" itemprop="headline">What makes a good developer?</h1></a>
-	      <span itemprop="articleBody"><p>At the beginning of the year I worked with our Operations Manager in Beirut - <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel Beaini</a> - to do annual reviews for our whole development (and UX) team there. </p>
-
-<p>As part of the review process we gave the developers an updated job specification, which I wanted to be both prescriptive and aspirational - the idea being to describe the role each should currently be playing, to make very clear what would be needed to move to the next level, and at the same time to make everyone want to up their game and take it to the next level.</p>
-
-<p>The end result, I guess, is my attempt at a technology agnostic description of what makes a good developer. Being a developer myself I'm fairly biased towards the technical aspects of the role and probably tend to somewhat overlook the human side of things (team-work, interaction with other parts of the business incl. non-programmers, etc). I'd love to hear constructive feedback on how I could improve these descriptions for next year :)</p>
-
-<p>Here are the "aspirational" parts of the job descriptions I wrote for the top-tiers - architect/expert and senior developer:</p>
-
-<h2>Architect/Expert Developer</h2>
-
-<p>A passionate technologist, you demonstrate excitement, deep interest and knowledge of all aspects of development: languages; paradigms; patterns; idioms; platforms; performance; reliability; scalability; quality; tools and technologies. You relish the challenge of hugely complex problems.</p>
-
-<p>Possessing true mastery of at least one modern programming language and paradigm, along with advanced knowledge of idioms and Design Patterns and when (or when not) to apply them, you will be able to recognize opportunities to improve code at a glance, and have the confidence and competence to take these opportunities to refactor towards better design.</p>
-
-<p>You must be able to explain at length the reasons behind (micro)architectural decisions you make - or help others to make - so that others may learn from you. Your code has a finesse and indescribable quality that is the envy of all who read and work with it. You have exceptional ability to narrow down potential sources of a problem, hone in on the root-cause, and propose a range of solutions and explain their pros and cons.</p>
-
-<p>Your architectural skills allow you both to describe designs at a high level to the business, and also to hone in on the complexities and details that allow a design to be implemented successfully. You are able to interpret and translate abstract ideas from more business oriented colleagues and customers, and from those ideas produce designs and specifications for developers to implement. You will be able to identify and separate the real requirements from the incidental details that inevitably form part of such brain-storming or business driven interaction.</p>
-
-<p>You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have no prior experience. You will be aware of facets of these tools and processes that are not in daily use, such that you will be able to turn these tools even more to your advantage in specific situations. You will be constantly looking for new ways to streamline your working practices and those of the team through use of new and existing tools and technologies.</p>
-
-<p>As one of the most senior members of the development team you will set an excellent example of engineering discipline to your colleagues, and will be passionate about achieving the very best quality and helping those around you to do so. You will recognize and evangelize the benefits of engineering disciplines such as source-code control, unit-testing, and code-review, and have a very self-critical view of what constitutes "done".</p>
-
-<p>You will delight in tackling a range of tasks, recognizing the pleasure to be found in a polished solution to the smallest problem, as well as the challenges of a more significant undertaking, and you will enjoy mentoring and engaging in discussion about all aspects of development with your colleagues.</p>
-
-<h2>Senior Developer</h2>
-
-<p>You are the kind of person who develops software for fun in your spare time - whether personal projects or open-source contributions. You are deeply interested in languages, paradigms, idioms, tools and technologies, and in solving difficult problems.</p>
-
-<p>You take great pride in your work, and it shows clearly in the way your code speaks to others - simple, clean, thoroughly unit-tested and easily understood and maintained. You are able to recognize and fix many code-smells and can gently point them out to your less experienced colleagues during code-review. You are keen to develop your skills further through interaction with your colleagues - junior and senior - and by consistently executing any task, large or small, with the attitude that there is always something new to learn. You can quickly identify and fix problems from minimal descriptions.</p>
-
-<p>You are accomplished at taking high level designs and specifications from Architects and implementing them successfully, including creating and assigning suitable sub-tasks to less advanced members of your team. You can articulately explain the reasons behind micro-architectural choices you make during implementation, and evaluate the pros and cons of such decisions.</p>
-
-<p>You will have excellent understanding and wider knowledge of development tools and processes, and be able to clearly explain, demonstrate, and teach their usage to others, especially those junior to yourself who may have little or no prior experience. You will be so confident with and reliant upon these tools that you use them even for your personal projects, knowing that the benefits are well worth the extra up-front effort.</p>
-
-<p>You will set an excellent example of engineering discipline to your peers and junior colleagues, and you understand and truly believe in the need for engineering discipline and processes in delivering high quality software. Your attitude toward any task is to produce the best solution you can and learn from the experience. You will actively seek feedback on your solutions from peers and senior colleagues, whether by code-review or less formal discussion.</p>
-
-<p>If you're in Beirut, are a serious Java or Objective-C hacker, and would like to work with us, drop a comment, contact <a href="http://uk.linkedin.com/in/steveliles">me</a> or <a href="http://www.linkedin.com/pub/bassel-beaini/26/553/291">Bassel</a> via linked-in, or tweet me (<a href="http://twitter.com/#!/steveliles">@steveliles</a>)</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Developer">Developer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Architect">Architect</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Engineer">Engineer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Qualities">Qualities</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="what_makes_a_good_developer.html">Comment on this post</a>
 
             </article>            
         </div>
