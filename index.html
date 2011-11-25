@@ -2,11 +2,10 @@
 <html>
   <head>
     <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
-    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" /> 
-    <link rel="author" href="http://steveliles.github.com/about_me.html" />
-        <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-    <meta name="description" content="Thoughts on Java, GWT, programming, and other geek stuff"></meta>
+        <meta name="description" content="Thoughts on Java, GWT, programming, and other geek stuff"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
     <title>Steve Liles' Blog</title>
   </head>
@@ -18,7 +17,7 @@
           <h2>Because I'll forget it if I don't write it down...</h2>
         </div>
         <div class="right">
-	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>          
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
         </div>
       </header>
       <nav>
@@ -102,9 +101,9 @@
 	        <a href="microformats_rich_snippets_rel_author_and_search_listings.html">Comment on this post</a>
 
             </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="618" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the union of the css classes">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="620" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the union of the css classes">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
-              <a itemprop="url" href="a_css_selector_that_only_acts_when_two_css_classes_combine.html"><h1 itemprop="name" itemprop="headline">A CSS selector that only acts when two css classes combine</h1></a>
+              <a itemprop="url" href="a_multi_class_union_css_selector.html"><h1 itemprop="name" itemprop="headline">A multi-class union CSS selector</h1></a>
 	      <span itemprop="articleBody"><p><style>
   .example { 
     margin:25px;
@@ -116,7 +115,7 @@
   .important { font-weight:bold; }
   .urgent.important { font-style:italic; }
 </style>
-Several times while working on the styling of this blog I've wanted to style elements differently when a <em>combination</em> or <em>union</em> of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
+Several times while working on the styling of this blog I've wanted to style elements differently when the complete combination or set union of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
 
 <p>Here's the html I want to be able to write:</p>
 
@@ -201,7 +200,7 @@ Several times while working on the styling of this blog I've wanted to style ele
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="a_css_selector_that_only_acts_when_two_css_classes_combine.html">Comment on this post</a>
+	        <a href="a_multi_class_union_css_selector.html">Comment on this post</a>
 
             </article>            
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">

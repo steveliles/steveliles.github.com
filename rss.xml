@@ -76,9 +76,9 @@
         <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
-        <title><![CDATA[A CSS selector that only acts when two css classes combine]]></title>
-        <link><![CDATA[http://steveliles.github.com/a_css_selector_that_only_acts_when_two_css_classes_combine.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/a_css_selector_that_only_acts_when_two_css_classes_combine.html</guid>
+        <title><![CDATA[A multi-class union CSS selector]]></title>
+        <link><![CDATA[http://steveliles.github.com/a_multi_class_union_css_selector.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/a_multi_class_union_css_selector.html</guid>
         <description><![CDATA[<p><style>
   .example { 
     margin:25px;
@@ -90,7 +90,7 @@
   .important { font-weight:bold; }
   .urgent.important { font-style:italic; }
 </style>
-Several times while working on the styling of this blog I've wanted to style elements differently when a <em>combination</em> or <em>union</em> of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
+Several times while working on the styling of this blog I've wanted to style elements differently when the complete combination or set union of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
 
 <p>Here's the html I want to be able to write:</p>
 
