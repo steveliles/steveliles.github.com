@@ -7,7 +7,12 @@
     <loc>http://steveliles.github.com/about_me.html</loc>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
-  </url>  
+  </url>
+  <url>
+    <loc>http://steveliles.github.com/article-archive.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
 
       <url>
       <loc>http://steveliles.github.com/index.html</loc>
