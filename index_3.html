@@ -35,6 +35,315 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,904" description="Description and code for an Android desktop widget and backing Service for displaying tweets">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-09-08">September 08, 2011</time></span>
+              <a itemprop="url" href="my_first_android_app_desktop_widget.html"><h1 itemprop="name" itemprop="headline">My first Android app (desktop widget)</h1></a>
+	      <span itemprop="articleBody"><p>Having spent quite a bit of time away from Eclipse lately I've been itching to play with some code again. During a short meeting this morning an idea hit me for a really simple Android desktop widget: a twitter search widget that you can drop on your desktop and configure with a hash-tag search.</p>
+
+<p>Here's how it looks in the Android emulator:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-vquQDRX3D2Y/TmjCGIscAiI/AAAAAAAAHlw/g0nU2gdPnug/s815/tweet-widget.png" alt="Screenshot" /></p>
+
+<p>I know, not exactly eye-candy, but that wasn't really the point :)</p>
+
+<h3>The important pieces of the puzzle are:</h3>
+
+<ul>
+<li>A BroadcastReceiver that receives events telling the widget to update. Here I extended AppWidgetProvider to override onUpdate only.</li>
+<li>A Service that does the Twitter API request asynchronously - we don't want to use the UI thread and fail the responsiveness criteria</li>
+<li>The "widget info" descriptor xml</li>
+<li>Android manifest entries that register the Service and the broadcast receiver</li>
+<li>SAX ContentHandler implementation to parse the Tweet text from the atom response to the Twitter API request</li>
+</ul>
+
+<p>Here's the code, currently wired to display a search for "#uml"</p>
+
+<h4>The BroadcastReceiver</h4>
+
+<pre><code>public class NewsTicker extends AppWidgetProvider {
+    @Override
+    public void onUpdate(Context aContext, 
+        AppWidgetManager aAppWidgetManager, 
+        int[] aAppWidgetIds) {
+        super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
+        aContext.startService(
+            new Intent(aContext, NewsTickerDataService.class));
+    }
+}
+</code></pre>
+
+<h4>The Service</h4>
+
+<pre><code>public class NewsTickerDataService extends Service {
+
+    @Override
+    public void onStart(Intent aIntent, int aStartId) {
+        super.onStart(aIntent, aStartId);   
+        RemoteViews _views = buildUpdatedViews(this);   
+        ComponentName _widget = 
+            new ComponentName(this, NewsTicker.class);
+        AppWidgetManager _manager = 
+            AppWidgetManager.getInstance(this); 
+        _manager.updateAppWidget(_widget, _views);
+    }
+
+    @Override
+    public IBinder onBind(Intent aParamIntent) {
+        // not supporting binding   
+        return null;
+    }
+
+    private RemoteViews buildUpdatedViews(Context aContext) {
+        List&amp;lt;Story&gt; _stories = getStories();
+        RemoteViews _result = new RemoteViews(
+            aContext.getPackageName(), 
+            R.layout.newsticker_widget
+        );
+
+        if (_stories.isEmpty()) {
+            _result.setTextViewText(R.id.title, 
+                "Sadly there's nothing to read today.");
+        } else {
+            _result.setTextViewText(
+                R.id.title, _stories.get(0).getTitle());
+        }
+        return _result;
+    }
+
+    private List&amp;lt;Story&gt; getStories() {
+        try {
+            URL _url = new URL("http://search.twitter.com" +
+                "/search.atom?q=%23uml&amp;" + 
+                "result_type=mixed&amp;count=5"
+            );
+            InputStream _in = _url.openStream();
+            return parse(new InputSource(_in));
+        } catch (Exception anExc) {
+            Log.e("NewsTicker", anExc.getMessage(), anExc);
+            return new ArrayList&amp;lt;Story&gt;();
+        }
+    }
+
+    private List&amp;lt;Story&gt; parse(InputSource aSource)
+    throws Exception {
+        SAXParserFactory _f = SAXParserFactory.newInstance();
+        SAXParser _p = _f.newSAXParser();
+        XMLReader _r = _p.getXMLReader();
+
+        AbstractParser _h = new AtomParser();
+        _r.setContentHandler(_h);   
+        _r.parse(aSource);
+
+        return _h.getStories();
+    }
+}
+</code></pre>
+
+<h4>The SAX ContentHandler</h4>
+
+<pre><code>public abstract class AbstractParser extends DefaultHandler {
+
+    static interface Handler {
+        Handler startElement(String aName);
+        Handler characters(char[] aChars, int aStart, int aLength);
+        Handler endElement(String aName);
+    }
+
+    public static AbstractParser newAtomParser() {
+        return new AbstractParser() {
+            protected String getStoryElementName() {
+                return "entry";
+            }
+        };
+    }
+
+    private Handler handler;
+    private List&amp;lt;Story&gt; stories;
+
+    public AbstractParser() {
+        stories = new ArrayList&amp;lt;Story&gt;();
+        handler = newDefaultHandler();
+    }
+
+    protected abstract String getStoryElementName();
+
+    @Override
+    public void startElement(
+        String aUri, String aLocalName, 
+        String aQName, Attributes aAttributes) 
+    throws SAXException {
+        handler = handler.startElement(aLocalName);
+    }
+
+    @Override
+    public void characters(char[] aCh, int aStart, int aLength) 
+    throws SAXException {
+        handler = handler.characters(aCh, aStart, aLength);
+    }
+
+    @Override
+    public void endElement(String aUri, String aLocalName, String aQName) 
+    throws SAXException {
+        handler = handler.endElement(aLocalName);
+    }
+
+    public List&amp;lt;Story&gt; getStories() {
+        return stories;
+    }
+
+    private Handler newDefaultHandler() {
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if (aName.equals(getStoryElementName())) {
+                    return newItemHandler(this);
+                }
+                return this;
+            }
+
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                return this;
+            }
+        };
+    }
+
+    private Handler newItemHandler(final Handler aParent) {
+        stories.add(new StoryImpl());
+
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if ("title".equals(aName)) {
+                    return newTitleHandler(this);
+                }
+                return this;
+            }
+
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                if (getStoryElementName().equals(aName)) {
+                    return aParent;
+                }
+                return this;
+            }
+        };
+    }
+
+    private Handler newTitleHandler(final Handler aParent) {
+        final StringBuilder _title = new StringBuilder();
+
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                return this;
+            }
+
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                _title.append(aChars, aStart, aLength);
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                if ("title".equals(aName)) {
+                    StoryImpl _s = (StoryImpl) 
+                    stories.get(stories.size()-1);
+                    _s.setTitle(_title.toString());
+                    return aParent;
+                }
+                return this;
+            }
+        };
+    }
+}
+</code></pre>
+
+<h4>The Android Manifest</h4>
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.knowledgeview.android.ticker"
+    android:versionCode="1"
+    android:versionName="1.0"&gt;
+  &lt;uses-sdk android:minSdkVersion="7" /&gt;
+  &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+  &lt;application 
+        android:icon="@drawable/icon" 
+        android:label="@string/app_name"&gt;
+    &lt;receiver android:name=".NewsTicker"&gt;
+      &lt;intent-filter&gt;
+    &lt;action 
+          android:name="android.appwidget.action.APPWIDGET_UPDATE"/&gt;
+      &lt;/intent-filter&gt;
+      &lt;meta-data 
+            android:name="android.appwidget.provider"
+    android:resource="@xml/newsticker_widget_info"/&gt;
+    &lt;/receiver&gt;
+    &lt;service android:name=".NewsTickerDataService"/&gt;
+  &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre>
+
+<h4>The Widget descriptor</h4>
+
+<pre><code>&lt;appwidget-provider 
+      xmlns:android="http://schemas.android.com/apk/res/android"
+  android:minWidth="294dp"
+  android:minHeight="72dp"
+  android:updatePeriodMillis="86400000"
+  android:initialLayout="@layout/newsticker_widget"&gt;
+&lt;/appwidget-provider&gt;
+</code></pre>
+
+<h4>The layout descriptor</h4>
+
+<pre><code>&lt;LinearLayout 
+      android:id="@+id/linearLayout1" 
+      android:layout_width="fill_parent" 
+      android:layout_height="fill_parent" 
+      xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+  &lt;TextView
+    android:textAppearance="?android:attr/textAppearanceSmall"
+    android:id="@+id/title"
+    android:text="TextView"
+    android:textSize="10sp"
+    android:textColor="#fff"
+    android:layout_height="60dp"
+    android:layout_width="fill_parent"
+    android:background="#c333"
+    android:padding="3dp"
+    android:layout_margin="5dp"&gt;
+  &lt;/TextView&gt;
+&lt;/LinearLayout&gt;
+</code></pre>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Desktop Widget">Desktop Widget</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Twitter">Twitter</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="my_first_android_app_desktop_widget.html">Comment on this post</a>
+
+            </article>            
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198" description="Binding Java processes - and thus threads - to a single CPU">
               <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
               <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
@@ -326,160 +635,6 @@ jMock takes a little getting used to, as it involves quite a different way of th
               <div style="clear:both"></div>
 
 	        <a href="elasticsearch_vs_solrcloud.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,532" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 3">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-15">February 15, 2011</time></span>
-              <a itemprop="url" href="progressive_enhancement_with_gwt_part_3.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 3</h1></a>
-	      <span itemprop="articleBody"><p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
-
-<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
-
-<p>In my previous posts I described an idea for progressive enhancement using GWT -  "activating" server-generated html, to combine GWT goodness with an SEO friendly server-generated website, and my findings after some initial trials. </p>
-
-<p>One of the problems I described in that second post was that it would be very difficult to work with these widgets if nested widgets could not be automatically (or at least easily) bound to fields within this widget.</p>
-
-<p>After a little playing around and learning about GWT Generators I now have what seems like a nice solution, using a Generator to do almost all of the donkey work. Think of it like UiBinder, but with the templates provided at runtime (courtesy of the server). Here's an example class that automatically binds sub-widgets - an Image in this case - to a field of that class:</p>
-
-<pre><code>public class MyWidget extends Widget {
-
-    interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}
-    private static MyActivator activator = GWT.create(MyActivator.class);
-
-    @RuntimeUiField(tag="img", cssClass="small") Image small;
-
-    public MyWidget(Element anElement) {
-        // this will set our element and bind our image field.
-        setElement(activator.activate(this, anElement));
-
-        // now we can play with our fields.
-        small.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent aEvent) {
-                Window.alert("clicked!");
-            }
-        });
-    }
-}
-</code></pre>
-
-<p>This class will bind onto any html that has an image tag somewhere in its inner-html, for example:</p>
-
-<pre><code>&lt;div&gt; &lt;!-- Say our MyWidget is bound here --&gt;
-  &lt;div&gt;
-    &lt;span&gt;
-          &lt;!-- will be bound to our Image widget --&gt;
-      &lt;img class="small" src="/images/image.jpg"&gt;
-    &lt;/span&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-</code></pre>
-
-<p>Anyone familiar with UiBinder will recognize the pattern I've used for the "activator":</p>
-
-<ul>
-<li>Extend an interface with no methods
-<code>interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}</code></li>
-<li>GWT.create() an instance of that interface
-<code>private static MyActivator activator = GWT.create(MyActivator.class);</code></li>
-<li>Then use it to initialize your widget
-<code>setElement(activator.activate(this, anElement));</code></li>
-</ul>
-
-<p>The nice thing about this is we can automatically bind as many widgets as we like onto various sites within the inner-html of our current widget's element. It doesn't mess with the structure (unless you explicitly do so after the binding is done for you), and you can have as much other html within the elements as you like - it will just be left alone, which gives your designers the flexibility to change the layout quite a lot without necessarily needing to re-compile your GWT code. </p>
-
-<p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
-
-<pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
-// search of child elements
-@RuntimeUiField(tag="div") Label label;
-
-// bind to first element with class="my-widget" 
-// found by breadth-first search
-@RuntimeUiField(cssClass="my-widget") Label label;
-
-// bind to first &amp;lt;div&gt; with class="my-widget" 
-// found by breadth-first search
-@RuntimeUiField(tag="div", cssClass="my-widget") Label label;
-</code></pre>
-
-<p>Notice in my examples so far I'm binding standard GWT widgets onto the nested elements. This works for the elements I've used in these examples because they all have a <code>public static Type wrap(Element anElement)</code> method which allows those widgets to be bound onto elements that are already attached to the DOM.</p>
-
-<p>It is also possible to bind widgets of your own making in one of two ways:</p>
-
-<ol>
-<li>Create a wrap method like 
-<code>public static MyWidget wrap(Element anElement)</code></li>
-<li>Create a single-argument public Constructor that accepts an <code>Element</code> as its argument.</li>
-</ol>
-
-<p>Activate-able widgets can be nested within other such widgets - with no limits that I am aware of so far - and it is also possible to assign nested widgets to a List field in the enclosing widget, like this:</p>
-
-<pre><code>@RuntimeUiField(tag="img") List&lt;Image&gt; images;
-</code></pre>
-
-<p>This will search recursively for any <code>&lt;img&gt;</code> tags inside the enclosing widget's element and bind them all to Image widget's that will be added to the List. The current limitations here are that the List must be declared either as List or ArrayList, and parameterized with a concrete type that meets the criteria defined above (i.e. has a static <code>wrap(Element)</code> method, or a single-arg constructor that takes an <code>Element</code> as the argument).</p>
-
-<p>A remaining question is how to bind the outer-most Widget. Currently I'm doing that using the DOM scanning code I wrote during earlier experiments and which I'm also using in the automatic scanning process set up by the Generator. For example to find the outer-most widgets and kick off the binding process I have something like this in my EntryPoint:</p>
-
-<pre><code>public void onModuleLoad() {
-    List&lt;MyWidget&gt; _myWidgets = new ArrayList&lt;mywidget&gt;();
-    for (Element _e : Elements.getByCssClass("outer-most-widget")) {
-        new MyWidget(_e);
-    }
-    // do stuff with our widgets ...
-}
-</code></pre>
-
-<p>I think of this as very similar to the RootPanel situation - "normal" GWT apps kick off by getting a RootPanel(body tag) or RootPanel's (looked up by id), to which everything else is added. It would be nice to hide away some of that scanning code inside a "top-level" widget - much like RootPanel does for the normal case. I can imagine this might look something like:</p>
-
-<pre><code>public void onModuleLoad() {
-    Page _page = Page.activate();
-    _page.doStuffWithWidgets();
-    // ...
-}
-</code></pre>
-
-<p>I still have lots of things to figure out and questions to answer, for example:</p>
-
-<ul>
-<li>What's the performance like when binding many hundreds of widgets?</li>
-<li>How will this really work when I make ajax requests for more data? (should I make ajax requests for html snippets which I add to the DOM and then bind onto, or switch to json for ajax requests and make my widgets able to replicate themselves from an initial html template?)</li>
-<li>What's the best way to divide labour between developers and designers, and for them to organize their interaction? (Ideally I'd like there to be something of a cycle between them, where the designer can rough-out a page design, agree the componentisation with the developer, the developer knocks out some components and a build which the designer can use to activate their static designs, add fidelity, work on other pages with the same components, etc).</li>
-<li>Where is the sweet-spot between creating high-fidelity html server-side and decorating it client-side using GWT? Should the GWT components really be just for adding dynamism, or is it a good idea to use them to build additional html sweetness? - I mean the server could dish out html that is more of a model than a view (just enough "view" to satisfy SEO), and the GWT layer acts as a client-side controller and view (<a href="http://www.thinserverarchitecture.com/home">SOFEA/TSA</a> with a nod to SEO).</li>
-</ul>
-
-<p>I'll try to keep posting as I work things out.</p>
-
-<p>This probably belongs in a separate post, but with reference to that last point on TSA (Thin Server Architecture) - the working group list the following points to define the concept:</p>
-
-<blockquote>
-  <ol>
-  <li>Do not use server-side templating to create the web page.</li>
-  <li>Use a classical and simple client-server model, where the client runs in the browser.</li>
-  <li>Separate concerns using protocol between client and server and get a much more efficient and less costly development model.</li>
-  </ol>
-</blockquote>
-
-<p>I'm right behind them on (2) and (3), and also on (1) for "enterprise" apps where SEO is a non-goal. However, for an app that needs SEO, (1) is a deal-breaker, so I'd offer this alternative 1st rule instead:</p>
-
-<ol>
-<li>Use server-side templating to produce a model for the client to consume which minimally satisfies the needs of SEO.</li>
-</ol>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOFEA">SOFEA</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TSA">TSA</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=UiBinder">UiBinder</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="progressive_enhancement_with_gwt_part_3.html">Comment on this post</a>
 
             </article>            
         </div>

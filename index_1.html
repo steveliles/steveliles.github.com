@@ -35,6 +35,279 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,097" description="Description and code for a progressive enhancement syntax highlighter written in javascript using Google Web Toolkit">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-13">November 13, 2011</time></span>
+              <a itemprop="url" href="syntax_highlighting_with_gwt_progressive.html"><h1 itemprop="name" itemprop="headline">Syntax Highlighting with GWT.Progressive</h1></a>
+	      <span itemprop="articleBody"><p>There are many good syntax-highlighters available for progressively enhancing code on website's such as my blog. On my old blog I used <a href="http://alexgorbatchev.com/SyntaxHighlighter/">Alex Gorbachev's</a> - which is exceptionally good.</p>
+
+<p>For this blog, I really wanted to write my own. Why? Well, for the same reason I wrote the site-generation software that builds the blog from Markdown templates - because I love programming, and doing this stuff is FUN!</p>
+
+<p>Having just released my <code>GWT.Progressive</code> library I had two very good reasons to write a syntax-highlighter that works by progressive-enhancement:</p>
+
+<ol>
+<li>I need good examples of progressive enhancement written in <code>GWT</code> using <code>GWT.Progressive</code></li>
+<li>Those very same code-samples need syntax-highlighting to aid readability!</li>
+</ol>
+
+<p>For this first attempt I'm not setting out to write the world's greatest syntax-highlighter. My aims are more modest: merely to illustrate the <code>GWT.Progressive</code> library and add basic syntax-highlighting (Java) capabilities to my blog.</p>
+
+<p>The syntax-highlighter will work as follows:</p>
+
+<ol>
+<li>After the page is loaded, identify <code>&lt;pre&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt;</code> blocks on my blog.</li>
+<li>Try to ascertain if the text in the block is Java, or a similar language (e.g. JavaScript).</li>
+<li>Mark keywords, literals, comments, and a few other choice elements using inline html markup to add css classes, allowing the actual colours and styles to be selected independently of the process of identify the parts to highlight.</li>
+</ol>
+
+<p>The script that kicks this off is loaded by the very last line in the html body of each page on my blog:</p>
+
+<pre><code>&lt;script 
+  type="text/javascript" language="javascript" 
+  src="blog/blog.nocache.js"&gt;
+&lt;/script&gt;
+</code></pre>
+
+<p>The Java class that uses the <code>GWT.Progressive</code> library to scan for <code>&lt;pre&gt;&lt;code&gt;</code> blocks is, in full, as follows:</p>
+
+<pre><code>package com.sjl.blog.client.syntax;
+
+import com.google.gwt.core.client.*;
+import com.google.gwt.dom.client.*;
+import com.knowledgeview.gwt.activator.client.*;
+import com.knowledgeview.gwt.activator.client.widgets.*;
+
+@RootBinding(tag="code")
+public class Code extends BoundRootPanel {
+    interface MyActivator extends ElementActivator&lt;Code&gt;{}
+    static MyActivator activator = GWT.create(MyActivator.class);
+
+    static JavaSyntaxHighlighter highlighter = 
+        new JavaSyntaxHighlighter();
+
+    public Code(Element anElement) {
+        setElement(activator.activate(this, anElement));
+
+        if (isJavaCode(getElement().getInnerText())) {
+            getElement().setInnerHTML(
+                highlighter.highlight(getElement().getInnerText()));
+        }
+    }
+
+    private boolean isJavaCode(String aString) {
+        return !aString.trim().startsWith("&lt;");
+    }
+}
+</code></pre>
+
+<p>The <code>GWT</code> module descriptor looks like this:</p>
+
+<pre><code>&lt;module rename-to="blog"&gt;
+  &lt;inherits name="com.google.gwt.user.User"/&gt;
+  &lt;inherits name="com.google.gwt.user.Debug"/&gt;
+
+  &lt;inherits name="com.sjl.gwt.progressive.Progressive"/&gt;
+  &lt;entry-point class="com.sjl.blog.client.BlogApplication" /&gt;
+
+      &lt;!-- allows the script to be used cross domain --&gt;
+  &lt;add-linker name="xs" /&gt;
+&lt;/module&gt;
+</code></pre>
+
+<p>I will take the time to write a better highlighter some time in the future (using ANTLR or similar to generate a parser), but for now I knocked up a simple version using regular expressions.</p>
+
+<p>This highlighter was built by TDD'ing my way through highlighting the different components, starting simple with keywords. The design changed a few times along the way, but in total, including the <code>Code</code> class, the finished highlighter took around 90 minutes to build.</p>
+
+<p>The slowest part, actually, was round-trip testing and fixing "for real" with GWT production mode, since the <a href="http://google-web-toolkit.googlecode.com/svn/javadoc/2.4/com/google/gwt/regexp/shared/RegExp.html">difference in regular expression engines</a> between development and production mode caught me out.</p>
+
+<p>Here's the Java syntax highlighter in full:</p>
+
+<pre><code>public class JavaSyntaxHighlighter implements SyntaxHighlighter {
+    private List&amp;lt;Replacement&gt; replacements;
+
+    public JavaSyntaxHighlighter() {
+        replacements = new ArrayList&amp;lt;Replacement&gt;();
+
+        // order is important
+        replacements.add(new CommentReplacement());
+        replacements.add(new AnnotationReplacement());
+        replacements.add(new LiteralReplacement());
+        replacements.add(new KeywordReplacement());
+    }
+
+    public String highlight(String anInput) {
+        List&amp;lt;Component&gt; _components = new ArrayList&amp;lt;Component&gt;();
+        _components.add(new SplittableComponent(anInput));
+
+        for (Replacement _r : replacements) {
+        _components = _r.process(_components);
+        }
+
+        StringBuilder _sb = new StringBuilder();
+        for (Component _c : _components) {
+        _sb.append(_c);
+        }
+        return _sb.toString();
+    }
+}
+
+interface Component {
+    boolean canSplit();
+    String toString();
+}
+
+class SplittableComponent implements Component {
+    protected String value;
+
+    public SplittableComponent(String aValue) {
+        value = aValue;
+    }
+
+    public boolean canSplit() {
+        return true;
+    }
+
+    public String toString() {
+        return value;
+    }
+}
+
+class UnsplittableComponent extends SplittableComponent {
+    public UnsplittableComponent(String aValue) {
+        super(aValue);
+    }
+
+    public boolean canSplit() {
+        return false;
+    }
+}
+
+interface Replacement {
+    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; anInput);
+}
+
+abstract class AbstractReplacement implements Replacement {
+    private String cssClass;
+
+    public AbstractReplacement(String aCssClass) {
+        cssClass = aCssClass;
+    }
+
+    protected abstract String replace(String aString);
+
+    @Override
+    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; aComponents)
+    {
+        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
+        for (Component _c : aComponents) {
+        if (_c.canSplit()) {
+            String _replaced = replace(_c.toString());
+            _result.addAll(createComponents(_replaced, cssClass));
+        } else {
+            _result.add(_c);
+        }
+        }
+        return _result;
+    }
+
+    private List&amp;lt;Component&gt; createComponents(
+        String anInput, String aClass) {
+        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
+        for (String _s : anInput.split("\\[\\[\\[|\\]\\]\\]")) {
+        if (_s.startsWith("&amp;lt;span class=\"" + aClass)) {
+            _result.add(new UnsplittableComponent(_s));
+        } else {
+            _result.add(new SplittableComponent(_s));
+        }
+        }
+        return _result;
+    }
+
+    protected String replacement(String aClass) {
+        return "[ [ [&amp;lt;span class=\"" + aClass + "\"&amp;gt;$1&amp;lt;/span&amp;gt;] ] ]";
+    }
+}
+
+class KeywordReplacement extends AbstractReplacement
+{
+    public static String[] KEYWORDS = new String[] {
+        "class", "package", "import", "public", "private", "protected", 
+        "interface", "extends", "this", "implements", "throws", "try", 
+        "catch", "finally", "final", "return", "new", "void", "for", 
+        "if", "else", "while", "static", "transient", "synchronized", 
+        "byte", "short", "int ", "char ", "long ", "float ", "double ", 
+        "boolean ", "true", "false", "abstract", "volatile", "switch", 
+        "case"
+    };
+
+    public KeywordReplacement() {
+        super("sh-keyword");
+    }
+
+    protected String replace(String aString) {
+        String _result = aString;
+        for (String _k : KEYWORDS) {
+        _result = _result.replaceAll("(" + _k + ")", 
+                replacement("sh-keyword"));
+        }
+        return _result;
+    }
+}
+
+class LiteralReplacement extends AbstractReplacement {
+
+    public LiteralReplacement() {
+        super("sh-literal");
+    }
+
+    protected String replace(String aString) {
+        return aString.replaceAll("(\"[^\"]*\")", 
+            replacement("sh-literal"));
+    }
+}
+
+class CommentReplacement extends AbstractReplacement {
+    public CommentReplacement() {
+        super("sh-comment");
+    }
+
+    protected String replace(String aString) {
+        String _result = aString.replaceAll("(//.*)", 
+            replacement("sh-comment"));
+        _result = _result.replaceAll("(\\/\\*[\\*]?.*\\*\\/)", 
+            replacement("sh-comment"));
+        return _result;
+    }
+}
+
+class AnnotationReplacement extends AbstractReplacement {
+    public AnnotationReplacement() {
+        super("sh-annotation");
+    }
+
+    protected String replace(String aString) {
+        return aString.replaceAll("(@\\w+)", 
+            replacement("sh-annotation"));
+    }
+}
+</code></pre>
+
+<p>You can find out more about <code>GWT.Progressive</code> in the <a href="gwt_progressive.html">release announcement</a>, or at the <a href="https://github.com/steveliles/gwt-progressive">github repository</a>.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=syntax">syntax</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=highlight">highlight</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive">progressive</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=enhancement">enhancement</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=regexp">regexp</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="syntax_highlighting_with_gwt_progressive.html">Comment on this post</a>
+
+            </article>            
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,069" description="Description and code samples for progressive enhancement using Google Web Toolkit and a new open source library called gwt.progressive">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
               <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
@@ -520,55 +793,6 @@ Content-Length: 0
               <div style="clear:both"></div>
 
 	        <a href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html">Comment on this post</a>
-
-            </article>            
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="303" description="Instructions for how to set up an Eclipse code template for easily writing GWT jsni methods">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-10-20">October 20, 2011</time></span>
-              <a itemprop="url" href="eclipse_code_template_for_gwt_jsni_methods.html"><h1 itemprop="name" itemprop="headline">Eclipse code template for GWT jsni methods</h1></a>
-	      <span itemprop="articleBody"><p>GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them <a href="gwt_javascriptobjects_javascript_overlays.html">before</a>. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!</p>
-
-<p>Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:</p>
-
-<pre><code>public final native ${return_type} ${newName}()/*-{ 
-    ${cursor} 
-}-*/;
-</code></pre>
-
-<p>To add this in Eclipse:</p>
-
-<ol>
-<li>Open the preferences dialog (Window -> Preferences)</li>
-<li>Type "templates" into the filter box (it should have focus already so you can just start typing)</li>
-<li>Select the bold entry under "Java -> Editor -> Templates"</li>
-<li>In the right hand panel you'll see all the existing templates, and some buttons ... Click "New"</li>
-<li>The "name" is also the shortcut for your new template, so enter "jsni"</li>
-<li>Paste in the template text (copy from the code block above).</li>
-<li>Click ok to return to prefs, and ok again to return to the editor and try it out ...</li>
-</ol>
-
-<p>To use your new template:</p>
-
-<ol>
-<li>Type "jsni" (without quotes) into a java editor and hit ctrl-space (or whatever your auto-complete shortcut is)</li>
-<li>The first option in the auto-complete suggestions should be your "jsni" template - hit return to use it</li>
-<li>Your template appears, and eclipse focuses the first part (the return type) for you to modify</li>
-<li>Modify each part of the template in turn and press tab to move to the next part</li>
-<li>Enjoy!</li>
-</ol>
-
-<p>Recent releases of the Google Eclipse plugin include some <a href="http://code.google.com/eclipse/docs/gwt_jsni.html">nice jsni features</a> that you definitely don't want to miss out on - including code-completion and syntax highlighting.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=code">code</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=template">template</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=jsni">jsni</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="eclipse_code_template_for_gwt_jsni_methods.html">Comment on this post</a>
 
             </article>            
         </div>
