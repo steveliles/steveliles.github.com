@@ -18,7 +18,7 @@
         <guid isPermaLink="true">http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html</guid>
         <description><![CDATA[<p>Whilst moving my blog from Blogger to github pages I've been looking into various ways to bump up my traffic. </p>
 
-<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and was pretty excited to see what google would make of it.</p>
+<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and waited to see what google would make of it.</p>
 
 <p>I admit, I was pretty excited at the thought of my search listings being presented in a more interesting fashion - I think that would really make them stand out. Here's an example of what Google's "rich snippets" testing tool makes of my articles:</p>
 
