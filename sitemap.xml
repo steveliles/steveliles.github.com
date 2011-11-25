@@ -4,17 +4,53 @@
         xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"> 
 
   <url>
-    <loc>http://steveliles.github.com/index.html</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>http://steveliles.github.com/about_me.html</loc>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>  
 
-      <url> 
+      <url>
+      <loc>http://steveliles.github.com/index.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+    <url>
+      <loc>http://steveliles.github.com/index_1.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+    <url>
+      <loc>http://steveliles.github.com/index_2.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+    <url>
+      <loc>http://steveliles.github.com/index_3.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+    <url>
+      <loc>http://steveliles.github.com/index_4.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+    <url>
+      <loc>http://steveliles.github.com/index_5.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+    <url>
+      <loc>http://steveliles.github.com/index_6.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+    <url>
+      <loc>http://steveliles.github.com/index_7.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
+
+    <url> 
       <loc>http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
