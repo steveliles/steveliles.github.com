@@ -330,12 +330,17 @@ li {
   list-style-type:none;
 }
 
-.twitter-feed h5 {
-  font-size:20px !important;
+.sidebar * {
+  font-size:15px;
+  font-family:'Ubuntu Mono', sans-serif;
+}
+
+.sidebar h5 {
+  font-size:20px;
   text-transform:uppercase;
   letter-spacing:1px;
   text-shadow: 1px 1px 1px #fff;
-  margin-bottom:0px;
+  margin-bottom:0px !important;
 }
 
 .twitter-feed ul {
@@ -350,11 +355,6 @@ li {
   border-top:1px solid #ddd;
   border-bottom:1px solid #aaa;
   color:#336699;
-}
-
-.twitter-feed * {
-  font-size:15px;
-  font-family:'Ubuntu Mono', sans-serif;
 }
 
 .text {
