@@ -35,7 +35,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="511" description="Step-by-step run through of setting up an Amazon S3 bucket as a static web-site">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="513" description="Step-by-step run through of setting up an Amazon S3 bucket as a static web-site">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
               <a itemprop="url" href="hosting_a_static_website_in_amazon_s3.html"><h1 itemprop="name" itemprop="headline">Hosting a static website in Amazon S3</h1></a>
 	      <span itemprop="articleBody"><p>Amazon Simple Storage Service - S3 - can be used to host a static web-site, but it isn't immediately obvious how to set this up. Here's how I did it (I'm using the standard AWS console for this):</p>
@@ -74,7 +74,7 @@
 
 <p><img src="https://lh4.googleusercontent.com/-poLROP8Apoc/TtE1Fn9kH2I/AAAAAAAAH0M/XQJ1XrGLoS8/s600/bucket-properties-website.png" alt="Bucket Properties Website Tab" /></p>
 
-<p>If you open that in a separate tab in your browser now you will see permission denied errors, so lets fix that...</p>
+<p>If you open the endpoint url in a separate tab in your browser now you will see permission denied errors, so lets fix that...</p>
 
 <h4>Step-6: Make your web-site accessable to viewers:</h4>
 
@@ -153,22 +153,40 @@
 	        <a href="plus_one_any_page_google_1_bookmarklet.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="224" description="How to point a registered domain name to an Amazon S3 website bucket">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="406" description="How to point a registered domain name to an Amazon S3 website bucket">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
               <a itemprop="url" href="pointing_a_domain_name_to_an_amazon_s3_bucket.html"><h1 itemprop="name" itemprop="headline">Pointing a domain name to an Amazon S3 bucket</h1></a>
 	      <span itemprop="articleBody"><p>I recently registered a domain name for some static content i'm hosting in Amazon's Simple Storage Service (S3). <a href="hosting_a_static_website_in_amazon_s3.html">Setting up an S3 bucket as a static website</a> is pretty straight-forward, but pointing your domain to it is tricky. After a bit of playing and googling I think I've got the right combination:</p>
 
-<ol>
-<li>Create your S3 website bucket with the same name as your domain - e.g. <code>www.mydomain.com</code> (The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>)</li>
-<li>Remove any <code>A</code> records your registrar may have automatically set up.</li>
-<li>Forward your root domain (<code>mydomain.com</code>) to the <code>www</code> subdomain (<code>www.mydomain.com</code>). If you can <em>mask</em> the forwarding, so much the better (depends what your registrar offers - fasthosts and godaddy both support masked forwarding).</li>
-<li>Add a <code>CNAME</code> for the <code>www</code> subdomain, pointing to your S3 website (<code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>).</li>
-<li>Wait for the changes to propagate (this can take a while).</li>
-</ol>
+<h4>Step-1: Create your S3 website bucket</h4>
 
-<p>My domain-name is overpayment-calculator.com, and <a href="http://www.overpayment-calculator.com">www.overpayment-calculator.com</a> points at my S3 bucket <a href="http://www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com">www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com</a>, masking the S3 name (so that when you visit via the overpayment-calculator.com address you don't see the S3 address in the address bar).</p>
+<p>When naming your bucket it might be a good idea to go with the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. I have done this with mine.</p>
 
-<p><em>p.s.</em> props to <a href="http://www.fasthosts.co.uk/">fasthosts</a> - from registering the domain name to my amazon static site appearing at that domain name (including the time it took me to do the set up) took less than one hour!</p>
+<h4>Step-2: Remove any existing "A" records</h4>
+
+<p>Using the administration tools provided by your domain registrar, remove any <code>"A"</code> records that may have been automatically set up for your domain - you don't want your domain name pointing to "parking" sites.</p>
+
+<h4>Step-3: Forward your root domain to www</h4>
+
+<p>Forward your root domain (<code>mydomain.com</code>) to the <code>www</code> subdomain (<code>www.mydomain.com</code>). Most registrars and hosting companies give you the ability to forward domain names. With Fasthosts I had to "add" forwarding to my package, but it didn't cost anything extra.</p>
+
+<p>If you can <em>mask</em> the forwarding, so much the better, as this will mean that visitors to your site will see your registered domain rather than the S3 url (depends what your registrar offers - fasthosts and godaddy both support masked forwarding). In Fasthosts admin, masking is a checkbox option in the forwarding configuration.</p>
+
+<h4>Step-4: Add a `CNAME` pointing to your S3 site</h4>
+
+<p>Add a CNAME for the <code>www</code> subdomain, pointing to your S3 website (<code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>). The admin tools should make this easy for you.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-6aH7JLLgpVQ/TtFmqVjl4QI/AAAAAAAAH0k/vT_wK-8EEd0/s522/cname-config.png" alt="Add a CNAME" /></p>
+
+<p>That's it - all you have to do now is wait for the changes to propagate (this can take a while).</p>
+
+<h4>See it in action...</h4>
+
+<p>You can see this in action with my setup:</p>
+
+<p>My domain-name is overpayment-calculator.com, which forwards to <a href="http://www.overpayment-calculator.com">www.overpayment-calculator.com</a>, which points (via CNAME) at my S3 bucket <a href="http://www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com">www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com</a>, masking the S3 name (so that when you visit via the overpayment-calculator.com address you don't see the S3 address in the address bar).</p>
+
+<p><em>p.s.</em> props to <a href="http://www.fasthosts.co.uk/">fasthosts</a> - the dns information propagated extremely quickly - from registering the domain name to acessing my site via that domain name (including the time it took me to do the set up) took less than one hour!</p>
 </span>
 
               <ul class="keywords">
@@ -250,7 +268,7 @@
 	        <a href="microformats_rich_snippets_rel_author_and_search_listings.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="620" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the union of the css classes">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="608" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the union of the css classes">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
               <a itemprop="url" href="a_multi_class_union_css_selector.html"><h1 itemprop="name" itemprop="headline">A multi-class union CSS selector</h1></a>
 	      <span itemprop="articleBody"><p><style>
@@ -281,7 +299,7 @@ Several times while working on the styling of this blog I've wanted to style ele
   <div class="urgent important">urgent & important</div>
 </div>
 
-<p>The urgent &amp; important text should be bold, red and italic in your browser (and if it isn't you must have stumbled on this page by accident while trying to use the interweb to find funny cat pictures on your circa 2003 PC. No cat pictures here, <a href="http://images.lmgtfy.com/?q=funny+cat+pictures">move along</a>).</p>
+<p>The urgent &amp; important text should be bold, red and italic in your browser. Notice that neither the "urgent" or the "important" are italic - that only comes when both css classes combine on the same element.</p>
 
 <p>Here are three ways you can achieve the effect. Make sure you get to option-3, even if you have to skip options 1 and 2 (hint: they both suck).</p>
 
