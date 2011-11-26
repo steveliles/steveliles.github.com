@@ -35,6 +35,166 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="898" description="Description and code for creating a sitemap xml using freemarker">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-11">November 11, 2011</time></span>
+              <a itemprop="url" href="templating_my_blog_with_freemarker.html"><h1 itemprop="name" itemprop="headline">Templating my Blog with FreeMarker</h1></a>
+	      <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
+
+<p>I'm using <a href="http://code.google.com/p/markdownj/">MarkdownJ</a> to convert the Markdown syntax to HTML, and <a href="http://freemarker.sourceforge.net/">FreeMarker</a> for templating.</p>
+
+<p>FreeMarker for templating was an easy choice for me:</p>
+
+<ul>
+<li>It is a decent templating engine that I've used recently for a dynamic website,</li>
+<li>It is very easy to set up in Java for my one-hit templating needs,</li>
+<li>I like its syntax compared to, say, Velocity</li>
+</ul>
+
+<p>Yesterday I used FreeMarker to add two new productions to my site-generator: a sitemap, and an RSS feed, and thought I'd make some quick notes...</p>
+
+<p>FreeMarker strives to be a pure templating language, and as such resists the temptation to ... shall we say, make certain things easy that you probably shouldn't do in a template. </p>
+
+<p>This can make templating a little uncomfortable sometimes - all the more so if you try to use complex domain objects directly in your templates instead of producing model's specifically for output (YMMV depending on the complexity of your domain model of course).</p>
+
+<p>For the simple needs of my Blog FreeMarker has been great, allowing me to whiz up the sitemap template in a couple of minutes, and not much longer for the RSS-2.0 template.</p>
+
+<p>Setting up FreeMarker in Java is very very simple indeed. I chose to abstract FreeMarker away behind my own interface (<code>TemplateProcessor</code>), in case I want to use something different later:</p>
+
+<pre><code>import java.io.*;
+import freemarker.template.*;
+
+public class FreemarkerTemplateProcessor implements TemplateProcessor
+{
+    private Configuration cfg;
+
+    public FreemarkerTemplateProcessor(File aTemplateDir) 
+    throws IOException
+    {
+        cfg = new Configuration();
+        cfg.setDirectoryForTemplateLoading(aTemplateDir);
+        cfg.setObjectWrapper(new DefaultObjectWrapper());
+    }
+
+    @Override
+    public void process(Object aModel, String aTemplate, Writer aWriter) 
+    throws IOException, TemplateException
+    {
+        Template _tpl = cfg.getTemplate(aTemplate);
+        _tpl.process(aModel, aWriter);
+    }
+}
+</code></pre>
+
+<p>The templating language is quite neat, and very easy to write - as I mentioned before, it helps if your model is a good fit for the view you are trying to render so you don't need to squeeze to many conditionals into the template. </p>
+
+<h2>Freemarker template for sitemap.xml</h2>
+
+<p>There are only 3 lines of FreeMarker markup in my sitemap template:</p>
+
+<ul>
+<li><code>&lt;#list posts as post&gt;</code> which iterates over an <code>Iterable</code> containing <code>Post</code> objects,</li>
+<li>the closing <code>&lt;/#list&gt;</code>, and</li>
+<li>the line that reads the post's link <code>&lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;</code></li>
+</ul>
+
+<p>Here's the template in full:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
+&lt;urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=
+        "http://www.sitemaps.org/schemas/sitemap/0.9 
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt; 
+
+  &lt;url&gt;
+    &lt;loc&gt;${blog.url}/index.html&lt;/loc&gt;
+    &lt;changefreq&gt;daily&lt;/changefreq&gt;
+    &lt;priority&gt;1.0&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;${blog.url}/about_me.html&lt;/loc&gt;
+    &lt;changefreq&gt;daily&lt;/changefreq&gt;
+    &lt;priority&gt;0.9&lt;/priority&gt;
+  &lt;/url&gt;
+
+  &lt;#list posts as post&gt;
+    &lt;url&gt; 
+      &lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;
+      &lt;changefreq&gt;hourly&lt;/changefreq&gt;
+    &lt;/url&gt;
+  &lt;/#list&gt;
+
+&lt;/urlset&gt;
+</code></pre>
+
+<h2>Freemarker template for RSS 2.0</h2>
+
+<p>The RSS template is very similar to the sitemap template, as it deals with exactly the same model. Skipping the pre-amble, here's the part that actually involves any freemarker markup:</p>
+
+<pre><code>&lt;#list posts as post&gt;
+  &lt;item&gt;
+    &lt;title&gt;&lt;![CDATA[${post.title}]]&gt;&lt;/title&gt;
+    &lt;link&gt;&lt;![CDATA[http://${blog.url}/${post.link}]]&gt;&lt;/link&gt;
+    &lt;guid isPermaLink="true"&gt;${blog.url}/${post.link}&lt;/guid&gt;
+    &lt;description&gt;&lt;![CDATA[${post.body}]]&gt;&lt;/description&gt;
+    &lt;#list post.keywords as keyword&gt;
+      &lt;category&gt;${keyword}&lt;/category&gt;
+    &lt;/#list&gt;
+    &lt;dc:creator&gt;&lt;![CDATA[ Steve Liles ]]&gt;&lt;/dc:creator&gt;
+    &lt;pubDate&gt;${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}&lt;/pubDate&gt;
+  &lt;/item&gt;
+&lt;/#list&gt;
+</code></pre>
+
+<p>I like the date built-in here: <code>${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}</code> which keeps the date format in the template where it belongs. </p>
+
+<p>Of course, here I've just written it directly into this template because I only use this format once in my whole site - if I were using it more I could define a re-usable FreeMarker macro instead to avoid repetition.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=FreeMarker">FreeMarker</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Template">Template</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Sitemap">Sitemap</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=RSS">RSS</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="templating_my_blog_with_freemarker.html">Comment on this post</a>
+
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="80" description="A quick test of github's url shortener, invoked using curl">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
+              <a itemprop="url" href="most_geeky_thing_i_ever_saw.html"><h1 itemprop="name" itemprop="headline">Most geeky thing I ever saw</h1></a>
+	      <span itemprop="articleBody"><p>There's something fabulously, deliciously geeky about using Curl to call a url-shortening service for url's to the web-management console of an online source-code-control system! <a href="http://git.io/help">Githubber's you ROCK!</a></p>
+
+<p><code>curl -i http://git.io -F "url=https://github.com/blog/985-git-io-github-url-shortener" -F "code=geek"</code></p>
+
+<p>gives:</p>
+
+<pre><code>HTTP/1.1 201 Created
+Server: nginx/1.0.4
+X-Node: gitio2
+X-Sha: 50f8f21981a362dfbaa5fbc85193621e56379dfb
+Content-Type: text/html;charset=utf-8
+Date: Thu, 10 Nov 2011 23:23:12 GMT
+Status: 201 Created
+Location: http://git.io/help
+X-Runtime: 0.008420
+Connection: keep-alive
+Content-Length: 0
+</code></pre>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=github">github</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=geek">geek</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=url-shortener">url-shortener</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="most_geeky_thing_i_ever_saw.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="98" description="A comparison of linux distribution popularity using Google Trends">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
               <a itemprop="url" href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html"><h1 itemprop="name" itemprop="headline"> Popularity contest - Ubuntu vs OSX Lion vs Win7</h1></a>
@@ -164,228 +324,6 @@
 	        <a href="what_makes_a_good_developer.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,154" description="An overview of JavaScript Overlay Types, JavaScriptObject, JSNI and JSON parsing in general using GWT">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-10-12">October 12, 2011</time></span>
-              <a itemprop="url" href="gwt_javascriptobjects_javascript_overlays.html"><h1 itemprop="name" itemprop="headline">GWT JavaScriptObjects (Javascript Overlays)</h1></a>
-	      <span itemprop="articleBody"><p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example <a href="http://code.google.com/webtoolkit/doc/latest/DevGuideCodingBasicsOverlay.html">this one</a>. The gist of it is, given some JSON like this:</p>
-
-<pre><code>{ "item": {
-    "id": 123,
-    "name": "cheese",
-    "type": "food"
-  }
-}
-</code></pre>
-
-<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us. </p>
-
-<h2>JavaScript Overlay Types</h2>
-
-<p>We do that by writing a JavaScript Overlay Type class that maps the native json data back to the the world of your Java code, and looks like this:</p>
-
-<pre><code>public class Item extends JavaScriptObject
-{
-    protected Item(){}
-
-    public final native Integer getId()/*-{ 
-        return this.id; 
-    }-*/;
-
-    public final native String getName()/*-{ 
-        return this.name; 
-    }-*/;
-
-    public final native String getType()/*-{ 
-        return this.id; 
-    }-*/;
-}
-</code></pre>
-
-<h2>JSNI Methods</h2>
-
-<p>Those three native methods are known in GWT-land as JSNI methods (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. </p>
-
-<p>In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
-
-<p>The return values from our JSNI can be Java's primitive wrappers or String, any class that extends JavaScriptObject (JSO), or one of a number of special JSO classes GWT provides such as JsArray, JsIterable, JsArrayString, etc.</p>
-
-<p>I have exclusively used jsni methods in my example above, but you can include pure java methods as well (provided they are final) - say, for example, we need to parse a date from some json:</p>
-
-<pre><code>public class Item extends JavaScriptObject
-{
-    private static final DateTimeFormat df = 
-        DateTimeFormat.getFormat("yyyyMMdd");
-
-    protected Item(){}
-
-    public final Date whenCreated() {
-        return df.parse(getCreateDateString());
-    }
-
-    public final native Integer getId()/*-{ 
-        return this.id; 
-    }-*/;
-
-    public final native String getName()/*-{ 
-        return this.name; 
-    }-*/;
-
-    public final native String getType()/*-{ 
-        return this.id; 
-    }-*/;
-
-    public final native String getCreateDateString()/*-{ 
-        return this.createDate; 
-    }-*/;
-}
-</code></pre>
-
-<h2>Mapping complex types</h2>
-
-<p>These are simple examples of course, but i've had no trouble mapping even the most complex JSON objects using JSO's. You can map arrays easily enough using the built in GWT JsArray types, like this:</p>
-
-<pre><code>public class Items extends JavaScriptObject
-{
-    protected Items(){}
-
-    public final native JsArray getItems()/*-{ 
-        return this.items; 
-    }-*/;
-}
-</code></pre>
-
-<p>Which would map the following JSON:</p>
-
-<pre><code>{ items: [
-  {
-    "id": 123,
-    "name": "cheese",
-    "type": "food"
-  },
-  {
-    "id": 456,
-    "name": "ham",
-    "type": "food"
-  },
-  {
-    "id": 789,
-    "name": "eggs",
-    "type": "food"
-  }]
-}
-</code></pre>
-
-<h2>JavaScriptObject rules</h2>
-
-<p>There are a couple of basic rules to follow:</p>
-
-<ul>
-<li>Must have a protected no-arg constructor</li>
-<li><em>All</em> methods must be "final"</li>
-<li>Must not have any instance fields</li>
-<li>May only implement a single Interface</li>
-</ul>
-
-<h2>JavaScriptObject "gotchas"</h2>
-
-<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise...</p>
-
-<p>The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
-
-<p>If you try to implement the same interface in more than one of your JSO's you don't (currently) get any warnings from the compiler ... instead you get crazy runtime behaviour due to the wrong JSO class's methods being invoked (because one of your JSO's will receive all method invocations for the interface, regardless of which class the method should have been invoked against).</p>
-
-<p>Interestingly I ran into a problem in the latest GWT release (2.4) that reported a very unhelpful error message (I'm sure the messages in earlier releases of GWT were much more helpful actually). Here's the error message I got:</p>
-
-<pre><code>java.lang.ClassFormatError: Illegal method name "$"
- in class com/xxx/xxx/client/model/UserResult
- at java.lang.ClassLoader.defineClass1(Native Method)
- at java.lang.ClassLoader.defineClassCond(ClassLoader.java:631)
- at java.lang.ClassLoader.defineClass(ClassLoader.java:615)
- at java.lang.ClassLoader.defineClass(ClassLoader.java:465)
- at com.google.gwt.dev.shell.CompilingClassLoader.findClass
-    (CompilingClassLoader.java:1085)
- at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
- at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
-</code></pre>
-
-<p>... as it turns out, the problem actually was that I broke one of the rules - I had a non-final method in my JavaScriptObject. Not a very helpful error message in this case, which is fairly unusual in my experience of GWT.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JavaScript">JavaScript</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Overlay">Overlay</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSO">JSO</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSON">JSON</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Parsing">Parsing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSNI">JSNI</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="gwt_javascriptobjects_javascript_overlays.html">Comment on this post</a>
-
-            </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="829" description="An essay on productivity and the state of flow">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-09-22">September 22, 2011</time></span>
-              <a itemprop="url" href="on_flow_and_feeling_productive.html"><h1 itemprop="name" itemprop="headline">On 'Flow' and feeling productive</h1></a>
-	      <span itemprop="articleBody"><p>I like to feel productive. Actually that's a huge understatement. If I'm not feeling productive I get quite unhappy. For me feeling productive goes hand in hand with creative output - something that produces a tangible artifact - and I find it difficult to satisfy my need for productivity with intangible things like meetings.</p>
-
-<p>Even more than that, I need to be deeply involved in the creative activity - part of the group doing the creative stuff rather than managing it from a distance.</p>
-
-<p>This post has been brewing for a while, and I finally began composing it last week. At the weekend I ran out of Kindle-fodder and bought <a href="http://twitter.com/#!/ericries">@ericries</a> 's new book <a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_il?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0670921602">The Lean Startup</a>, and was amazed and pleased to hit upon the following quote, which said it all much better than I could: </p>
-
-<table>
-<tr>
-<td>
-<a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_il?ie=UTF8&tag=stlibl-21&linkCode=as2&camp=1634&creative=19450&creativeASIN=0670921602"><img src="http://ecx.images-amazon.com/images/I/51qNUVObwFL._SL500_AA300_.jpg"></a>
-</td>
-<td>
-<blockquote>"When people are used to evaluating their productivity locally, they feel that a good day is one in which they did their job well all day.</blockquote>
-<blockquote>When I worked as a programmer, that meant eight straight hours of programming without interruption. That was a good day.</blockquote>
-<blockquote>In contrast, if I was interrupted with questions, process, or - heaven forbid - meetings, I felt bad. What did I really accomplish that day? Code and product features were tangible to me; I could see them, understand them, and show them off. Learning, by contrast, is frustratingly intangible."</blockquote>
--- Eric Ries, in The Lean Startup
-</td>
-</tr>
-</table>
-
-<p>Now I agree with almost all of that quote, except for the last sentence where I think the word "learning" is in some ways not fitting. I think Eric meant to encompass questions, process, meetings, and many other things in "learning", in which case I'd agree with him, but there certain kinds of "learning" which I find very productive. </p>
-
-<p>Recently I've been exploring some new avenues in my work - straying away from spending all day coding and venturing into developing product ideas. At first it felt very uncomfortable and I didn't feel at all productive. Lately though I'm coming around to it. </p>
-
-<p>For me part of the way through has been to find ways to turn what I'm thinking and doing into tangible artifacts that require some creative effort to produce - for example: drawing UI wireframes, writing up meetings and brainstorming sessions, and developing ideas in essay form. </p>
-
-<p>By committing &amp;ideas to disk I've started to feel productive again. Perhaps its just a safety blanket really, but it feels good, and the best bit is that with each new artifact, essay, description, and wireframe I can link to previous artifacts for reference, backup or explanation (all are available online in our basecamp account), and the conversation gets richer. </p>
-
-<p><img src="http://2.bp.blogspot.com/-zYYLyGL6IF8/Tnuwx1j5bHI/AAAAAAAAHmU/ohE6yl1bFQU/s554/Screenshot-Portable%2BDevices%2BBusiness%2BUnit%2B%253E%2BEasy%2BPublish%253A%2Bassumptions%2Band%2Buse-cases%2B-%2BGoogle%2BChrome-1.png" alt="Basecamp Messages" /> </p>
-
-<p>I've begun to wonder if some of my feeling of productivity actually comes from spending a certain amount of time each day in a state of <a href="http://en.wikipedia.org/wiki/Flow_(psychology">flow</a>), and if I don't get to spend some time each day in that state then I feel less happy and productive. </p>
-
-<p>There are a few activities - mostly creative in some way - during which I find myself zoning out and really getting immersed in what i'm doing: coding; drawing; reading (novels); and - with a bit of effort - writing. Once i'm tuned out I can go on for hours without feeling time passing. </p>
-
-<p>When I'm coding at home, with no distractions, I'll sit at the table in morning when my wife leaves for work and will hardly have moved by the time she comes home. I've noticed that I even realize, sometimes, that i'm in this state and have a "lucid flow" moment akin to lucid dreaming. Usually I get this when I hit a turning point in my work: when I've been working on a problem for a couple of hours and finally feel the complete shape of the solution in my head - I'm as deep into the problem as I'm going to get, I can start unwinding the mental stack, and from here on in progress is going to get quicker and quicker. Love that feeling. </p>
-
-<table>
-<tr>
-<td>
-<p>Coding is the creative activity that I spend most time on, so its also the activity that most often gets me into <a href="http://en.wikipedia.org/wiki/Flow_(psychology))">flow</a>, but I find the most powerful activity for flow is drawing.</p>
-<p>I suspect this has a lot to do with the difference between coding and drawing - the fact that coding requires the language centres of the brain to be active. Betty Edwards has quite a bit to say on this in Drawing on the Right Side of the Brain, which is an interesting read if you can draw reasonably well, but presumably a revelation if you've never been able to draw.</p>
-</td>
-<td>
-<a href="http://www.amazon.co.uk/gp/product/images/0007116454/ref=dp_image_0?ie=UTF8&n=266239&s=books)"><img src="http://ecx.images-amazon.com/images/I/5114QGDGH7L._SL500_AA300_.jpg"></a>
-</td>
-</tr>
-</table>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Flow">Flow</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Productivity">Productivity</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="on_flow_and_feeling_productive.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -403,11 +341,11 @@
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in Amazon S3</a><span class="date"> - Nov 26, 2011</span></li>
                 <li><a href="plus_one_any_page_google_1_bookmarklet.html">Plus-One any page - Google +1 Bookmarklet</a><span class="date"> - Nov 26, 2011</span></li>
+                <li><a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">Pointing a domain name to an Amazon S3 bucket</a><span class="date"> - Nov 26, 2011</span></li>
                 <li><a href="microformats_rich_snippets_rel_author_and_search_listings.html">Microformats, rich snippets, rel=author, and search listings</a><span class="date"> - Nov 24, 2011</span></li>
                 <li><a href="a_multi_class_union_css_selector.html">A multi-class union CSS selector</a><span class="date"> - Nov 24, 2011</span></li>
-                <li><a href="weighted_average_smoothing_with_java2d.html">Weighted Average smoothing with Java2d</a><span class="date"> - Nov 19, 2011</span></li>
-                <li><a href="mortgage_loan_overpayment_calculator.html">Mortgage/Loan Overpayment Calculator</a><span class="date"> - Nov 17, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
