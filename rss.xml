@@ -90,7 +90,7 @@
           <category>S3</category>
           <category>hosting</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 18:57:42 +0000</pubDate>
+        <pubDate>Sat, 26 Nov 2011 19:22:43 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Plus-One any page - Google +1 Bookmarklet]]></title>
@@ -120,7 +120,7 @@
           <category>plusone</category>
           <category>bookmarklet</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 18:57:42 +0000</pubDate>
+        <pubDate>Sat, 26 Nov 2011 19:22:43 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Pointing a domain name to an Amazon S3 bucket]]></title>
@@ -146,7 +146,7 @@
           <category>forward</category>
           <category>mask</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 18:57:42 +0000</pubDate>
+        <pubDate>Sat, 26 Nov 2011 19:22:43 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Microformats, rich snippets, rel=author, and search listings]]></title>
@@ -455,7 +455,7 @@ private int count(int anOffset, int[] aSurrounding) {
         <guid isPermaLink="true">http://steveliles.github.com/mortgage_loan_overpayment_calculator.html</guid>
         <description><![CDATA[<p>A few weeks back I was talking with someone who was looking into over-paying a loan. The premise is that, provided your lender allows overpayments, by over-paying you can save a fortune in interest payments.</p>
 
-<p>The amount you can save isn't all that straight-forward to work out, due to the miracle that is compound interest. I knocked up a quick <a href="http://steveliles.website.s3-website-eu-west-1.amazonaws.com/">overpayment calculator</a> using <code>gwt.progressive</code>, which I'm hosting at Amazon S3 for now as it doesn't feel right to abuse GitHub's hospitality for something like this.</p>
+<p>The amount you can save isn't all that straight-forward to work out, due to the miracle that is compound interest. I knocked up a quick <a href="http://www.overpayment-calculator.com/">overpayment calculator</a> using <code>gwt.progressive</code>, which I'm <a href="hosting_a_static_website_in_amazon_s3.html">hosting at Amazon S3</a> with a <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">registered domain name</a>.</p>
 
 <p>Here's one of the classes that's being bound - or "activated" if you like - by gwt.progressive:</p>
 
