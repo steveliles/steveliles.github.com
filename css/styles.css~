@@ -340,22 +340,27 @@ li {
   text-transform:uppercase;
   letter-spacing:1px;
   text-shadow: 1px 1px 1px #fff;
-  margin-bottom:0px !important;
+  margin-bottom:10px !important;
 }
 
-.twitter-feed ul {
+.sidebar ul {
   padding:0px;
   border-top:1px solid #aaa;
   border-bottom:1px solid #ddd;
 }
 
-.twitter-feed li {
+.sidebar li {
   padding-top:10px;
   padding-bottom:10px;
   border-top:1px solid #ddd;
   border-bottom:1px solid #aaa;
   color:#336699;
 }
+
+.sidebar .date {
+  color:#999;
+}
+
 
 .text {
   color:#336699;
@@ -376,10 +381,6 @@ li {
 
 .text a.link {
   color:#003366;        
-}
-
-.twitter-feed .date {
-  color:#999;
 }
 
 .twitter-follow-button {
