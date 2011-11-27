@@ -90,7 +90,7 @@
           <category>S3</category>
           <category>hosting</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 22:26:00 +0000</pubDate>
+        <pubDate>Sun, 27 Nov 2011 10:08:13 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Plus-One any page - Google +1 Bookmarklet]]></title>
@@ -120,7 +120,7 @@
           <category>plusone</category>
           <category>bookmarklet</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 22:26:00 +0000</pubDate>
+        <pubDate>Sun, 27 Nov 2011 10:08:13 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Pointing a domain name to an Amazon S3 bucket]]></title>
@@ -130,7 +130,7 @@
 
 <h4>Step-1: Create your S3 website bucket</h4>
 
-<p>When naming your bucket it might be a good idea to go with the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. I have done this with mine.</p>
+<p>When naming your bucket you <em>must</em> use the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. If you don't do this you will get warnings (404 not found, nosuchbucket).</p>
 
 <h4>Step-2: Remove any existing "A" records</h4>
 
@@ -164,7 +164,7 @@
           <category>forward</category>
           <category>mask</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 22:26:00 +0000</pubDate>
+        <pubDate>Sun, 27 Nov 2011 10:08:13 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Microformats, rich snippets, rel=author, and search listings]]></title>

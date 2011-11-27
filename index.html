@@ -36,7 +36,7 @@
       <div class="content">
         <div class="main">
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="513" description="Step-by-step run through of setting up an Amazon S3 bucket as a static web-site">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-27">November 27, 2011</time></span>
               <a itemprop="url" href="hosting_a_static_website_in_amazon_s3.html"><h1 itemprop="name" itemprop="headline">Hosting a static website in Amazon S3</h1></a>
 	      <span itemprop="articleBody"><p>Amazon Simple Storage Service - S3 - can be used to host a static web-site, but it isn't immediately obvious how to set this up. Here's how I did it (I'm using the standard AWS console for this):</p>
 
@@ -120,7 +120,7 @@
 
             </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="223" description="Many pages that you might want to share don't have Google+ plus-one buttons. This bookmarklet makes it easy to +1 any page directly while browsing it.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-27">November 27, 2011</time></span>
               <a itemprop="url" href="plus_one_any_page_google_1_bookmarklet.html"><h1 itemprop="name" itemprop="headline">Plus-One any page - Google +1 Bookmarklet</h1></a>
 	      <span itemprop="articleBody"><p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it.</p>
 
@@ -153,14 +153,14 @@
 	        <a href="plus_one_any_page_google_1_bookmarklet.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="406" description="How to point a registered domain name to an Amazon S3 website bucket">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="407" description="How to point a registered domain name to an Amazon S3 website bucket">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-27">November 27, 2011</time></span>
               <a itemprop="url" href="pointing_a_domain_name_to_an_amazon_s3_bucket.html"><h1 itemprop="name" itemprop="headline">Pointing a domain name to an Amazon S3 bucket</h1></a>
 	      <span itemprop="articleBody"><p>I recently registered a domain name for some static content i'm hosting in Amazon's Simple Storage Service (S3). <a href="hosting_a_static_website_in_amazon_s3.html">Setting up an S3 bucket as a static website</a> is pretty straight-forward, but pointing your domain to it is tricky. After a bit of playing and googling I think I've got the right combination:</p>
 
 <h4>Step-1: Create your S3 website bucket</h4>
 
-<p>When naming your bucket it might be a good idea to go with the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. I have done this with mine.</p>
+<p>When naming your bucket you <em>must</em> use the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. If you don't do this you will get warnings (404 not found, nosuchbucket).</p>
 
 <h4>Step-2: Remove any existing "A" records</h4>
 
@@ -387,9 +387,9 @@ Several times while working on the styling of this blog I've wanted to style ele
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in Amazon S3</a><span class="date"> - Nov 26, 2011</span></li>
-                <li><a href="plus_one_any_page_google_1_bookmarklet.html">Plus-One any page - Google +1 Bookmarklet</a><span class="date"> - Nov 26, 2011</span></li>
-                <li><a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">Pointing a domain name to an Amazon S3 bucket</a><span class="date"> - Nov 26, 2011</span></li>
+                <li><a href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in Amazon S3</a><span class="date"> - Nov 27, 2011</span></li>
+                <li><a href="plus_one_any_page_google_1_bookmarklet.html">Plus-One any page - Google +1 Bookmarklet</a><span class="date"> - Nov 27, 2011</span></li>
+                <li><a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">Pointing a domain name to an Amazon S3 bucket</a><span class="date"> - Nov 27, 2011</span></li>
                 <li><a href="microformats_rich_snippets_rel_author_and_search_listings.html">Microformats, rich snippets, rel=author, and search listings</a><span class="date"> - Nov 24, 2011</span></li>
                 <li><a href="a_multi_class_union_css_selector.html">A multi-class union CSS selector</a><span class="date"> - Nov 24, 2011</span></li>
             </ul>
