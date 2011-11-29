@@ -90,13 +90,13 @@
           <category>S3</category>
           <category>hosting</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 27 Nov 2011 10:08:13 +0000</pubDate>
+        <pubDate>Tue, 29 Nov 2011 19:16:09 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Plus-One any page - Google +1 Bookmarklet]]></title>
         <link><![CDATA[http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html</guid>
-        <description><![CDATA[<p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it.</p>
+        <description><![CDATA[<p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it - share from anywhere!</p>
 
 <p>To install the bookmarklet just drag the <code>Google+1</code> link below to your browser bookmarks bar:</p>
 
@@ -120,7 +120,7 @@
           <category>plusone</category>
           <category>bookmarklet</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 27 Nov 2011 10:08:13 +0000</pubDate>
+        <pubDate>Tue, 29 Nov 2011 19:16:09 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Pointing a domain name to an Amazon S3 bucket]]></title>
@@ -164,7 +164,7 @@
           <category>forward</category>
           <category>mask</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 27 Nov 2011 10:08:13 +0000</pubDate>
+        <pubDate>Tue, 29 Nov 2011 19:16:09 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Microformats, rich snippets, rel=author, and search listings]]></title>
@@ -1363,7 +1363,7 @@ class MyWidget extends BoundRootPanel {
         setElement(activator.activate(this, anElement);
 
         // ... now we do some enhancements, e.g. add
-        // click-handlers to our image's our something
+        // click-handlers to our image's or something
     }
 }
 </code></pre>
@@ -1399,7 +1399,7 @@ class MyWidget extends BoundRootPanel {
 
 <ul>
 <li>Have a public <code>Constructor</code> that takes a <code>com.google.gwt.dom.client.Element</code> argument, OR</li>
-<li>Have a <code>public static &lt;T&gt; wrap()</code> method that returns an instance of your widget class (this is how native GWT widgets like Image and Label are bound by GWT.Progressive).</li>
+<li>Have a <code>public static &lt;T&gt; wrap(Element anElement)</code> method that returns an instance of your widget class (this is how native GWT widgets like Image and Label are bound by GWT.Progressive).</li>
 <li><code>GWT.create()</code> a special class that allows <code>GWT.Progressive</code>'s generator to work its magic on your widgets (either <code>com.sjl.gwt.progressive.client.ElementActivator</code> or <code>com.sjl.gwt.progressive.client.WidgetActivator</code>).</li>
 <li>Set your Widget's Element as the return value from activation (<code>setElement(activator.activate(this, anElement))</code>) or init your Composite with it (<code>initWidget(activator.activate(this, anElement))</code>).</li>
 </ul>
@@ -1416,11 +1416,11 @@ class MyWidget extends BoundRootPanel {
 
 <p>There are two examples on this page! - The Twitter feed in the sidebar, and the code <a href="syntax_highlighting_with_gwt_progressive.html">syntax-highlighting</a> are both implemented using <code>gwt.progressive</code>.</p>
 
-<p>You can also try my mortgage/loan <a href="http://steveliles.website.s3-website-eu-west-1.amazonaws.com/">overpayment calculator</a> which is built with gwt.progressive.</p>
+<p>You can also try my mortgage/loan <a href="http://www.overpayment-calculator.com/">overpayment calculator</a> which is built with gwt.progressive.</p>
 
 <h3>Can I use this in my products?</h3>
 
-<p>Sure, its available under the Apache-2.0 license, but ... disclaimer: use at your own risk and discretion, I cannot accept responsibility for any issues that may arise from using this library.</p>
+<p>Sure, its available under the Apache-2.0 license, and is a github fork away, but ... disclaimer: use at your own risk and discretion, I cannot accept responsibility for any issues that may arise from using this library.</p>
 
 <h3>Can I modify the code, fix bugs, etc?</h3>
 
