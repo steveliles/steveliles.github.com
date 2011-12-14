@@ -39,7 +39,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="608" description="Today I found a bug in Google Chrome contenteditable div's that has the craziest failure-mode imaginable - backspace stops working at the extreme ends of the content, so you can't delete the first character, and you can't delete more than one character from the end of the content without losing focus.">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="660" description="Today I found a bug in Google Chrome contenteditable div's that has the craziest failure-mode imaginable - backspace stops working at the extreme ends of the content, so you can't delete the first character, and you can't delete more than one character from the end of the content without losing focus.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-12-13">December 13, 2011</time></span>
               <a itemprop="url" href="google_chrome_css_bug.html"><h1 itemprop="name" itemprop="headline">Google Chrome CSS bug</h1></a>
 	      <span itemprop="articleBody"><p><style>
@@ -57,9 +57,10 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
 <ol>
 <li>Styling <code>contenteditable</code>'s is much easier</li>
 <li>Allowing the input area to grow to fit the contained content "just works" - this is pretty hard to do with a <code>&lt;textarea&gt;</code>, though it can be done.</li>
+<li>We can deliberately insert html into the <code>contenteditable</code> as the user types - for example i'm creating a tag editor, and by using a <code>contenteditable</code> I can render the tags nicely even as the user is typing - say, whenever the user enters a delimiter.</li>
 </ol>
 
-<p>Of course, <code>contenteditable</code>'s are not without problems - not least you have to deal with the html content that they produce (e.g. <code>&lt;p&gt;</code> or <code>&lt;div&gt;</code> tags produced by the enter key), and arbitrary html resulting from paste operations. </p>
+<p>Of course, <code>contenteditable</code>'s are not without problems - not least you have to deal with the html content that they produce (e.g. <code>&lt;p&gt;</code> or <code>&lt;div&gt;</code> tags produced by the enter key), and arbitrary html resulting from paste operations, but that's another story.</p>
 
 <h2>How the bug manifests</h2>
 
@@ -95,7 +96,7 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
 
 <p>As for the failure mode, you might expect one style to "win", and forgivably it could be a different style in different browsers. </p>
 
-<p>What you really <em>don't</em> expect is the bizarre behaviour we experienced. The bug currently manifests in Chrome 15 on Linux, Mac and Windows(7), and is reported in the chromium issue tracker as <a href="[http://code.google.com/p/chromium/issues/detail?id=107366">bug 107366</a>.</p>
+<p>What you really <em>don't</em> expect is the bizarre behaviour we experienced. The bug currently manifests in Chrome 15 (and 16 beta) on Linux, Mac and Windows(7), and is reported in the chromium issue tracker as <a href="[http://code.google.com/p/chromium/issues/detail?id=107366">bug 107366</a>.</p>
 </span>
 
               <ul class="keywords">
