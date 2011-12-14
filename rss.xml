@@ -13,6 +13,72 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Crazy Google Chrome CSS bug]]></title>
+        <link><![CDATA[http://steveliles.github.com/crazy_google_chrome_css_bug.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/crazy_google_chrome_css_bug.html</guid>
+        <description><![CDATA[<p><style>
+.s1 { display:inline; }
+.s2 { display:table; }
+</style>
+Today while working on a project that uses <code>contenteditable &lt;div&gt;</code> elements I got stuck on a bug for a good long time because of the crazy failure-mode it exhibited. You can try for yourself in the <code>contenteditable</code> below (sooner or later I hope this bug will be fixed and the example will stop working :)).</p>
+
+<div class="example">
+  <div class="s1 s2" contenteditable="true">Try deleting the first character in this sentence (you won't be able to), or the last (the caret will disappear after deleting the character)</div>
+</div>
+
+<p>I'm working on a reasonably complex editor using Google Web Toolkit (GWT) with multiple content-editable <code>&lt;div&gt;</code> elements used to collect text input. You might be wondering why we're using <code>contenteditable</code> instead of <code>&lt;textarea&gt;</code> or something - well here's why:</p>
+
+<ol>
+<li>Styling <code>contenteditable</code>'s is much easier</li>
+<li>Allowing the input area to grow to fit the contained content "just works" - this is pretty hard to do with a <code>&lt;textarea&gt;</code>, though it can be done.</li>
+</ol>
+
+<p>Of course, <code>contenteditable</code>'s are not without problems - not least you have to deal with the html content that they produce (e.g. <code>&lt;p&gt;</code> or <code>&lt;div&gt;</code> tags produced by the enter key), and arbitrary html resulting from paste operations. </p>
+
+<h2>How the bug manifests</h2>
+
+<p>Anyways, I have a bunch of <code>contenteditable</code>'s in my web-app, all seemingly working fine. Then I notice that <em>one</em> of them is behaving a bit strangely: if I try to delete characters from the end of the content the <code>contenteditable</code> loses focus after deleting one character. </p>
+
+<p>Being a complex app I have all kinds of event-handlers bound to these <code>contenteditable</code>'s, so I started removing the likely suspects one by one, trying to find the culprit.</p>
+
+<p>Eventually I'd removed all the event-handlers and was scratching my head, wondering how on earth I could still have this problem on just one of my <code>contenteditable</code>'s. </p>
+
+<p>I checked in Firefox - no problem, all working. I compiled the GWT app to pure javascript and ran outside of GWT development mode, just to be sure it wasn't some weird GWT-chrome-plugin bug - still suffering. I looked for other event handlers bound higher up the DOM tree. Still no joy.</p>
+
+<h2>When the bug manifests</h2>
+
+<p>Finally - almost in desperation - I started inspecting the CSS (surely the CSS could not be causing such bizarre behaviour, right? Uh, wrong!).</p>
+
+<p>After some puzzling I reduced the replication steps down to some very simple html and an unfortunate collision of CSS styles:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;bug&lt;/title&gt;
+    &lt;style&gt;
+      .s1 { display:inline; }
+      .s2 { display:table; }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class="s1 s2" contenteditable="true"&gt;delete me&lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Of course this CSS doesn't make sense - the two <code>display</code> settings conflict. That's easy to spot in a simple example like this, but much more difficult in a complex application with a large DOM tree and many many CSS styles. </p>
+
+<p>As for the failure mode, you might expect one style to "win", and forgivably it could be a different style in different browsers. </p>
+
+<p>What you really <em>don't</em> expect is the bizarre behaviour we experienced. The bug currently manifests in Chrome 15 on Linux, Mac and Windows(7), and is reported in the chromium issue tracker as <a href="[http://code.google.com/p/chromium/issues/detail?id=107366">bug 107366</a>.</p>
+]]></description>
+          <category>css</category>
+          <category>chrome</category>
+          <category>bug</category>
+          <category>contenteditable</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Tue, 13 Dec 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Hosting a static website in Amazon S3]]></title>
         <link><![CDATA[http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html</guid>
@@ -90,7 +156,7 @@
           <category>S3</category>
           <category>hosting</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 29 Nov 2011 19:16:09 +0000</pubDate>
+        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Plus-One any page - Google +1 Bookmarklet]]></title>
@@ -120,7 +186,7 @@
           <category>plusone</category>
           <category>bookmarklet</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 29 Nov 2011 19:16:09 +0000</pubDate>
+        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Pointing a domain name to an Amazon S3 bucket]]></title>
@@ -164,7 +230,7 @@
           <category>forward</category>
           <category>mask</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 29 Nov 2011 19:16:09 +0000</pubDate>
+        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Microformats, rich snippets, rel=author, and search listings]]></title>
@@ -233,13 +299,7 @@
         <title><![CDATA[A multi-class union CSS selector]]></title>
         <link><![CDATA[http://steveliles.github.com/a_multi_class_union_css_selector.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/a_multi_class_union_css_selector.html</guid>
-        <description><![CDATA[<p><style>
-  .example { 
-    margin:25px;
-    padding:20px;
-    border:1px dotted #aaccbb; 
-    background-color:#eeffdd;
-  }
+        <description><![CDATA[<p><style> <br />
   .urgent { color:red; }
   .important { font-weight:bold; }
   .urgent.important { font-style:italic; }

@@ -275,7 +275,7 @@ span.meta {
 }
 
 li {
-  color:#666;
+  color:#036;
 }
 
 .keywords {
@@ -509,6 +509,13 @@ nav .next a, nav .prev a {
   height:27px;
   padding-left:12px;
   padding-top:7px;
+}
+
+.example { 
+  margin:25px;
+  padding:20px;
+  border:1px dotted #aaccbb; 
+  background-color:#eeffdd;
 }
 
 #disqus_thread {
