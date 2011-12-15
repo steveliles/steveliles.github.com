@@ -13,6 +13,51 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Another Google Chrome CSS bug]]></title>
+        <link><![CDATA[http://steveliles.github.com/another_google_chrome_css_bug.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/another_google_chrome_css_bug.html</guid>
+        <description><![CDATA[<p><style>
+.legible { text-rendering:optimizelegibility; }
+.shadow { box-shadow: 0px 0px 20px black;}
+</style>
+Since I moved my blog from blogger I've noticed on many occasions that Chrome would screw up the text rendering on the first view of a page. Hit F5 to refresh and it goes away. For a long time I thought this was related to my use of web-fonts (the excellent <a href="http://www.google.com/webfonts#ChoosePlace:select">Google Web Fonts</a>, but in fact its simpler than that.</p>
+
+<p>Eventually I took the time to look into it a bit more, and narrowed it down to the fact that I am using the <code>text-rendering:optimizeLegibility</code> css directive, which does make a nice difference to the kerning of the fixed-width fonts I'm using (<code>Ubuntu Mono</code>), but also has the apparent side-effect of setting negative margins on those fixed-width texts which make them run into/over surrounding text.</p>
+
+<p>Once I'd figured out what was causing my problem a quick Google search showed I'm not alone. The chromium issue tracker has several relevant bug reports. I chose to add my tuppence to <a href="http://code.google.com/p/chromium/issues/detail?id=96936#c16">bug 96936</a></p>
+
+<h3>Examples of the bug</h3>
+
+<p>Here's what the problem looks like when <code>text-rendering:optimizeLegibility</code> is in use in Chrome 15 (and the as yet unreleased 16 beta):</p>
+
+<p><img class="shadow" title="With 'text-rendering:optimizeLegibility'" src="https://lh5.googleusercontent.com/-T5peLzltfzU/TupN9gwMcoI/AAAAAAAAH18/_CDK0F-qh2Q/s600/text-rendering.png"></p>
+
+<p>And here (and also now in the blog you are reading) is how it looks without optimizeLegibility:</p>
+
+<p><img class="shadow" title="Without 'text-rendering:optimizeLegibility'" src="https://lh6.googleusercontent.com/-sK4tre7Q8dc/TupN-4pchhI/AAAAAAAAH2E/7WYdEGb3kKk/s600/not-text-rendering.png"></p>
+
+<p>If you are reading this in Google Chrome you can check to see if the bug still exists by taking a look at the example text below, which is taken from the sample I submitted to <a href="http://code.google.com/p/chromium/issues/detail?id=96936#c16">bug 96936</a>. If you see overlapping characters below, the bug is not fixed in your version of Chrome.</p>
+
+<div class="example legible">
+  <p>Code blocks inside paragraphs like <code>this</code> don't <code>look</code> very <code>nice</code> with text-rendering set to optimizeLegibility.</p>
+</div>
+
+<p><em>Note</em>: Some interesting characteristics of the bug include:</p>
+
+<ol>
+<li>Text renders correctly if you refresh the page after the initial visit</li>
+<li>It appears much worse with certain fonts - fixed-width/monospace fonts in particular seem to suffer</li>
+<li>The width of the text appears to be calculated incorrectly, not just margins - you can see this in the first screen-shot where the date tab cuts into the end of "2011".</li>
+</ol>
+]]></description>
+          <category>css</category>
+          <category>chrome</category>
+          <category>bug</category>
+          <category>font</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Wed, 14 Dec 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Google Chrome CSS bug]]></title>
         <link><![CDATA[http://steveliles.github.com/google_chrome_css_bug.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/google_chrome_css_bug.html</guid>
@@ -3596,26 +3641,6 @@ public class TestSimpleApp {
           <category>hosted</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 16 Oct 2010 00:00:00 +0100</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[How to clear memory caches in ubuntu]]></title>
-        <link><![CDATA[http://steveliles.github.com/how_to_clear_memory_caches_in_ubuntu.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/how_to_clear_memory_caches_in_ubuntu.html</guid>
-        <description><![CDATA[<p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
-
-<p>Flushing the mysql buffers is as easy as restarting mysql (<code>sudo service mysql restart</code> in Maverick). Flushing the OS buffers is also dead easy:</p>
-
-<pre><code>sudo sh -c "sync; echo 3 &gt; /proc/sys/vm/drop_caches"
-</code></pre>
-
-<p>I have system-monitor gauges on my taskbar showing cpu, memory and disk activity, and its a beautiful thing to see the cache suddenly get wiped :)</p>
-]]></description>
-          <category>ubuntu</category>
-          <category>cache</category>
-          <category>buffers</category>
-          <category>memory</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 02 Oct 2010 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>

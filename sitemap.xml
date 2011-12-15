@@ -54,7 +54,17 @@
       <changefreq>daily</changefreq>
       <priority>0.5</priority>
     </url>
+    <url>
+      <loc>http://steveliles.github.com/index_8.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
 
+    <url> 
+      <loc>http://steveliles.github.com/another_google_chrome_css_bug.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
     <url> 
       <loc>http://steveliles.github.com/google_chrome_css_bug.html</loc>
       <changefreq>daily</changefreq>
