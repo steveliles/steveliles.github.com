@@ -35,6 +35,34 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="252" description="some of my colour pencil sketches">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-12-10">December 10, 2010</time></span>
+              <a itemprop="url" href="more_old_sketches.html"><h1 itemprop="name" itemprop="headline">More old sketches</h1></a>
+	      <span itemprop="articleBody"><p>Dug out a couple more old sketches.</p>
+
+<p>I remember sitting at the kitchen table at my old house when I started this first one, which means it pre-dates March 2007 when I moved. Its drawn from a photo I took on a holiday with friends in Scotland in 2004 I think. Contrary to an earlier post my pencils aren't Derwent Studio's (oops), I checked and they are in fact Faber Castell Polychromos, which have a lovely soft feel, on 220gsm A2 (594mm x 420mm) Windsor &amp; Newton heavyweight cartwridge paper.</p>
+
+<p>The whole back-end of the squirrel is missing - can't squeeze enough into my A4 scanner (A4 is 1/4 the size of A2). I attempted to stitch a second scan onto this one to complete the squirrel, but the join is very clear to see, and i just can't summon the energy to wrestle The Gimp into blending the two images together nicely.</p>
+
+<p><img src="http://3.bp.blogspot.com/_hG-kje6-TJM/TQOhuCbs6YI/AAAAAAAAAIk/sx5qWNJqn2w/s640/squirrel-face.jpg" alt="Red squirrel, colour pencil on A2, drawn from photo I took in Scotland in 2004." /></p>
+
+<p>The next one pre-date's the squirrel, but again was drawn at my old house, after my holiday in Mexico (where I took the picture its drawn from). That dates it somewhere between September 2002 and March 2007. My guess is 2004. Again its Faber-Castell colour-pencil on Windsor &amp; Newton A2, scanned by my A4 scanner so the legs (to the right of this section) and the tail (above this section) are cut off here.</p>
+
+<p><img src="http://3.bp.blogspot.com/_hG-kje6-TJM/TQOSoyEnndI/AAAAAAAAAIY/-HnE5NI3vn0/s600/jaguar.jpg" alt="Jaguar, colour pencil sketch" /></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=sketch">sketch</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=jaguar">jaguar</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=red squirrel">red squirrel</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pencil">pencil</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Faber Castell Polychromos">Faber Castell Polychromos</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="more_old_sketches.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="68" description="Escaping non standard css properties for use in Google Web Toolkit CssResource">
               <span class="meta" itemprop="datePublished"><time datetime="2010-12-07">December 07, 2010</time></span>
               <a itemprop="url" href="using_non_standard_css_properties_in_gwt.html"><h1 itemprop="name" itemprop="headline">Using non-standard css properties in GWT</h1></a>
@@ -235,37 +263,6 @@
 	        <a href="making_pretty_diagrams_with_graphviz.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="144" description="Instructions for how to make Google Web Toolkit (GWT) output id attributes on html elements produced by its widgets">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
-              <a itemprop="url" href="gwt_widgets_with_html_id_attributes.html"><h1 itemprop="name" itemprop="headline">GWT Widgets with html id attributes</h1></a>
-	      <span itemprop="articleBody"><p>It isn't immediately obvious how to get your GWT widgets to produce id attributes that you can use from external scripts or testing tools like WebDriver or Selenium.</p>
-
-<p>To make your widgets produce id attributes you need to invoke the <code>ensureDebugId</code> method with an id string, e.g.</p>
-
-<pre><code>Label myLabel = new Label("Say something");
-myLabel.ensureDebugId("myLabel");
-</code></pre>
-
-<p>Now, if you run that you still won't get any id attributes. The clue is in the method name <code>ensureDebugId</code>. You actually need to inherit the <code>Debug</code> module in your module descriptor (<code>.gwt.xml</code>) file.  The module to inherit is: </p>
-
-<pre><code>&lt;inherits name="com.google.gwt.user.Debug"/&gt;
-</code></pre>
-
-<p>Now if you view the source of your label you'll see that it has an id attribute, but you might be surprised that it doesn't quite match the id you supplied (<code>myLabel</code>). In fact it will say <code>gwt-debug-myLabel</code>.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=selenium">selenium</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="gwt_widgets_with_html_id_attributes.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -283,11 +280,11 @@ myLabel.ensureDebugId("myLabel");
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="google_and_rel_author_not_a_level_playing_field.html">Google and rel=author - not a level playing field</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="another_google_chrome_css_bug.html">Another Google Chrome CSS bug</a><span class="date"> - Dec 14, 2011</span></li>
                 <li><a href="google_chrome_css_bug.html">Google Chrome CSS bug</a><span class="date"> - Dec 13, 2011</span></li>
                 <li><a href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in Amazon S3</a><span class="date"> - Nov 26, 2011</span></li>
-                <li><a href="plus_one_any_page_google_1_bookmarklet.html">Plus-One any page - Google +1 Bookmarklet</a><span class="date"> - Nov 26, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

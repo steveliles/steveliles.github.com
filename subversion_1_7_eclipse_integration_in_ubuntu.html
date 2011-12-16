@@ -6,14 +6,13 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="ubuntu" itemprop="keywords"></meta>
       <meta name="keywords" content="eclipse" itemprop="keywords"></meta>
-      <meta name="keywords" content="code" itemprop="keywords"></meta>
-      <meta name="keywords" content="template" itemprop="keywords"></meta>
-      <meta name="keywords" content="jsni" itemprop="keywords"></meta>
-      <meta name="keywords" content="gwt" itemprop="keywords"></meta>
-    <meta name="description" content="Instructions for how to set up an Eclipse code template for easily writing GWT jsni methods"></meta>
+      <meta name="keywords" content="subversion" itemprop="keywords"></meta>
+      <meta name="keywords" content="javahl" itemprop="keywords"></meta>
+    <meta name="description" content="Canonical currently package javahl 1.6 in the official repositories, making it difficult to run eclipse with subclipse 1.8 and subversion 1.7. Here's how I got it working."></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Eclipse code template for GWT jsni methods</title>
+    <title>Subversion 1.7 Eclipse integration in Ubuntu</title>
   </head>
   <body>
     <div>
@@ -40,49 +39,50 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="303" description="Instructions for how to set up an Eclipse code template for easily writing GWT jsni methods">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-10-20">October 20, 2011</time></span>
-              <a itemprop="url" href="eclipse_code_template_for_gwt_jsni_methods.html"><h1 itemprop="name" itemprop="headline">Eclipse code template for GWT jsni methods</h1></a>
-	      <span itemprop="articleBody"><p>GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them <a href="gwt_javascriptobjects_javascript_overlays.html">before</a>. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!</p>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="227" description="Canonical currently package javahl 1.6 in the official repositories, making it difficult to run eclipse with subclipse 1.8 and subversion 1.7. Here's how I got it working.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
+              <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu</h1></a>
+	      <span itemprop="articleBody"><p>Getting subversion 1.7 integration working with Eclipse (3.7.1) and Subclipse 1.8 isn't all that straight-forward, because canonical currently support javahl 1.6 in their repositories. </p>
 
-<p>Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:</p>
+<p>If you don't want to switch repo's your best bet is to go with Subclipse 1.6 and the 1.6 version of javahl (and subversion) from the official Canonical Ubuntu repositories.</p>
 
-<pre><code>public final native ${return_type} ${newName}()/*-{ 
-    ${cursor} 
-}-*/;
+<p>If you do want to go ahead with SVN 1.7, here's how I got it working by switching to repo's provided by dominik stadler:</p>
+
+<ol>
+<li>Add dominik's repository: <code>sudo apt-add-repository ppa:dominik-stadler/subversion-1.7</code></li>
+<li>Update apt: <code>sudo apt-get update</code></li>
+<li>Install libsvn-java: <code>sudo apt-get install libsvn-java</code></li>
+<li>Install subversion 1.7: <code>sudo apt-get install subversion</code></li>
+</ol>
+
+<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
+
+<p>You need to add <code>-Djava.library.path=/usr/lib/jni</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
+
+<pre><code>-startup
+plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
+--launcher.library
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
+-showsplash
+org.eclipse.platform
+--launcher.XXMaxPermSize
+256m
+--launcher.defaultAction
+openFile
+-vmargs
+-Djava.library.path=/usr/lib/jni
+-Xms40m
+-Xmx600m
 </code></pre>
 
-<p>To add this in Eclipse:</p>
-
-<ol>
-<li>Open the preferences dialog (Window -> Preferences)</li>
-<li>Type "templates" into the filter box (it should have focus already so you can just start typing)</li>
-<li>Select the bold entry under "Java -> Editor -> Templates"</li>
-<li>In the right hand panel you'll see all the existing templates, and some buttons ... Click "New"</li>
-<li>The "name" is also the shortcut for your new template, so enter "jsni"</li>
-<li>Paste in the template text (copy from the code block above).</li>
-<li>Click ok to return to prefs, and ok again to return to the editor and try it out ...</li>
-</ol>
-
-<p>To use your new template:</p>
-
-<ol>
-<li>Type "jsni" (without quotes) into a java editor and hit ctrl-space (or whatever your auto-complete shortcut is)</li>
-<li>The first option in the auto-complete suggestions should be your "jsni" template - hit return to use it</li>
-<li>Your template appears, and eclipse focuses the first part (the return type) for you to modify</li>
-<li>Modify each part of the template in turn and press tab to move to the next part</li>
-<li>Enjoy!</li>
-</ol>
-
-<p>Recent releases of the Google Eclipse plugin include some <a href="http://code.google.com/eclipse/docs/gwt_jsni.html">nice jsni features</a> that you definitely don't want to miss out on - including code-completion and syntax highlighting.</p>
+<p>If you use subclipse but never previously installed javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). Merry Christmas!</p>
 </span>
 
               <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
                   <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=code">code</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=template">template</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=jsni">jsni</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javahl">javahl</a></li>
               </ul>
               <div style="clear:both"></div>
 
@@ -134,7 +134,6 @@
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="google_and_rel_author_not_a_level_playing_field.html">Google and rel=author - not a level playing field</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="another_google_chrome_css_bug.html">Another Google Chrome CSS bug</a><span class="date"> - Dec 14, 2011</span></li>
                 <li><a href="google_chrome_css_bug.html">Google Chrome CSS bug</a><span class="date"> - Dec 13, 2011</span></li>
@@ -146,8 +145,8 @@
       </div>
       <nav>
         <div class="links">
-          <div class="prev"><a title="previous" href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html"> Popularity contest - Ubunt...</a></div>
-          <div class="next"><a title="next" href="what_makes_a_good_developer.html">What makes a good developer?</a></div>
+          
+          <div class="next"><a title="next" href="google_and_rel_author_not_a_level_playing_field.html">Google and rel=author - not...</a></div>
         </div>
       </nav>
     </div>
