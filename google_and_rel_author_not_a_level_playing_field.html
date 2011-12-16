@@ -1,0 +1,179 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="google" itemprop="keywords"></meta>
+      <meta name="keywords" content="good-evil-stupid?" itemprop="keywords"></meta>
+      <meta name="keywords" content="rel=author" itemprop="keywords"></meta>
+    <meta name="description" content="After quite a bit of effort and a lot of frustration I'm beginning to think Google's approach to rel=author, microformats, and all that jazz is borderline evil, or at the very least flawed by favouring those who already have high page-rank."></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Google and rel=author - not a level playing field</title>
+  </head>
+  <body>
+    <div>
+      <header class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </header>
+      <nav>
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </nav>
+      <div class="content">
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="645" description="After quite a bit of effort and a lot of frustration I'm beginning to think Google's approach to rel=author, microformats, and all that jazz is borderline evil, or at the very least flawed by favouring those who already have high page-rank.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
+              <a itemprop="url" href="google_and_rel_author_not_a_level_playing_field.html"><h1 itemprop="name" itemprop="headline">Google and rel=author - not a level playing field</h1></a>
+	      <span itemprop="articleBody"><p>If you've read my earlier post documenting my attempts to get Google to recognize my <a href="microformats_rich_snippets_rel_author_and_search_listings.html">rel=author</a> markup you'll see that I expended quite a bit of effort trying to get my mugshot to appear with search result listings for my blog pages. Here's what I'm aiming for:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="rich-snippets test tool example of how search-result listings could look" /></p>
+
+<p>Its been more than a month now, and the Googlebot has crawled my site many times, but still no mugshots. </p>
+
+<p>Just lately I'm starting to think that there's absolutely nothing wrong with how I've marked up my content (this is confirmed by Google's rich-snippets testing tool as you can see in the screen-shot above). Rather I'm beginning to suspect a minor evil (or stupidity) is at play.</p>
+
+<h3>rel=author: The small-print</h3>
+
+<p>My suspicions were aroused on my latest re-reading of Google's documentation on rel=author. There are three things that struck me on this re-reading:</p>
+
+<p>First, on the subject of your Google Profile picture, Google have this to say:</p>
+
+<blockquote>
+  <p>"you'll need a Google Profile with a good, recognizable headshot as your profile photo"</p>
+</blockquote>
+
+<p>Mm, ok, well my profile pic is a headshot, and (I think) is pretty recognizable... but what, in Google's subjective judgement, is a "good" photo?</p>
+
+<p>Second, and more ominously:</p>
+
+<blockquote>
+  <p>"Google doesn't guarantee to show author information in Google Web Search or Google News results."</p>
+</blockquote>
+
+<p>Riiiight. Here's the thing: when do Google actually show author information? Is it based on something algorithmic as you might expect from Google (e.g. PageRank), or is it a subjective human judgement?</p>
+
+<p>Finally:</p>
+
+<blockquote>
+  <p>"Once you're done, please complete this <a href="https://spreadsheets.google.com/a/google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">form</a> so we can let you know of any implementation issues. While we won't be able to individually reply to everyone who fills out this form, we may be in touch with questions about your data."</p>
+</blockquote>
+
+<p>OK, so this suggests that there actually may be a human in the loop, and google are actively white-listing sites for inclusion of author information. </p>
+
+<p>I hope this is the case, because that would mean at least some small chance that my authorship info will appear in search result listings.</p>
+
+<h3>page-rank: The rich get richer</h3>
+
+<p>Right now - perhaps somewhat pessimistically - I'm guessing that Google will show authorship information if you already have a sufficiently high page-rank (I've no idea what rank is required, but I'm pretty sure I'm a long way below it). </p>
+
+<p>Here's why I think that:</p>
+
+<ol>
+<li>It would be very un-Google-like - not to mention unscalable - to have a human in the loop making subjective judgements.</li>
+<li>Page-rank gives Google a heuristic on which to judge the quality of a site, and they (understandably) want to promote high-quality sites more vigourously.</li>
+</ol>
+
+<h3>Google: Evil, or just stupid?</h3>
+
+<p>And here's why I think that is borderline evil, or at least stupid: it creates a situation where the already popular gain even more popularity, and the rest of us fade even further into obscurity. Its an example of the <a href="http://en.wikipedia.org/wiki/Greedy_algorithm">greedy algorithm</a> at work. </p>
+
+<p>Come on Google - I'm following your rules to the letter, working hard to make the web a better place and helping you to better <a href="http://www.google.com/about/corporate/company/">organise the world's information</a>, why aren't you taking advantage of that?</p>
+
+<h3>Conclusion: It's all just speculation</h3>
+
+<p>Actually my only real problem with all this is that it isn't clear how, when or why authorship information will or will not be used, which leads to the sort of speculation I've presented in this article. </p>
+
+<p>If it were possible to understand definitively why my authorship information isn't showing I could potentially do something about it instead of spinning my wheels guessing how to make it work (and whining about it :)).</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=google">google</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=good-evil-stupid?">good-evil-stupid?</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rel=author">rel=author</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </article>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="2" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="another_google_chrome_css_bug.html">Another Google Chrome CSS bug</a><span class="date"> - Dec 14, 2011</span></li>
+                <li><a href="google_chrome_css_bug.html">Google Chrome CSS bug</a><span class="date"> - Dec 13, 2011</span></li>
+                <li><a href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in Amazon S3</a><span class="date"> - Nov 26, 2011</span></li>
+                <li><a href="plus_one_any_page_google_1_bookmarklet.html">Plus-One any page - Google +1 Bookmarklet</a><span class="date"> - Nov 26, 2011</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <nav>
+        <div class="links">
+          
+          <div class="next"><a title="next" href="another_google_chrome_css_bug.html">Another Google Chrome CSS bug</a></div>
+        </div>
+      </nav>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>
