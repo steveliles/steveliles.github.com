@@ -35,6 +35,90 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="513" description="Step-by-step run through of setting up an Amazon S3 bucket as a static web-site">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
+              <a itemprop="url" href="hosting_a_static_website_in_amazon_s3.html"><h1 itemprop="name" itemprop="headline">Hosting a static website in Amazon S3</h1></a>
+	      <span itemprop="articleBody"><p>Amazon Simple Storage Service - S3 - can be used to host a static web-site, but it isn't immediately obvious how to set this up. Here's how I did it (I'm using the standard AWS console for this):</p>
+
+<h4>Step-1: If you haven't already, sign up for Amazon S3</h4>
+
+<h4>Step-2: Log-in to the AWS console, and go to the S3 Tab</h4>
+
+<h4>Step-3: Create an S3 bucket:</h4>
+
+<p>It doesn't really matter what name you give your bucket unless you plan to <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">forward a domain name to your S3 hosted site</a> </p>
+
+<p><img src="https://lh6.googleusercontent.com/-ntmu1ROjx_k/TtEulvLq2qI/AAAAAAAAHy0/kAz8dljKeMU/s578/create-bucket.png" alt="Create a bucket" /></p>
+
+<h4>Step-4: Upload your static site to the bucket</h4>
+
+<p>Select your bucket in the "Buckets" pane, then right-click in the "Objects and Folders" pane and choose "upload". If you are uploading many folders you'll probably want to use the "enhanced" uploader applet.</p>
+
+<h4>Step-5: Set your bucket to be a website:</h4>
+
+<p>First, right-click on your bucket in the "Buckets" pane (far left) and choose "Properties".</p>
+
+<p><img src="https://lh6.googleusercontent.com/-5qHHItMStOU/TtEumMeQGeI/AAAAAAAAHzA/3HSscD7aFr0/s426/bucket-properties.png" alt="Open Bucket Properties" /></p>
+
+<p>The properties of your bucket will appear in the "Properties" pane at the bottom of the screen.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-4B_VhzIeRjw/TtEzQSqQdUI/AAAAAAAAHzY/EcMc-2ruk98/s600/bucket-properties-tabs.png" alt="Bucket Properties" /></p>
+
+<p>In the bucket propertes go to the "Website" tab. Make sure to:</p>
+
+<ol>
+<li>Check the "enabled" box</li>
+<li>Enter the name of an "index document" in the box (this will be page that should be loaded if someone visits the root of your bucket - websites typically us index.html).</li>
+<li>Note the "endpoint" url - this will be the url to your website.</li>
+</ol>
+
+<p><img src="https://lh4.googleusercontent.com/-poLROP8Apoc/TtE1Fn9kH2I/AAAAAAAAH0M/XQJ1XrGLoS8/s600/bucket-properties-website.png" alt="Bucket Properties Website Tab" /></p>
+
+<p>If you open the endpoint url in a separate tab in your browser now you will see permission denied errors, so lets fix that...</p>
+
+<h4>Step-6: Make your web-site accessable to viewers:</h4>
+
+<ol>
+<li>Still in the bucket "Properties" pane, open the "Permissions" tab and click "Edit Bucket Policy" - a window pops up.</li>
+<li>Paste in the code from the box below, replacing <code>mybucketname</code> with, well, your bucket name :)</li>
+<li>Click <code>save</code> and your done - go visit that end-point url which should now be hosting your static website :)</li>
+</ol>
+
+<p>Here's the permissions policy you need - don't forget to change <code>mybucketname</code>!</p>
+
+<pre><code>{
+    "Version": "2008-10-17",
+    "Statement": [{
+        "Sid": "PublicReadForGetBucketObjects",
+        "Effect": "Allow",
+        "Principal": {
+            "AWS": "*"
+        },
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::mybucketname/*"
+    }]
+}
+</code></pre>
+
+<p><img src="https://lh5.googleusercontent.com/-loUsJEs3JC4/TtEulGDjuEI/AAAAAAAAHyw/Q1QYKwZY5WQ/s600/bucket-policy-edit.png" alt="Edit Bucket Policy" /></p>
+
+<h4>Step-7: Registered a domain-name? Point it at your S3 hosted website...</h4>
+
+<p>See my other post on <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">how to forward a domain name to an S3 bucket</a>.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=static">static</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=website">website</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=amazon">amazon</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=S3">S3</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=hosting">hosting</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="hosting_a_static_website_in_amazon_s3.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="227" description="Many pages that you might want to share don't have Google+ plus-one buttons. This bookmarklet makes it easy to +1 any page directly while browsing it.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
               <a itemprop="url" href="plus_one_any_page_google_1_bookmarklet.html"><h1 itemprop="name" itemprop="headline">Plus-One any page - Google +1 Bookmarklet</h1></a>
@@ -280,150 +364,6 @@ Several times while working on the styling of this blog I've wanted to style ele
 	        <a href="a_multi_class_union_css_selector.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
-              <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
-	      <span itemprop="articleBody"><p>Since my <a href="">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
-
-<pre><code>interface Counter {
-    // add a colour channel value for one of 
-    // the neighbouring pixels
-    public void add(int aValue);
-
-    // calculates the value we should use
-    // for the current colour channel of the
-    // current pixel based on its neighbours
-    public int mostFrequent();
-}
-</code></pre>
-
-<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green /blue). The client code looks like this:</p>
-
-<pre><code>// calculate the colour 
-private int count(int anOffset, int[] aSurrounding) {
-    Counter _c = getCounter();
-    int _length = aSurrounding.length-(2-anOffset);
-    for (int i=anOffset; i&amp;lt;_length; i+=3) {
-        _c.add(aSurrounding[i]);
-    }
-    return _c.mostFrequent();
-}
-</code></pre>
-
-<p>Here you can see that I can easily supply different implementations of Counter, so I can try different algorithms easily.</p>
-
-<h3>The original colour-selection algorithm</h3>
-
-<p>The original algorithm simply takes the most frequent value of each colour channel so that, for example, if 51% of the surrounding pixels are bright blue, and the other 49% are bright red, this pixel will be bright red.</p>
-
-<pre><code>class SimpleCounter implements Counter {
-    int[] values = new int[256];
-
-    public SimpleCounter() {
-        Arrays.fill(values, -1);
-    }
-
-    public void add(int aValue) {
-        values[aValue] += 1;
-    }
-
-    public int mostFrequent() {
-        int _highest = -1;
-        int _colour = -1;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &amp;gt; _highest) {
-            _highest = values[i];
-            _colour = i;
-            }
-        }
-        return _colour;
-    }
-}
-</code></pre>
-
-<p>This algorithm does produce the effect I'm looking for, but I get some sharp edges and colour bleeding that I don't really want (see example output below).</p>
-
-<h3>The weighted-average algorithm</h3>
-
-<p>This algorithm weights the values of the surrounding pixels relative to the most common value, so we get a weighted average that does take some account of less popular colours in the neighbourhood of the current pixel.</p>
-
-<pre><code>class WeightedAverageCounter implements Counter {
-    int[] values = new int[256];
-
-    public WeightedAverageCounter() {
-        Arrays.fill(values, 0);
-    }
-
-    public void add(int aValue) {
-        values[aValue] += 1;
-    }
-
-    public int mostFrequent() {
-        int _max = max();
-        double _weight=0, _colour=0, _count=0;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &gt; 0) {
-                _weight = (((double)values[i]) / _max);
-                _weight = Math.pow(_weight, 5);
-                _colour += _weight * i;
-                _count += _weight;
-            }
-        }
-        return (int) (_colour / _count);
-    }
-
-    private int max() {
-        int _highest = 0;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &gt; _highest) {
-                _highest = values[i];
-            }
-        }
-        return _highest;
-    }
-}
-</code></pre>
-
-<p>The result of the weighted average algorithm is a much smoother colour composition with a reduction in the aliasing effects that can be seen in the more simple algorithm's output. It does have a significant performance penalty however - on my quad core i7 laptop on an image of 600x650 pixels and a 16x16 neighbourhood, the simple algorithm completes in 10 seconds, whereas the weighted-average needs 90 seconds!</p>
-
-<h3>Output for comparison</h3>
-
-<p>Here are some examples for comparison. First is the original image, then then the image processed with the simple colour selection algorithm, followed by the weighted average algorithm.</p>
-
-<p><img alt="The original photograph" width="600" height="654" src="https://lh3.googleusercontent.com/-zPwUf1ZwEes/TsfLHPhDT0I/AAAAAAAAHuI/Rpt4as1QyIE/s600/duck.jpg"></p>
-
-<div class="caption">The original image</div>
-
-<p><img alt="Processed with 'Simple' algorithm" width="600" height="654" src="https://lh6.googleusercontent.com/--uqph05DLD4/TsfLMt4MJ3I/AAAAAAAAHuU/aJ_bXBLOFEw/s600/duck-16x16-simple.png"></p>
-
-<div class="caption">Processed with 'Simple' algorithm</div>
-
-<p><img alt="Processed with 'Weighted Average' algorithm" width="600" height="654" src="https://lh5.googleusercontent.com/-C6hRgaQDTtA/TsfLRfOMKLI/AAAAAAAAHuc/gLLTePCCUfo/s600/duck-16x16-weighted-average.png"></p>
-
-<div class="caption">Processed with 'Weighted Average' algorithm</div>
-
-<p>It might be a little difficult to see the difference, so here's one final composite image showing the difference close-up and side-by-side</p>
-
-<p><img alt="composite - left-side 'simple', right-side 'weighted average'" width="600" height="327" src="https://lh6.googleusercontent.com/-i6hEeV2vdC0/TsfYihtEPaI/AAAAAAAAHu8/Yx2b4FTSvBM/s600/duck-composite.jpg"></p>
-
-<div class="caption">Composite for comparison</div>
-
-<p>The left-side shows the image processed with the simple algorithm, whilst the right-side shows the smoother result of the weighted-average algorithm.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image">Image</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Processing">Processing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java2D">Java2D</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Convolve">Convolve</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Kernel">Kernel</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Vectorize">Vectorize</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="weighted_average_smoothing_with_java2d.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -441,11 +381,11 @@ private int count(int anOffset, int[] aSurrounding) {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="google_and_rel_author_not_a_level_playing_field.html">Google and rel=author - not a level playing field</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="another_google_chrome_css_bug.html">Another Google Chrome CSS bug</a><span class="date"> - Dec 14, 2011</span></li>
                 <li><a href="google_chrome_css_bug.html">Google Chrome CSS bug</a><span class="date"> - Dec 13, 2011</span></li>
-                <li><a href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in Amazon S3</a><span class="date"> - Nov 26, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

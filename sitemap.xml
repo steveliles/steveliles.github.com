@@ -61,6 +61,11 @@
     </url>
 
     <url> 
+      <loc>http://steveliles.github.com/perforated_postage_stamp_border_with_inkscape.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>

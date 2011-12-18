@@ -35,6 +35,63 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403" description="Problem description and solution for runtime error messages pertaining to testing a web app that uses JQuery using HtmlUnit.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
+              <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
+	      <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
+
+<p>...
+One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
+
+<pre><code>runtimeError: message=
+  [The data necessary to complete this operation is not yet available.]
+  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
+  lineSource=[null] lineOffset=[0]
+</code></pre>
+
+<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
+
+<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
+
+<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
+
+<pre><code>// The DOM ready check for Internet Explorer
+function doScrollCheck() {
+ if ( jQuery.isReady ) {
+  return;
+ }
+
+ try {
+  // If IE is used, use the trick by Diego Perini
+  // http://javascript.nwbox.com/IEContentLoaded/
+     document.documentElement.doScroll("left");
+ } catch(e) {
+  setTimeout( doScrollCheck, 1 );
+  return;
+ }
+
+ // and execute any waiting functions
+ jQuery.ready();
+}
+</code></pre>
+
+<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
+
+<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
+
+<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="jquery_htmlunit_runtimeerror_messages_galore.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,658" description="Tell dont ask programming style, and how to unit test code written in that style - with examples.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-03-15">March 15, 2011</time></span>
               <a itemprop="url" href="unit_testing_code_written_in_tell_don_t_ask_style.html"><h1 itemprop="name" itemprop="headline">Unit Testing code written in "Tell, Don't Ask" style</h1></a>
@@ -416,67 +473,6 @@ jMock takes a little getting used to, as it involves quite a different way of th
 	        <a href="installing_fonts_in_ubuntu.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="738" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 2">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-12">February 12, 2011</time></span>
-              <a itemprop="url" href="progressive_enhancement_with_gwt_part_2.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 2</h1></a>
-	      <span itemprop="articleBody"><p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
-
-<p>This is the second part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
-
-<p>Since my earlier post, I spent a little time (only a few hours really, so far) trying a few things out. Here's a smattering of things I learned...</p>
-
-<p>Scanning for elements and binding widgets onto them is easy. Making those widgets behave just like widgets in any normal GWT app needs a little more work.</p>
-
-<h3>Who's the daddy?</h3>
-
-<p>One big problem to get around is that normally GWT widgets are attached via a hierarchy of other widgets (parents) leading back to the RootPanel, whereas when you bind onto some arbitrary element that is already on the page you don't get this hierarchy for free.</p>
-
-<p>When widgets are added to a parent widget some magic happens to set up things like the eventing system. Without that magic you can add as much event-handling plumbing as you like, but it won't work because your widget isn't wired into the eventing system.</p>
-
-<p>Actually getting around this is not all that difficult. Simply invoking onAttach() will wire up your widget, though its a little unpleasant to have to do that.</p>
-
-<p>Another problem with the lack of hierarchy is, well, there's no hierarchy. Things that you would normally do in GWT widgets - like adding, removing or replacing child widgets - gets a little trickier. If you want to use the technique recursively (and why wouldn't you?), you need to allow widgets to bind to elements inside other widgets without causing them to be removed from and re-attached to the DOM, but crucially you still need to add them as 'logical' children of the parent widget, otherwise the parent knows nothing about the child widgets and can't do any of those "normal" operations with them.</p>
-
-<p>To do that there are two problems to overcome:</p>
-
-<ol>
-<li>The parent needs to have the children added to it, so that the set of child widgets is known and available for manipulation (say by extending ComplexPanel and using the getChildren() method).</li>
-<li>Some of the child widgets might need hard, typed references in the parent widget to allow direct manipulation of the child widget - just like in a "normal" GWT widget you would keep a reference to the Button you added in the constructor in order that you can bind ClickHandler's to it or toggle its enabled-ness.</li>
-</ol>
-
-<p>Point 1 is easily solved - any widget that wants to play this way needs to support adding other widgets without triggering an attachment to the current element. When you add a normal child widget to a normal  parent widget, the child is detached from its current parent - logically and physically - so that its html element is actually inserted into the DOM under the parent's element. This is not what we want when binding onto a template - we just want the logical attachment step, so we need to support an add method something like:</p>
-
-<pre><code>public void logicalAdd(Widget aWidget) {
-  getChildren().add(aWidget);
-  adopt(aWidget);     
-}
-</code></pre>
-
-<p>I've yet to try to solve point 2. So far I've built:</p>
-
-<ul>
-<li>Tools to help with scanning for elements to bind to, and then binding the right widget.</li>
-<li>Plumbing to allow recursively binding widgets with logical hierarchy intact (point 1 above).</li>
-<li>An example that binds widgets recursively - an outer container, an inner container, and a bunch of widgets inside that are manipulated by the inner container.</li>
-</ul>
-
-<p>I'll try to update the post with an example at some point. Meanwhile my next challenge is to solve point 2 such that widget developers can build their widgets in a fairly typical GWT way.</p>
-
-<p>As an aside, I lay awake for a while last night pondering the ability to give designers a client-side templating system, where they can write the html for a component once (declaring it to be a template, which may include recursive binding points for GWT-activated widgets) and then re-use it elsewhere within their html by reference to the template. I'm sure this would be possible, though its utility might extend only to mock-ups.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="progressive_enhancement_with_gwt_part_2.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -494,11 +490,11 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="google_and_rel_author_not_a_level_playing_field.html">Google and rel=author - not a level playing field</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="another_google_chrome_css_bug.html">Another Google Chrome CSS bug</a><span class="date"> - Dec 14, 2011</span></li>
                 <li><a href="google_chrome_css_bug.html">Google Chrome CSS bug</a><span class="date"> - Dec 13, 2011</span></li>
-                <li><a href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in Amazon S3</a><span class="date"> - Nov 26, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

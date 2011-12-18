@@ -13,6 +13,60 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Perforated postage-stamp border with Inkscape]]></title>
+        <link><![CDATA[http://steveliles.github.com/perforated_postage_stamp_border_with_inkscape.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/perforated_postage_stamp_border_with_inkscape.html</guid>
+        <description><![CDATA[<p>This short tutorial explains how I created a curved-serrated border - such as you would find on a tear-off postage stamp - using the Inkscape vector graphics tool (v0.48.2). It is extremely easy to do, and shouldn't take more than 5 minutes.</p>
+
+<h3>Getting Inkscape</h3>
+
+<p>If you're running a debian based linux you can install Inkscape with:</p>
+
+<pre><code>sudo apt-get install inkscape
+</code></pre>
+
+<p>Ubuntu users can install it using the graphical Ubuntu software centre. Downloads for other OS's can be found <a href="http://inkscape.org/download/">here</a>.</p>
+
+<h3>Creating the perforated border</h3>
+
+<p>First draw a rectangle using the <code>"rectangles and squares (F4)"</code> tool. Make this reasonably large. </p>
+
+<p>Then select the <code>"circles, ellipses and arcs (F5)"</code> tool and draw a much smaller circle. Holding down the ctrl key while drawing the circle will lock the aspect ratio so that you don't end up with an ellipse.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-f7Ifgk1xqds/Tu4lanssEDI/AAAAAAAAH20/ZIkzqyhFnEM/s800/step-2.png" alt="Rectangle and circle" /></p>
+
+<p>Next, select both the circle and the rectangle by first selecting the circle then holding down the shift key and selecting the rectangle.</p>
+
+<p>Now from the <code>"Extensions"</code> menu, select <code>"Generate from path"</code> and in the sub-menu, select <code>"Pattern along path"</code>. The <code>"Pattern along Path"</code> dialog pops up. </p>
+
+<p><img src="https://lh6.googleusercontent.com/-Q-jYlXWOous/Tu4laEZHkvI/AAAAAAAAH28/Sz3ydQTqghQ/s800/pattern-along-path.png" alt="Pattern along path dialog" /></p>
+
+<p>Choose <code>"Repeated"</code> in the <code>"Copies of the pattern"</code> combo, in <code>"Deformation type"</code> choose <code>"Snake"</code>, and pick a number for <code>"Space between copies"</code> - this is the distance between each circle that will be cut out from the border of the rectangle, so good values depend on the size of your circle and subjective taste. Hit <code>"apply"</code>.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-ccgBpNnVZsY/Tu4laDpsFhI/AAAAAAAAH2s/qpmSfkjxo0M/s800/first-pattern-step.png" alt="Circles applied to the path" /></p>
+
+<p>Now we want to <em>remove</em> the path created by the circles around the border of the rectangle. To do that, first select the circles around the edge of the rectangle, then (holding down shift) select the rectangle itself and then choose <code>"Difference"</code> from the <code>"Path"</code> menu.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-XoboYeO1yHM/Tu4lZbdS9DI/AAAAAAAAH2k/ZqTIKj2oecQ/s800/difference.png" alt="Path difference effect" /></p>
+
+<p>Change the colour of your postage-stamp shape to black (fill and stroke), then select it and hit ctrl-c to copy it, then ctrl-v to paste a new copy. Re-select the original and choose <code>"Filters-&gt;Blurs-&gt;Evanescent"</code> - this creates a nice blurred shadow effect.</p>
+
+<p>Select the new copy and change it to an off-white colour (I went for #fbfad4ff), then move it so that it sits just a few pixels above and to the left of the original (blurred shadow) shape.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-Pgk_1jBRtT0/Tu4lZThH_iI/AAAAAAAAH2g/XeJE1jFDNZU/s800/postage-stamp-inkscape.png" alt="the finished postage stamp in inkscape" /></p>
+
+<p>That's it, all done! Now you can add whatever content you like to your stamp and then export as a bitmap image. Below you can see what mine looks like exported as a png. Notice that the corners aren't quite "right" - this is because I didn't spend any time trying to ensure that the rectangle side-lengths were appropriately divisible by the circle + the space between copies - something that's worth doing if you want to get your stamp to look "just right".</p>
+
+<p><img src="https://lh6.googleusercontent.com/-jWvZBSpzLmA/Tu4lZKrXkhI/AAAAAAAAH2c/qrRRQYx43DQ/s800/postage-stamp.png" alt="png postage stamp" /></p>
+]]></description>
+          <category>inkscape</category>
+          <category>perforated</category>
+          <category>border</category>
+          <category>vector</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sun, 18 Dec 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Subversion 1.7 Eclipse integration in Ubuntu]]></title>
         <link><![CDATA[http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html</guid>
@@ -3394,111 +3448,6 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <category>pencil</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 30 Oct 2010 00:00:00 +0100</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Making pretty diagrams with GraphViz]]></title>
-        <link><![CDATA[http://steveliles.github.com/making_pretty_diagrams_with_graphviz.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/making_pretty_diagrams_with_graphviz.html</guid>
-        <description><![CDATA[<p>So recently I needed to draw some directed-graph diagrams - work-flow diagrams in this particular instance. After a bit of googling I came across some nice examples of diagrams produced by <a href="http://www.graphviz.org/">graphviz</a> - actually what really turned me on to graphviz was this <a href="http://www.flickr.com/photos/kentbye/sets/72157601523153827/">nice set of examples</a> from Kent Bye.</p>
-
-<p>A little tinkering and I soon had my workflow definitions (declared in xml in our application) rendered nicely with GraphViz. The markup language is deadly simple and intuitive, and the directed graphs which it produces are really good looking (I didn't try any other types).</p>
-
-<p>Lets take a look at some examples, starting simply with two nodes related in one direction only. The markup would look like this:</p>
-
-<pre><code>digraph {
-  "Start" -&gt; "End" [];
-}
-</code></pre>
-
-<p>That's it.  No really.  This is all you need to create a simple, two-node directed graph diagram.  To draw the diagram you need to install graphviz (with a quality OS like ubuntu you just need the magic incantation <code>sudo apt-get install graphviz</code> and you're up and running). Once installed invoke graphviz like this:</p>
-
-<pre><code>dot -Tpng -oMyGraph.png MyGraph.dot
-</code></pre>
-
-<p>This invokes the directed-graph drawing tool, tells it to produce a png image from the input file <code>MyGraph.dot</code> and store it in the output file <code>MyGraph.png</code>. The resulting diagram looks like this:</p>
-
-<p><img src="http://4.bp.blogspot.com/_hG-kje6-TJM/TMXyojkLHhI/AAAAAAAAABc/fNd8MB0KVHQ/s1600/graph1.png" alt="first graphviz diagram" /></p>
-
-<p>Coolness!</p>
-
-<p>Lets get a bit more trick! We can control the size and shape of our nodes, and label the edges:</p>
-
-<pre><code>digraph {
-  "A" [shape="circle"];
-  "B" [shape="rectangle"];
-  "C" [shape="diamond"];
-
-  "A" -&gt; "B" [label="A to B"];
-  "B" -&gt; "C" [label="B to C"];
-  "A" -&gt; "B" [label="A to C"];
-}
-</code></pre>
-
-<p>Here's the diagram:</p>
-
-<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TMX0xR56twI/AAAAAAAAABg/m1Qmknip5hg/s1600/graph2.png" alt="second graphviz diagram" /></p>
-
-<p>Isn't it just too cool? Last one coming up - this time with colours:</p>
-
-<pre><code>digraph {
-  "Back" [shape="egg" color="green" style="filled" fillcolor="yellow"];
-  "Forth" [shape="house" color="red"];
-  "Other" [shape="invtriangle" color="blue"];
-
-  "Back" -&gt; "Forth" [color="orange" label="weee"];
-  "Forth" -&gt; "Back" [color="purple" label="eeew"];
-
-  "Other" -&gt; "Forth"
-  "Other" -&gt; "Back"
-}
-</code></pre>
-
-<p>And here's how it looks:</p>
-
-<p><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMX3xBFNcTI/AAAAAAAAABk/YrBxMds9R28/s1600/graph3.png" alt="third graphviz diagram" /></p>
-
-<p>I realize this just scratches the surface - there's a whole bunch of other node shapes you can use, you can define defaults for nodes and edges once at the beginning of your *.dot file, and much much more.</p>
-
-<p>I only discovered GraphViz about 2 months ago, but since I did i've been using it quite a lot. Its very handy for drawing simple representations of work-flows, navigational flows, any kind of hierarchical structures (trees and graphs), etc., and just <em>so simple</em> to write. Generating the <code>*.dot</code> syntax programmatically is extremely easy - I now have our app invoking "dot" to generate the graphs on the fly.</p>
-
-<p>Note: Google Charts now has experimental support for (a subset of) graphviz. Check it out <a href="http://code.google.com/apis/chart/image/docs/gallery/graphviz.html">here</a>.You don't even have to install graphviz :)</p>
-
-<p>I'll leave you with one more example - a visualisation of a subset of a work-flow from a work-flow system I've been building recently for our Editorial System. The work-flow engine we've built is basically a Finite State Machine (FSM), and a work-flow diagram like this is basically a State diagram for the machine. A workflow thus forms a very nice directed graph, making GraphViz ideal for rendering work-flows:</p>
-
-<pre><code>digraph { 
-
-  node [shape=circle,fontsize=8,fixedsize=true,width=0.9]; 
-  edge [fontsize=8]; 
-  rankdir=LR;
-
-  "low-priority" [shape="doublecircle" color="orange"];
-  "high-priority" [shape="doublecircle" color="orange"];
-
-  "s1" -&gt; "low-priority";
-  "s2" -&gt; "low-priority";
-  "s3" -&gt; "low-priority";
-
-  "low-priority" -&gt; "s4";
-  "low-priority" -&gt; "s5";
-  "low-priority" -&gt; "high-priority" [label="wait-time exceeded"];
-
-  "high-priority" -&gt; "s4";
-  "high-priority" -&gt; "s5";
-
-}
-</code></pre>
-
-<p>And here's the GraphViz output:</p>
-
-<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TQZdtzUGmtI/AAAAAAAAG5I/FxhlCaItHLM/s600/work-queue-3.png" alt="workflow" /></p>
-]]></description>
-          <category>graphviz</category>
-          <category>visualization</category>
-          <category>diagram</category>
-          <category>graph</category>
-          <category>example</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Mon, 25 Oct 2010 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>
