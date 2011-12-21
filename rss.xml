@@ -13,6 +13,43 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Android Source Code available!]]></title>
+        <link><![CDATA[http://steveliles.github.com/android_source_code_available.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/android_source_code_available.html</guid>
+        <description><![CDATA[<p>I'm quite surprised it took this long, but as of 13th December 2011 the source-code for Android is finally available as part of the SDK downloads, and can be grabbed with the SDK Manager.</p>
+
+<p>There's no jar file available yet, just a folder containing the source for API level 14 and upwards only. The Android dev who announced this stated that it is "extremely unlikely" that the source for earlier API levels would ever be made available as part of the SDK.</p>
+
+<p>Android Developer Tools (Eclipse plugin) doesn't automatically link to this folder either, so you need to set it up manually.</p>
+
+<p>First, get the source:</p>
+
+<ol>
+<li>Fire up the SDK Manager - from Eclipse's "Window" menu, select "Android SDK Manager".</li>
+<li>Check the boxes next to "Sources for Android SDK" (at time of writing this is available for both API level 14 and 15).</li>
+<li>Click the "Install X packages..." button (bottom right corner), and wait while your new goodies download and install.</li>
+</ol>
+
+<p>Once you're done downloading, head back to Eclipse and configure your Android project to use the source directory:</p>
+
+<ol>
+<li>In the package-explorer, locate the Android jar file (you may have to turn on "Show referenced libraries" from the little down-arrow icon in the top-right corner of the Package Explorer toolbar before it will show up in the list).</li>
+<li>Right-click the jar and choose "Properties" - a dialog pops up.</li>
+<li>Select "Java Source Attachment", then click "External Folder..."</li>
+<li>Navigate to the source directory, which will be located inside your Android SDK install directory (mine is at /home/steve/dev/sdks/android-sdk-linux/sources/android-14. Select OK to leave the file-chooser dialog, and OK again to leave the jar Properties dialog.</li>
+<li>Hover any Android class and ctrl-click (or place the caret on the class name and hit F3) to enjoy the source code for that class :)</li>
+</ol>
+
+<p>For the full source-code saga check out the <a href="http://code.google.com/p/android/issues/detail?id=979">issue-tracker entry</a> requesting the source to be made available (be prepared for a long read!)</p>
+]]></description>
+          <category>Android</category>
+          <category>Source</category>
+          <category>Code</category>
+          <category>SDK</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Tue, 20 Dec 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Perforated postage-stamp border with Inkscape]]></title>
         <link><![CDATA[http://steveliles.github.com/perforated_postage_stamp_border_with_inkscape.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/perforated_postage_stamp_border_with_inkscape.html</guid>
@@ -3405,49 +3442,6 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <category>restore</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Mon, 06 Dec 2010 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Some old sketches ...]]></title>
-        <link><![CDATA[http://steveliles.github.com/some_old_sketches.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/some_old_sketches.html</guid>
-        <description><![CDATA[<p>I decided it was high time I got a copy of my photos from the last 10 years or so backed-up somewhere. I downloaded Picasa (3.0-beta for ubuntu x64) and signed up for web-albums and started rummaging through my pics.  Picasa tells me I have 5,773 pictures in my ~/Pictures directory, so I could be having to spend rather a long time sorting through that lot!</p>
-
-<p>Scrolling through I came across some old sketches from way back (2002 and older), some of which I had scanned at various stages during the sketch. After a bit of fighting with Picasa (I didn't want it to throw away my original tif files) I got it to pick up the extra converted jpg copies which i made, and tried to upload them ... no go on that score, its still doing incrementally backing-off retries and failing to upload with no explanation. The log file location says "c:\Documents and settings...", which is a bit of a laugh given i'm running ubuntu :)</p>
-
-<p>Instead I uploaded those converted jpg's via the web-albums website, and shared the album. Here's a sample:</p>
-
-<table>
-  <tr>
-    <th>
-      <a href="http://4.bp.blogspot.com/_hG-kje6-TJM/TMwiO_1m3kI/AAAAAAAAAD8/HknmMmIraVU/s1600/foal-1.jpg"><img src="http://4.bp.blogspot.com/_hG-kje6-TJM/TMwiO_1m3kI/AAAAAAAAAD8/HknmMmIraVU/s240/foal-1.jpg"></a>
-    </th>
-    <th>
-      <a href="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj5dm7MKI/AAAAAAAAAD8/AYuh-yFIdRo/s1600/foal-2.jpg"><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj5dm7MKI/AAAAAAAAAD8/AYuh-yFIdRo/s240/foal-2.jpg"></a>
-    </th>
-    <th>
-      <a href="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj6ExdTZI/AAAAAAAAAD8/R_kZa1xqNcQ/s1600/foal-3.jpg"><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TMwj6ExdTZI/AAAAAAAAAD8/R_kZa1xqNcQ/s240/foal-3.jpg"></a>
-    </th>
-  </tr>
-  <tr>
-    <th><code>pony sketch, step 1</code></th>
-    <th><code>pony sketch, step 2</code></th>
-    <th><code>pony sketch, finished</code></th>
-  </tr>
-</table>
-
-<p>Honestly no idea why the last one has a blue-ish tint to it - I must have screwed up scanning it or something. I'll balance the colours and re-upload if I get a chance.</p>
-
-<p>This was drawn from a photo I took at Llyn-Brianne in mid Wales, some time around 2002. There was a whole herd of what I can only assume are wild ponies just wandering around up there, and this little guy was one of them.</p>
-
-<p>This sketch is a full side of A4, drawn with Derwent studio colour pencils. I saw someone drawing with these at an art show I went to with my dad years ago, and bought the 72 pack there and then - they really are fantastic.</p>
-]]></description>
-          <category>sketch</category>
-          <category>foal</category>
-          <category>lynn-brianne</category>
-          <category>Faber Castell Polychromos</category>
-          <category>pencil</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 30 Oct 2010 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>

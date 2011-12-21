@@ -6,13 +6,13 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-      <meta name="keywords" content="CPU affinity" itemprop="keywords"></meta>
-      <meta name="keywords" content="Linux" itemprop="keywords"></meta>
-      <meta name="keywords" content="Java" itemprop="keywords"></meta>
-      <meta name="keywords" content="Threading" itemprop="keywords"></meta>
-    <meta name="description" content="Binding Java processes - and thus threads - to a single CPU"></meta>
+      <meta name="keywords" content="Android" itemprop="keywords"></meta>
+      <meta name="keywords" content="Source" itemprop="keywords"></meta>
+      <meta name="keywords" content="Code" itemprop="keywords"></meta>
+      <meta name="keywords" content="SDK" itemprop="keywords"></meta>
+    <meta name="description" content="Finally, the full src code for Android is available as part of the SDK download - though sadly its only available for source-level 14 and upwards at the moment."></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Replicating Java threading issues between machines with different cpu counts</title>
+    <title>Android Source Code available!</title>
   </head>
   <body>
     <div>
@@ -39,31 +39,41 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198" description="Binding Java processes - and thus threads - to a single CPU">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
-              <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
-	      <span itemprop="articleBody"><p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="337" description="Finally, the full src code for Android is available as part of the SDK download - though sadly its only available for source-level 14 and upwards at the moment.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-20">December 20, 2011</time></span>
+              <a itemprop="url" href="android_source_code_available.html"><h1 itemprop="name" itemprop="headline">Android Source Code available!</h1></a>
+	      <span itemprop="articleBody"><p>I'm quite surprised it took this long, but as of 13th December 2011 the source-code for Android is finally available as part of the SDK downloads, and can be grabbed with the SDK Manager.</p>
 
-<p>To replicate I needed to run on a single-cpu but I didn't want to commit more potentially broken tests to source-control and run repeatedly breaking builds on the build-server.</p>
+<p>There's no jar file available yet, just a folder containing the source for API level 14 and upwards only. The Android dev who announced this stated that it is "extremely unlikely" that the source for earlier API levels would ever be made available as part of the SDK.</p>
 
-<p>I discovered that its possible to bind an exec'd process to a single CPU in newer 'nix's using taskset. Invoking my maven build using taskset to bind the test-run to a single CPU core replicated the failure immediately, and from there it was an easy fix. Here's the cmdline to bind a maven build to a single CPU (I'm running Ubuntu, YMMV):</p>
+<p>Android Developer Tools (Eclipse plugin) doesn't automatically link to this folder either, so you need to set it up manually.</p>
 
-<pre><code>taskset -pc 0 mvn clean test
-</code></pre>
+<p>First, get the source:</p>
 
-<p>tasket is part of schedutils, which you may or may not have installed. It was installed on my machine already, possibly because of other things i've installed in the past. If needed you can install it with:</p>
+<ol>
+<li>Fire up the SDK Manager - from Eclipse's "Window" menu, select "Android SDK Manager".</li>
+<li>Check the boxes next to "Sources for Android SDK" (at time of writing this is available for both API level 14 and 15).</li>
+<li>Click the "Install X packages..." button (bottom right corner), and wait while your new goodies download and install.</li>
+</ol>
 
-<pre><code>sudo apt-get install schedutils
-</code></pre>
+<p>Once you're done downloading, head back to Eclipse and configure your Android project to use the source directory:</p>
 
-<p>It basically sets processor affinity by setting some process properties that tell the linux cpu scheduler to only allow the process to run on the stated CPU's.</p>
+<ol>
+<li>In the package-explorer, locate the Android jar file (you may have to turn on "Show referenced libraries" from the little down-arrow icon in the top-right corner of the Package Explorer toolbar before it will show up in the list).</li>
+<li>Right-click the jar and choose "Properties" - a dialog pops up.</li>
+<li>Select "Java Source Attachment", then click "External Folder..."</li>
+<li>Navigate to the source directory, which will be located inside your Android SDK install directory (mine is at /home/steve/dev/sdks/android-sdk-linux/sources/android-14. Select OK to leave the file-chooser dialog, and OK again to leave the jar Properties dialog.</li>
+<li>Hover any Android class and ctrl-click (or place the caret on the class name and hit F3) to enjoy the source code for that class :)</li>
+</ol>
+
+<p>For the full source-code saga check out the <a href="http://code.google.com/p/android/issues/detail?id=979">issue-tracker entry</a> requesting the source to be made available (be prepared for a long read!)</p>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=CPU affinity">CPU affinity</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threading">Threading</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Source">Source</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Code">Code</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SDK">SDK</a></li>
               </ul>
               <div style="clear:both"></div>
 
@@ -115,7 +125,6 @@
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="android_source_code_available.html">Android Source Code available!</a><span class="date"> - Dec 20, 2011</span></li>
                 <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
                 <li><a href="google_and_rel_author_not_a_level_playing_field.html">Google and rel=author - not a level playing field</a><span class="date"> - Dec 16, 2011</span></li>
@@ -127,8 +136,8 @@
       </div>
       <nav>
         <div class="links">
-          <div class="prev"><a title="previous" href="my_first_android_app_desktop_widget.html">My first Android app (deskt...</a></div>
-          <div class="next"><a title="next" href="jquery_htmlunit_runtimeerror_messages_galore.html">JQuery + HtmlUnit = runtime...</a></div>
+          
+          <div class="next"><a title="next" href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp bo...</a></div>
         </div>
       </nav>
     </div>
