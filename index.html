@@ -35,10 +35,12 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,776" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,799" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-09">January 09, 2012</time></span>
               <a itemprop="url" href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html"><h1 itemprop="name" itemprop="headline">Setting up Maven, Android and SVN for team development of multiple applications</h1></a>
-	      <span itemprop="articleBody"><p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects - and worse still if the development team is distributed.</p>
+	      <span itemprop="articleBody"><p>If you don't yet have your Eclipse - ADT - Maven tool-chain set up you might be interested in the <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">previous post</a>.</p>
+
+<p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects - and worse still if the development team is distributed.</p>
 
 <p>The important things I think you want to enable in a team environment are:</p>
 
@@ -59,7 +61,7 @@
 <ul>
 <li>You use some form of source-code control (Subversion/GIT/other...). Of course you do :)</li>
 <li>All developers will install Eclipse and ADT for themselves as a pre-requisite.</li>
-<li>If, as a team, you use Maven and/or Continuous integration, all developers will also install m2eclipse and m2e-android eclipse plugins and Maven 3 (see <a href="android-maven-eclipse.html">previous article</a>).</li>
+<li>If, as a team, you use Maven and/or Continuous integration, all developers will also install m2eclipse and m2e-android eclipse plugins and Maven 3 (see <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">previous article</a>).</li>
 <li>You have some common practices in your team like, for example, checking out all projects as siblings in a single workspace directory (otherwise you'll have problems with sharing relative paths to referenced projects between developers).</li>
 </ul>
 
