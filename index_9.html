@@ -6,16 +6,9 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-      <meta name="keywords" content="gwt" itemprop="keywords"></meta>
-      <meta name="keywords" content="java" itemprop="keywords"></meta>
-      <meta name="keywords" content="maven" itemprop="keywords"></meta>
-      <meta name="keywords" content="testing" itemprop="keywords"></meta>
-      <meta name="keywords" content="webdriver" itemprop="keywords"></meta>
-      <meta name="keywords" content="development" itemprop="keywords"></meta>
-      <meta name="keywords" content="hosted" itemprop="keywords"></meta>
-    <meta name="description" content="A description of how to set up eclipse and firefox to test Google Web Toolkit apps in hosted development mode with WebDriver and maven"></meta>
+    <meta name="description" content="Thoughts on Java, GWT, programming, and other geek stuff"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Testing GWT apps in dev-mode with WebDriver</title>
+    <title>Steve Liles' Blog</title>
   </head>
   <body>
     <div>
@@ -275,35 +268,31 @@ public class TestSimpleApp {
               </ul>
               <div style="clear:both"></div>
 
+	        <a href="testing_gwt_apps_in_dev_mode_with_webdriver.html">Comment on this post</a>
 
-                <a name="comments"></a>
-                <div id="disqus_thread"></div>
- 	        <script type="text/javascript">    	     
-	          var disqus_shortname = 'steveliles';
-	          (function() {
-	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-	          })();
-	        </script>
-	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
+              <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
+	      <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
 
-                <div class="sharing">
-		  <ul>
-		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
-		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
-	          </ul>
-                </div>
-                
-                <script type="text/javascript">
-                  window.___gcfg = {lang: 'en-GB'};
-                  (function() {
-                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                    po.src = 'https://apis.google.com/js/plusone.js';
-                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-                  })();
-                </script>
+<p>Flushing the mysql buffers is as easy as restarting mysql (<code>sudo service mysql restart</code> in Maverick). Flushing the OS buffers is also dead easy:</p>
 
+<pre><code>sudo sh -c "sync; echo 3 &gt; /proc/sys/vm/drop_caches"
+</code></pre>
+
+<p>I have system-monitor gauges on my taskbar showing cpu, memory and disk activity, and its a beautiful thing to see the cache suddenly get wiped :)</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=cache">cache</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=buffers">buffers</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=memory">memory</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="how_to_clear_memory_caches_in_ubuntu.html">Comment on this post</a>
 
             </article>
         </div>
@@ -335,11 +324,12 @@ public class TestSimpleApp {
       </div>
       <nav>
         <div class="links">
-          <div class="prev"><a title="previous" href="gwt_widgets_with_html_id_attributes.html">GWT Widgets with html id at...</a></div>
-          <div class="next"><a title="next" href="how_to_clear_memory_caches_in_ubuntu.html">How to clear memory caches ...</a></div>
+          <div class="prev"><a title="previous" href="index_8.html">Newer Posts</a></div>
+          
         </div>
       </nav>
     </div>
     <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>
 </html>
+

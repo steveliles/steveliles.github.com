@@ -1,0 +1,431 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="android" itemprop="keywords"></meta>
+      <meta name="keywords" content="ADT" itemprop="keywords"></meta>
+      <meta name="keywords" content="maven" itemprop="keywords"></meta>
+      <meta name="keywords" content="team" itemprop="keywords"></meta>
+      <meta name="keywords" content="subversion" itemprop="keywords"></meta>
+      <meta name="keywords" content="release" itemprop="keywords"></meta>
+    <meta name="description" content="A description of my initial set up of Android projects with Maven & SVN for distributed team development"></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Setting up Maven, Android and SVN for team development of multiple applications</title>
+  </head>
+  <body>
+    <div>
+      <header class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </header>
+      <nav>
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </nav>
+      <div class="content">
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,776" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-09">January 09, 2012</time></span>
+              <a itemprop="url" href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html"><h1 itemprop="name" itemprop="headline">Setting up Maven, Android and SVN for team development of multiple applications</h1></a>
+	      <span itemprop="articleBody"><p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects - and worse still if the development team is distributed.</p>
+
+<p>The important things I think you want to enable in a team environment are:</p>
+
+<ol>
+<li>That the whole team can "get" the latest code quickly and easily</li>
+<li>That the whole team can contributes updates to the codebase quickly and easily</li>
+<li>That any new team member coming on-board can build <em>immediately</em> from check-out (given a short list of pre-requisites)</li>
+<li>That any team member can build a signed apk for release to the market</li>
+<li>New projects can be created quickly and easily with minimum of re-work <em>and</em> copy-paste in configuration</li>
+</ol>
+
+<p>Here's how I've set things up to support these goals...</p>
+
+<h3>Pre-requisites</h3>
+
+<p>I am assuming that:</p>
+
+<ul>
+<li>You use some form of source-code control (Subversion/GIT/other...). Of course you do :)</li>
+<li>All developers will install Eclipse and ADT for themselves as a pre-requisite.</li>
+<li>If, as a team, you use Maven and/or Continuous integration, all developers will also install m2eclipse and m2e-android eclipse plugins and Maven 3 (see <a href="android-maven-eclipse.html">previous article</a>).</li>
+<li>You have some common practices in your team like, for example, checking out all projects as siblings in a single workspace directory (otherwise you'll have problems with sharing relative paths to referenced projects between developers).</li>
+</ul>
+
+<h3>Our set up</h3>
+
+<p>I've set up projects in the workspace such that all of the following are siblings in a single workspace directory:</p>
+
+<ul>
+<li>A parent project that hosts most of the maven-android config as a parent pom.</li>
+<li>A project that hosts the keystore, and is checked in to source-code control (I actually use the same project for both the parent pom and keystore).</li>
+<li>A (Android Library) project that contains a copy of the market licensing code (Google recommend keeping a separate copy outside of the SDK install directory). Ours is checked in to SVN for convenient sharing.</li>
+<li>Multiple Android library (apklib) projects for our own code that is shared between multiple apps (apk's).</li>
+<li>Multiple Android (apk) projects</li>
+</ul>
+
+<p>Since most of the maven configuration is provided by the parent pom, each new project requires only minimal configuration. The parent pom for our android projects currently looks like this:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xsi:schemaLocation="
+    http://maven.apache.org/POM/4.0.0 
+    http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+  &lt;artifactId&gt;android&lt;/artifactId&gt;
+  &lt;version&gt;1.0&lt;/version&gt;
+  &lt;packaging&gt;pom&lt;/packaging&gt;
+  &lt;build&gt;
+    &lt;sourceDirectory&gt;src/java/main&lt;/sourceDirectory&gt;
+    &lt;pluginManagement&gt;
+      &lt;plugins&gt;
+        &lt;!--This plugin's configuration is used to store 
+                Eclipse m2e settings only. It has no influence 
+                on the Maven build itself.--&gt;
+        &lt;plugin&gt;
+          &lt;groupId&gt;org.eclipse.m2e&lt;/groupId&gt;
+          &lt;artifactId&gt;lifecycle-mapping&lt;/artifactId&gt;
+          &lt;version&gt;1.0.0&lt;/version&gt;
+          &lt;configuration&gt;
+            &lt;lifecycleMappingMetadata&gt;
+              &lt;pluginExecutions&gt;
+                &lt;pluginExecution&gt;
+                  &lt;pluginExecutionFilter&gt;
+                &lt;groupId&gt;
+                  com.jayway.maven.plugins.android.generation2
+            &lt;/groupId&gt;
+                    &lt;artifactId&gt;android-maven-plugin&lt;/artifactId&gt;
+                    &lt;versionRange&gt;[3.0.0,)&lt;/versionRange&gt;
+                &lt;goals&gt;
+                  &lt;goal&gt;proguard&lt;/goal&gt;
+                &lt;/goals&gt;
+              &lt;/pluginExecutionFilter&gt;
+              &lt;action&gt;
+                &lt;ignore&gt;&lt;/ignore&gt;
+              &lt;/action&gt;
+                &lt;/pluginExecution&gt;
+              &lt;/pluginExecutions&gt;
+            &lt;/lifecycleMappingMetadata&gt;
+          &lt;/configuration&gt;
+        &lt;/plugin&gt;
+      &lt;/plugins&gt;
+    &lt;/pluginManagement&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;com.jayway.maven.plugins.android.generation2&lt;/groupId&gt;
+        &lt;artifactId&gt;android-maven-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.0.0&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;androidManifestFile&gt;
+            ${project.basedir}/AndroidManifest.xml
+              &lt;/androidManifestFile&gt;
+          &lt;assetsDirectory&gt;${project.basedir}/assets&lt;/assetsDirectory&gt;
+          &lt;resourceDirectory&gt;${project.basedir}/res&lt;/resourceDirectory&gt;
+          &lt;nativeLibrariesDirectory&gt;
+            ${project.basedir}/src/main/native
+          &lt;/nativeLibrariesDirectory&gt;
+          &lt;sdk&gt;
+            &lt;platform&gt;14&lt;/platform&gt;
+          &lt;/sdk&gt;
+          &lt;proguard&gt;
+            &lt;skip&gt;false&lt;/skip&gt;
+          &lt;/proguard&gt;
+          &lt;sign&gt;
+            &lt;debug&gt;false&lt;/debug&gt;
+          &lt;/sign&gt;
+          &lt;deleteConflictingFiles&gt;true&lt;/deleteConflictingFiles&gt;
+          &lt;undeployBeforeDeploy&gt;true&lt;/undeployBeforeDeploy&gt;
+        &lt;/configuration&gt;
+        &lt;extensions&gt;true&lt;/extensions&gt;
+      &lt;/plugin&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-jarsigner-plugin&lt;/artifactId&gt;
+        &lt;version&gt;1.2&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;id&gt;signing&lt;/id&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;sign&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;inherited&gt;true&lt;/inherited&gt;
+            &lt;configuration&gt;
+              &lt;archiveDirectory&gt;&lt;/archiveDirectory&gt;
+              &lt;includes&gt;
+                &lt;include&gt;target/*.apk&lt;/include&gt;
+              &lt;/includes&gt;
+              &lt;keystore&gt;../android/keystore&lt;/keystore&gt;
+              &lt;storepass&gt;keystore-password-goes-here&lt;/storepass&gt;
+              &lt;keypass&gt;key-password-goes-here&lt;/keypass&gt;
+              &lt;alias&gt;key-alias-goes-here&lt;/alias&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+      &lt;plugin&gt;
+        &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+        &lt;version&gt;2.3.2&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;source&gt;1.6&lt;/source&gt;
+          &lt;target&gt;1.6&lt;/target&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+
+<p>An example of a pom from a library (apklib) project looks like this:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xsi:schemaLocation="
+    http://maven.apache.org/POM/4.0.0 
+    http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;parent&gt;
+    &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+    &lt;artifactId&gt;android&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+  &lt;/parent&gt;
+  &lt;artifactId&gt;android.util&lt;/artifactId&gt;
+  &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;name&gt;Android Utils&lt;/name&gt;
+  &lt;packaging&gt;apklib&lt;/packaging&gt;
+  &lt;description&gt;&lt;/description&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.google.android&lt;/groupId&gt;
+      &lt;artifactId&gt;android&lt;/artifactId&gt;
+      &lt;version&gt;2.2.1&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+        &lt;!-- made available to android by 
+             "maven android sdk deployer" --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;android.support&lt;/groupId&gt;
+      &lt;artifactId&gt;compatibility-v13&lt;/artifactId&gt;
+      &lt;version&gt;r6&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-core&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-commonshttp4&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.twitter4j&lt;/groupId&gt;
+      &lt;artifactId&gt;twitter4j-core&lt;/artifactId&gt;
+      &lt;version&gt;2.1.0&lt;/version&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+  &lt;scm&gt;
+    &lt;connection&gt;scm:svn:svn://repo/project/trunk&lt;/connection&gt;
+    &lt;developerConnection&gt;
+      scm:svn:svn://repo/project/trunk
+    &lt;/developerConnection&gt;
+  &lt;/scm&gt;
+&lt;/project&gt;
+</code></pre>
+
+<p>An example pom for an app (apk) project looks like this:</p>
+
+<pre><code>&lt;project xsi:schemaLocation="
+  http://maven.apache.org/POM/4.0.0 
+  http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;parent&gt;
+    &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+    &lt;artifactId&gt;android&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+  &lt;/parent&gt;
+  &lt;artifactId&gt;android.ui&lt;/artifactId&gt;
+  &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;packaging&gt;apk&lt;/packaging&gt;
+  &lt;description&gt;&lt;/description&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+      &lt;artifactId&gt;domain&lt;/artifactId&gt;
+      &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+      &lt;type&gt;jar&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+      &lt;artifactId&gt;android.util&lt;/artifactId&gt;
+      &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+      &lt;type&gt;apklib&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;!-- this project contains a copy of 
+             the sdk licensing code --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+      &lt;artifactId&gt;android.licensing&lt;/artifactId&gt;
+      &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+      &lt;type&gt;apklib&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.google.android&lt;/groupId&gt;
+      &lt;artifactId&gt;android&lt;/artifactId&gt;
+      &lt;version&gt;2.2.1&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+        &lt;!-- made available to android 
+             by "maven android sdk deployer" --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;android.support&lt;/groupId&gt;
+      &lt;artifactId&gt;compatibility-v13&lt;/artifactId&gt;
+      &lt;version&gt;r6&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-core&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-commonshttp4&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.twitter4j&lt;/groupId&gt;
+      &lt;artifactId&gt;twitter4j-core&lt;/artifactId&gt;
+      &lt;version&gt;2.1.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;!-- prevent commons-logging from being included by 
+         the Google HTTP client dependencies, which creates 
+         a truck load of warnings and eventually kills eclipse --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;commons-logging&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-logging&lt;/artifactId&gt;
+        &lt;version&gt;1.1.1&lt;/version&gt;
+        &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+  &lt;scm&gt;
+    &lt;connection&gt;scm:svn:svn://repo/project/trunk&lt;/connection&gt;
+    &lt;developerConnection&gt;
+      scm:svn:svn://repo/project/trunk
+    &lt;/developerConnection&gt;
+  &lt;/scm&gt;
+&lt;/project&gt;
+</code></pre>
+
+<h3>building a release</h3>
+
+<p>Building a release, including running proguard to optimise and obfuscate the apk, and signing the apk from the shared keystore is now available from the maven cmdline with (as you'd expect):</p>
+
+<pre><code>mvn clean package
+</code></pre>
+
+<p>Its still early days for us, so I'm sure there are still wrinkles to iron out, but so far it seems to be working pretty well.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ADT">ADT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=team">team</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=release">release</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </article>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Converting Eclipse ADT Android projects to build with Maven</a><span class="date"> - Jan 04, 2012</span></li>
+                <li><a href="android_source_code_available.html">Android Source Code available!</a><span class="date"> - Dec 20, 2011</span></li>
+                <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
+                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <nav>
+        <div class="links">
+          
+          <div class="next"><a title="next" href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Converting Eclipse ADT Andr...</a></div>
+        </div>
+      </nav>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

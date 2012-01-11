@@ -35,6 +35,368 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="445" description="A short profile on Steve Liles">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-09-11">September 11, 2011</time></span>
+              <a itemprop="url" href="about_me.html"><h1 itemprop="name" itemprop="headline">About Me</h1></a>
+	      <span itemprop="articleBody"><p>I didn't intend to have an about me page, but it turns out that to get google to display my mugshot next to search listings I have to have one. So here it is.</p>
+
+<table>
+<tr>
+<td>
+  <img src="images/viking.png">
+</td>
+<td>
+  <img src="images/arrow-left.png">
+</td>
+<td>
+  <p>This is me, the grinning idiot in the viking hat. Sadly I no longer have the hat.</p>
+  <p>If you're interested, I took an (old) picture and vectorised it using <a href="http://vectormagic.com/">Vector Magic</a>, which allows online vectorising of a couple of images for free (thanks VectorMagic!)</p>
+</td>
+</tr>
+</table>
+
+<p>I graduated from Reading University with a BSc hons. degree in Computer Science and <a href="http://www.reading.ac.uk/cybernetics/">Cybernetics</a>, and immediately started work as a programmer at <a href="http://www.baesystems.com/">British Aerospace</a>, where I stayed for about a year and a half.</p>
+
+<p>Next I moved on to work at a much smaller and more exciting company - <a href="http://www.knowledgeview.com">KnowledgeView</a> - where I have spent the last 11 years (oh me, oh my) developing a variety of web-based Editorial, Publishing and Syndication systems for news publishers - many based in the Middle-East and working and publishing in Arabic. We also build native and web apps for iPhone, iPad and Android devices to complement our publishing systems. </p>
+
+<p>My current title is "Development Manager", though I think the job description would be better represented by the title "Chief Engineer". (A peculiar quirk of being a programmer is that you become a <a href="http://rcm-uk.amazon.co.uk/e/cm?lt1=_blank&amp;bc1=000000&amp;IS2=1&amp;bg1=FFFFFF&amp;fc1=000000&amp;lc1=0000FF&amp;t=stlibl-21&amp;o=2&amp;p=8&amp;l=as4&amp;m=amazon&amp;f=ifr&amp;ref=ss_til&amp;asins=B005LI3W9W]">pedant for nomenclature</a>). </p>
+
+<p>I still code every day, for as many hours as I can. My "management style", if I have such a thing, is to lead by example. I care a lot about writing good code, using good tools, and leaving things in a better state than I found them. I try hard to <a href="what_makes_a_good_developer.html">enthuse my team</a> to the same ideals.</p>
+
+<p>KnowledgeView is still small, though we have a growing team in Beirut. It's also occasionally quite exciting, otherwise I wouldn't still be there. Over the years we've had many high-profile customers, including:</p>
+
+<ul>
+<li><a href="http://www.newsint.co.uk/">News International</a></li>
+<li><a href="http://www.cnnarabic.com">CNN arabic</a></li>
+<li><a href="http://www.inmplc.com/">Independent News and Media</a></li>
+<li><a href="http://www.srmg.com/en">Saudi Research and Media Group</a></li>
+<li><a href="http://www.daralhayat.com/">Al-Hayat Newspaper</a></li>
+<li><a href="http://www.alquds.co.uk/">Al-Quds</a></li>
+<li>... and many more besides</li>
+</ul>
+
+<p>When I'm not at work I divide my time between growing veg on my allotment (conveniently just outside my garden gate) and working on my personal programming projects. </p>
+
+<p>I believe that programming is the most fun a person can have on their own, and I often wonder if non-programmers know what they are missing out on. I sometimes find time to <a href="some_old_sketches.html">draw</a>, and wish I could find <a href="more_old_sketches.html">more</a>.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=steve liles">steve liles</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="about_me.html">Comment on this post</a>
+
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,904" description="Description and code for an Android desktop widget and backing Service for displaying tweets">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-09-08">September 08, 2011</time></span>
+              <a itemprop="url" href="my_first_android_app_desktop_widget.html"><h1 itemprop="name" itemprop="headline">My first Android app (desktop widget)</h1></a>
+	      <span itemprop="articleBody"><p>Having spent quite a bit of time away from Eclipse lately I've been itching to play with some code again. During a short meeting this morning an idea hit me for a really simple Android desktop widget: a twitter search widget that you can drop on your desktop and configure with a hash-tag search.</p>
+
+<p>Here's how it looks in the Android emulator:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-vquQDRX3D2Y/TmjCGIscAiI/AAAAAAAAHlw/g0nU2gdPnug/s815/tweet-widget.png" alt="Screenshot" /></p>
+
+<p>I know, not exactly eye-candy, but that wasn't really the point :)</p>
+
+<h3>The important pieces of the puzzle are:</h3>
+
+<ul>
+<li>A BroadcastReceiver that receives events telling the widget to update. Here I extended AppWidgetProvider to override onUpdate only.</li>
+<li>A Service that does the Twitter API request asynchronously - we don't want to use the UI thread and fail the responsiveness criteria</li>
+<li>The "widget info" descriptor xml</li>
+<li>Android manifest entries that register the Service and the broadcast receiver</li>
+<li>SAX ContentHandler implementation to parse the Tweet text from the atom response to the Twitter API request</li>
+</ul>
+
+<p>Here's the code, currently wired to display a search for "#uml"</p>
+
+<h4>The BroadcastReceiver</h4>
+
+<pre><code>public class NewsTicker extends AppWidgetProvider {
+    @Override
+    public void onUpdate(Context aContext, 
+        AppWidgetManager aAppWidgetManager, 
+        int[] aAppWidgetIds) {
+        super.onUpdate(aContext, aAppWidgetManager, aAppWidgetIds);
+        aContext.startService(
+            new Intent(aContext, NewsTickerDataService.class));
+    }
+}
+</code></pre>
+
+<h4>The Service</h4>
+
+<pre><code>public class NewsTickerDataService extends Service {
+
+    @Override
+    public void onStart(Intent aIntent, int aStartId) {
+        super.onStart(aIntent, aStartId);   
+        RemoteViews _views = buildUpdatedViews(this);   
+        ComponentName _widget = 
+            new ComponentName(this, NewsTicker.class);
+        AppWidgetManager _manager = 
+            AppWidgetManager.getInstance(this); 
+        _manager.updateAppWidget(_widget, _views);
+    }
+
+    @Override
+    public IBinder onBind(Intent aParamIntent) {
+        // not supporting binding   
+        return null;
+    }
+
+    private RemoteViews buildUpdatedViews(Context aContext) {
+        List&amp;lt;Story&gt; _stories = getStories();
+        RemoteViews _result = new RemoteViews(
+            aContext.getPackageName(), 
+            R.layout.newsticker_widget
+        );
+
+        if (_stories.isEmpty()) {
+            _result.setTextViewText(R.id.title, 
+                "Sadly there's nothing to read today.");
+        } else {
+            _result.setTextViewText(
+                R.id.title, _stories.get(0).getTitle());
+        }
+        return _result;
+    }
+
+    private List&amp;lt;Story&gt; getStories() {
+        try {
+            URL _url = new URL("http://search.twitter.com" +
+                "/search.atom?q=%23uml&amp;" + 
+                "result_type=mixed&amp;count=5"
+            );
+            InputStream _in = _url.openStream();
+            return parse(new InputSource(_in));
+        } catch (Exception anExc) {
+            Log.e("NewsTicker", anExc.getMessage(), anExc);
+            return new ArrayList&amp;lt;Story&gt;();
+        }
+    }
+
+    private List&amp;lt;Story&gt; parse(InputSource aSource)
+    throws Exception {
+        SAXParserFactory _f = SAXParserFactory.newInstance();
+        SAXParser _p = _f.newSAXParser();
+        XMLReader _r = _p.getXMLReader();
+
+        AbstractParser _h = new AtomParser();
+        _r.setContentHandler(_h);   
+        _r.parse(aSource);
+
+        return _h.getStories();
+    }
+}
+</code></pre>
+
+<h4>The SAX ContentHandler</h4>
+
+<pre><code>public abstract class AbstractParser extends DefaultHandler {
+
+    static interface Handler {
+        Handler startElement(String aName);
+        Handler characters(char[] aChars, int aStart, int aLength);
+        Handler endElement(String aName);
+    }
+
+    public static AbstractParser newAtomParser() {
+        return new AbstractParser() {
+            protected String getStoryElementName() {
+                return "entry";
+            }
+        };
+    }
+
+    private Handler handler;
+    private List&amp;lt;Story&gt; stories;
+
+    public AbstractParser() {
+        stories = new ArrayList&amp;lt;Story&gt;();
+        handler = newDefaultHandler();
+    }
+
+    protected abstract String getStoryElementName();
+
+    @Override
+    public void startElement(
+        String aUri, String aLocalName, 
+        String aQName, Attributes aAttributes) 
+    throws SAXException {
+        handler = handler.startElement(aLocalName);
+    }
+
+    @Override
+    public void characters(char[] aCh, int aStart, int aLength) 
+    throws SAXException {
+        handler = handler.characters(aCh, aStart, aLength);
+    }
+
+    @Override
+    public void endElement(String aUri, String aLocalName, String aQName) 
+    throws SAXException {
+        handler = handler.endElement(aLocalName);
+    }
+
+    public List&amp;lt;Story&gt; getStories() {
+        return stories;
+    }
+
+    private Handler newDefaultHandler() {
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if (aName.equals(getStoryElementName())) {
+                    return newItemHandler(this);
+                }
+                return this;
+            }
+
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                return this;
+            }
+        };
+    }
+
+    private Handler newItemHandler(final Handler aParent) {
+        stories.add(new StoryImpl());
+
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                if ("title".equals(aName)) {
+                    return newTitleHandler(this);
+                }
+                return this;
+            }
+
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                if (getStoryElementName().equals(aName)) {
+                    return aParent;
+                }
+                return this;
+            }
+        };
+    }
+
+    private Handler newTitleHandler(final Handler aParent) {
+        final StringBuilder _title = new StringBuilder();
+
+        return new Handler() {
+            @Override
+            public Handler startElement(String aName) {
+                return this;
+            }
+
+            @Override
+            public Handler characters(
+                char[] aChars, int aStart, int aLength) {
+                _title.append(aChars, aStart, aLength);
+                return this;
+            }
+
+            @Override
+            public Handler endElement(String aName) {
+                if ("title".equals(aName)) {
+                    StoryImpl _s = (StoryImpl) 
+                    stories.get(stories.size()-1);
+                    _s.setTitle(_title.toString());
+                    return aParent;
+                }
+                return this;
+            }
+        };
+    }
+}
+</code></pre>
+
+<h4>The Android Manifest</h4>
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.knowledgeview.android.ticker"
+    android:versionCode="1"
+    android:versionName="1.0"&gt;
+  &lt;uses-sdk android:minSdkVersion="7" /&gt;
+  &lt;uses-permission android:name="android.permission.INTERNET" /&gt;
+  &lt;application 
+        android:icon="@drawable/icon" 
+        android:label="@string/app_name"&gt;
+    &lt;receiver android:name=".NewsTicker"&gt;
+      &lt;intent-filter&gt;
+    &lt;action 
+          android:name="android.appwidget.action.APPWIDGET_UPDATE"/&gt;
+      &lt;/intent-filter&gt;
+      &lt;meta-data 
+            android:name="android.appwidget.provider"
+    android:resource="@xml/newsticker_widget_info"/&gt;
+    &lt;/receiver&gt;
+    &lt;service android:name=".NewsTickerDataService"/&gt;
+  &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre>
+
+<h4>The Widget descriptor</h4>
+
+<pre><code>&lt;appwidget-provider 
+      xmlns:android="http://schemas.android.com/apk/res/android"
+  android:minWidth="294dp"
+  android:minHeight="72dp"
+  android:updatePeriodMillis="86400000"
+  android:initialLayout="@layout/newsticker_widget"&gt;
+&lt;/appwidget-provider&gt;
+</code></pre>
+
+<h4>The layout descriptor</h4>
+
+<pre><code>&lt;LinearLayout 
+      android:id="@+id/linearLayout1" 
+      android:layout_width="fill_parent" 
+      android:layout_height="fill_parent" 
+      xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+  &lt;TextView
+    android:textAppearance="?android:attr/textAppearanceSmall"
+    android:id="@+id/title"
+    android:text="TextView"
+    android:textSize="10sp"
+    android:textColor="#fff"
+    android:layout_height="60dp"
+    android:layout_width="fill_parent"
+    android:background="#c333"
+    android:padding="3dp"
+    android:layout_margin="5dp"&gt;
+  &lt;/TextView&gt;
+&lt;/LinearLayout&gt;
+</code></pre>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Desktop Widget">Desktop Widget</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Twitter">Twitter</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="my_first_android_app_desktop_widget.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="198" description="Binding Java processes - and thus threads - to a single CPU">
               <span class="meta" itemprop="datePublished"><time datetime="2011-07-19">July 19, 2011</time></span>
               <a itemprop="url" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html"><h1 itemprop="name" itemprop="headline">Replicating Java threading issues between machines with different cpu counts</h1></a>
@@ -268,220 +630,6 @@ jMock takes a little getting used to, as it involves quite a different way of th
 	        <a href="unit_testing_code_written_in_tell_don_t_ask_style.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="536" description="A quick overview of pro's and con's of ElasticSearch vs SOLRCloud from some brief initial research into both">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-24">February 24, 2011</time></span>
-              <a itemprop="url" href="elasticsearch_vs_solrcloud.html"><h1 itemprop="name" itemprop="headline">ElasticSearch vs SOLRCloud</h1></a>
-	      <span itemprop="articleBody"><p>For an upcoming work project I need a scalable search platform - scalable to tens or hundreds of millions of documents (news articles), and millions of queries per day. We're a (mostly) Java shop, and have a lot of experience with Lucene, so two solutions that pique my curiosity are SOLRCloud (SOLR + ZooKeeper) and ElasticSearch.</p>
-
-<h3>Initial Impressions - ElasticSearch</h3>
-
-<p>ElasticSearch is impressive. Its clean, simple, and elegant. For those who are familiar with Compass, ElasticSearch can be considered as Compass 3.0 (quoting Shay Bannon, author of Compass). ElasticSearch has been under development for about 9 months at time of writing, and is currently at version 0.15. It appears to be very actively developed, with new features and fixes flowing steadily. </p>
-
-<p>My main worry at this point is that there appears to be only one "resource" active on the project - Shay Bannon (@kimchy) himself, who seems to be architect, developer, documentation-writer, and a prolific commenter on forums.</p>
-
-<h4>Noteworthy features include:</h4>
-
-<ul>
-<li>Document-oriented / Schema-free (JSON documents)</li>
-<li>Store, retrieve, index and search multiple versions of documents</li>
-<li>Self-hosting RESTful web-service api</li>
-<li>Exposes the full power of lucene queries</li>
-<li>Multiple Indexes in one cluster (described as Multi-Tenancy)</li>
-<li>Built from the ground-up with scalability and distributed-operation in mind - supporting distributed search, automatic fail-over and re-balancing, with no single point of failure</li>
-<li>Support for async write/backup to shared storage (Gateway, in ElasticSearch parlance)</li>
-<li>"Percolator" (aka. prospective search)</li>
-</ul>
-
-<h3>Initial Impressions - SOLRCloud</h3>
-
-<p>SOLR is a project from the same (Apache) stable as Lucene itself, and the projects have recently merged to some degree. SOLRCloud is an extension that integrates ZooKeeper with SOLR with the express aim of "enabling and simplifying the creation and use of Solr clusters."</p>
-
-<p>SOLRCloud is described as "still under development", ie., not yet a GA release. </p>
-
-<h4>Currently proclaimed features include:</h4>
-
-<ul>
-<li>Central configuration of the entire cluster</li>
-<li>Automatic load-balancing and fail-over for queries</li>
-<li>ZooKeeper integration for cluster coordination and configuration (not sure I would have listed that as a feature personally!)</li>
-<li>I'll add that SOLRCloud is part of the SOLR code-base, and is being developed by core Lucene and SOLR committers including Mark Miller and Yonik Seeley. This can only be a good thing :). On top of all that, SOLR has been around for a good long time now, so it is battle-tested and there's lots of information available (including numerous books).</li>
-</ul>
-
-<p>That said, I still have two big worries about SOLRCloud:
-* Setup/deployment just sounds fiddly - it is recommended not to deploy zookeeper embedded with SOLR (though I cannot find any explanation to back up that recommendation), which means you need both a ZooKeeper ensemble - multiple ZooKeeper instances - and a SOLRCloud ... er ... cloud.
-* No GA release as yet, and no roadmap that I can find (this is the closest I got).</p>
-
-<h3>Next Steps</h3>
-
-<p>My next steps are to dive in to both technologies and really get to see which best suits our needs, and really how difficult these things are likely to be to manage in a medium/large-scale deployment.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ElasticSearch">ElasticSearch</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOLRCloud">SOLRCloud</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Lucene">Lucene</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Search">Search</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Scalability">Scalability</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="elasticsearch_vs_solrcloud.html">Comment on this post</a>
-
-            </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,532" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 3">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-15">February 15, 2011</time></span>
-              <a itemprop="url" href="progressive_enhancement_with_gwt_part_3.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 3</h1></a>
-	      <span itemprop="articleBody"><p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
-
-<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
-
-<p>In my previous posts I described an idea for progressive enhancement using GWT -  "activating" server-generated html, to combine GWT goodness with an SEO friendly server-generated website, and my findings after some initial trials. </p>
-
-<p>One of the problems I described in that second post was that it would be very difficult to work with these widgets if nested widgets could not be automatically (or at least easily) bound to fields within this widget.</p>
-
-<p>After a little playing around and learning about GWT Generators I now have what seems like a nice solution, using a Generator to do almost all of the donkey work. Think of it like UiBinder, but with the templates provided at runtime (courtesy of the server). Here's an example class that automatically binds sub-widgets - an Image in this case - to a field of that class:</p>
-
-<pre><code>public class MyWidget extends Widget {
-
-    interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}
-    private static MyActivator activator = GWT.create(MyActivator.class);
-
-    @RuntimeUiField(tag="img", cssClass="small") Image small;
-
-    public MyWidget(Element anElement) {
-        // this will set our element and bind our image field.
-        setElement(activator.activate(this, anElement));
-
-        // now we can play with our fields.
-        small.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent aEvent) {
-                Window.alert("clicked!");
-            }
-        });
-    }
-}
-</code></pre>
-
-<p>This class will bind onto any html that has an image tag somewhere in its inner-html, for example:</p>
-
-<pre><code>&lt;div&gt; &lt;!-- Say our MyWidget is bound here --&gt;
-  &lt;div&gt;
-    &lt;span&gt;
-          &lt;!-- will be bound to our Image widget --&gt;
-      &lt;img class="small" src="/images/image.jpg"&gt;
-    &lt;/span&gt;
-  &lt;/div&gt;
-&lt;/div&gt;
-</code></pre>
-
-<p>Anyone familiar with UiBinder will recognize the pattern I've used for the "activator":</p>
-
-<ul>
-<li>Extend an interface with no methods
-<code>interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}</code></li>
-<li>GWT.create() an instance of that interface
-<code>private static MyActivator activator = GWT.create(MyActivator.class);</code></li>
-<li>Then use it to initialize your widget
-<code>setElement(activator.activate(this, anElement));</code></li>
-</ul>
-
-<p>The nice thing about this is we can automatically bind as many widgets as we like onto various sites within the inner-html of our current widget's element. It doesn't mess with the structure (unless you explicitly do so after the binding is done for you), and you can have as much other html within the elements as you like - it will just be left alone, which gives your designers the flexibility to change the layout quite a lot without necessarily needing to re-compile your GWT code. </p>
-
-<p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
-
-<pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
-// search of child elements
-@RuntimeUiField(tag="div") Label label;
-
-// bind to first element with class="my-widget" 
-// found by breadth-first search
-@RuntimeUiField(cssClass="my-widget") Label label;
-
-// bind to first &amp;lt;div&gt; with class="my-widget" 
-// found by breadth-first search
-@RuntimeUiField(tag="div", cssClass="my-widget") Label label;
-</code></pre>
-
-<p>Notice in my examples so far I'm binding standard GWT widgets onto the nested elements. This works for the elements I've used in these examples because they all have a <code>public static Type wrap(Element anElement)</code> method which allows those widgets to be bound onto elements that are already attached to the DOM.</p>
-
-<p>It is also possible to bind widgets of your own making in one of two ways:</p>
-
-<ol>
-<li>Create a wrap method like 
-<code>public static MyWidget wrap(Element anElement)</code></li>
-<li>Create a single-argument public Constructor that accepts an <code>Element</code> as its argument.</li>
-</ol>
-
-<p>Activate-able widgets can be nested within other such widgets - with no limits that I am aware of so far - and it is also possible to assign nested widgets to a List field in the enclosing widget, like this:</p>
-
-<pre><code>@RuntimeUiField(tag="img") List&lt;Image&gt; images;
-</code></pre>
-
-<p>This will search recursively for any <code>&lt;img&gt;</code> tags inside the enclosing widget's element and bind them all to Image widget's that will be added to the List. The current limitations here are that the List must be declared either as List or ArrayList, and parameterized with a concrete type that meets the criteria defined above (i.e. has a static <code>wrap(Element)</code> method, or a single-arg constructor that takes an <code>Element</code> as the argument).</p>
-
-<p>A remaining question is how to bind the outer-most Widget. Currently I'm doing that using the DOM scanning code I wrote during earlier experiments and which I'm also using in the automatic scanning process set up by the Generator. For example to find the outer-most widgets and kick off the binding process I have something like this in my EntryPoint:</p>
-
-<pre><code>public void onModuleLoad() {
-    List&lt;MyWidget&gt; _myWidgets = new ArrayList&lt;mywidget&gt;();
-    for (Element _e : Elements.getByCssClass("outer-most-widget")) {
-        new MyWidget(_e);
-    }
-    // do stuff with our widgets ...
-}
-</code></pre>
-
-<p>I think of this as very similar to the RootPanel situation - "normal" GWT apps kick off by getting a RootPanel(body tag) or RootPanel's (looked up by id), to which everything else is added. It would be nice to hide away some of that scanning code inside a "top-level" widget - much like RootPanel does for the normal case. I can imagine this might look something like:</p>
-
-<pre><code>public void onModuleLoad() {
-    Page _page = Page.activate();
-    _page.doStuffWithWidgets();
-    // ...
-}
-</code></pre>
-
-<p>I still have lots of things to figure out and questions to answer, for example:</p>
-
-<ul>
-<li>What's the performance like when binding many hundreds of widgets?</li>
-<li>How will this really work when I make ajax requests for more data? (should I make ajax requests for html snippets which I add to the DOM and then bind onto, or switch to json for ajax requests and make my widgets able to replicate themselves from an initial html template?)</li>
-<li>What's the best way to divide labour between developers and designers, and for them to organize their interaction? (Ideally I'd like there to be something of a cycle between them, where the designer can rough-out a page design, agree the componentisation with the developer, the developer knocks out some components and a build which the designer can use to activate their static designs, add fidelity, work on other pages with the same components, etc).</li>
-<li>Where is the sweet-spot between creating high-fidelity html server-side and decorating it client-side using GWT? Should the GWT components really be just for adding dynamism, or is it a good idea to use them to build additional html sweetness? - I mean the server could dish out html that is more of a model than a view (just enough "view" to satisfy SEO), and the GWT layer acts as a client-side controller and view (<a href="http://www.thinserverarchitecture.com/home">SOFEA/TSA</a> with a nod to SEO).</li>
-</ul>
-
-<p>I'll try to keep posting as I work things out.</p>
-
-<p>This probably belongs in a separate post, but with reference to that last point on TSA (Thin Server Architecture) - the working group list the following points to define the concept:</p>
-
-<blockquote>
-  <ol>
-  <li>Do not use server-side templating to create the web page.</li>
-  <li>Use a classical and simple client-server model, where the client runs in the browser.</li>
-  <li>Separate concerns using protocol between client and server and get a much more efficient and less costly development model.</li>
-  </ol>
-</blockquote>
-
-<p>I'm right behind them on (2) and (3), and also on (1) for "enterprise" apps where SEO is a non-goal. However, for an app that needs SEO, (1) is a deal-breaker, so I'd offer this alternative 1st rule instead:</p>
-
-<ol>
-<li>Use server-side templating to produce a model for the client to consume which minimally satisfies the needs of SEO.</li>
-</ol>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOFEA">SOFEA</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TSA">TSA</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=UiBinder">UiBinder</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="progressive_enhancement_with_gwt_part_3.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -499,11 +647,11 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Setting up Maven, Android and SVN for team development of multiple applications</a><span class="date"> - Jan 09, 2012</span></li>
+                <li><a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Converting Eclipse ADT Android projects to build with Maven</a><span class="date"> - Jan 04, 2012</span></li>
                 <li><a href="android_source_code_available.html">Android Source Code available!</a><span class="date"> - Dec 20, 2011</span></li>
                 <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
-                <li><a href="google_and_rel_author_not_a_level_playing_field.html">Google and rel=author - not a level playing field</a><span class="date"> - Dec 16, 2011</span></li>
-                <li><a href="another_google_chrome_css_bug.html">Another Google Chrome CSS bug</a><span class="date"> - Dec 14, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
