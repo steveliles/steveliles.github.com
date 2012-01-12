@@ -66,6 +66,16 @@
     </url>
 
     <url> 
+      <loc>http://steveliles.github.com/capture_screenshots_from_the_android_emulator_or_mobile_device.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
+    <url> 
+      <loc>http://steveliles.github.com/the_dreaded_unexpected_top_level_exception.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>

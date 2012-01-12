@@ -35,6 +35,114 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="500" description="How to make a perforated postage-stamp (or old-fashioned postcard) border using the Inkscape vector graphics tool.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-18">December 18, 2011</time></span>
+              <a itemprop="url" href="perforated_postage_stamp_border_with_inkscape.html"><h1 itemprop="name" itemprop="headline">Perforated postage-stamp border with Inkscape</h1></a>
+	      <span itemprop="articleBody"><p>This short tutorial explains how I created a curved-serrated border - such as you would find on a tear-off postage stamp - using the Inkscape vector graphics tool (v0.48.2). It is extremely easy to do, and shouldn't take more than 5 minutes.</p>
+
+<h3>Getting Inkscape</h3>
+
+<p>If you're running a debian based linux you can install Inkscape with:</p>
+
+<pre><code>sudo apt-get install inkscape
+</code></pre>
+
+<p>Ubuntu users can install it using the graphical Ubuntu software centre. Downloads for other OS's can be found <a href="http://inkscape.org/download/">here</a>.</p>
+
+<h3>Creating the perforated border</h3>
+
+<p>First draw a rectangle using the <code>"rectangles and squares (F4)"</code> tool. Make this reasonably large. </p>
+
+<p>Then select the <code>"circles, ellipses and arcs (F5)"</code> tool and draw a much smaller circle. Holding down the ctrl key while drawing the circle will lock the aspect ratio so that you don't end up with an ellipse.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-f7Ifgk1xqds/Tu4lanssEDI/AAAAAAAAH20/ZIkzqyhFnEM/s800/step-2.png" alt="Rectangle and circle" /></p>
+
+<p>Next, select both the circle and the rectangle by first selecting the circle then holding down the shift key and selecting the rectangle.</p>
+
+<p>Now from the <code>"Extensions"</code> menu, select <code>"Generate from path"</code> and in the sub-menu, select <code>"Pattern along path"</code>. The <code>"Pattern along Path"</code> dialog pops up. </p>
+
+<p><img src="https://lh6.googleusercontent.com/-Q-jYlXWOous/Tu4laEZHkvI/AAAAAAAAH28/Sz3ydQTqghQ/s800/pattern-along-path.png" alt="Pattern along path dialog" /></p>
+
+<p>Choose <code>"Repeated"</code> in the <code>"Copies of the pattern"</code> combo, in <code>"Deformation type"</code> choose <code>"Snake"</code>, and pick a number for <code>"Space between copies"</code> - this is the distance between each circle that will be cut out from the border of the rectangle, so good values depend on the size of your circle and subjective taste. Hit <code>"apply"</code>.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-ccgBpNnVZsY/Tu4laDpsFhI/AAAAAAAAH2s/qpmSfkjxo0M/s800/first-pattern-step.png" alt="Circles applied to the path" /></p>
+
+<p>Now we want to <em>remove</em> the path created by the circles around the border of the rectangle. To do that, first select the circles around the edge of the rectangle, then (holding down shift) select the rectangle itself and then choose <code>"Difference"</code> from the <code>"Path"</code> menu.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-XoboYeO1yHM/Tu4lZbdS9DI/AAAAAAAAH2k/ZqTIKj2oecQ/s800/difference.png" alt="Path difference effect" /></p>
+
+<p>Change the colour of your postage-stamp shape to black (fill and stroke), then select it and hit ctrl-c to copy it, then ctrl-v to paste a new copy. Re-select the original and choose <code>"Filters-&gt;Blurs-&gt;Evanescent"</code> - this creates a nice blurred shadow effect.</p>
+
+<p>Select the new copy and change it to an off-white colour (I went for #fbfad4ff), then move it so that it sits just a few pixels above and to the left of the original (blurred shadow) shape.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-Pgk_1jBRtT0/Tu4lZThH_iI/AAAAAAAAH2g/XeJE1jFDNZU/s800/postage-stamp-inkscape.png" alt="the finished postage stamp in inkscape" /></p>
+
+<p>That's it, all done! Now you can add whatever content you like to your stamp and then export as a bitmap image. Below you can see what mine looks like exported as a png. Notice that the corners aren't quite "right" - this is because I didn't spend any time trying to ensure that the rectangle side-lengths were appropriately divisible by the circle + the space between copies - something that's worth doing if you want to get your stamp to look "just right".</p>
+
+<p><img src="https://lh6.googleusercontent.com/-jWvZBSpzLmA/Tu4lZKrXkhI/AAAAAAAAH2c/qrRRQYx43DQ/s800/postage-stamp.png" alt="png postage stamp" /></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=inkscape">inkscape</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=perforated">perforated</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=border">border</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=vector">vector</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="perforated_postage_stamp_border_with_inkscape.html">Comment on this post</a>
+
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="227" description="Canonical currently package javahl 1.6 in the official repositories, making it difficult to run eclipse with subclipse 1.8 and subversion 1.7. Here's how I got it working.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
+              <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu</h1></a>
+	      <span itemprop="articleBody"><p>Getting subversion 1.7 integration working with Eclipse (3.7.1) and Subclipse 1.8 isn't all that straight-forward, because canonical currently support javahl 1.6 in their repositories. </p>
+
+<p>If you don't want to switch repo's your best bet is to go with Subclipse 1.6 and the 1.6 version of javahl (and subversion) from the official Canonical Ubuntu repositories.</p>
+
+<p>If you do want to go ahead with SVN 1.7, here's how I got it working by switching to repo's provided by dominik stadler:</p>
+
+<ol>
+<li>Add dominik's repository: <code>sudo apt-add-repository ppa:dominik-stadler/subversion-1.7</code></li>
+<li>Update apt: <code>sudo apt-get update</code></li>
+<li>Install libsvn-java: <code>sudo apt-get install libsvn-java</code></li>
+<li>Install subversion 1.7: <code>sudo apt-get install subversion</code></li>
+</ol>
+
+<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
+
+<p>You need to add <code>-Djava.library.path=/usr/lib/jni</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
+
+<pre><code>-startup
+plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
+--launcher.library
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
+-showsplash
+org.eclipse.platform
+--launcher.XXMaxPermSize
+256m
+--launcher.defaultAction
+openFile
+-vmargs
+-Djava.library.path=/usr/lib/jni
+-Xms40m
+-Xmx600m
+</code></pre>
+
+<p>If you use subclipse but never previously installed javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). Merry Christmas!</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javahl">javahl</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="646" description="After quite a bit of effort and a lot of frustration I'm beginning to think Google's approach to rel=author, microformats, and all that jazz is borderline evil, or at the very least flawed by favouring those who already have high page-rank.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
               <a itemprop="url" href="google_and_rel_author_not_a_level_playing_field.html"><h1 itemprop="name" itemprop="headline">Google and rel=author - not a level playing field</h1></a>
@@ -230,124 +338,6 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
 	        <a href="google_chrome_css_bug.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="513" description="Step-by-step run through of setting up an Amazon S3 bucket as a static web-site">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
-              <a itemprop="url" href="hosting_a_static_website_in_amazon_s3.html"><h1 itemprop="name" itemprop="headline">Hosting a static website in Amazon S3</h1></a>
-	      <span itemprop="articleBody"><p>Amazon Simple Storage Service - S3 - can be used to host a static web-site, but it isn't immediately obvious how to set this up. Here's how I did it (I'm using the standard AWS console for this):</p>
-
-<h4>Step-1: If you haven't already, sign up for Amazon S3</h4>
-
-<h4>Step-2: Log-in to the AWS console, and go to the S3 Tab</h4>
-
-<h4>Step-3: Create an S3 bucket:</h4>
-
-<p>It doesn't really matter what name you give your bucket unless you plan to <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">forward a domain name to your S3 hosted site</a> </p>
-
-<p><img src="https://lh6.googleusercontent.com/-ntmu1ROjx_k/TtEulvLq2qI/AAAAAAAAHy0/kAz8dljKeMU/s578/create-bucket.png" alt="Create a bucket" /></p>
-
-<h4>Step-4: Upload your static site to the bucket</h4>
-
-<p>Select your bucket in the "Buckets" pane, then right-click in the "Objects and Folders" pane and choose "upload". If you are uploading many folders you'll probably want to use the "enhanced" uploader applet.</p>
-
-<h4>Step-5: Set your bucket to be a website:</h4>
-
-<p>First, right-click on your bucket in the "Buckets" pane (far left) and choose "Properties".</p>
-
-<p><img src="https://lh6.googleusercontent.com/-5qHHItMStOU/TtEumMeQGeI/AAAAAAAAHzA/3HSscD7aFr0/s426/bucket-properties.png" alt="Open Bucket Properties" /></p>
-
-<p>The properties of your bucket will appear in the "Properties" pane at the bottom of the screen.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-4B_VhzIeRjw/TtEzQSqQdUI/AAAAAAAAHzY/EcMc-2ruk98/s600/bucket-properties-tabs.png" alt="Bucket Properties" /></p>
-
-<p>In the bucket propertes go to the "Website" tab. Make sure to:</p>
-
-<ol>
-<li>Check the "enabled" box</li>
-<li>Enter the name of an "index document" in the box (this will be page that should be loaded if someone visits the root of your bucket - websites typically us index.html).</li>
-<li>Note the "endpoint" url - this will be the url to your website.</li>
-</ol>
-
-<p><img src="https://lh4.googleusercontent.com/-poLROP8Apoc/TtE1Fn9kH2I/AAAAAAAAH0M/XQJ1XrGLoS8/s600/bucket-properties-website.png" alt="Bucket Properties Website Tab" /></p>
-
-<p>If you open the endpoint url in a separate tab in your browser now you will see permission denied errors, so lets fix that...</p>
-
-<h4>Step-6: Make your web-site accessable to viewers:</h4>
-
-<ol>
-<li>Still in the bucket "Properties" pane, open the "Permissions" tab and click "Edit Bucket Policy" - a window pops up.</li>
-<li>Paste in the code from the box below, replacing <code>mybucketname</code> with, well, your bucket name :)</li>
-<li>Click <code>save</code> and your done - go visit that end-point url which should now be hosting your static website :)</li>
-</ol>
-
-<p>Here's the permissions policy you need - don't forget to change <code>mybucketname</code>!</p>
-
-<pre><code>{
-    "Version": "2008-10-17",
-    "Statement": [{
-        "Sid": "PublicReadForGetBucketObjects",
-        "Effect": "Allow",
-        "Principal": {
-            "AWS": "*"
-        },
-        "Action": "s3:GetObject",
-        "Resource": "arn:aws:s3:::mybucketname/*"
-    }]
-}
-</code></pre>
-
-<p><img src="https://lh5.googleusercontent.com/-loUsJEs3JC4/TtEulGDjuEI/AAAAAAAAHyw/Q1QYKwZY5WQ/s600/bucket-policy-edit.png" alt="Edit Bucket Policy" /></p>
-
-<h4>Step-7: Registered a domain-name? Point it at your S3 hosted website...</h4>
-
-<p>See my other post on <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">how to forward a domain name to an S3 bucket</a>.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=static">static</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=website">website</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=amazon">amazon</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=S3">S3</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=hosting">hosting</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="hosting_a_static_website_in_amazon_s3.html">Comment on this post</a>
-
-            </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="227" description="Many pages that you might want to share don't have Google+ plus-one buttons. This bookmarklet makes it easy to +1 any page directly while browsing it.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
-              <a itemprop="url" href="plus_one_any_page_google_1_bookmarklet.html"><h1 itemprop="name" itemprop="headline">Plus-One any page - Google +1 Bookmarklet</h1></a>
-	      <span itemprop="articleBody"><p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it - share from anywhere!</p>
-
-<p>To install the bookmarklet just drag the <code>Google+1</code> link below to your browser bookmarks bar:</p>
-
-<div style="text-align:center;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';gpc.style.padding='50px';gpc.style.backgroundColor='#def';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a></div>
-
-<p>To use the bookmarklet at any time while browsing the web just click the link on your bookmarks bar and a +1 button will appear in the top-right corner of the page. Click the plus one button to share and comment just like you would on any other site that already has +1 buttons (feel free to test it out on this page!).</p>
-
-<p>I have tested this bookmarklet in Chrome 16.0.9 and Firefox 8.0. Please leave a comment if you have trouble with other browsers and I'll see what I can do.</p>
-
-<p>Internet Explorer 6 users might struggle - the bookmarklet code is longer than IE6 can cope with. May I suggest upgrading to one of the many much better browsers available, such as <a href="http://www.google.com/chrome">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>. </p>
-
-<p>Alternatively you can try this bookmarklet (disclaimer: I cannot test it - I don't have IE6) - drag the "Google+1" to your browser links bar:</p>
-
-<div style="text-align:center;margin:auto;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a>(IE6)</div>
-
-<p>Enjoy!</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=google+">google+</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=g+">g+</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=+1">+1</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=plusone">plusone</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=bookmarklet">bookmarklet</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="plus_one_any_page_google_1_bookmarklet.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -365,11 +355,11 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from the Android Emulator or Mobile Device</a><span class="date"> - Jan 12, 2012</span></li>
+                <li><a href="the_dreaded_unexpected_top_level_exception.html">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</a><span class="date"> - Jan 11, 2012</span></li>
                 <li><a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Setting up Maven, Android and SVN for team development of multiple applications</a><span class="date"> - Jan 09, 2012</span></li>
                 <li><a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Converting Eclipse ADT Android projects to build with Maven</a><span class="date"> - Jan 04, 2012</span></li>
                 <li><a href="android_source_code_available.html">Android Source Code available!</a><span class="date"> - Dec 20, 2011</span></li>
-                <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
-                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

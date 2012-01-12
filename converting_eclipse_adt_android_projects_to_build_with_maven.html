@@ -39,7 +39,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="859" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="879" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-04">January 04, 2012</time></span>
               <a itemprop="url" href="converting_eclipse_adt_android_projects_to_build_with_maven.html"><h1 itemprop="name" itemprop="headline">Converting Eclipse ADT Android projects to build with Maven</h1></a>
 	      <span itemprop="articleBody"><p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working.</p>
@@ -59,24 +59,21 @@
 
 <p>Next install the <a href="http://www.eclipse.org/m2e/download/">m2eclipse</a> plugin (you might want to check if you have it already - Indigo is supposed to come pre-supplied, but that probably depends on which Eclipse bundle you install. I usually go with Classic, and did not have m2eclipse. YMMV).</p>
 
-<p>Now update your android sdk:</p>
-
-<ul>
-<li>Using sdk manager, install all api levels you are interested in, including "google apis by google inc."</li>
-<li>note: be sure to accept the license agreement for each selected jar (the ? should change to a green tick for ALL).</li>
-<li>note: I find that the sdk manager either does not install all ticked packages in one go, or incorrectly reports the number of packages remaining to be installed - it "completes" but there are still pending installs (the "install N packages..." button re-enables with N > 0). I find it safest to restart SDK manager between each attempt so that it correctly shows what is installed.</li>
-</ul>
+<p>Now update your android sdk:
+* Using sdk manager, install all api levels you are interested in, including "google apis by google inc."
+* note: be sure to accept the license agreement for each selected jar (the ? should change to a green tick for ALL).
+* note: I find that the sdk manager either does not install all ticked packages in one go, or incorrectly reports the number of packages remaining to be installed - it "completes" but there are still pending installs (the "install N packages..." button re-enables with N > 0). I find it safest to restart SDK manager between each attempt so that it correctly shows what is installed.</p>
 
 <p>If you want to work with Android 3 you need to perform an additional step. Maven Central does not have the jars available, so you'll need to use <a href="https://github.com/mosabua/maven-android-sdk-deployer">sdk deployer</a> to push them into your repository.</p>
 
 <ul>
 <li>check out with git (git clone https://github.com/mosabua/maven-android-sdk-deployer.git)</li>
 <li>install android jars as required by running mvn from inside the sdk deployer project directory, example: <code>mvn install -P 1.6</code>, or install the whole lot with <code>mvn install</code></li>
-<li><p>if you have a shared / remote / central repository as we do, you will want to deploy the android jars there too. To do this you need to fill two fields in the android-sdk-deployer's pom.xml that the creator <a href="https://github.com/mosabua">Manfred Moser</a> helpfully separated out:</p>
+<li><p>if you have a shared / remote / central repository as we do, you will want to deploy the android jars there too. To do this you need to fill two fields in the android-sdk-deployer's pom.xml that the creator <a href="https://github.com/mosabua">Manfred Moser</a> helpfully separated out</p>
 
-<pre><code>&lt;repo.id&gt;my-repository&lt;/repo.id&gt;
-&lt;repo.url&gt;scp://my-repo-host/repository&lt;/repo.url&gt;
-</code></pre></li>
+<p><!-- The repository server for your android artifacts (e.g. Nexus instance in this example)-->
+    <repo.id>kv-repository</repo.id>
+    <repo.url>scp://maven.rapidpublish.info/home/maven/repository</repo.url></p></li>
 </ul>
 
 <p>OK, we're done with installing!</p>
@@ -105,9 +102,9 @@
 
 <p>Click the error and some details open up, including two quick fixes. Click the first quick fix ("discover new m2e connectors"). The following dialog pops up and after a short search, shows the m2e-android connector:</p>
 
-<p><img src="https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png" alt="dialog" /></p>
+<p>https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png</p>
 
-<p>Install the connector and the warnings <em>should</em> go away. Actually for me they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's ok, as I want the maven build to be the master anyway.</p>
+<p>install the connector and the warnings <em>should</em> go away. Actually for me they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's ok, as I want the maven build to be the master anyway.</p>
 
 <p>Congrats, you should now have a happy Eclipse project, and be able to build it using maven as expected.</p>
 
@@ -172,10 +169,10 @@
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from the Android Emulator or Mobile Device</a><span class="date"> - Jan 12, 2012</span></li>
+                <li><a href="the_dreaded_unexpected_top_level_exception.html">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</a><span class="date"> - Jan 11, 2012</span></li>
                 <li><a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Setting up Maven, Android and SVN for team development of multiple applications</a><span class="date"> - Jan 09, 2012</span></li>
                 <li><a href="android_source_code_available.html">Android Source Code available!</a><span class="date"> - Dec 20, 2011</span></li>
-                <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
-                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

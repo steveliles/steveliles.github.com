@@ -35,6 +35,74 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="194" description="Quick description of how to take screenshots of apps running in the Android Emulator">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-12">January 12, 2012</time></span>
+              <a itemprop="url" href="capture_screenshots_from_the_android_emulator_or_mobile_device.html"><h1 itemprop="name" itemprop="headline">Capture screenshots from the Android Emulator or Mobile Device</h1></a>
+	      <span itemprop="articleBody"><p>The first few times I needed screenshots of an Android app for the Android Market description I <code>alt-printscreen</code>'d the emulator then sliced the app screenshot out of the resulting image. This is a pain and - as it turns out - completely unnecessary. </p>
+
+<p>For capturing screenshots from physical devices there are (paid) apps in the store, but again, this is completely unnecessary if you are a developer and have set up the Android Development Tools.</p>
+
+<p>Why? Because a screenshot tool comes packaged as part of the android sdk!</p>
+
+<p>From Eclipse you can grab a screenshot by opening DDMS (<code>Window -&gt; Open Perspective -&gt; DDMS</code>), then in the <code>Device</code> pane, select the device you want to take a screenshot from (which can be the emulator or a "real" mobile device), then click the camera icon (top right in the following screenshot):</p>
+
+<p><img src="https://lh6.googleusercontent.com/-7d2j8LBcJ0I/Tw77Op8tmJI/AAAAAAAAIdk/D-ICPn9eVQw/s800/devices.png" alt="screenshot showing the take-screenshot icon in DDMS" /></p>
+
+<p>From the command-line I'm afraid you're pretty much <a href="http://code.google.com/p/android/issues/detail?id=13613">out of luck right now</a> unless you feel like a bit of hacking to create your own cmdline screenshot grabber by connecting to the same service that DDMS connects to.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=emulator">emulator</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=screenshot">screenshot</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ddms">ddms</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Comment on this post</a>
+
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="320" description="My experiences with attempting to get multiple nested library projects to play together with Eclipse, Android and Maven.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-11">January 11, 2012</time></span>
+              <a itemprop="url" href="the_dreaded_unexpected_top_level_exception.html"><h1 itemprop="name" itemprop="headline">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</h1></a>
+	      <span itemprop="articleBody"><p>I'm working on extracting library projects to factor out common code shared between multiple projects. With everything compiling successfully I attempted to run my apk project in an emulator, and got hit with the following:</p>
+
+<pre><code>UNEXPECTED TOP-LEVEL EXCEPTION:
+java.lang.IllegalArgumentException: 
+  already added: 
+    Lcom/android/vending/licensing/Manifest$permission;
+</code></pre>
+
+<p>Now it seems there's been a lot of problems with this recently due to changes in ADT, but the added complexity of Maven in my setup throws a few more spanners into the machinery. Robert Schmid describes a project hierarchy very similar to mine <a href="http://robert-schmid.blogspot.com/2011/12/how-i-got-eclipse-to-play-nice-with.html">here</a>, and actually gave me the final clue I needed to unravel the mess.</p>
+
+<p>The difference between my situation and Robert's is that I'm using Maven for release builds and continuous integration - and so far its proving to be ... tricky ... to get the combination of Eclipse, Maven and ADT to play well together.</p>
+
+<p>I got the dreaded UNEXPECTED TOP-LEVEL EXCEPTION because somewhere in the build cycle the Maven-Eclipse plugin is injecting its apklib dependencies into my eclipse build <em>as well as</em> the referenced projects in Eclipse. Having finally worked out what was causing my problem it was pretty easy to resolve:</p>
+
+<ul>
+<li>right-click the project, select properties</li>
+<li>go to the Maven pane</li>
+<li>uncheck "Resolve dependencies from workspace projects"</li>
+<li>repeat for all of the apklib projects referenced by your apk project</li>
+</ul>
+
+<p>The down-side of this is that if I make changes in my eclipse apklib projects I have to build the jars with Maven before the changes are available to the dependent apk projects. I actually slightly prefer working this way anyway - I find that a little bit of isolation helps.</p>
+
+<p>I should probably point out that I am using Maven-3.0.3, the m2eclipse and m2e-android Eclipse plugins, and the very latest SDK at time of writing (r16). YMMV.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ADT">ADT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="the_dreaded_unexpected_top_level_exception.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,799" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-09">January 09, 2012</time></span>
               <a itemprop="url" href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html"><h1 itemprop="name" itemprop="headline">Setting up Maven, Android and SVN for team development of multiple applications</h1></a>
@@ -361,7 +429,7 @@
 	        <a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="859" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="879" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-04">January 04, 2012</time></span>
               <a itemprop="url" href="converting_eclipse_adt_android_projects_to_build_with_maven.html"><h1 itemprop="name" itemprop="headline">Converting Eclipse ADT Android projects to build with Maven</h1></a>
 	      <span itemprop="articleBody"><p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working.</p>
@@ -381,24 +449,21 @@
 
 <p>Next install the <a href="http://www.eclipse.org/m2e/download/">m2eclipse</a> plugin (you might want to check if you have it already - Indigo is supposed to come pre-supplied, but that probably depends on which Eclipse bundle you install. I usually go with Classic, and did not have m2eclipse. YMMV).</p>
 
-<p>Now update your android sdk:</p>
-
-<ul>
-<li>Using sdk manager, install all api levels you are interested in, including "google apis by google inc."</li>
-<li>note: be sure to accept the license agreement for each selected jar (the ? should change to a green tick for ALL).</li>
-<li>note: I find that the sdk manager either does not install all ticked packages in one go, or incorrectly reports the number of packages remaining to be installed - it "completes" but there are still pending installs (the "install N packages..." button re-enables with N > 0). I find it safest to restart SDK manager between each attempt so that it correctly shows what is installed.</li>
-</ul>
+<p>Now update your android sdk:
+* Using sdk manager, install all api levels you are interested in, including "google apis by google inc."
+* note: be sure to accept the license agreement for each selected jar (the ? should change to a green tick for ALL).
+* note: I find that the sdk manager either does not install all ticked packages in one go, or incorrectly reports the number of packages remaining to be installed - it "completes" but there are still pending installs (the "install N packages..." button re-enables with N > 0). I find it safest to restart SDK manager between each attempt so that it correctly shows what is installed.</p>
 
 <p>If you want to work with Android 3 you need to perform an additional step. Maven Central does not have the jars available, so you'll need to use <a href="https://github.com/mosabua/maven-android-sdk-deployer">sdk deployer</a> to push them into your repository.</p>
 
 <ul>
 <li>check out with git (git clone https://github.com/mosabua/maven-android-sdk-deployer.git)</li>
 <li>install android jars as required by running mvn from inside the sdk deployer project directory, example: <code>mvn install -P 1.6</code>, or install the whole lot with <code>mvn install</code></li>
-<li><p>if you have a shared / remote / central repository as we do, you will want to deploy the android jars there too. To do this you need to fill two fields in the android-sdk-deployer's pom.xml that the creator <a href="https://github.com/mosabua">Manfred Moser</a> helpfully separated out:</p>
+<li><p>if you have a shared / remote / central repository as we do, you will want to deploy the android jars there too. To do this you need to fill two fields in the android-sdk-deployer's pom.xml that the creator <a href="https://github.com/mosabua">Manfred Moser</a> helpfully separated out</p>
 
-<pre><code>&lt;repo.id&gt;my-repository&lt;/repo.id&gt;
-&lt;repo.url&gt;scp://my-repo-host/repository&lt;/repo.url&gt;
-</code></pre></li>
+<p><!-- The repository server for your android artifacts (e.g. Nexus instance in this example)-->
+    <repo.id>kv-repository</repo.id>
+    <repo.url>scp://maven.rapidpublish.info/home/maven/repository</repo.url></p></li>
 </ul>
 
 <p>OK, we're done with installing!</p>
@@ -427,9 +492,9 @@
 
 <p>Click the error and some details open up, including two quick fixes. Click the first quick fix ("discover new m2e connectors"). The following dialog pops up and after a short search, shows the m2e-android connector:</p>
 
-<p><img src="https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png" alt="dialog" /></p>
+<p>https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png</p>
 
-<p>Install the connector and the warnings <em>should</em> go away. Actually for me they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's ok, as I want the maven build to be the master anyway.</p>
+<p>install the connector and the warnings <em>should</em> go away. Actually for me they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's ok, as I want the maven build to be the master anyway.</p>
 
 <p>Congrats, you should now have a happy Eclipse project, and be able to build it using maven as expected.</p>
 
@@ -490,114 +555,6 @@
 	        <a href="android_source_code_available.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="500" description="How to make a perforated postage-stamp (or old-fashioned postcard) border using the Inkscape vector graphics tool.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-12-18">December 18, 2011</time></span>
-              <a itemprop="url" href="perforated_postage_stamp_border_with_inkscape.html"><h1 itemprop="name" itemprop="headline">Perforated postage-stamp border with Inkscape</h1></a>
-	      <span itemprop="articleBody"><p>This short tutorial explains how I created a curved-serrated border - such as you would find on a tear-off postage stamp - using the Inkscape vector graphics tool (v0.48.2). It is extremely easy to do, and shouldn't take more than 5 minutes.</p>
-
-<h3>Getting Inkscape</h3>
-
-<p>If you're running a debian based linux you can install Inkscape with:</p>
-
-<pre><code>sudo apt-get install inkscape
-</code></pre>
-
-<p>Ubuntu users can install it using the graphical Ubuntu software centre. Downloads for other OS's can be found <a href="http://inkscape.org/download/">here</a>.</p>
-
-<h3>Creating the perforated border</h3>
-
-<p>First draw a rectangle using the <code>"rectangles and squares (F4)"</code> tool. Make this reasonably large. </p>
-
-<p>Then select the <code>"circles, ellipses and arcs (F5)"</code> tool and draw a much smaller circle. Holding down the ctrl key while drawing the circle will lock the aspect ratio so that you don't end up with an ellipse.</p>
-
-<p><img src="https://lh5.googleusercontent.com/-f7Ifgk1xqds/Tu4lanssEDI/AAAAAAAAH20/ZIkzqyhFnEM/s800/step-2.png" alt="Rectangle and circle" /></p>
-
-<p>Next, select both the circle and the rectangle by first selecting the circle then holding down the shift key and selecting the rectangle.</p>
-
-<p>Now from the <code>"Extensions"</code> menu, select <code>"Generate from path"</code> and in the sub-menu, select <code>"Pattern along path"</code>. The <code>"Pattern along Path"</code> dialog pops up. </p>
-
-<p><img src="https://lh6.googleusercontent.com/-Q-jYlXWOous/Tu4laEZHkvI/AAAAAAAAH28/Sz3ydQTqghQ/s800/pattern-along-path.png" alt="Pattern along path dialog" /></p>
-
-<p>Choose <code>"Repeated"</code> in the <code>"Copies of the pattern"</code> combo, in <code>"Deformation type"</code> choose <code>"Snake"</code>, and pick a number for <code>"Space between copies"</code> - this is the distance between each circle that will be cut out from the border of the rectangle, so good values depend on the size of your circle and subjective taste. Hit <code>"apply"</code>.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-ccgBpNnVZsY/Tu4laDpsFhI/AAAAAAAAH2s/qpmSfkjxo0M/s800/first-pattern-step.png" alt="Circles applied to the path" /></p>
-
-<p>Now we want to <em>remove</em> the path created by the circles around the border of the rectangle. To do that, first select the circles around the edge of the rectangle, then (holding down shift) select the rectangle itself and then choose <code>"Difference"</code> from the <code>"Path"</code> menu.</p>
-
-<p><img src="https://lh6.googleusercontent.com/-XoboYeO1yHM/Tu4lZbdS9DI/AAAAAAAAH2k/ZqTIKj2oecQ/s800/difference.png" alt="Path difference effect" /></p>
-
-<p>Change the colour of your postage-stamp shape to black (fill and stroke), then select it and hit ctrl-c to copy it, then ctrl-v to paste a new copy. Re-select the original and choose <code>"Filters-&gt;Blurs-&gt;Evanescent"</code> - this creates a nice blurred shadow effect.</p>
-
-<p>Select the new copy and change it to an off-white colour (I went for #fbfad4ff), then move it so that it sits just a few pixels above and to the left of the original (blurred shadow) shape.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-Pgk_1jBRtT0/Tu4lZThH_iI/AAAAAAAAH2g/XeJE1jFDNZU/s800/postage-stamp-inkscape.png" alt="the finished postage stamp in inkscape" /></p>
-
-<p>That's it, all done! Now you can add whatever content you like to your stamp and then export as a bitmap image. Below you can see what mine looks like exported as a png. Notice that the corners aren't quite "right" - this is because I didn't spend any time trying to ensure that the rectangle side-lengths were appropriately divisible by the circle + the space between copies - something that's worth doing if you want to get your stamp to look "just right".</p>
-
-<p><img src="https://lh6.googleusercontent.com/-jWvZBSpzLmA/Tu4lZKrXkhI/AAAAAAAAH2c/qrRRQYx43DQ/s800/postage-stamp.png" alt="png postage stamp" /></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=inkscape">inkscape</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=perforated">perforated</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=border">border</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=vector">vector</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="perforated_postage_stamp_border_with_inkscape.html">Comment on this post</a>
-
-            </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="227" description="Canonical currently package javahl 1.6 in the official repositories, making it difficult to run eclipse with subclipse 1.8 and subversion 1.7. Here's how I got it working.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
-              <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu</h1></a>
-	      <span itemprop="articleBody"><p>Getting subversion 1.7 integration working with Eclipse (3.7.1) and Subclipse 1.8 isn't all that straight-forward, because canonical currently support javahl 1.6 in their repositories. </p>
-
-<p>If you don't want to switch repo's your best bet is to go with Subclipse 1.6 and the 1.6 version of javahl (and subversion) from the official Canonical Ubuntu repositories.</p>
-
-<p>If you do want to go ahead with SVN 1.7, here's how I got it working by switching to repo's provided by dominik stadler:</p>
-
-<ol>
-<li>Add dominik's repository: <code>sudo apt-add-repository ppa:dominik-stadler/subversion-1.7</code></li>
-<li>Update apt: <code>sudo apt-get update</code></li>
-<li>Install libsvn-java: <code>sudo apt-get install libsvn-java</code></li>
-<li>Install subversion 1.7: <code>sudo apt-get install subversion</code></li>
-</ol>
-
-<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
-
-<p>You need to add <code>-Djava.library.path=/usr/lib/jni</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
-
-<pre><code>-startup
-plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
---launcher.library
-plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
--showsplash
-org.eclipse.platform
---launcher.XXMaxPermSize
-256m
---launcher.defaultAction
-openFile
--vmargs
--Djava.library.path=/usr/lib/jni
--Xms40m
--Xmx600m
-</code></pre>
-
-<p>If you use subclipse but never previously installed javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). Merry Christmas!</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javahl">javahl</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -615,11 +572,11 @@ openFile
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from the Android Emulator or Mobile Device</a><span class="date"> - Jan 12, 2012</span></li>
+                <li><a href="the_dreaded_unexpected_top_level_exception.html">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</a><span class="date"> - Jan 11, 2012</span></li>
                 <li><a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Setting up Maven, Android and SVN for team development of multiple applications</a><span class="date"> - Jan 09, 2012</span></li>
                 <li><a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Converting Eclipse ADT Android projects to build with Maven</a><span class="date"> - Jan 04, 2012</span></li>
                 <li><a href="android_source_code_available.html">Android Source Code available!</a><span class="date"> - Dec 20, 2011</span></li>
-                <li><a href="perforated_postage_stamp_border_with_inkscape.html">Perforated postage-stamp border with Inkscape</a><span class="date"> - Dec 18, 2011</span></li>
-                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Subversion 1.7 Eclipse integration in Ubuntu</a><span class="date"> - Dec 16, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
