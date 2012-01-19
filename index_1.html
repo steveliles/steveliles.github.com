@@ -35,6 +35,47 @@
       </nav>
       <div class="content">
         <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="337" description="Finally, the full src code for Android is available as part of the SDK download - though sadly its only available for source-level 14 and upwards at the moment.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-20">December 20, 2011</time></span>
+              <a itemprop="url" href="android_source_code_available.html"><h1 itemprop="name" itemprop="headline">Android Source Code available!</h1></a>
+	      <span itemprop="articleBody"><p>I'm quite surprised it took this long, but as of 13th December 2011 the source-code for Android is finally available as part of the SDK downloads, and can be grabbed with the SDK Manager.</p>
+
+<p>There's no jar file available yet, just a folder containing the source for API level 14 and upwards only. The Android dev who announced this stated that it is "extremely unlikely" that the source for earlier API levels would ever be made available as part of the SDK.</p>
+
+<p>Android Developer Tools (Eclipse plugin) doesn't automatically link to this folder either, so you need to set it up manually.</p>
+
+<p>First, get the source:</p>
+
+<ol>
+<li>Fire up the SDK Manager - from Eclipse's "Window" menu, select "Android SDK Manager".</li>
+<li>Check the boxes next to "Sources for Android SDK" (at time of writing this is available for both API level 14 and 15).</li>
+<li>Click the "Install X packages..." button (bottom right corner), and wait while your new goodies download and install.</li>
+</ol>
+
+<p>Once you're done downloading, head back to Eclipse and configure your Android project to use the source directory:</p>
+
+<ol>
+<li>In the package-explorer, locate the Android jar file (you may have to turn on "Show referenced libraries" from the little down-arrow icon in the top-right corner of the Package Explorer toolbar before it will show up in the list).</li>
+<li>Right-click the jar and choose "Properties" - a dialog pops up.</li>
+<li>Select "Java Source Attachment", then click "External Folder..."</li>
+<li>Navigate to the source directory, which will be located inside your Android SDK install directory (mine is at /home/steve/dev/sdks/android-sdk-linux/sources/android-14. Select OK to leave the file-chooser dialog, and OK again to leave the jar Properties dialog.</li>
+<li>Hover any Android class and ctrl-click (or place the caret on the class name and hit F3) to enjoy the source code for that class :)</li>
+</ol>
+
+<p>For the full source-code saga check out the <a href="http://code.google.com/p/android/issues/detail?id=979">issue-tracker entry</a> requesting the source to be made available (be prepared for a long read!)</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Source">Source</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Code">Code</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SDK">SDK</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="android_source_code_available.html">Comment on this post</a>
+
+            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="500" description="How to make a perforated postage-stamp (or old-fashioned postcard) border using the Inkscape vector graphics tool.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-12-18">December 18, 2011</time></span>
               <a itemprop="url" href="perforated_postage_stamp_border_with_inkscape.html"><h1 itemprop="name" itemprop="headline">Perforated postage-stamp border with Inkscape</h1></a>
@@ -267,77 +308,6 @@ Since I moved my blog from blogger I've noticed on many occasions that Chrome wo
 	        <a href="another_google_chrome_css_bug.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="660" description="Today I found a bug in Google Chrome contenteditable div's that has the craziest failure-mode imaginable - backspace stops working at the extreme ends of the content, so you can't delete the first character, and you can't delete more than one character from the end of the content without losing focus.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-12-13">December 13, 2011</time></span>
-              <a itemprop="url" href="google_chrome_css_bug.html"><h1 itemprop="name" itemprop="headline">Google Chrome CSS bug</h1></a>
-	      <span itemprop="articleBody"><p><style>
-.s1 { display:inline; }
-.s2 { display:table; }
-</style>
-Today while working on a project that uses <code>contenteditable &lt;div&gt;</code> elements I got stuck on a bug for a good long time because of the crazy failure-mode it exhibited. You can try for yourself in the <code>contenteditable</code> below (sooner or later I hope this bug will be fixed and the example will stop working :)).</p>
-
-<div class="example">
-  <div class="s1 s2" contenteditable="true">Try deleting the first character in this sentence (you won't be able to), or the last (the caret will disappear after deleting the character)</div>
-</div>
-
-<p>I'm working on a reasonably complex editor using Google Web Toolkit (GWT) with multiple content-editable <code>&lt;div&gt;</code> elements used to collect text input. You might be wondering why we're using <code>contenteditable</code> instead of <code>&lt;textarea&gt;</code> or something - well here's why:</p>
-
-<ol>
-<li>Styling <code>contenteditable</code>'s is much easier</li>
-<li>Allowing the input area to grow to fit the contained content "just works" - this is pretty hard to do with a <code>&lt;textarea&gt;</code>, though it can be done.</li>
-<li>We can deliberately insert html into the <code>contenteditable</code> as the user types - for example i'm creating a tag editor, and by using a <code>contenteditable</code> I can render the tags nicely even as the user is typing - say, whenever the user enters a delimiter.</li>
-</ol>
-
-<p>Of course, <code>contenteditable</code>'s are not without problems - not least you have to deal with the html content that they produce (e.g. <code>&lt;p&gt;</code> or <code>&lt;div&gt;</code> tags produced by the enter key), and arbitrary html resulting from paste operations, but that's another story.</p>
-
-<h2>How the bug manifests</h2>
-
-<p>Anyways, I have a bunch of <code>contenteditable</code>'s in my web-app, all seemingly working fine. Then I notice that <em>one</em> of them is behaving a bit strangely: if I try to delete characters from the end of the content the <code>contenteditable</code> loses focus after deleting one character. </p>
-
-<p>Being a complex app I have all kinds of event-handlers bound to these <code>contenteditable</code>'s, so I started removing the likely suspects one by one, trying to find the culprit.</p>
-
-<p>Eventually I'd removed all the event-handlers and was scratching my head, wondering how on earth I could still have this problem on just one of my <code>contenteditable</code>'s. </p>
-
-<p>I checked in Firefox - no problem, all working. I compiled the GWT app to pure javascript and ran outside of GWT development mode, just to be sure it wasn't some weird GWT-chrome-plugin bug - still suffering. I looked for other event handlers bound higher up the DOM tree. Still no joy.</p>
-
-<h2>When the bug manifests</h2>
-
-<p>Finally - almost in desperation - I started inspecting the CSS (surely the CSS could not be causing such bizarre behaviour, right? Uh, wrong!).</p>
-
-<p>After some puzzling I reduced the replication steps down to some very simple html and an unfortunate collision of CSS styles:</p>
-
-<pre><code>&lt;html&gt;
-  &lt;head&gt;
-    &lt;title&gt;bug&lt;/title&gt;
-    &lt;style&gt;
-      .s1 { display:inline; }
-      .s2 { display:table; }
-    &lt;/style&gt;
-  &lt;/head&gt;
-  &lt;body&gt;
-    &lt;div class="s1 s2" contenteditable="true"&gt;delete me&lt;/div&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Of course this CSS doesn't make sense - the two <code>display</code> settings conflict. That's easy to spot in a simple example like this, but much more difficult in a complex application with a large DOM tree and many many CSS styles. </p>
-
-<p>As for the failure mode, you might expect one style to "win", and forgivably it could be a different style in different browsers. </p>
-
-<p>What you really <em>don't</em> expect is the bizarre behaviour we experienced. The bug currently manifests in Chrome 15 (and 16 beta) on Linux, Mac and Windows(7), and is reported in the chromium issue tracker as <a href="http://code.google.com/p/chromium/issues/detail?id=107366">bug 107366</a>.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=css">css</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=chrome">chrome</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=bug">bug</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=contenteditable">contenteditable</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="google_chrome_css_bug.html">Comment on this post</a>
-
-            </article>
         </div>
         <div class="sidebar">
           <div>
@@ -355,11 +325,11 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="creating_colourised_icon_theme_sets_with_image_magick.html">Creating colourised icon theme-sets with Image-Magick</a><span class="date"> - Jan 18, 2012</span></li>
                 <li><a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from the Android Emulator or Mobile Device</a><span class="date"> - Jan 12, 2012</span></li>
                 <li><a href="the_dreaded_unexpected_top_level_exception.html">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</a><span class="date"> - Jan 11, 2012</span></li>
                 <li><a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Setting up Maven, Android and SVN for team development of multiple applications</a><span class="date"> - Jan 09, 2012</span></li>
                 <li><a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Converting Eclipse ADT Android projects to build with Maven</a><span class="date"> - Jan 04, 2012</span></li>
-                <li><a href="android_source_code_available.html">Android Source Code available!</a><span class="date"> - Dec 20, 2011</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

@@ -1,0 +1,211 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="colour" itemprop="keywords"></meta>
+      <meta name="keywords" content="icon" itemprop="keywords"></meta>
+      <meta name="keywords" content="Image Magick" itemprop="keywords"></meta>
+      <meta name="keywords" content="automation" itemprop="keywords"></meta>
+    <meta name="description" content="While automating production of customised applications I needed to automatically create a set of icons matching the colour scheme selected by the customer. This is how I tried (and failed) to do it with Image Magick."></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Creating colourised icon theme-sets with Image-Magick</title>
+  </head>
+  <body>
+    <div>
+      <header class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </header>
+      <nav>
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </nav>
+      <div class="content">
+        <div class="main">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="775" description="While automating production of customised applications I needed to automatically create a set of icons matching the colour scheme selected by the customer. This is how I tried (and failed) to do it with Image Magick.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-18">January 18, 2012</time></span>
+              <a itemprop="url" href="creating_colourised_icon_theme_sets_with_image_magick.html"><h1 itemprop="name" itemprop="headline">Creating colourised icon theme-sets with Image-Magick</h1></a>
+	      <span itemprop="articleBody"><p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments.</p>
+
+<p>My aim was to find a way to take a target colour and re-create the entire icon set matched as closely as possible to that input colour, using a single command-line.</p>
+
+<p>Lets start with a quick look at a sample icon - this was created by our UX designer and used in building the proto-typical instance of the application. It is part of a set of around 30:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-e4m6fYN49O8/Txb9kVwIcjI/AAAAAAAAIg0/QqAZfCYW31I/s800/informations_contactus_icon.png" alt="Original icon" /></p>
+
+<p>Given that I want to be able to apply a colour selected by a customer, I need to start from a neutral state, so my first step is to <em>de-colourise</em> the original icon, producing this grey-scale version:</p>
+
+<p><img src="https://lh6.googleusercontent.com/--8FToJl9oYs/Txb5ePoLJ6I/AAAAAAAAIgc/nCX1EfMY96Y/s800/informations_contactus_icon.png" alt="Example icon to be coloured" /></p>
+
+<p>Note that the icons all have transparency, but otherwise are largely made from shades of a single colour (a gradient) with white highlights.</p>
+
+<p>I started by looking at the simple built-in image-magick commands. Given that I'm converting a large batch of icons I'm using <code>mogrify</code> instead of <code>convert</code>, which also requires that the command-line is re-ordered slightly, for example:</p>
+
+<pre><code>convert in.png -brightness-contrast 20x20 out.png
+</code></pre>
+
+<p>becomes:</p>
+
+<pre><code>mogrify -brightness-contrast 20x20 *
+</code></pre>
+
+<p>My first attempts used the Image-Magick commands <code>tint</code>, <code>colorize</code>, and <code>+level-colors</code> individually, as I was hoping for a very simple solution to present itself. Let's look at what each of those commands produces if we try to create icons with the following base colour:</p>
+
+<div style="background-color:#0000cc; width:400px; height:60px; margin:auto; padding-left:40px;"><span style="color:white; font-family:'ubuntu mono'; font-size:20px; line-height:60px;">The background here is our base colour</span></div>
+
+<pre><code>mogrify -fill "#0000cc" -tint 100 *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-cYoe5UrvgsY/TxgphOBN5iI/AAAAAAAAIhM/LVinN-HnqFs/s800/informations_contactus_icon.png" alt="imagemagick tint" /></p>
+
+<pre><code>mogrify -colorize 100,0,0 *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-52WdHbWDsLc/TxgrS6jOpLI/AAAAAAAAIho/VhS1NSr2RNM/s800/informations_contactus_icon.png" alt="imagemagick colorize" /></p>
+
+<pre><code>mogrify +level-colors "#000066","#0000cc" *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-djRiYF9xQ_s/TxgslWJEmII/AAAAAAAAIiA/-JRBtifNU_U/s800/informations_contactus_icon.png" alt="imagemagick +level-colors" /></p>
+
+<p>As you can see from those examples, <code>tint</code> does the best job of retaining the fidelity of the icon, but doesn't really get close to the target colour. </p>
+
+<p><code>Colorize</code> has also kept most of the fidelity, but the white foreground has tended towards the target blue colour along with the grey background parts, though neither has really got very close to our intended colour.</p>
+
+<p><code>+level-colors</code> has got us closer to our target colour, but we've almost completely lost the white and the fidelity of the icon is, as a result, pretty much destroyed.</p>
+
+<h2>Reduce and re-compose</h2>
+
+<p>OK, so we can't get there with a simple one-liner. What about if we strip out different aspects of the image, perform different operations on each composite part, and then re-combine them later?</p>
+
+<p>This is ultimately what I ended up doing:</p>
+
+<ol>
+<li>Extract the white part only</li>
+<li>Brighten the grey part (helps the later stages to get closer to the target colour)</li>
+<li>Adjust the grey (background) part towards our target colour</li>
+<li>Composite the white foreground back over the re-coloured background</li>
+</ol>
+
+<p>Here's the commands to achieve that (note: I switched to using <code>convert</code> instead of <code>mogrify</code> because it was easier to test incremental changes this way):</p>
+
+<pre><code># extract the white parts
+convert -fuzz 60% -transparent black in.png 2.png
+
+# lighten the original image
+convert in.png -brightness-contrast 20x0 3.png
+
+# level colours ...
+convert +level-colors "#000066","#0000cc" 3.png
+
+# composite together ...
+convert 3.png 2.png in.png -composite out.png
+</code></pre>
+
+<p>It shouldn't be too difficult to follow that. </p>
+
+<p>The first command extracts the white-ish parts of the image (foreground) by making shades of grey - from black through 60% grey - transparent. The fuzz factor is what determines the cut-off point. We produce this white-foreground as a separate image (2.png) because we still need the original for later steps.</p>
+
+<p>Next we create a 3rd image (background) as a lightened version of the original (3.png) then colourise it using the <code>+level-colors</code> command we used earlier.</p>
+
+<p>Finally we composite together the background image as the base, the foreground image on top, and use the original image as a mask so that we don't lose the transparency. The final result looks like this:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-V6IAdSmaJDY/TxhCqKLAarI/AAAAAAAAIig/syTquI4Dtr8/s800/informations_contactus_icon.png" alt="final" /></p>
+
+<p>This is the best I've managed so far with my rudimentary knowledge of ImageMagick. </p>
+
+<p>Since I'm invoking this conversion from a Java process I think I'll try something a little more low-level in Java next. I want the fidelity of the "tint" operation, with the precise colour targeting of the composite approach, I just don't know how to get there with ImageMagick.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=colour">colour</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=icon">icon</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image Magick">Image Magick</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=automation">automation</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </article>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from the Android Emulator or Mobile Device</a><span class="date"> - Jan 12, 2012</span></li>
+                <li><a href="the_dreaded_unexpected_top_level_exception.html">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</a><span class="date"> - Jan 11, 2012</span></li>
+                <li><a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Setting up Maven, Android and SVN for team development of multiple applications</a><span class="date"> - Jan 09, 2012</span></li>
+                <li><a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Converting Eclipse ADT Android projects to build with Maven</a><span class="date"> - Jan 04, 2012</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <nav>
+        <div class="links">
+          
+          <div class="next"><a title="next" href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from th...</a></div>
+        </div>
+      </nav>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

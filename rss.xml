@@ -13,6 +13,108 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Creating colourised icon theme-sets with Image-Magick]]></title>
+        <link><![CDATA[http://steveliles.github.com/creating_colourised_icon_theme_sets_with_image_magick.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/creating_colourised_icon_theme_sets_with_image_magick.html</guid>
+        <description><![CDATA[<p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments.</p>
+
+<p>My aim was to find a way to take a target colour and re-create the entire icon set matched as closely as possible to that input colour, using a single command-line.</p>
+
+<p>Lets start with a quick look at a sample icon - this was created by our UX designer and used in building the proto-typical instance of the application. It is part of a set of around 30:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-e4m6fYN49O8/Txb9kVwIcjI/AAAAAAAAIg0/QqAZfCYW31I/s800/informations_contactus_icon.png" alt="Original icon" /></p>
+
+<p>Given that I want to be able to apply a colour selected by a customer, I need to start from a neutral state, so my first step is to <em>de-colourise</em> the original icon, producing this grey-scale version:</p>
+
+<p><img src="https://lh6.googleusercontent.com/--8FToJl9oYs/Txb5ePoLJ6I/AAAAAAAAIgc/nCX1EfMY96Y/s800/informations_contactus_icon.png" alt="Example icon to be coloured" /></p>
+
+<p>Note that the icons all have transparency, but otherwise are largely made from shades of a single colour (a gradient) with white highlights.</p>
+
+<p>I started by looking at the simple built-in image-magick commands. Given that I'm converting a large batch of icons I'm using <code>mogrify</code> instead of <code>convert</code>, which also requires that the command-line is re-ordered slightly, for example:</p>
+
+<pre><code>convert in.png -brightness-contrast 20x20 out.png
+</code></pre>
+
+<p>becomes:</p>
+
+<pre><code>mogrify -brightness-contrast 20x20 *
+</code></pre>
+
+<p>My first attempts used the Image-Magick commands <code>tint</code>, <code>colorize</code>, and <code>+level-colors</code> individually, as I was hoping for a very simple solution to present itself. Let's look at what each of those commands produces if we try to create icons with the following base colour:</p>
+
+<div style="background-color:#0000cc; width:400px; height:60px; margin:auto; padding-left:40px;"><span style="color:white; font-family:'ubuntu mono'; font-size:20px; line-height:60px;">The background here is our base colour</span></div>
+
+<pre><code>mogrify -fill "#0000cc" -tint 100 *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-cYoe5UrvgsY/TxgphOBN5iI/AAAAAAAAIhM/LVinN-HnqFs/s800/informations_contactus_icon.png" alt="imagemagick tint" /></p>
+
+<pre><code>mogrify -colorize 100,0,0 *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-52WdHbWDsLc/TxgrS6jOpLI/AAAAAAAAIho/VhS1NSr2RNM/s800/informations_contactus_icon.png" alt="imagemagick colorize" /></p>
+
+<pre><code>mogrify +level-colors "#000066","#0000cc" *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-djRiYF9xQ_s/TxgslWJEmII/AAAAAAAAIiA/-JRBtifNU_U/s800/informations_contactus_icon.png" alt="imagemagick +level-colors" /></p>
+
+<p>As you can see from those examples, <code>tint</code> does the best job of retaining the fidelity of the icon, but doesn't really get close to the target colour. </p>
+
+<p><code>Colorize</code> has also kept most of the fidelity, but the white foreground has tended towards the target blue colour along with the grey background parts, though neither has really got very close to our intended colour.</p>
+
+<p><code>+level-colors</code> has got us closer to our target colour, but we've almost completely lost the white and the fidelity of the icon is, as a result, pretty much destroyed.</p>
+
+<h2>Reduce and re-compose</h2>
+
+<p>OK, so we can't get there with a simple one-liner. What about if we strip out different aspects of the image, perform different operations on each composite part, and then re-combine them later?</p>
+
+<p>This is ultimately what I ended up doing:</p>
+
+<ol>
+<li>Extract the white part only</li>
+<li>Brighten the grey part (helps the later stages to get closer to the target colour)</li>
+<li>Adjust the grey (background) part towards our target colour</li>
+<li>Composite the white foreground back over the re-coloured background</li>
+</ol>
+
+<p>Here's the commands to achieve that (note: I switched to using <code>convert</code> instead of <code>mogrify</code> because it was easier to test incremental changes this way):</p>
+
+<pre><code># extract the white parts
+convert -fuzz 60% -transparent black in.png 2.png
+
+# lighten the original image
+convert in.png -brightness-contrast 20x0 3.png
+
+# level colours ...
+convert +level-colors "#000066","#0000cc" 3.png
+
+# composite together ...
+convert 3.png 2.png in.png -composite out.png
+</code></pre>
+
+<p>It shouldn't be too difficult to follow that. </p>
+
+<p>The first command extracts the white-ish parts of the image (foreground) by making shades of grey - from black through 60% grey - transparent. The fuzz factor is what determines the cut-off point. We produce this white-foreground as a separate image (2.png) because we still need the original for later steps.</p>
+
+<p>Next we create a 3rd image (background) as a lightened version of the original (3.png) then colourise it using the <code>+level-colors</code> command we used earlier.</p>
+
+<p>Finally we composite together the background image as the base, the foreground image on top, and use the original image as a mask so that we don't lose the transparency. The final result looks like this:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-V6IAdSmaJDY/TxhCqKLAarI/AAAAAAAAIig/syTquI4Dtr8/s800/informations_contactus_icon.png" alt="final" /></p>
+
+<p>This is the best I've managed so far with my rudimentary knowledge of ImageMagick. </p>
+
+<p>Since I'm invoking this conversion from a Java process I think I'll try something a little more low-level in Java next. I want the fidelity of the "tint" operation, with the precise colour targeting of the composite approach, I just don't know how to get there with ImageMagick.</p>
+]]></description>
+          <category>colour</category>
+          <category>icon</category>
+          <category>Image Magick</category>
+          <category>automation</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Wed, 18 Jan 2012 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Capture screenshots from the Android Emulator or Mobile Device]]></title>
         <link><![CDATA[http://steveliles.github.com/capture_screenshots_from_the_android_emulator_or_mobile_device.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/capture_screenshots_from_the_android_emulator_or_mobile_device.html</guid>
@@ -415,10 +517,13 @@ java.lang.IllegalArgumentException:
 
 <p>Next install the <a href="http://www.eclipse.org/m2e/download/">m2eclipse</a> plugin (you might want to check if you have it already - Indigo is supposed to come pre-supplied, but that probably depends on which Eclipse bundle you install. I usually go with Classic, and did not have m2eclipse. YMMV).</p>
 
-<p>Now update your android sdk:
-* Using sdk manager, install all api levels you are interested in, including "google apis by google inc."
-* note: be sure to accept the license agreement for each selected jar (the ? should change to a green tick for ALL).
-* note: I find that the sdk manager either does not install all ticked packages in one go, or incorrectly reports the number of packages remaining to be installed - it "completes" but there are still pending installs (the "install N packages..." button re-enables with N > 0). I find it safest to restart SDK manager between each attempt so that it correctly shows what is installed.</p>
+<p>Now update your android sdk:</p>
+
+<ul>
+<li>Using sdk manager, install all api levels you are interested in, including "google apis by google inc."</li>
+<li>note: be sure to accept the license agreement for each selected jar (the ? should change to a green tick for ALL).</li>
+<li>note: I find that the sdk manager either does not install all ticked packages in one go, or incorrectly reports the number of packages remaining to be installed - it "completes" but there are still pending installs (the "install N packages..." button re-enables with N > 0). I find it safest to restart SDK manager between each attempt so that it correctly shows what is installed.</li>
+</ul>
 
 <p>If you want to work with Android 3 you need to perform an additional step. Maven Central does not have the jars available, so you'll need to use <a href="https://github.com/mosabua/maven-android-sdk-deployer">sdk deployer</a> to push them into your repository.</p>
 
@@ -427,9 +532,9 @@ java.lang.IllegalArgumentException:
 <li>install android jars as required by running mvn from inside the sdk deployer project directory, example: <code>mvn install -P 1.6</code>, or install the whole lot with <code>mvn install</code></li>
 <li><p>if you have a shared / remote / central repository as we do, you will want to deploy the android jars there too. To do this you need to fill two fields in the android-sdk-deployer's pom.xml that the creator <a href="https://github.com/mosabua">Manfred Moser</a> helpfully separated out</p>
 
-<p><!-- The repository server for your android artifacts (e.g. Nexus instance in this example)-->
-    <repo.id>kv-repository</repo.id>
-    <repo.url>scp://maven.rapidpublish.info/home/maven/repository</repo.url></p></li>
+<pre><code>&lt;repo.id&gt;kv-repository&lt;/repo.id&gt;
+&lt;repo.url&gt;scp://my-repo-host/repository&lt;/repo.url&gt;
+</code></pre></li>
 </ul>
 
 <p>OK, we're done with installing!</p>
@@ -448,7 +553,7 @@ java.lang.IllegalArgumentException:
 
 <p>Once you've done that you can copy the pom to your existing project(s) and modify it manually - this is what I did.</p>
 
-<p>(Note: If you are starting a fresh new project you can just run <code>mvn clean eclipse:eclipse</code> to generate the eclipse project and classpath, then "import" the project into eclipse. After importing your project will just appear as a normal java project (neither maven nor android natures will be ascribed). To remedy that, right-click your project, go to configure -> convert to Maven project, both natures are added automatically and you're ready to rock'n'roll.)</p>
+<p>(Note: If you are starting a fresh new project you can just run <code>mvn clean eclipse:eclipse</code> to generate the eclipse project and classpath, then "import" the project into eclipse. After importing your project will just appear as a normal java project (neither maven nor android natures will be ascribed). To remedy that, right-click your project, go to <code>configure-&gt;convert to Maven project</code>, both natures are added automatically and you're ready to rock'n'roll.)</p>
 
 <h3>Integrate Eclipse and Maven</h3>
 
@@ -458,9 +563,9 @@ java.lang.IllegalArgumentException:
 
 <p>Click the error and some details open up, including two quick fixes. Click the first quick fix ("discover new m2e connectors"). The following dialog pops up and after a short search, shows the m2e-android connector:</p>
 
-<p>https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png</p>
+<p><img src="https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png" alt="discover connectors dialog" /></p>
 
-<p>install the connector and the warnings <em>should</em> go away. Actually for me they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's ok, as I want the maven build to be the master anyway.</p>
+<p>Install the connector and the warnings <em>should</em> go away. Actually for me they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's ok, as I want the maven build to be the master anyway.</p>
 
 <p>Congrats, you should now have a happy Eclipse project, and be able to build it using maven as expected.</p>
 
@@ -3737,95 +3842,6 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <category>distro</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Mon, 03 Jan 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[3D graphics using the html5 canvas]]></title>
-        <link><![CDATA[http://steveliles.github.com/3d_graphics_using_the_html5_canvas.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/3d_graphics_using_the_html5_canvas.html</guid>
-        <description><![CDATA[<p>I thought i'd put up a quick sample of my latest play-thing - a 3D rendering of a rubik's cube, using javascript (GWT) to implement the z-buffer and the html5 canvas as the display.  I originally built this in plain old javascript, but have now converted it to GWT - partly just for fun and partly to make the code a bit more manageable and refactorable (if that's even a word). Along the way I made a few optimisations like caching radian, sin and cosine values of angles.</p>
-
-<p>The cube is made from 27 "blocks", each of which has a face in each of the rubik-cube face colours. When the 27 blocks are put together we get the completed cube. Admittedly the 27th block isn't really necessary (its right in the middle where it is never visible), but it made life just that little bit simpler to ignore that and go with it.</p>
-
-<p>The cubes you can see below are rendered when the page loads. The scenes are pretty simple, so render very quickly. You may have seen the cube configuration instead of the cubes for a short while until the javascript loaded, at which point the configuration is replaced by the rendered cubes.</p>
-
-<p>Configuring a cube to display is done <a href="http://steveliles.github.com/gwt_progressive.html">progressive enhancement</a> style -  simply by adding a <code>&lt;div&gt;</code> element like this:</p>
-
-<pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
-  {"rubik-cube":{}, "camera":{}}}
-&lt;/div&gt;
-</code></pre>
-
-<p>This sets up the default position and orientation for both camera and cube, which looks like this:</p>
-
-<div class="rubiks" style="height: 150px; width: 150px; margin:auto;">{"rubik-cube":{}, "camera":{}}</div>
-
-<p>That's a pretty boring view, so lets rotate the cube so that we can see more than just the red-face nearest us. To do that we supply some rotations around the x and y axis like this:</p>
-
-<pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
-  { 
-    "rubik-cube":{ 
-      "rotate-x":35, 
-      "rotate-y":35, 
-      "rotate-z":35 
-    }, 
-    "camera":{}
-  }
-&lt;/div&gt;
-</code></pre>
-
-<p>This results in the following cube:</p>
-
-<div class="rubiks" style="height: 150px; width: 150px; margin:auto;">{ "rubik-cube": { "rotate-x":35, "rotate-y":35, "rotate-z":35 }, "camera":{} }</div>
-
-<p>I'm quite pleased with the results so far, and the performance is not bad either it seems. The speed of actually drawing on the canvas seems to be plenty good enough to get away with a bit of animation. On my (Core i7) laptop I can spin the cube on all 3 axis at a couple-hundred frames per second (hopefully i'll put up an example in a later post). </p>
-
-<p>Next steps for the rubik's application (yeah, like i'll get around to it) would be:</p>
-
-<ul>
-<li>Supply "twist" information in the configuration so I can show cubes in various stages of completion.</li>
-<li>Animate the twists, allowing a viewer to step through the twists, for example to see how to solve a particular part of a cube.</li>
-<li>Interactive mode where the viewer can play with the cube.</li>
-<li>In a separate direction, the z-buffer i've built up in order to render the cubes could be improved in lots of nice ways too.</li>
-</ul>
-
-<p>Just before I finish off with a few more views of the cube, I wanted to mention that I had a few issues finding a way to host the scripts and use them in Blogger. Annoyingly you can't host javascript or html files directly from Blogger, so I had to find somewhere else to put them.</p>
-
-<p>My usual approach for hosting source code is to use github "gists", which provides a neat way of showing prettified source, but also lets you view the "raw" source. That allowed me to host the js somewhere, but I had to work around a cross-site scripting issue loading the GWT sources from a different domain. </p>
-
-<p>Fortunately GWT makes that easy with its "xs" linker, which produces a bunch of ".no-cache.js" files instead of "no-cache.html" files, and solves the XSS problem. To use the xs linker you just add a single line to your .gwt.xml file:</p>
-
-<pre><code>&lt;add-linker name="xs" /&gt;
-</code></pre>
-
-<p>Sadly that prevents hosted mode from working (currently), but that's easy enough to work around :)</p>
-
-<table cellpadding="0" cellspacing="0">
-<tr> 
-<td><div class="rubiks" style="height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":35, "rotate-y":35 }, "camera":{} }</div></td> 
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-y":135 }, "camera":{} }</div></td>  
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-z":135 }, "camera":{} }</div></td>  
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-y":215 }, "camera":{} }</div></td>  
-</tr>
-<tr> 
-<td><div class="rubiks" style="height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":135, "rotate-y":35 }, "camera":{} }</div></td>
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":95, "rotate-y":125 }, "camera":{} }</div></td>
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":15, "rotate-y":15, "rotate-z":15 }, "camera":{} }</div></td>
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":25, "rotate-y":-25 }, "camera":{} }</div></td>
-</tr>
-</table>
-
-<p><br/></p>
-
-<script language="javascript" src="rubiks/rubiks.nocache.js" type="text/javascript">
-</script>
-]]></description>
-          <category>canvas</category>
-          <category>graphics</category>
-          <category>gwt</category>
-          <category>html5</category>
-          <category>XSS linker</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 02 Jan 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>
