@@ -686,7 +686,7 @@ java.lang.IllegalArgumentException:
         <title><![CDATA[Subversion 1.7 Eclipse integration in Ubuntu]]></title>
         <link><![CDATA[http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html</guid>
-        <description><![CDATA[<p>Getting subversion 1.7 integration working with Eclipse (3.7.1) and Subclipse 1.8 isn't all that straight-forward, because canonical currently support javahl 1.6 in their repositories. </p>
+        <description><![CDATA[<p>Getting Subversion 1.7 integration working with Eclipse (3.7.1) and Subclipse 1.8 isn't all that straight-forward because Canonical currently only support the older Javahl-1.6 in their repositories. </p>
 
 <p>If you don't want to switch repo's your best bet is to go with Subclipse 1.6 and the 1.6 version of javahl (and subversion) from the official Canonical Ubuntu repositories.</p>
 
@@ -719,12 +719,15 @@ openFile
 -Xmx600m
 </code></pre>
 
-<p>If you use subclipse but never previously installed javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). Merry Christmas!</p>
+<p>If you use Subclipse but never previously installed Javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). </p>
+
+<p>Merry Christmas!</p>
 ]]></description>
           <category>ubuntu</category>
           <category>eclipse</category>
           <category>subversion</category>
           <category>javahl</category>
+          <category>subclipse</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Fri, 16 Dec 2011 00:00:00 +0000</pubDate>
       </item>
