@@ -180,16 +180,20 @@ java.lang.IllegalArgumentException:
         <guid isPermaLink="true">http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html</guid>
         <description><![CDATA[<p>If you don't yet have your Eclipse - ADT - Maven tool-chain set up you might be interested in the <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">previous post</a>.</p>
 
-<p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects - and worse still if the development team is distributed.</p>
+<p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects.</p>
 
-<p>The important things I think you want to enable in a team environment are:</p>
+<p>It gets worse still if the development team is distributed (as we are) and/or running different development platforms - Windows, Linux, Mac OSX - (as we do).</p>
+
+<p>The important things I wanted to enable in our team environment are:</p>
 
 <ol>
 <li>That the whole team can "get" the latest code quickly and easily</li>
-<li>That the whole team can contributes updates to the codebase quickly and easily</li>
+<li>That the whole team can contribute updates to the codebase quickly and easily</li>
 <li>That any new team member coming on-board can build <em>immediately</em> from check-out (given a short list of pre-requisites)</li>
-<li>That any team member can build a signed apk for release to the market</li>
+<li>That any team member can easily, consistently and <em>correctly</em> build a signed apk for release to the market</li>
 <li>New projects can be created quickly and easily with minimum of re-work <em>and</em> copy-paste in configuration</li>
+<li>Componentisation (e.g. jars and apklibs) is a Good Thing, and should be encouraged by making it as straight-forward as possible</li>
+<li>Developers have their choice of OS</li>
 </ol>
 
 <p>Here's how I've set things up to support these goals...</p>
@@ -205,7 +209,7 @@ java.lang.IllegalArgumentException:
 <li>You have some common practices in your team like, for example, checking out all projects as siblings in a single workspace directory (otherwise you'll have problems with sharing relative paths to referenced projects between developers).</li>
 </ul>
 
-<h3>Our set up</h3>
+<h3>Our Setup</h3>
 
 <p>I've set up projects in the workspace such that all of the following are siblings in a single workspace directory:</p>
 
@@ -478,7 +482,7 @@ java.lang.IllegalArgumentException:
 &lt;/project&gt;
 </code></pre>
 
-<h3>building a release</h3>
+<h3>Building a Release</h3>
 
 <p>Building a release, including running proguard to optimise and obfuscate the apk, and signing the apk from the shared keystore is now available from the maven cmdline with (as you'd expect):</p>
 
@@ -486,6 +490,13 @@ java.lang.IllegalArgumentException:
 </code></pre>
 
 <p>Its still early days for us, so I'm sure there are still wrinkles to iron out, but so far it seems to be working pretty well.</p>
+
+<p>You can start the emulator and deploy the packaged apk into it using two further commands:</p>
+
+<pre><code>mvn android:emulator-start android:deploy
+</code></pre>
+
+<p>Enjoy!</p>
 ]]></description>
           <category>android</category>
           <category>ADT</category>
