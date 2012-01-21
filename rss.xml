@@ -16,7 +16,9 @@
         <title><![CDATA[Creating colourised icon theme-sets with Image-Magick]]></title>
         <link><![CDATA[http://steveliles.github.com/creating_colourised_icon_theme_sets_with_image_magick.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/creating_colourised_icon_theme_sets_with_image_magick.html</guid>
-        <description><![CDATA[<p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments.</p>
+        <description><![CDATA[<p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments (details follow the strip...).</p>
+
+<p><a target="top" href="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s1600/48.jpg"><img alt="ImageMagick comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s600/48.jpg"></a></p>
 
 <p>My aim was to find a way to take a target colour and re-create the entire icon set matched as closely as possible to that input colour, using a single command-line.</p>
 
@@ -129,6 +131,8 @@ convert 3.png 2.png in.png -composite out.png
 <p><img src="https://lh6.googleusercontent.com/-7d2j8LBcJ0I/Tw77Op8tmJI/AAAAAAAAIdk/D-ICPn9eVQw/s800/devices.png" alt="screenshot showing the take-screenshot icon in DDMS" /></p>
 
 <p>From the command-line I'm afraid you're pretty much <a href="http://code.google.com/p/android/issues/detail?id=13613">out of luck right now</a> unless you feel like a bit of hacking to create your own cmdline screenshot grabber by connecting to the same service that DDMS connects to.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-xNoeEFqfrDw/TxtJTtrsa8I/AAAAAAAAImQ/6gNcgm-ttwY/s1600/49.jpg" alt="Android Emulator Screenshots, a comic strip made with @ComicStripIt" /></p>
 ]]></description>
           <category>android</category>
           <category>emulator</category>
@@ -142,7 +146,9 @@ convert 3.png 2.png in.png -composite out.png
         <title><![CDATA[The dreaded UNEXPECTED TOP-LEVEL EXCEPTION]]></title>
         <link><![CDATA[http://steveliles.github.com/the_dreaded_unexpected_top_level_exception.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/the_dreaded_unexpected_top_level_exception.html</guid>
-        <description><![CDATA[<p>I'm working on extracting library projects to factor out common code shared between multiple projects. With everything compiling successfully I attempted to run my apk project in an emulator, and got hit with the following:</p>
+        <description><![CDATA[<p><a target="top" href="https://lh6.googleusercontent.com/-9Mgj4PvbD_8/TxtFMEPOvRI/AAAAAAAAImA/1W3xJJjaJkM/s1600/44.jpg"><img alt="Library projects with Eclipse Android and Maven, a comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/-9Mgj4PvbD_8/TxtFMEPOvRI/AAAAAAAAImA/1W3xJJjaJkM/s600/44.jpg"></a></p>
+
+<p>I'm working on extracting library projects to factor out common code shared between multiple projects. With everything compiling successfully I attempted to run my apk project in an emulator, and got hit with the following:</p>
 
 <pre><code>UNEXPECTED TOP-LEVEL EXCEPTION:
 java.lang.IllegalArgumentException: 
@@ -182,7 +188,9 @@ java.lang.IllegalArgumentException:
 
 <p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects.</p>
 
-<p>It gets worse still if the development team is distributed (as we are) and/or running different development platforms - Windows, Linux, Mac OSX - (as we do).</p>
+<p>It gets worse still if the development team is distributed (as we are) and/or running different development platforms - Windows, Linux, Mac OSX - (as we do). A description of how I've set things up follows this brief interlude:</p>
+
+<p><a target="top" href="https://lh6.googleusercontent.com/-3U09-bd8s5E/TxtBOFAOssI/AAAAAAAAIlw/F1kSpCLv_DI/s1600/39.jpg"><img alt="Android Maven Eclipse Subversion comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/-3U09-bd8s5E/TxtBOFAOssI/AAAAAAAAIlw/F1kSpCLv_DI/s600/39.jpg"></a></p>
 
 <p>The important things I wanted to enable in our team environment are:</p>
 
@@ -511,7 +519,9 @@ java.lang.IllegalArgumentException:
         <title><![CDATA[Converting Eclipse ADT Android projects to build with Maven]]></title>
         <link><![CDATA[http://steveliles.github.com/converting_eclipse_adt_android_projects_to_build_with_maven.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/converting_eclipse_adt_android_projects_to_build_with_maven.html</guid>
-        <description><![CDATA[<p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working.</p>
+        <description><![CDATA[<p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working (details after the comic-strip...):</p>
+
+<p><a target="top" href="https://lh5.googleusercontent.com/-pjftaBy3xwo/TxsaQStUT_I/AAAAAAAAIlg/XqSu-Tb2OiQ/s1600/35.jpg"><img alt="Converting Eclipse ADT projects to build with Maven, a comic strip made with @ComicStripIt" src="https://lh5.googleusercontent.com/-pjftaBy3xwo/TxsaQStUT_I/AAAAAAAAIlg/XqSu-Tb2OiQ/s600/35.jpg"></a></p>
 
 <h3>Plugins, Tools and Dependencies</h3>
 
@@ -595,7 +605,9 @@ java.lang.IllegalArgumentException:
         <title><![CDATA[Android Source Code available!]]></title>
         <link><![CDATA[http://steveliles.github.com/android_source_code_available.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/android_source_code_available.html</guid>
-        <description><![CDATA[<p>I'm quite surprised it took this long, but as of 13th December 2011 the source-code for Android is finally available as part of the SDK downloads, and can be grabbed with the SDK Manager.</p>
+        <description><![CDATA[<p><a href="https://lh5.googleusercontent.com/-CGAW8UFmRoQ/TxtLqQXEqVI/AAAAAAAAImY/PA_H2G-8N-8/s1600/50.jpg"><img alt="Android Source Code released" src="https://lh5.googleusercontent.com/-CGAW8UFmRoQ/TxtLqQXEqVI/AAAAAAAAImY/PA_H2G-8N-8/s600/50.jpg"></a></p>
+
+<p>I'm quite surprised it took this long, but as of 13th December 2011 the source-code for Android is finally available as part of the SDK downloads, and can be grabbed with the SDK Manager.</p>
 
 <p>There's no jar file available yet, just a folder containing the source for API level 14 and upwards only. The Android dev who announced this stated that it is "extremely unlikely" that the source for earlier API levels would ever be made available as part of the SDK.</p>
 
@@ -720,6 +732,8 @@ openFile
 </code></pre>
 
 <p>If you use Subclipse but never previously installed Javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). </p>
+
+<p><a href="https://lh3.googleusercontent.com/-KJtp8zUoqwQ/TxtOTq8hF-I/AAAAAAAAImw/fdzs2yeDUxw/s1600/53.jpg"><img alt="Eclipse, SVN and Ubuntu - Javahl, all playing nicely - a comic strip made with @ComicStripIt" src="https://lh3.googleusercontent.com/-KJtp8zUoqwQ/TxtOTq8hF-I/AAAAAAAAImw/fdzs2yeDUxw/s600/53.jpg"></a></p>
 
 <p>Merry Christmas!</p>
 ]]></description>

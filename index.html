@@ -35,10 +35,12 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="775" description="While automating production of customised applications I needed to automatically create a set of icons matching the colour scheme selected by the customer. This is how I tried (and failed) to do it with Image Magick.">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="790" description="While automating production of customised applications I needed to automatically create a set of icons matching the colour scheme selected by the customer. This is how I tried (and failed) to do it with Image Magick.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-18">January 18, 2012</time></span>
               <a itemprop="url" href="creating_colourised_icon_theme_sets_with_image_magick.html"><h1 itemprop="name" itemprop="headline">Creating colourised icon theme-sets with Image-Magick</h1></a>
-	      <span itemprop="articleBody"><p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments.</p>
+	      <span itemprop="articleBody"><p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments (details follow the strip...).</p>
+
+<p><a target="top" href="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s1600/48.jpg"><img alt="ImageMagick comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s600/48.jpg"></a></p>
 
 <p>My aim was to find a way to take a target colour and re-create the entire icon set matched as closely as possible to that input colour, using a single command-line.</p>
 
@@ -141,7 +143,7 @@ convert 3.png 2.png in.png -composite out.png
 	        <a href="creating_colourised_icon_theme_sets_with_image_magick.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="194" description="Quick description of how to take screenshots of apps running in the Android Emulator">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="204" description="Quick description of how to take screenshots of apps running in the Android Emulator">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-12">January 12, 2012</time></span>
               <a itemprop="url" href="capture_screenshots_from_the_android_emulator_or_mobile_device.html"><h1 itemprop="name" itemprop="headline">Capture screenshots from the Android Emulator or Mobile Device</h1></a>
 	      <span itemprop="articleBody"><p>The first few times I needed screenshots of an Android app for the Android Market description I <code>alt-printscreen</code>'d the emulator then sliced the app screenshot out of the resulting image. This is a pain and - as it turns out - completely unnecessary. </p>
@@ -155,6 +157,8 @@ convert 3.png 2.png in.png -composite out.png
 <p><img src="https://lh6.googleusercontent.com/-7d2j8LBcJ0I/Tw77Op8tmJI/AAAAAAAAIdk/D-ICPn9eVQw/s800/devices.png" alt="screenshot showing the take-screenshot icon in DDMS" /></p>
 
 <p>From the command-line I'm afraid you're pretty much <a href="http://code.google.com/p/android/issues/detail?id=13613">out of luck right now</a> unless you feel like a bit of hacking to create your own cmdline screenshot grabber by connecting to the same service that DDMS connects to.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-xNoeEFqfrDw/TxtJTtrsa8I/AAAAAAAAImQ/6gNcgm-ttwY/s1600/49.jpg" alt="Android Emulator Screenshots, a comic strip made with @ComicStripIt" /></p>
 </span>
 
               <ul class="keywords">
@@ -169,10 +173,12 @@ convert 3.png 2.png in.png -composite out.png
 	        <a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="320" description="My experiences with attempting to get multiple nested library projects to play together with Eclipse, Android and Maven.">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="338" description="My experiences with attempting to get multiple nested library projects to play together with Eclipse, Android and Maven.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-11">January 11, 2012</time></span>
               <a itemprop="url" href="the_dreaded_unexpected_top_level_exception.html"><h1 itemprop="name" itemprop="headline">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</h1></a>
-	      <span itemprop="articleBody"><p>I'm working on extracting library projects to factor out common code shared between multiple projects. With everything compiling successfully I attempted to run my apk project in an emulator, and got hit with the following:</p>
+	      <span itemprop="articleBody"><p><a target="top" href="https://lh6.googleusercontent.com/-9Mgj4PvbD_8/TxtFMEPOvRI/AAAAAAAAImA/1W3xJJjaJkM/s1600/44.jpg"><img alt="Library projects with Eclipse Android and Maven, a comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/-9Mgj4PvbD_8/TxtFMEPOvRI/AAAAAAAAImA/1W3xJJjaJkM/s600/44.jpg"></a></p>
+
+<p>I'm working on extracting library projects to factor out common code shared between multiple projects. With everything compiling successfully I attempted to run my apk project in an emulator, and got hit with the following:</p>
 
 <pre><code>UNEXPECTED TOP-LEVEL EXCEPTION:
 java.lang.IllegalArgumentException: 
@@ -209,14 +215,16 @@ java.lang.IllegalArgumentException:
 	        <a href="the_dreaded_unexpected_top_level_exception.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,870" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,896" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-09">January 09, 2012</time></span>
               <a itemprop="url" href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html"><h1 itemprop="name" itemprop="headline">Setting up Maven, Android and SVN for team development of multiple applications</h1></a>
 	      <span itemprop="articleBody"><p>If you don't yet have your Eclipse - ADT - Maven tool-chain set up you might be interested in the <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">previous post</a>.</p>
 
 <p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects.</p>
 
-<p>It gets worse still if the development team is distributed (as we are) and/or running different development platforms - Windows, Linux, Mac OSX - (as we do).</p>
+<p>It gets worse still if the development team is distributed (as we are) and/or running different development platforms - Windows, Linux, Mac OSX - (as we do). A description of how I've set things up follows this brief interlude:</p>
+
+<p><a target="top" href="https://lh6.googleusercontent.com/-3U09-bd8s5E/TxtBOFAOssI/AAAAAAAAIlw/F1kSpCLv_DI/s1600/39.jpg"><img alt="Android Maven Eclipse Subversion comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/-3U09-bd8s5E/TxtBOFAOssI/AAAAAAAAIlw/F1kSpCLv_DI/s600/39.jpg"></a></p>
 
 <p>The important things I wanted to enable in our team environment are:</p>
 
@@ -546,10 +554,12 @@ java.lang.IllegalArgumentException:
 	        <a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Comment on this post</a>
 
             </article>
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="865" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="888" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-04">January 04, 2012</time></span>
               <a itemprop="url" href="converting_eclipse_adt_android_projects_to_build_with_maven.html"><h1 itemprop="name" itemprop="headline">Converting Eclipse ADT Android projects to build with Maven</h1></a>
-	      <span itemprop="articleBody"><p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working.</p>
+	      <span itemprop="articleBody"><p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working (details after the comic-strip...):</p>
+
+<p><a target="top" href="https://lh5.googleusercontent.com/-pjftaBy3xwo/TxsaQStUT_I/AAAAAAAAIlg/XqSu-Tb2OiQ/s1600/35.jpg"><img alt="Converting Eclipse ADT projects to build with Maven, a comic strip made with @ComicStripIt" src="https://lh5.googleusercontent.com/-pjftaBy3xwo/TxsaQStUT_I/AAAAAAAAIlg/XqSu-Tb2OiQ/s600/35.jpg"></a></p>
 
 <h3>Plugins, Tools and Dependencies</h3>
 
