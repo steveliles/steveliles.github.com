@@ -132,7 +132,7 @@ convert 3.png 2.png in.png -composite out.png
 
 <p>From the command-line I'm afraid you're pretty much <a href="http://code.google.com/p/android/issues/detail?id=13613">out of luck right now</a> unless you feel like a bit of hacking to create your own cmdline screenshot grabber by connecting to the same service that DDMS connects to.</p>
 
-<p><img src="https://lh6.googleusercontent.com/-xNoeEFqfrDw/TxtJTtrsa8I/AAAAAAAAImQ/6gNcgm-ttwY/s1600/49.jpg" alt="Android Emulator Screenshots, a comic strip made with @ComicStripIt" /></p>
+<p><a href="https://lh6.googleusercontent.com/-xNoeEFqfrDw/TxtJTtrsa8I/AAAAAAAAImQ/6gNcgm-ttwY/s1600/49.jpg"><img alt="Android Emulator Screenshots, a comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/-xNoeEFqfrDw/TxtJTtrsa8I/AAAAAAAAImQ/6gNcgm-ttwY/s600/49.jpg"></a></p>
 ]]></description>
           <category>android</category>
           <category>emulator</category>
