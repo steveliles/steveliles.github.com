@@ -13,6 +13,44 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Maven, Android and Eclipse - joining the team]]></title>
+        <link><![CDATA[http://steveliles.github.com/maven_android_and_eclipse_joining_the_team.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/maven_android_and_eclipse_joining_the_team.html</guid>
+        <description><![CDATA[<p>I blogged recently about how we've set things up for team development using Maven, Android and Eclipse. This follow up post describes how someone joining the team would go about setting up and getting to work...</p>
+
+<p>To join in the fun you need a straight-forward installation of the following pre-requisite tools:</p>
+
+<ul>
+<li>Eclipse (I usually go for Eclipse classic)</li>
+<li>Subversion</li>
+<li>Maven 3.0.3</li>
+<li>Android SDK</li>
+</ul>
+
+<p>You will also need the following Eclipse plugins:</p>
+
+<ul>
+<li><a href="http://eclipse.org/m2e/">m2eclipse</a> - update site: http://download.eclipse.org/technology/m2e/releases</li>
+<li><a href="http://rgladwell.github.com/m2e-android/">m2e-android</a> - <em>don't use an update site to install this - instead, follow the instructions at the m2e-android site</em>.</li>
+</ul>
+
+<p>Since you are setting up to join an existing team, most of the maven configuration has presumably already been done for you. To get working on a project (assuming it is set up <a href="http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">as I described</a>) you need to check out two projects:</p>
+
+<ol>
+<li>The "parent" project containing the common configuration for all Android-Maven projects</li>
+<li>The project you actually need to work on</li>
+<li>(OK, yes, also any apklib library projects if you need to debug or work on those too)</li>
+</ol>
+
+<p>The <em>biggest</em> single difference from ADT's usual working style is that you can't (currently) work with the apklib projects as project dependencies <a href="http://steveliles.github.com/the_dreaded_unexpected_top_level_exception.html">because of this issue</a>. Instead, if you make any changes to an apklib project, you'll need to <code>mvn install</code> or <code>mvn deploy</code> it before you can see the change in your dependent apk projects.</p>
+
+<p><a target="top" href="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s1600/75.jpg"><img alt="Converting Eclipse ADT projects to build with Maven, a comic strip made with @ComicStripIt" src="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s600/75.jpg"></a></p>
+]]></description>
+          <category>steve liles</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 23 Jan 2012 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Creating colourised icon theme-sets with Image-Magick]]></title>
         <link><![CDATA[http://steveliles.github.com/creating_colourised_icon_theme_sets_with_image_magick.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/creating_colourised_icon_theme_sets_with_image_magick.html</guid>
@@ -929,6 +967,80 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
         <pubDate>Tue, 13 Dec 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
+        <title><![CDATA[Pointing a domain name to an Amazon S3 bucket]]></title>
+        <link><![CDATA[http://steveliles.github.com/pointing_a_domain_name_to_an_amazon_s3_bucket.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/pointing_a_domain_name_to_an_amazon_s3_bucket.html</guid>
+        <description><![CDATA[<p>I recently registered a domain name for some static content i'm hosting in Amazon's Simple Storage Service (S3). <a href="hosting_a_static_website_in_amazon_s3.html">Setting up an S3 bucket as a static website</a> is pretty straight-forward, but pointing your domain to it is tricky. After a bit of playing and googling I think I've got the right combination:</p>
+
+<h4>Step-1: Create your S3 website bucket</h4>
+
+<p>When naming your bucket you <em>must</em> use the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. If you don't do this you will get warnings (404 not found, nosuchbucket).</p>
+
+<h4>Step-2: Remove any existing "A" records</h4>
+
+<p>Using the administration tools provided by your domain registrar, remove any <code>"A"</code> records that may have been automatically set up for your domain - you don't want your domain name pointing to "parking" sites.</p>
+
+<h4>Step-3: Forward your root domain to www</h4>
+
+<p>Forward your root domain (<code>mydomain.com</code>) to the <code>www</code> subdomain (<code>www.mydomain.com</code>). Most registrars and hosting companies give you the ability to forward domain names. With Fasthosts I had to "add" forwarding to my package, but it didn't cost anything extra.</p>
+
+<p>If you can <em>mask</em> the forwarding, so much the better, as this will mean that visitors to your site will see your registered domain rather than the S3 url (depends what your registrar offers - fasthosts and godaddy both support masked forwarding). In Fasthosts admin, masking is a checkbox option in the forwarding configuration.</p>
+
+<h4>Step-4: Add a `CNAME` pointing to your S3 site</h4>
+
+<p>Add a CNAME for the <code>www</code> subdomain, pointing to your S3 website (<code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>). The admin tools should make this easy for you.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-6aH7JLLgpVQ/TtFmqVjl4QI/AAAAAAAAH0k/vT_wK-8EEd0/s522/cname-config.png" alt="Add a CNAME" /></p>
+
+<p>That's it - all you have to do now is wait for the changes to propagate (this can take a while).</p>
+
+<h4>See it in action...</h4>
+
+<p>You can see this in action with my setup:</p>
+
+<p>My domain-name is overpayment-calculator.com, which forwards to <a href="http://www.overpayment-calculator.com">www.overpayment-calculator.com</a>, which points (via CNAME) at my S3 bucket <a href="http://www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com">www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com</a>, masking the S3 name (so that when you visit via the overpayment-calculator.com address you don't see the S3 address in the address bar).</p>
+
+<p><em>p.s.</em> props to <a href="http://www.fasthosts.co.uk/">fasthosts</a> - the dns information propagated extremely quickly - from registering the domain name to acessing my site via that domain name (including the time it took me to do the set up) took less than one hour!</p>
+]]></description>
+          <category>Amazon</category>
+          <category>S3</category>
+          <category>domain name</category>
+          <category>forward</category>
+          <category>mask</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Plus-One any page - Google +1 Bookmarklet]]></title>
+        <link><![CDATA[http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html</guid>
+        <description><![CDATA[<p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it - share from anywhere!</p>
+
+<p>To install the bookmarklet just drag the <code>Google+1</code> link below to your browser bookmarks bar:</p>
+
+<div style="text-align:center;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';gpc.style.padding='50px';gpc.style.backgroundColor='#def';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a></div>
+
+<p>To use the bookmarklet at any time while browsing the web just click the link on your bookmarks bar and a +1 button will appear in the top-right corner of the page. Click the plus one button to share and comment just like you would on any other site that already has +1 buttons (feel free to test it out on this page!).</p>
+
+<p>I have tested this bookmarklet in Chrome 16.0.9 and Firefox 8.0. Please leave a comment if you have trouble with other browsers and I'll see what I can do.</p>
+
+<p>Internet Explorer 6 users might struggle - the bookmarklet code is longer than IE6 can cope with. May I suggest upgrading to one of the many much better browsers available, such as <a href="http://www.google.com/chrome">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>. </p>
+
+<p>Alternatively you can try this bookmarklet (disclaimer: I cannot test it - I don't have IE6) - drag the "Google+1" to your browser links bar:</p>
+
+<div style="text-align:center;margin:auto;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a>(IE6)</div>
+
+<p>Enjoy!</p>
+]]></description>
+          <category>google+</category>
+          <category>g+</category>
+          <category>+1</category>
+          <category>plusone</category>
+          <category>bookmarklet</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Hosting a static website in Amazon S3]]></title>
         <link><![CDATA[http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html</guid>
@@ -1007,143 +1119,6 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <category>hosting</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Plus-One any page - Google +1 Bookmarklet]]></title>
-        <link><![CDATA[http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html</guid>
-        <description><![CDATA[<p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it - share from anywhere!</p>
-
-<p>To install the bookmarklet just drag the <code>Google+1</code> link below to your browser bookmarks bar:</p>
-
-<div style="text-align:center;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';gpc.style.padding='50px';gpc.style.backgroundColor='#def';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a></div>
-
-<p>To use the bookmarklet at any time while browsing the web just click the link on your bookmarks bar and a +1 button will appear in the top-right corner of the page. Click the plus one button to share and comment just like you would on any other site that already has +1 buttons (feel free to test it out on this page!).</p>
-
-<p>I have tested this bookmarklet in Chrome 16.0.9 and Firefox 8.0. Please leave a comment if you have trouble with other browsers and I'll see what I can do.</p>
-
-<p>Internet Explorer 6 users might struggle - the bookmarklet code is longer than IE6 can cope with. May I suggest upgrading to one of the many much better browsers available, such as <a href="http://www.google.com/chrome">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>. </p>
-
-<p>Alternatively you can try this bookmarklet (disclaimer: I cannot test it - I don't have IE6) - drag the "Google+1" to your browser links bar:</p>
-
-<div style="text-align:center;margin:auto;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a>(IE6)</div>
-
-<p>Enjoy!</p>
-]]></description>
-          <category>google+</category>
-          <category>g+</category>
-          <category>+1</category>
-          <category>plusone</category>
-          <category>bookmarklet</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Pointing a domain name to an Amazon S3 bucket]]></title>
-        <link><![CDATA[http://steveliles.github.com/pointing_a_domain_name_to_an_amazon_s3_bucket.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/pointing_a_domain_name_to_an_amazon_s3_bucket.html</guid>
-        <description><![CDATA[<p>I recently registered a domain name for some static content i'm hosting in Amazon's Simple Storage Service (S3). <a href="hosting_a_static_website_in_amazon_s3.html">Setting up an S3 bucket as a static website</a> is pretty straight-forward, but pointing your domain to it is tricky. After a bit of playing and googling I think I've got the right combination:</p>
-
-<h4>Step-1: Create your S3 website bucket</h4>
-
-<p>When naming your bucket you <em>must</em> use the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. If you don't do this you will get warnings (404 not found, nosuchbucket).</p>
-
-<h4>Step-2: Remove any existing "A" records</h4>
-
-<p>Using the administration tools provided by your domain registrar, remove any <code>"A"</code> records that may have been automatically set up for your domain - you don't want your domain name pointing to "parking" sites.</p>
-
-<h4>Step-3: Forward your root domain to www</h4>
-
-<p>Forward your root domain (<code>mydomain.com</code>) to the <code>www</code> subdomain (<code>www.mydomain.com</code>). Most registrars and hosting companies give you the ability to forward domain names. With Fasthosts I had to "add" forwarding to my package, but it didn't cost anything extra.</p>
-
-<p>If you can <em>mask</em> the forwarding, so much the better, as this will mean that visitors to your site will see your registered domain rather than the S3 url (depends what your registrar offers - fasthosts and godaddy both support masked forwarding). In Fasthosts admin, masking is a checkbox option in the forwarding configuration.</p>
-
-<h4>Step-4: Add a `CNAME` pointing to your S3 site</h4>
-
-<p>Add a CNAME for the <code>www</code> subdomain, pointing to your S3 website (<code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>). The admin tools should make this easy for you.</p>
-
-<p><img src="https://lh4.googleusercontent.com/-6aH7JLLgpVQ/TtFmqVjl4QI/AAAAAAAAH0k/vT_wK-8EEd0/s522/cname-config.png" alt="Add a CNAME" /></p>
-
-<p>That's it - all you have to do now is wait for the changes to propagate (this can take a while).</p>
-
-<h4>See it in action...</h4>
-
-<p>You can see this in action with my setup:</p>
-
-<p>My domain-name is overpayment-calculator.com, which forwards to <a href="http://www.overpayment-calculator.com">www.overpayment-calculator.com</a>, which points (via CNAME) at my S3 bucket <a href="http://www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com">www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com</a>, masking the S3 name (so that when you visit via the overpayment-calculator.com address you don't see the S3 address in the address bar).</p>
-
-<p><em>p.s.</em> props to <a href="http://www.fasthosts.co.uk/">fasthosts</a> - the dns information propagated extremely quickly - from registering the domain name to acessing my site via that domain name (including the time it took me to do the set up) took less than one hour!</p>
-]]></description>
-          <category>Amazon</category>
-          <category>S3</category>
-          <category>domain name</category>
-          <category>forward</category>
-          <category>mask</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Microformats, rich snippets, rel=author, and search listings]]></title>
-        <link><![CDATA[http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html</guid>
-        <description><![CDATA[<p>Whilst moving my blog from Blogger to github pages I've been looking into various ways to bump up my traffic. </p>
-
-<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and waited to see what google would make of it.</p>
-
-<p>I admit, I was pretty excited at the thought of my search listings being presented in a more interesting fashion - I think that would really make them stand out. Here's an example of what Google's "rich snippets" testing tool makes of my articles:</p>
-
-<p><img src="https://lh5.googleusercontent.com/-svXxV_v3GEM/Ts7iHUCNneI/AAAAAAAAHyY/lpTiC3ZKFI0/s867/rich-snippets.png" alt="rich snippets info for one of my blog posts" /></p>
-
-<p>Unfortunately to-date it hasn't made a great deal of difference to how my posts are presented in a google search result.</p>
-
-<p><img src="https://lh6.googleusercontent.com/-56_YwrdGwv4/Ts7VbPtTwHI/AAAAAAAAHw8/s__A_feIMnY/s600/search-listing.png" alt="google search listing" /></p>
-
-<p>The first result in that listing image is for my blog. The only difference I see is that my blog result shows a date (which is nice, but I'm not sure its there because of the rich snippets markup - my old blogger blog shows dates like this too, and currently has no metadata markup that I can spot in the html source).</p>
-
-<p>So much for rich snippets. </p>
-
-<p>More recently I came across <code>rel=author</code>, and again I've been quite excited to try it out. This time I checked before-hand and found a handful of webby types who've got this working on their blogs. Here's what they look like:</p>
-
-<p><img src="https://lh4.googleusercontent.com/-j1PTvhmppyU/Ts7XnanwE-I/AAAAAAAAHxs/N4Z7toDlRN0/s600/rel-author-search-listing.png" alt="google search listing with rel=author" /></p>
-
-<p>A couple of weeks later I'm still having a bit of a trial getting this to work. I've done the setup exactly as described by google and a bunch of these other guys who've got it working - no joy. I'm using the three-way setup as follows:</p>
-
-<ul>
-<li>From each blog post, link to my about page with rel="author" (I've linked the lego man image at top-right in the header).</li>
-<li>From my about page, link to my google profile with rel="me" (I have two links, one <code>&lt;link rel="me"&gt;</code> in the <code>&lt;head&gt;</code>, and one in an <code>&lt;a rel="me" ..</code> in the G+ icon in the navigation bar just below the header.</li>
-<li>From my google profile, create a contributes-to link back to my about page.</li>
-</ul>
-
-<p>The reason for this set of reciprocal links is so that google can trust that the content really is produced by you, and its no hard-ship to set up. Except that for some reason I can't fathom it just <em>doesn't work for me</em>.</p>
-
-<p>The rich-snippets testing tool gives me the all-clear, and even shows an example search listing:</p>
-
-<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="" /></p>
-
-<p>I've tried about a dozen variants now, each time waiting for a re-index before trying something different (you can tell when you've been indexed using Google's <a href="http://www.google.com/webmasters/tools/">Webmaster Tools</a>).</p>
-
-<p>So far I've tried:</p>
-
-<ul>
-<li>Relative links between blog-post and about page</li>
-<li>Absolute links between blog-post and about page</li>
-<li>All links as <code>&lt;link&gt;</code> elements in the <code>&lt;head&gt;</code></li>
-<li>All links as <code>&lt;a&gt;</code> elements in the page <code>&lt;body&gt;</code></li>
-<li>All combinations of the above alternatives</li>
-</ul>
-
-<p>I have a few remaining alternatives in the works. One is to remove all rel=me links to profiles other than google (I currently also have twitter and linked-in profiles linked with rel=me). </p>
-
-<p>Another is to add a link to my google+ profile in an <code>&lt;a href="https://plus.google.com/105248011271585565954?rel=author"&gt;Steve+&lt;/a&gt;</code> (yes, with the + at the end of the link text - see <a href="http://www.google.com/support/webmasters/bin/answer.py?answer=1408986">option 2, here</a>). </p>
-
-<p>There's also <a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">this form</a> which sounds tantalisingly like it might be a necessary part of the process, and which I hadn't previously seen mentioned anywhere. I've submitted the form, but a bit of googling suggests that it will make no difference.</p>
-]]></description>
-          <category>rel=author</category>
-          <category>rich snippets</category>
-          <category>microformats</category>
-          <category>schema.org</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[A multi-class union CSS selector]]></title>
@@ -1234,6 +1209,69 @@ Several times while working on the styling of this blog I've wanted to style ele
           <category>css</category>
           <category>selector</category>
           <category>union</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Microformats, rich snippets, rel=author, and search listings]]></title>
+        <link><![CDATA[http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html</guid>
+        <description><![CDATA[<p>Whilst moving my blog from Blogger to github pages I've been looking into various ways to bump up my traffic. </p>
+
+<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and waited to see what google would make of it.</p>
+
+<p>I admit, I was pretty excited at the thought of my search listings being presented in a more interesting fashion - I think that would really make them stand out. Here's an example of what Google's "rich snippets" testing tool makes of my articles:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-svXxV_v3GEM/Ts7iHUCNneI/AAAAAAAAHyY/lpTiC3ZKFI0/s867/rich-snippets.png" alt="rich snippets info for one of my blog posts" /></p>
+
+<p>Unfortunately to-date it hasn't made a great deal of difference to how my posts are presented in a google search result.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-56_YwrdGwv4/Ts7VbPtTwHI/AAAAAAAAHw8/s__A_feIMnY/s600/search-listing.png" alt="google search listing" /></p>
+
+<p>The first result in that listing image is for my blog. The only difference I see is that my blog result shows a date (which is nice, but I'm not sure its there because of the rich snippets markup - my old blogger blog shows dates like this too, and currently has no metadata markup that I can spot in the html source).</p>
+
+<p>So much for rich snippets. </p>
+
+<p>More recently I came across <code>rel=author</code>, and again I've been quite excited to try it out. This time I checked before-hand and found a handful of webby types who've got this working on their blogs. Here's what they look like:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-j1PTvhmppyU/Ts7XnanwE-I/AAAAAAAAHxs/N4Z7toDlRN0/s600/rel-author-search-listing.png" alt="google search listing with rel=author" /></p>
+
+<p>A couple of weeks later I'm still having a bit of a trial getting this to work. I've done the setup exactly as described by google and a bunch of these other guys who've got it working - no joy. I'm using the three-way setup as follows:</p>
+
+<ul>
+<li>From each blog post, link to my about page with rel="author" (I've linked the lego man image at top-right in the header).</li>
+<li>From my about page, link to my google profile with rel="me" (I have two links, one <code>&lt;link rel="me"&gt;</code> in the <code>&lt;head&gt;</code>, and one in an <code>&lt;a rel="me" ..</code> in the G+ icon in the navigation bar just below the header.</li>
+<li>From my google profile, create a contributes-to link back to my about page.</li>
+</ul>
+
+<p>The reason for this set of reciprocal links is so that google can trust that the content really is produced by you, and its no hard-ship to set up. Except that for some reason I can't fathom it just <em>doesn't work for me</em>.</p>
+
+<p>The rich-snippets testing tool gives me the all-clear, and even shows an example search listing:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="" /></p>
+
+<p>I've tried about a dozen variants now, each time waiting for a re-index before trying something different (you can tell when you've been indexed using Google's <a href="http://www.google.com/webmasters/tools/">Webmaster Tools</a>).</p>
+
+<p>So far I've tried:</p>
+
+<ul>
+<li>Relative links between blog-post and about page</li>
+<li>Absolute links between blog-post and about page</li>
+<li>All links as <code>&lt;link&gt;</code> elements in the <code>&lt;head&gt;</code></li>
+<li>All links as <code>&lt;a&gt;</code> elements in the page <code>&lt;body&gt;</code></li>
+<li>All combinations of the above alternatives</li>
+</ul>
+
+<p>I have a few remaining alternatives in the works. One is to remove all rel=me links to profiles other than google (I currently also have twitter and linked-in profiles linked with rel=me). </p>
+
+<p>Another is to add a link to my google+ profile in an <code>&lt;a href="https://plus.google.com/105248011271585565954?rel=author"&gt;Steve+&lt;/a&gt;</code> (yes, with the + at the end of the link text - see <a href="http://www.google.com/support/webmasters/bin/answer.py?answer=1408986">option 2, here</a>). </p>
+
+<p>There's also <a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">this form</a> which sounds tantalisingly like it might be a necessary part of the process, and which I hadn't previously seen mentioned anywhere. I've submitted the form, but a bit of googling suggests that it will make no difference.</p>
+]]></description>
+          <category>rel=author</category>
+          <category>rich snippets</category>
+          <category>microformats</category>
+          <category>schema.org</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
       </item>
@@ -3616,24 +3654,6 @@ jMock takes a little getting used to, as it involves quite a different way of th
         <pubDate>Tue, 15 Feb 2011 00:00:00 +0000</pubDate>
       </item>
       <item>
-        <title><![CDATA[Installing fonts in Ubuntu]]></title>
-        <link><![CDATA[http://steveliles.github.com/installing_fonts_in_ubuntu.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/installing_fonts_in_ubuntu.html</guid>
-        <description><![CDATA[<p>Installing fonts in ubuntu is very easy these days - just open a ttf file and you are presented with a nice sample of the font (quick brown fox style), and a button in the bottom right corner to install the font.</p>
-
-<p>Nice'n'easy, but you're not quite done yet. You'll definitely need to restart running apps before the font becomes available to them, and quite possibly you'll need to rebuild the font cache, which you can do by rebooting (hah!) or:</p>
-
-<pre><code>sudo fccache -fv
-</code></pre>
-
-<p>btw., check out <a href="http://en.wikipedia.org/wiki/File:EurostileSpec.svg">Eurostile</a>. Its about 50 years old, but nonetheless is one of the most gorgeous fonts i've ever seen.</p>
-]]></description>
-          <category>fonts</category>
-          <category>ubuntu</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 12 Feb 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
         <title><![CDATA[Progressive Enhancement with GWT, part 2]]></title>
         <link><![CDATA[http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html</guid>
@@ -3687,6 +3707,24 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>gwt</category>
           <category>progressive enhancement</category>
           <category>SEO</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sat, 12 Feb 2011 00:00:00 +0000</pubDate>
+      </item>
+      <item>
+        <title><![CDATA[Installing fonts in Ubuntu]]></title>
+        <link><![CDATA[http://steveliles.github.com/installing_fonts_in_ubuntu.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/installing_fonts_in_ubuntu.html</guid>
+        <description><![CDATA[<p>Installing fonts in ubuntu is very easy these days - just open a ttf file and you are presented with a nice sample of the font (quick brown fox style), and a button in the bottom right corner to install the font.</p>
+
+<p>Nice'n'easy, but you're not quite done yet. You'll definitely need to restart running apps before the font becomes available to them, and quite possibly you'll need to rebuild the font cache, which you can do by rebooting (hah!) or:</p>
+
+<pre><code>sudo fccache -fv
+</code></pre>
+
+<p>btw., check out <a href="http://en.wikipedia.org/wiki/File:EurostileSpec.svg">Eurostile</a>. Its about 50 years old, but nonetheless is one of the most gorgeous fonts i've ever seen.</p>
+]]></description>
+          <category>fonts</category>
+          <category>ubuntu</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 12 Feb 2011 00:00:00 +0000</pubDate>
       </item>
@@ -3841,35 +3879,6 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <category>reading list</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Mon, 17 Jan 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Linux Distro popularity]]></title>
-        <link><![CDATA[http://steveliles.github.com/linux_distro_popularity.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/linux_distro_popularity.html</guid>
-        <description><![CDATA[<p>Interesting to see how Ubuntu has overtaken its sire Debian in recent years - Google Trends really is amazing.</p>
-
-<p><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TSIqrAJk8gI/AAAAAAAAG_g/e1VdMyp4pJ4/s1600/ubuntu-vs-debian.png" alt="Google Trends chart of Ubuntu (blue), Debian (red), CentOS (green) and Suse (orange)." /></p>
-
-<p><code>Ubuntu (blue), Debian (red), CentOS (green) and Suse (orange)</code></p>
-
-<p>Here's the link to see the full <a href="http://www.google.com/trends?q=ubuntu,+debian,+centos,+suse&amp;ctab=0&amp;geo=all&amp;date=all&amp;sort=0">google-trends page</a> for this comparison.</p>
-
-<p>I love the spikes on the ubuntu line every 6 months - I imagine these coincide with the 6-monthly .4 and .10 releases (April and October).</p>
-
-<p>Interestingly, when I compare Ubuntu with Windows 7 and OSX, OSX loses out strongly to Ubuntu (perhaps I'm using the wrong term, but I tried a number of different combinations), while Win7 is around 3x more popular than Ubuntu.  Also interesting to note how OSX beats Ubuntu in the "news" mentions (below the x-axis) presumably because of the Apple PR machine:</p>
-
-<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TSIsA8ZS4hI/AAAAAAAAG_k/x90cJQmmGJE/s1600/ubuntu-vs-windows.png" alt="Google Trends chart of Ubuntu (blue), Windows 7 (red), OSX (orange)" /></p>
-
-<p><code>Ubuntu (blue), Windows 7 (red), OSX (orange)</code></p>
-]]></description>
-          <category>linux</category>
-          <category>ubuntu</category>
-          <category>centos</category>
-          <category>debian</category>
-          <category>suse</category>
-          <category>distro</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Mon, 03 Jan 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>
