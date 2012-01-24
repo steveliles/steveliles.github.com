@@ -36,7 +36,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="291" description="I blogged recently about how we've set things up for team development using Maven, Android and Eclipse. This follow up post describes how someone joining the team would go about setting up and getting to work...">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="335" description="I blogged recently about how we've set things up for team development using Maven, Android and Eclipse. This follow up post describes how someone joining the team would go about setting up and getting to work...">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-23">January 23, 2012</time></span>
               <a itemprop="url" href="maven_android_and_eclipse_joining_the_team.html"><h1 itemprop="name" itemprop="headline">Maven, Android and Eclipse - joining the team</h1></a>
 	      <span itemprop="articleBody"><p>I blogged recently about <a href="http://steveliles.github.com/converting_eclipse_adt_android_projects_to_build_with_maven.html">building Android projects with Maven</a>, and <a href="http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">how we've set things up for team development</a> using Maven, Android and Eclipse. This follow up post describes how someone joining the team would go about setting up and getting to work...</p>
@@ -68,6 +68,8 @@
 <p>I highly recommend checking out so that all of these projects are siblings in a common projects directory.</p>
 
 <p>The <em>biggest</em> single difference from ADT's usual working style is that you can't (currently) work with the apklib projects as project dependencies <a href="http://steveliles.github.com/the_dreaded_unexpected_top_level_exception.html">because of this issue</a>. Instead, if you make any changes to an apklib project, you'll need to <code>mvn install</code> or <code>mvn deploy</code> it before you can see the change in your dependent apk projects.</p>
+
+<p>I found that I had to "mvn install" each of the apklib projects locally before the dependent projects would build, as the remotely deployed projects for some reason did not include the pom resource - I haven't yet had time to investigate why.</p>
 
 <p><a target="top" href="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s1600/75.jpg"><img alt="Converting Eclipse ADT projects to build with Maven, a comic strip made with @ComicStripIt" src="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s600/75.jpg"></a></p>
 </span>

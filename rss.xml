@@ -46,6 +46,8 @@
 
 <p>The <em>biggest</em> single difference from ADT's usual working style is that you can't (currently) work with the apklib projects as project dependencies <a href="http://steveliles.github.com/the_dreaded_unexpected_top_level_exception.html">because of this issue</a>. Instead, if you make any changes to an apklib project, you'll need to <code>mvn install</code> or <code>mvn deploy</code> it before you can see the change in your dependent apk projects.</p>
 
+<p>I found that I had to "mvn install" each of the apklib projects locally before the dependent projects would build, as the remotely deployed projects for some reason did not include the pom resource - I haven't yet had time to investigate why.</p>
+
 <p><a target="top" href="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s1600/75.jpg"><img alt="Converting Eclipse ADT projects to build with Maven, a comic strip made with @ComicStripIt" src="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s600/75.jpg"></a></p>
 ]]></description>
           <category>steve liles</category>
@@ -628,7 +630,7 @@ java.lang.IllegalArgumentException:
 
 <p><img src="https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png" alt="discover connectors dialog" /></p>
 
-<p>Install the connector and the warnings <em>should</em> go away. Actually for me they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's ok, as I want the maven build to be the master anyway.</p>
+<p>Install the connector and the warnings <em>should</em> go away. Actually on one of my two machines they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's just about ok, as I want the maven build to be the master anyway.</p>
 
 <p>Congrats, you should now have a happy Eclipse project, and be able to build it using maven as expected.</p>
 
