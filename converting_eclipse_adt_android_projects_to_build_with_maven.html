@@ -39,7 +39,7 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="918" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="928" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-04">January 04, 2012</time></span>
               <a itemprop="url" href="converting_eclipse_adt_android_projects_to_build_with_maven.html"><h1 itemprop="name" itemprop="headline">Converting Eclipse ADT Android projects to build with Maven</h1></a>
 	      <span itemprop="articleBody"><p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working (details after the comic-strip...). You might also be interested in two follow posts - <a href="http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">setting up for team development with Android, Maven and Eclipse</a> and <a href="http://steveliles.github.com/maven_android_and_eclipse_joining_the_team.html">joining a team developing with Android, Maven and Eclipse</a>:</p>
@@ -104,6 +104,8 @@
 <p>OK, last part ... Getting Eclipse and Maven to play nicely.</p>
 
 <p>If you open the project in Eclipse now you'll probably find that it doesn't like your pom.xml. When you open the pom with m2eclipse installed it will open with the graphical xml editor. You'll notice that there's an error <code>plugin execution not covered by lifecycle configuration...</code>. </p>
+
+<p><img src="https://lh5.googleusercontent.com/-Aki7I_BiCLw/Tx6hX3ZXmkI/AAAAAAAAIoU/KNQvbH5sNRI/s600/plugin-execution-crop.png" alt="error when pom packaging set to apk or apklib" /></p>
 
 <p>Click the error and some details open up, including two quick fixes. Click the first quick fix ("discover new m2e connectors"). The following dialog pops up and after a short search, shows the m2e-android connector:</p>
 
