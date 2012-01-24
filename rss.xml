@@ -31,7 +31,7 @@
 
 <ul>
 <li><a href="http://eclipse.org/m2e/">m2eclipse</a> - update site: http://download.eclipse.org/technology/m2e/releases</li>
-<li><a href="http://rgladwell.github.com/m2e-android/">m2e-android</a> - <em>don't use an update site to install this - instead, follow the instructions at the m2e-android site</em>.</li>
+<li><a href="http://rgladwell.github.com/m2e-android/">m2e-android</a> - <em>don't use an update site to install this - instead, follow the instructions at the bottom of this post (after the comic), or at the m2e-android site</em>.</li>
 </ul>
 
 <p>Since you are setting up to join an existing team, most of the maven configuration has presumably already been done for you. To get working on a project (assuming it is set up <a href="http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">as I described</a>) you need to check out two projects:</p>
@@ -49,6 +49,20 @@
 <p>I found that I had to "mvn install" each of the apklib projects locally before the dependent projects would build, as the remotely deployed projects for some reason did not include the pom resource - I haven't yet had time to investigate why.</p>
 
 <p><a target="top" href="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s1600/75.jpg"><img alt="Converting Eclipse ADT projects to build with Maven, a comic strip made with @ComicStripIt" src="https://lh4.googleusercontent.com/-WtXO6OjDnEA/Tx1KHLcuupI/AAAAAAAAIoA/HyxxXrw5i10/s600/75.jpg"></a></p>
+
+<h3>Installing M2E-Android</h3>
+
+<p><em>Don't install this like a normal Eclipse feature!</em> To install M2E-Android, open an Android-Maven project and open the pom.xml. You should see that the <packaging> element is being highlighted as an error, because without M2E-Android, M2Eclipse does not understand the <code>apk</code> or <code>apklib</code> packaging types.</p>
+
+<p>In the header of the pom.xml editor you should see a red error message: <code>plugin execution not covered by lifecycle configuration...</code>.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-Aki7I_BiCLw/Tx6hX3ZXmkI/AAAAAAAAIoU/KNQvbH5sNRI/s600/plugin-execution-crop.png" alt="error when pom packaging set to apk or apklib" /></p>
+
+<p>Click the error and some details open up, including two quick fixes. Click the first quick fix ("discover new m2e connectors"). The following dialog pops up and after a short search, shows the m2e-android connector:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png" alt="discover connectors dialog" /></p>
+
+<p>Install the connector and the warnings <em>should</em> go away. Actually on one of my two machines they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's just about ok, as I want the maven build to be the master anyway.</p>
 ]]></description>
           <category>steve liles</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
