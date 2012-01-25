@@ -35,73 +35,6 @@
       </nav>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="637" description="My travails with getting google to use the microformat, rich-snippets and rel=author information on my blog">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
-              <a itemprop="url" href="microformats_rich_snippets_rel_author_and_search_listings.html"><h1 itemprop="name" itemprop="headline">Microformats, rich snippets, rel=author, and search listings</h1></a>
-	      <span itemprop="articleBody"><p>Whilst moving my blog from Blogger to github pages I've been looking into various ways to bump up my traffic. </p>
-
-<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and waited to see what google would make of it.</p>
-
-<p>I admit, I was pretty excited at the thought of my search listings being presented in a more interesting fashion - I think that would really make them stand out. Here's an example of what Google's "rich snippets" testing tool makes of my articles:</p>
-
-<p><img src="https://lh5.googleusercontent.com/-svXxV_v3GEM/Ts7iHUCNneI/AAAAAAAAHyY/lpTiC3ZKFI0/s867/rich-snippets.png" alt="rich snippets info for one of my blog posts" /></p>
-
-<p>Unfortunately to-date it hasn't made a great deal of difference to how my posts are presented in a google search result.</p>
-
-<p><img src="https://lh6.googleusercontent.com/-56_YwrdGwv4/Ts7VbPtTwHI/AAAAAAAAHw8/s__A_feIMnY/s600/search-listing.png" alt="google search listing" /></p>
-
-<p>The first result in that listing image is for my blog. The only difference I see is that my blog result shows a date (which is nice, but I'm not sure its there because of the rich snippets markup - my old blogger blog shows dates like this too, and currently has no metadata markup that I can spot in the html source).</p>
-
-<p>So much for rich snippets. </p>
-
-<p>More recently I came across <code>rel=author</code>, and again I've been quite excited to try it out. This time I checked before-hand and found a handful of webby types who've got this working on their blogs. Here's what they look like:</p>
-
-<p><img src="https://lh4.googleusercontent.com/-j1PTvhmppyU/Ts7XnanwE-I/AAAAAAAAHxs/N4Z7toDlRN0/s600/rel-author-search-listing.png" alt="google search listing with rel=author" /></p>
-
-<p>A couple of weeks later I'm still having a bit of a trial getting this to work. I've done the setup exactly as described by google and a bunch of these other guys who've got it working - no joy. I'm using the three-way setup as follows:</p>
-
-<ul>
-<li>From each blog post, link to my about page with rel="author" (I've linked the lego man image at top-right in the header).</li>
-<li>From my about page, link to my google profile with rel="me" (I have two links, one <code>&lt;link rel="me"&gt;</code> in the <code>&lt;head&gt;</code>, and one in an <code>&lt;a rel="me" ..</code> in the G+ icon in the navigation bar just below the header.</li>
-<li>From my google profile, create a contributes-to link back to my about page.</li>
-</ul>
-
-<p>The reason for this set of reciprocal links is so that google can trust that the content really is produced by you, and its no hard-ship to set up. Except that for some reason I can't fathom it just <em>doesn't work for me</em>.</p>
-
-<p>The rich-snippets testing tool gives me the all-clear, and even shows an example search listing:</p>
-
-<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="" /></p>
-
-<p>I've tried about a dozen variants now, each time waiting for a re-index before trying something different (you can tell when you've been indexed using Google's <a href="http://www.google.com/webmasters/tools/">Webmaster Tools</a>).</p>
-
-<p>So far I've tried:</p>
-
-<ul>
-<li>Relative links between blog-post and about page</li>
-<li>Absolute links between blog-post and about page</li>
-<li>All links as <code>&lt;link&gt;</code> elements in the <code>&lt;head&gt;</code></li>
-<li>All links as <code>&lt;a&gt;</code> elements in the page <code>&lt;body&gt;</code></li>
-<li>All combinations of the above alternatives</li>
-</ul>
-
-<p>I have a few remaining alternatives in the works. One is to remove all rel=me links to profiles other than google (I currently also have twitter and linked-in profiles linked with rel=me). </p>
-
-<p>Another is to add a link to my google+ profile in an <code>&lt;a href="https://plus.google.com/105248011271585565954?rel=author"&gt;Steve+&lt;/a&gt;</code> (yes, with the + at the end of the link text - see <a href="http://www.google.com/support/webmasters/bin/answer.py?answer=1408986">option 2, here</a>). </p>
-
-<p>There's also <a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">this form</a> which sounds tantalisingly like it might be a necessary part of the process, and which I hadn't previously seen mentioned anywhere. I've submitted the form, but a bit of googling suggests that it will make no difference.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rel=author">rel=author</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rich snippets">rich snippets</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=microformats">microformats</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=schema.org">schema.org</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="microformats_rich_snippets_rel_author_and_search_listings.html">Comment on this post</a>
-
-            </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="579" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the union of the css classes">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
               <a itemprop="url" href="a_multi_class_union_css_selector.html"><h1 itemprop="name" itemprop="headline">A multi-class union CSS selector</h1></a>
@@ -196,6 +129,73 @@ Several times while working on the styling of this blog I've wanted to style ele
               <div style="clear:both"></div>
 
 	        <a href="a_multi_class_union_css_selector.html">Comment on this post</a>
+
+            </article>
+	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="637" description="My travails with getting google to use the microformat, rich-snippets and rel=author information on my blog">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
+              <a itemprop="url" href="microformats_rich_snippets_rel_author_and_search_listings.html"><h1 itemprop="name" itemprop="headline">Microformats, rich snippets, rel=author, and search listings</h1></a>
+	      <span itemprop="articleBody"><p>Whilst moving my blog from Blogger to github pages I've been looking into various ways to bump up my traffic. </p>
+
+<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and waited to see what google would make of it.</p>
+
+<p>I admit, I was pretty excited at the thought of my search listings being presented in a more interesting fashion - I think that would really make them stand out. Here's an example of what Google's "rich snippets" testing tool makes of my articles:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-svXxV_v3GEM/Ts7iHUCNneI/AAAAAAAAHyY/lpTiC3ZKFI0/s867/rich-snippets.png" alt="rich snippets info for one of my blog posts" /></p>
+
+<p>Unfortunately to-date it hasn't made a great deal of difference to how my posts are presented in a google search result.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-56_YwrdGwv4/Ts7VbPtTwHI/AAAAAAAAHw8/s__A_feIMnY/s600/search-listing.png" alt="google search listing" /></p>
+
+<p>The first result in that listing image is for my blog. The only difference I see is that my blog result shows a date (which is nice, but I'm not sure its there because of the rich snippets markup - my old blogger blog shows dates like this too, and currently has no metadata markup that I can spot in the html source).</p>
+
+<p>So much for rich snippets. </p>
+
+<p>More recently I came across <code>rel=author</code>, and again I've been quite excited to try it out. This time I checked before-hand and found a handful of webby types who've got this working on their blogs. Here's what they look like:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-j1PTvhmppyU/Ts7XnanwE-I/AAAAAAAAHxs/N4Z7toDlRN0/s600/rel-author-search-listing.png" alt="google search listing with rel=author" /></p>
+
+<p>A couple of weeks later I'm still having a bit of a trial getting this to work. I've done the setup exactly as described by google and a bunch of these other guys who've got it working - no joy. I'm using the three-way setup as follows:</p>
+
+<ul>
+<li>From each blog post, link to my about page with rel="author" (I've linked the lego man image at top-right in the header).</li>
+<li>From my about page, link to my google profile with rel="me" (I have two links, one <code>&lt;link rel="me"&gt;</code> in the <code>&lt;head&gt;</code>, and one in an <code>&lt;a rel="me" ..</code> in the G+ icon in the navigation bar just below the header.</li>
+<li>From my google profile, create a contributes-to link back to my about page.</li>
+</ul>
+
+<p>The reason for this set of reciprocal links is so that google can trust that the content really is produced by you, and its no hard-ship to set up. Except that for some reason I can't fathom it just <em>doesn't work for me</em>.</p>
+
+<p>The rich-snippets testing tool gives me the all-clear, and even shows an example search listing:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="" /></p>
+
+<p>I've tried about a dozen variants now, each time waiting for a re-index before trying something different (you can tell when you've been indexed using Google's <a href="http://www.google.com/webmasters/tools/">Webmaster Tools</a>).</p>
+
+<p>So far I've tried:</p>
+
+<ul>
+<li>Relative links between blog-post and about page</li>
+<li>Absolute links between blog-post and about page</li>
+<li>All links as <code>&lt;link&gt;</code> elements in the <code>&lt;head&gt;</code></li>
+<li>All links as <code>&lt;a&gt;</code> elements in the page <code>&lt;body&gt;</code></li>
+<li>All combinations of the above alternatives</li>
+</ul>
+
+<p>I have a few remaining alternatives in the works. One is to remove all rel=me links to profiles other than google (I currently also have twitter and linked-in profiles linked with rel=me). </p>
+
+<p>Another is to add a link to my google+ profile in an <code>&lt;a href="https://plus.google.com/105248011271585565954?rel=author"&gt;Steve+&lt;/a&gt;</code> (yes, with the + at the end of the link text - see <a href="http://www.google.com/support/webmasters/bin/answer.py?answer=1408986">option 2, here</a>). </p>
+
+<p>There's also <a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">this form</a> which sounds tantalisingly like it might be a necessary part of the process, and which I hadn't previously seen mentioned anywhere. I've submitted the form, but a bit of googling suggests that it will make no difference.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rel=author">rel=author</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rich snippets">rich snippets</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=microformats">microformats</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=schema.org">schema.org</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="microformats_rich_snippets_rel_author_and_search_listings.html">Comment on this post</a>
 
             </article>
 	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
