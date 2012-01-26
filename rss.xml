@@ -55,7 +55,7 @@
 <ul>
 <li><a href="http://developer.android.com/sdk/eclipse-adt.html">Android Development Tools (ADT)</a> - update site: https://dl-ssl.google.com/android/eclipse/</li>
 <li><a href="http://eclipse.org/m2e/">m2eclipse</a> - update site: http://download.eclipse.org/technology/m2e/releases</li>
-<li><a href="http://rgladwell.github.com/m2e-android/">m2e-android</a> - <em>don't use an update site to install this - instead, follow the instructions at the bottom of this post (after the comic), or at the m2e-android site</em>.</li>
+<li><a href="http://rgladwell.github.com/m2e-android/">m2e-android</a> - Whilst you can install this like a normal plugin (thx Ricardo for the correction), I recommend that you <em>don't</em> use an update site to install this - instead, follow the instructions at the bottom of this post (after the comic), or at the <a href="http://rgladwell.github.com/m2e-android/">m2e-android site</a>.</li>
 </ul>
 
 <p>Since you are setting up to join an existing team, most of the maven configuration has presumably already been done for you. To get working on a project (assuming it is set up <a href="http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">as I described</a>) you need to check out two projects:</p>
