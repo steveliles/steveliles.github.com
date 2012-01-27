@@ -15,7 +15,7 @@
   </head>
   <body>
     <div>
-      <header class="site-header">
+      <div class="site-header">
         <div class="left">
           <a href="/index.html"><h1>ExoMemory</h1></a>
           <h2>Because I'll forget it if I don't write it down...</h2>
@@ -23,8 +23,8 @@
         <div class="right">
 	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
         </div>
-      </header>
-      <nav>
+      </div>
+      <div class="nav">
         <span>
           <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
           <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
@@ -35,10 +35,10 @@
           </form>
 	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
         </span>
-      </nav>
+      </div>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403" description="Problem description and solution for runtime error messages pertaining to testing a web app that uses JQuery using HtmlUnit.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403" description="Problem description and solution for runtime error messages pertaining to testing a web app that uses JQuery using HtmlUnit.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
               <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
 	      <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
@@ -122,7 +122,7 @@ function doScrollCheck() {
                 </script>
 
 
-            </article>
+            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -150,12 +150,12 @@ function doScrollCheck() {
           </div>
         </div>
       </div>
-      <nav>
+      <div class="nav">
         <div class="links">
           <div class="prev"><a title="previous" href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html">Replicating Java threading ...</a></div>
           <div class="next"><a title="next" href="unit_testing_code_written_in_tell_don_t_ask_style.html">Unit Testing code written i...</a></div>
         </div>
-      </nav>
+      </div>
     </div>
     <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>

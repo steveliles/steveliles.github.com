@@ -17,7 +17,7 @@
   </head>
   <body>
     <div>
-      <header class="site-header">
+      <div class="site-header">
         <div class="left">
           <a href="/index.html"><h1>ExoMemory</h1></a>
           <h2>Because I'll forget it if I don't write it down...</h2>
@@ -25,8 +25,8 @@
         <div class="right">
 	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
         </div>
-      </header>
-      <nav>
+      </div>
+      <div class="nav">
         <span>
           <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
           <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
@@ -37,10 +37,10 @@
           </form>
 	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
         </span>
-      </nav>
+      </div>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="536" description="A quick overview of pro's and con's of ElasticSearch vs SOLRCloud from some brief initial research into both">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="536" description="A quick overview of pro's and con's of ElasticSearch vs SOLRCloud from some brief initial research into both">
               <span class="meta" itemprop="datePublished"><time datetime="2011-02-24">February 24, 2011</time></span>
               <a itemprop="url" href="elasticsearch_vs_solrcloud.html"><h1 itemprop="name" itemprop="headline">ElasticSearch vs SOLRCloud</h1></a>
 	      <span itemprop="articleBody"><p>For an upcoming work project I need a scalable search platform - scalable to tens or hundreds of millions of documents (news articles), and millions of queries per day. We're a (mostly) Java shop, and have a lot of experience with Lucene, so two solutions that pique my curiosity are SOLRCloud (SOLR + ZooKeeper) and ElasticSearch.</p>
@@ -127,7 +127,7 @@
                 </script>
 
 
-            </article>
+            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -155,12 +155,12 @@
           </div>
         </div>
       </div>
-      <nav>
+      <div class="nav">
         <div class="links">
           <div class="prev"><a title="previous" href="unit_testing_code_written_in_tell_don_t_ask_style.html">Unit Testing code written i...</a></div>
           <div class="next"><a title="next" href="progressive_enhancement_with_gwt_part_3.html">Progressive Enhancement wit...</a></div>
         </div>
-      </nav>
+      </div>
     </div>
     <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>

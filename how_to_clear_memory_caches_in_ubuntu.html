@@ -16,7 +16,7 @@
   </head>
   <body>
     <div>
-      <header class="site-header">
+      <div class="site-header">
         <div class="left">
           <a href="/index.html"><h1>ExoMemory</h1></a>
           <h2>Because I'll forget it if I don't write it down...</h2>
@@ -24,8 +24,8 @@
         <div class="right">
 	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
         </div>
-      </header>
-      <nav>
+      </div>
+      <div class="nav">
         <span>
           <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
           <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
@@ -36,10 +36,10 @@
           </form>
 	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
         </span>
-      </nav>
+      </div>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
               <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
 	      <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
@@ -90,7 +90,7 @@
                 </script>
 
 
-            </article>
+            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -118,12 +118,12 @@
           </div>
         </div>
       </div>
-      <nav>
+      <div class="nav">
         <div class="links">
           <div class="prev"><a title="previous" href="testing_gwt_apps_in_dev_mode_with_webdriver.html">Testing GWT apps in dev-mod...</a></div>
           
         </div>
-      </nav>
+      </div>
     </div>
     <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>

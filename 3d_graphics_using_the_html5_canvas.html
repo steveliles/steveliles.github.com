@@ -17,7 +17,7 @@
   </head>
   <body>
     <div>
-      <header class="site-header">
+      <div class="site-header">
         <div class="left">
           <a href="/index.html"><h1>ExoMemory</h1></a>
           <h2>Because I'll forget it if I don't write it down...</h2>
@@ -25,8 +25,8 @@
         <div class="right">
 	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
         </div>
-      </header>
-      <nav>
+      </div>
+      <div class="nav">
         <span>
           <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
           <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
@@ -37,10 +37,10 @@
           </form>
 	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
         </span>
-      </nav>
+      </div>
       <div class="content">
         <div class="main">
-	    <article itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="880" description="fun 3d project rendering 3d rubiks cubes in a html5 canvas element in real time using a z-buffer implemented in javascript with Google Web Toolkit and progressive enhancement techniques">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="880" description="fun 3d project rendering 3d rubiks cubes in a html5 canvas element in real time using a z-buffer implemented in javascript with Google Web Toolkit and progressive enhancement techniques">
               <span class="meta" itemprop="datePublished"><time datetime="2011-01-02">January 02, 2011</time></span>
               <a itemprop="url" href="3d_graphics_using_the_html5_canvas.html"><h1 itemprop="name" itemprop="headline">3D graphics using the html5 canvas</h1></a>
 	      <span itemprop="articleBody"><p>I thought i'd put up a quick sample of my latest play-thing - a 3D rendering of a rubik's cube, using javascript (GWT) to implement the z-buffer and the html5 canvas as the display.  I originally built this in plain old javascript, but have now converted it to GWT - partly just for fun and partly to make the code a bit more manageable and refactorable (if that's even a word). Along the way I made a few optimisations like caching radian, sin and cosine values of angles.</p>
@@ -160,7 +160,7 @@
                 </script>
 
 
-            </article>
+            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -188,12 +188,12 @@
           </div>
         </div>
       </div>
-      <nav>
+      <div class="nav">
         <div class="links">
           <div class="prev"><a title="previous" href="linux_distro_popularity.html">Linux Distro popularity</a></div>
           <div class="next"><a title="next" href="amazing_trilobyte_fossils.html">Amazing trilobyte fossils</a></div>
         </div>
-      </nav>
+      </div>
     </div>
     <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>
