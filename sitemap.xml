@@ -71,6 +71,11 @@
     </url>
 
     <url> 
+      <loc>http://steveliles.github.com/invoking_processes_from_java.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/another_mini_figure_another_comic_strip.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
