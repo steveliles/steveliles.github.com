@@ -35,6 +35,56 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="266" description="A couple of commands I've been using to create iOS-style icons with ImageMagick">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-27">January 27, 2012</time></span>
+              <a itemprop="url" href="creating_ios_style_icons_with_imagemagick.html"><h1 itemprop="name" itemprop="headline">Creating iOS style icons with ImageMagick</h1></a>
+	      <span itemprop="articleBody"><p>Icons for iOS apps are generally provided by the app with square corners and no "sheen". The rounded corners and glossy sheen are added by iOS.</p>
+
+<p>If you want to achieve the iOS icon look on icons used elsewhere (Android, Web, etc), you need to round the corners and apply the sheen yourself.</p>
+
+<p>What follows is my quick attempt to give the iOS treatment to this 512x512 icon:</p>
+
+<p><img src="https://lh6.googleusercontent.com/-UaUMm3U99L8/TyLi2QD6E-I/AAAAAAAAIq4/gl-21ZMoBg4/s800/in.png" alt="Original Icon" /></p>
+
+<h3>Transparent Rounded Corners</h3>
+
+<p>OK, transparent rounded corners are actually the easy part. There are several ways to get ImageMagick to do this. The easiest (read: shortest) command i've found looks like this:</p>
+
+<pre><code>convert -size 512x512 xc:none -fill white -draw \
+    'roundRectangle 0,0 512,512 50,50' in.png \
+    -compose SrcIn -composite rounded.png
+</code></pre>
+
+<p>So now we have this:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-ndvucr5orZ4/TyLmOX_XYqI/AAAAAAAAIrc/gMdrV_Hvil8/s800/test.png" alt="Rounded Corners" /></p>
+
+<h3>Overlay some sheen</h3>
+
+<p>The sheen is trickier. I imagine that real ImageMagick pro's could generate the sheen mask with some deft command-line, but I'm nowhere near that proficient.</p>
+
+<p>Instead I created the following image in Gimp - exactly how is a topic for another post :). The black background is coming from the div containing the image - where you see black is actually transparent in my png, and the grey highlight at the top is semi-transparent:</p>
+
+<div style="background-color:black; width:512px;"><img src="https://lh5.googleusercontent.com/-gssBzUQ5a0c/TyLi4f6F6fI/AAAAAAAAIrE/Lc9HhdfRQN8/s800/gloss-over.png"></div>
+
+<p>To composite the rounded-corner image with the glossy overlay (gloss-over.png), I use this ImageMagick command:</p>
+
+<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" rounded.png final.png
+</code></pre>
+
+<p><img src="https://lh4.googleusercontent.com/-YaXSMS3j_Ws/TyLmvOKZLMI/AAAAAAAAIr0/h_nP4EQ8k94/s800/final.png" alt="Final iOS style image" /></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ImageMagick">ImageMagick</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=iOS">iOS</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Icon">Icon</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="creating_ios_style_icons_with_imagemagick.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,395" description="Invoking an external process from Java appears easy enough but there are sooo many gotchas to watch out for. Here I try to describe some of them, and suggest some ways to avoid those problems.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-26">January 26, 2012</time></span>
               <a itemprop="url" href="invoking_processes_from_java.html"><h1 itemprop="name" itemprop="headline">Invoking Processes from Java</h1></a>
@@ -464,36 +514,6 @@ convert 3.png 2.png in.png -composite out.png
 	        <a href="creating_colourised_icon_theme_sets_with_image_magick.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="207" description="Quick description of how to take screenshots of apps running in the Android Emulator">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-01-12">January 12, 2012</time></span>
-              <a itemprop="url" href="capture_screenshots_from_the_android_emulator_or_mobile_device.html"><h1 itemprop="name" itemprop="headline">Capture screenshots from the Android Emulator or Mobile Device</h1></a>
-	      <span itemprop="articleBody"><p>The first few times I needed screenshots of an Android app for the Android Market description I <code>alt-printscreen</code>'d the emulator then sliced the app screenshot out of the resulting image. This is a pain and - as it turns out - completely unnecessary. </p>
-
-<p>For capturing screenshots from physical devices there are (paid) apps in the store, but again, this is completely unnecessary if you are a developer and have set up the Android Development Tools.</p>
-
-<p>Why? Because a screenshot tool comes packaged as part of the android sdk!</p>
-
-<p>From Eclipse you can grab a screenshot by opening DDMS (<code>Window -&gt; Open Perspective -&gt; DDMS</code>), then in the <code>Device</code> pane, select the device you want to take a screenshot from (which can be the emulator or a "real" mobile device), then click the camera icon (top right in the following screenshot):</p>
-
-<p><img src="https://lh6.googleusercontent.com/-7d2j8LBcJ0I/Tw77Op8tmJI/AAAAAAAAIdk/D-ICPn9eVQw/s800/devices.png" alt="screenshot showing the take-screenshot icon in DDMS" /></p>
-
-<p>From the command-line I'm afraid you're pretty much <a href="http://code.google.com/p/android/issues/detail?id=13613">out of luck right now</a> unless you feel like a bit of hacking to create your own cmdline screenshot grabber by connecting to the same service that DDMS connects to.</p>
-
-<p><a href="https://lh6.googleusercontent.com/-xNoeEFqfrDw/TxtJTtrsa8I/AAAAAAAAImQ/6gNcgm-ttwY/s1600/49.jpg"><img alt="Android Emulator Screenshots, a comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/-xNoeEFqfrDw/TxtJTtrsa8I/AAAAAAAAImQ/6gNcgm-ttwY/s600/49.jpg"></a></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=emulator">emulator</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=screenshot">screenshot</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ddms">ddms</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -511,11 +531,11 @@ convert 3.png 2.png in.png -composite out.png
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
                 <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
                 <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
                 <li><a href="maven_android_and_eclipse_joining_the_team.html">Maven, Android and Eclipse - joining the team</a><span class="date"> - Jan 23, 2012</span></li>
                 <li><a href="creating_colourised_icon_theme_sets_with_image_magick.html">Creating colourised icon theme-sets with Image-Magick</a><span class="date"> - Jan 18, 2012</span></li>
-                <li><a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from the Android Emulator or Mobile Device</a><span class="date"> - Jan 12, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

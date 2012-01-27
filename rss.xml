@@ -13,6 +13,52 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Creating iOS style icons with ImageMagick]]></title>
+        <link><![CDATA[http://steveliles.github.com/creating_ios_style_icons_with_imagemagick.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/creating_ios_style_icons_with_imagemagick.html</guid>
+        <description><![CDATA[<p>Icons for iOS apps are generally provided by the app with square corners and no "sheen". The rounded corners and glossy sheen are added by iOS.</p>
+
+<p>If you want to achieve the iOS icon look on icons used elsewhere (Android, Web, etc), you need to round the corners and apply the sheen yourself.</p>
+
+<p>What follows is my quick attempt to give the iOS treatment to this 512x512 icon:</p>
+
+<p><img src="https://lh6.googleusercontent.com/-UaUMm3U99L8/TyLi2QD6E-I/AAAAAAAAIq4/gl-21ZMoBg4/s800/in.png" alt="Original Icon" /></p>
+
+<h3>Transparent Rounded Corners</h3>
+
+<p>OK, transparent rounded corners are actually the easy part. There are several ways to get ImageMagick to do this. The easiest (read: shortest) command i've found looks like this:</p>
+
+<pre><code>convert -size 512x512 xc:none -fill white -draw \
+    'roundRectangle 0,0 512,512 50,50' in.png \
+    -compose SrcIn -composite rounded.png
+</code></pre>
+
+<p>So now we have this:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-ndvucr5orZ4/TyLmOX_XYqI/AAAAAAAAIrc/gMdrV_Hvil8/s800/test.png" alt="Rounded Corners" /></p>
+
+<h3>Overlay some sheen</h3>
+
+<p>The sheen is trickier. I imagine that real ImageMagick pro's could generate the sheen mask with some deft command-line, but I'm nowhere near that proficient.</p>
+
+<p>Instead I created the following image in Gimp - exactly how is a topic for another post :). The black background is coming from the div containing the image - where you see black is actually transparent in my png, and the grey highlight at the top is semi-transparent:</p>
+
+<div style="background-color:black; width:512px;"><img src="https://lh5.googleusercontent.com/-gssBzUQ5a0c/TyLi4f6F6fI/AAAAAAAAIrE/Lc9HhdfRQN8/s800/gloss-over.png"></div>
+
+<p>To composite the rounded-corner image with the glossy overlay (gloss-over.png), I use this ImageMagick command:</p>
+
+<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" rounded.png final.png
+</code></pre>
+
+<p><img src="https://lh4.googleusercontent.com/-YaXSMS3j_Ws/TyLmvOKZLMI/AAAAAAAAIr0/h_nP4EQ8k94/s800/final.png" alt="Final iOS style image" /></p>
+]]></description>
+          <category>ImageMagick</category>
+          <category>iOS</category>
+          <category>Icon</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Fri, 27 Jan 2012 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Invoking Processes from Java]]></title>
         <link><![CDATA[http://steveliles.github.com/invoking_processes_from_java.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/invoking_processes_from_java.html</guid>
@@ -3980,24 +4026,6 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <category>gwt</category>
           <category>progressive enhancement</category>
           <category>SEO</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 12 Feb 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Installing fonts in Ubuntu]]></title>
-        <link><![CDATA[http://steveliles.github.com/installing_fonts_in_ubuntu.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/installing_fonts_in_ubuntu.html</guid>
-        <description><![CDATA[<p>Installing fonts in ubuntu is very easy these days - just open a ttf file and you are presented with a nice sample of the font (quick brown fox style), and a button in the bottom right corner to install the font.</p>
-
-<p>Nice'n'easy, but you're not quite done yet. You'll definitely need to restart running apps before the font becomes available to them, and quite possibly you'll need to rebuild the font cache, which you can do by rebooting (hah!) or:</p>
-
-<pre><code>sudo fccache -fv
-</code></pre>
-
-<p>btw., check out <a href="http://en.wikipedia.org/wiki/File:EurostileSpec.svg">Eurostile</a>. Its about 50 years old, but nonetheless is one of the most gorgeous fonts i've ever seen.</p>
-]]></description>
-          <category>fonts</category>
-          <category>ubuntu</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 12 Feb 2011 00:00:00 +0000</pubDate>
       </item>

@@ -35,6 +35,63 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403" description="Problem description and solution for runtime error messages pertaining to testing a web app that uses JQuery using HtmlUnit.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
+              <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
+	      <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
+
+<p>...
+One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
+
+<pre><code>runtimeError: message=
+  [The data necessary to complete this operation is not yet available.]
+  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
+  lineSource=[null] lineOffset=[0]
+</code></pre>
+
+<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
+
+<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
+
+<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
+
+<pre><code>// The DOM ready check for Internet Explorer
+function doScrollCheck() {
+ if ( jQuery.isReady ) {
+  return;
+ }
+
+ try {
+  // If IE is used, use the trick by Diego Perini
+  // http://javascript.nwbox.com/IEContentLoaded/
+     document.documentElement.doScroll("left");
+ } catch(e) {
+  setTimeout( doScrollCheck, 1 );
+  return;
+ }
+
+ // and execute any waiting functions
+ jQuery.ready();
+}
+</code></pre>
+
+<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
+
+<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
+
+<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="jquery_htmlunit_runtimeerror_messages_galore.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,658" description="Tell dont ask programming style, and how to unit test code written in that style - with examples.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-03-15">March 15, 2011</time></span>
               <a itemprop="url" href="unit_testing_code_written_in_tell_don_t_ask_style.html"><h1 itemprop="name" itemprop="headline">Unit Testing code written in "Tell, Don't Ask" style</h1></a>
@@ -455,28 +512,6 @@ jMock takes a little getting used to, as it involves quite a different way of th
 	        <a href="progressive_enhancement_with_gwt_part_2.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="110" description="Describes the process of installing fonts in Ubuntu Linux">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-02-12">February 12, 2011</time></span>
-              <a itemprop="url" href="installing_fonts_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Installing fonts in Ubuntu</h1></a>
-	      <span itemprop="articleBody"><p>Installing fonts in ubuntu is very easy these days - just open a ttf file and you are presented with a nice sample of the font (quick brown fox style), and a button in the bottom right corner to install the font.</p>
-
-<p>Nice'n'easy, but you're not quite done yet. You'll definitely need to restart running apps before the font becomes available to them, and quite possibly you'll need to rebuild the font cache, which you can do by rebooting (hah!) or:</p>
-
-<pre><code>sudo fccache -fv
-</code></pre>
-
-<p>btw., check out <a href="http://en.wikipedia.org/wiki/File:EurostileSpec.svg">Eurostile</a>. Its about 50 years old, but nonetheless is one of the most gorgeous fonts i've ever seen.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=fonts">fonts</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="installing_fonts_in_ubuntu.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -494,11 +529,11 @@ jMock takes a little getting used to, as it involves quite a different way of th
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
                 <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
                 <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
                 <li><a href="maven_android_and_eclipse_joining_the_team.html">Maven, Android and Eclipse - joining the team</a><span class="date"> - Jan 23, 2012</span></li>
                 <li><a href="creating_colourised_icon_theme_sets_with_image_magick.html">Creating colourised icon theme-sets with Image-Magick</a><span class="date"> - Jan 18, 2012</span></li>
-                <li><a href="capture_screenshots_from_the_android_emulator_or_mobile_device.html">Capture screenshots from the Android Emulator or Mobile Device</a><span class="date"> - Jan 12, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

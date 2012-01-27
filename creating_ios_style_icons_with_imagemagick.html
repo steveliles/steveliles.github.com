@@ -6,14 +6,12 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-      <meta name="keywords" content="Mortgage" itemprop="keywords"></meta>
-      <meta name="keywords" content="Loan" itemprop="keywords"></meta>
-      <meta name="keywords" content="Overpayment" itemprop="keywords"></meta>
-      <meta name="keywords" content="Calculator" itemprop="keywords"></meta>
-      <meta name="keywords" content="GWT" itemprop="keywords"></meta>
-    <meta name="description" content="Description and code samples for a mortgage or loan overpayment calculator written using Google Web Toolkit and progressive enhancement techniques"></meta>
+      <meta name="keywords" content="ImageMagick" itemprop="keywords"></meta>
+      <meta name="keywords" content="iOS" itemprop="keywords"></meta>
+      <meta name="keywords" content="Icon" itemprop="keywords"></meta>
+    <meta name="description" content="A couple of commands I've been using to create iOS-style icons with ImageMagick"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Mortgage/Loan Overpayment Calculator</title>
+    <title>Creating iOS style icons with ImageMagick</title>
   </head>
   <body>
     <div>
@@ -40,66 +38,50 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="421" description="Description and code samples for a mortgage or loan overpayment calculator written using Google Web Toolkit and progressive enhancement techniques">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-17">November 17, 2011</time></span>
-              <a itemprop="url" href="mortgage_loan_overpayment_calculator.html"><h1 itemprop="name" itemprop="headline">Mortgage/Loan Overpayment Calculator</h1></a>
-	      <span itemprop="articleBody"><p>A few weeks back I was talking with someone who was looking into over-paying a loan. The premise is that, provided your lender allows overpayments, by over-paying you can save a fortune in interest payments.</p>
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="266" description="A couple of commands I've been using to create iOS-style icons with ImageMagick">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-27">January 27, 2012</time></span>
+              <a itemprop="url" href="creating_ios_style_icons_with_imagemagick.html"><h1 itemprop="name" itemprop="headline">Creating iOS style icons with ImageMagick</h1></a>
+	      <span itemprop="articleBody"><p>Icons for iOS apps are generally provided by the app with square corners and no "sheen". The rounded corners and glossy sheen are added by iOS.</p>
 
-<p>The amount you can save isn't all that straight-forward to work out, due to the miracle that is compound interest. I knocked up a quick <a href="http://www.overpayment-calculator.com/">overpayment calculator</a> using <code>gwt.progressive</code>, which I'm <a href="hosting_a_static_website_in_amazon_s3.html">hosting at Amazon S3</a> with a <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">registered domain name</a>.</p>
+<p>If you want to achieve the iOS icon look on icons used elsewhere (Android, Web, etc), you need to round the corners and apply the sheen yourself.</p>
 
-<p>Here's one of the classes that's being bound - or "activated" if you like - by gwt.progressive:</p>
+<p>What follows is my quick attempt to give the iOS treatment to this 512x512 icon:</p>
 
-<pre><code>public class OverpaymentSummary extends Composite {
-    interface MyActivator extends WidgetActivator&amp;lt;OverpaymentSummary&gt;{}
-    MyActivator activator = GWT.create(MyActivator.class);
+<p><img src="https://lh6.googleusercontent.com/-UaUMm3U99L8/TyLi2QD6E-I/AAAAAAAAIq4/gl-21ZMoBg4/s800/in.png" alt="Original Icon" /></p>
 
-    @RuntimeUiWidget(id="saving") InlineLabel saving;
-    @RuntimeUiWidget(id="years") InlineLabel years;
-    @RuntimeUiWidget(id="months") InlineLabel months;
+<h3>Transparent Rounded Corners</h3>
 
-    public OverpaymentSummary(Element anElement) {
-        initWidget(activator.activate(this, anElement));
-    }
+<p>OK, transparent rounded corners are actually the easy part. There are several ways to get ImageMagick to do this. The easiest (read: shortest) command i've found looks like this:</p>
 
-    public void setResults(
-        Money aStandardTotal, int aStandardMonths, 
-        Money anOverpaidTotal, int anOverMonths) {
-        saving.setText(aStandardTotal.minus(anOverpaidTotal).toString());
-
-        int _monthsSaved = aStandardMonths - anOverMonths;
-        setYears(_monthsSaved/12);
-        setMonths(_monthsSaved - ((_monthsSaved/12)*12));
-
-        removeStyleName("hidden");
-    }
-
-    private void setYears(int aYears) {
-        years.setText(""+aYears);
-    }
-
-    private void setMonths(int aMonths) {
-        months.setText(""+aMonths);
-    }
-}
+<pre><code>convert -size 512x512 xc:none -fill white -draw \
+    'roundRectangle 0,0 512,512 50,50' in.png \
+    -compose SrcIn -composite rounded.png
 </code></pre>
 
-<p>Which is bound onto html that looks like this:</p>
+<p>So now we have this:</p>
 
-<pre><code>&amp;lt;div class="summary hidden"&gt;By overpaying you could save
-&amp;lt;span id="saving"&gt;???&amp;lt;/span&gt;, and reduce your mortgage 
-term by &amp;lt;span id="years"&gt;?&amp;lt;/span&gt; years and 
-&amp;lt;span id="months"&gt;?&amp;lt;/span&gt; months!&amp;lt;/div&gt;
+<p><img src="https://lh3.googleusercontent.com/-ndvucr5orZ4/TyLmOX_XYqI/AAAAAAAAIrc/gMdrV_Hvil8/s800/test.png" alt="Rounded Corners" /></p>
+
+<h3>Overlay some sheen</h3>
+
+<p>The sheen is trickier. I imagine that real ImageMagick pro's could generate the sheen mask with some deft command-line, but I'm nowhere near that proficient.</p>
+
+<p>Instead I created the following image in Gimp - exactly how is a topic for another post :). The black background is coming from the div containing the image - where you see black is actually transparent in my png, and the grey highlight at the top is semi-transparent:</p>
+
+<div style="background-color:black; width:512px;"><img src="https://lh5.googleusercontent.com/-gssBzUQ5a0c/TyLi4f6F6fI/AAAAAAAAIrE/Lc9HhdfRQN8/s800/gloss-over.png"></div>
+
+<p>To composite the rounded-corner image with the glossy overlay (gloss-over.png), I use this ImageMagick command:</p>
+
+<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" rounded.png final.png
 </code></pre>
 
-<p>Notice the <code>&amp;lt;span&gt;</code> elements with the id's "saving", "years", and "months" - these are bound automatically to the three <code>InlineLabel</code>'s annotated with <code>@RuntimeUiWidget</code>.</p>
+<p><img src="https://lh4.googleusercontent.com/-YaXSMS3j_Ws/TyLmvOKZLMI/AAAAAAAAIr0/h_nP4EQ8k94/s800/final.png" alt="Final iOS style image" /></p>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Mortgage">Mortgage</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Loan">Loan</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Overpayment">Overpayment</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Calculator">Calculator</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ImageMagick">ImageMagick</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=iOS">iOS</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Icon">Icon</a></li>
               </ul>
               <div style="clear:both"></div>
 
@@ -151,7 +133,6 @@ term by &amp;lt;span id="years"&gt;?&amp;lt;/span&gt; years and
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
                 <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
                 <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
                 <li><a href="maven_android_and_eclipse_joining_the_team.html">Maven, Android and Eclipse - joining the team</a><span class="date"> - Jan 23, 2012</span></li>
@@ -163,8 +144,8 @@ term by &amp;lt;span id="years"&gt;?&amp;lt;/span&gt; years and
       </div>
       <div class="nav">
         <div class="links">
-          <div class="prev"><a title="previous" href="weighted_average_smoothing_with_java2d.html">Weighted Average smoothing ...</a></div>
-          <div class="next"><a title="next" href="creating_a_vectorisation_effect_with_java2d.html">Creating a "Vectorisation" ...</a></div>
+          
+          <div class="next"><a title="next" href="invoking_processes_from_java.html">Invoking Processes from Java</a></div>
         </div>
       </div>
     </div>
