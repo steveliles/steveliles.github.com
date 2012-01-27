@@ -19,10 +19,6 @@ body > div {
   background-color:#fff;
 }
 
-img {
-  border:none;
-}
-
 .site-header {
   width:100%;
   display:table;
@@ -82,7 +78,7 @@ img {
   margin-left:6px;
 }
 
-.nav {
+nav {
   height:36px;
   background-color:#7DB067;
 
@@ -91,7 +87,7 @@ img {
   border:none;
 }
 
-.nav span {
+nav span {
   padding-right:10px;
 }
 
@@ -154,7 +150,7 @@ div.content > .sidebar {
 }
 
 
-.article {
+article {
   padding:55px;
   padding-top:40px;
   padding-bottom:20px;
@@ -191,7 +187,7 @@ h3 {
 
 body, p, div, span, input {
   font-family:"minion-pro-1","minion-pro-2", "Times New Roman", Georgia, serif;
-  font-size:19px;
+  font-size:18px;
   letter-spacing:-1px;
 }
 
@@ -223,11 +219,11 @@ blockquote {
   color:#666;
 }
 
-.nav span {
+nav span {
   float:right;
 }
 
-.nav input {
+nav input {
   display:inline;
   font-family:'Ubuntu Mono', monospace;
   font-size:18px;
@@ -241,7 +237,7 @@ blockquote {
   box-shadow:#dae9d4 1px 1px 1px;
 }
 
-.nav img {
+nav img {
   vertical-align:middle;
   margin:auto;
 }
@@ -393,24 +389,24 @@ li {
   width:245px;
 }
 
-.nav ul {
+nav ul {
   display:table;
 }
 
-.nav div.links {
+nav div.links {
   display:table;
   margin:auto;
   padding:11px;
 }
 
-.nav .next, .prev {  
+nav .next, .prev {  
   display:table-cell;
   
   padding-left:1px;
   padding-right:1px;
 }
 
-.nav .next a, nav .prev a {
+nav .next a, nav .prev a {
   margin:0px;
   margin-left:2px;
   margin-right:2px;
