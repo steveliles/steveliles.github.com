@@ -47,7 +47,8 @@
 
 <p>To composite the rounded-corner image with the glossy overlay (gloss-over.png), I use this ImageMagick command:</p>
 
-<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" rounded.png final.png
+<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" \
+    rounded.png final.png
 </code></pre>
 
 <p><img src="https://lh4.googleusercontent.com/-YaXSMS3j_Ws/TyLmvOKZLMI/AAAAAAAAIr0/h_nP4EQ8k94/s800/final.png" alt="Final iOS style image" /></p>

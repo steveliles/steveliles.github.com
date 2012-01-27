@@ -38,7 +38,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="266" description="A couple of commands I've been using to create iOS-style icons with ImageMagick">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="272" description="A couple of commands I've been using to create iOS-style icons with ImageMagick">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-27">January 27, 2012</time></span>
               <a itemprop="url" href="creating_ios_style_icons_with_imagemagick.html"><h1 itemprop="name" itemprop="headline">Creating iOS style icons with ImageMagick</h1></a>
 	      <span itemprop="articleBody"><p>Icons for iOS apps are generally provided by the app with square corners and no "sheen". The rounded corners and glossy sheen are added by iOS.</p>
@@ -72,7 +72,8 @@
 
 <p>To composite the rounded-corner image with the glossy overlay (gloss-over.png), I use this ImageMagick command:</p>
 
-<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" rounded.png final.png
+<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" \
+    rounded.png final.png
 </code></pre>
 
 <p><img src="https://lh4.googleusercontent.com/-YaXSMS3j_Ws/TyLmvOKZLMI/AAAAAAAAIr0/h_nP4EQ8k94/s800/final.png" alt="Final iOS style image" /></p>
