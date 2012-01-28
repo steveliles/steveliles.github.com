@@ -113,11 +113,15 @@ new Thread() {
 }.start();
 </code></pre>
 
-<h3>Failure to Execute</h3>
+<p>Correctly pumping data into and out of the std io buffers will keep your processes from hanging.</p>
+
+<h3>Failure to communicate</h3>
 
 <p><em>Symptoms:</em> You have a command-line that works perfectly when executed at the shell prompt, but invoking it from Java results in strange errors and, perhaps, complaints about invalid parameters.</p>
 
 <p><em>Cause:</em> Typically this occurs when you try to pass parameters which include spaces - for example file-names - which you escape or quote at the shell prompt.</p>
+
+<p><a href="https://lh4.googleusercontent.com/-khRgW4ViBts/TyM8-x7BVZI/AAAAAAAAIsQ/2IiEhj5GdkA/s1600/27.jpg"><img alt="Comic strip of java invoking ImageMagick - created with ComicStripIt! for Android" src="https://lh4.googleusercontent.com/-khRgW4ViBts/TyM8-x7BVZI/AAAAAAAAIsQ/2IiEhj5GdkA/s600/27.jpg"></a></p>
 
 <p><em>Example:</em> Running ImageMagick "convert" to add transparent rounded corners to an icon:</p>
 
@@ -219,6 +223,8 @@ throws Exception {
     _p.waitFor();
 }
 </code></pre>
+
+<p>Passing your cmdline parameters in a String array instead of as one long String should prevent your parameters from being chewed up and mis-interpreted.</p>
 
 <h3>Mysterious issues in production</h3>
 
