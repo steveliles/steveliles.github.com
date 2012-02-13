@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,365" description="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp to create Comic-book style graphics. Here's a couple of tricks I picked upÉ">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,389" description="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp to create Comic-book style graphics. Here's a couple of tricks I picked upÉ">
               <span class="meta" itemprop="datePublished"><time datetime="2012-02-12">February 12, 2012</time></span>
               <a itemprop="url" href="creating_comic_book_style_icons_with_gimp.html"><h1 itemprop="name" itemprop="headline">Creating comic-book style icons with Gimp</h1></a>
 	      <span itemprop="articleBody"><p>I've long had a love-hate relationship with Gimp. I <em>hate</em> the MDI interface - all those windows really grate on my nerves. I <em>love</em> that its a really great and full-featured graphics package, and free. </p>
@@ -117,6 +117,8 @@
 
 <p><img src="https://lh3.googleusercontent.com/-jJ3x3SwAO10/Tzg7UDPi7RI/AAAAAAAAI14/gZLsPkiYrbo/s800/halftone-background-step3.png" alt="newsprint effect" /></p>
 
+<h4>Step 3: Allowing the colour to shine through the mask</h4>
+
 <p>Almost done! We just need to let the colour shine through from the background layer. I tried various ways of doing this. Masks worked well, and "Select->By Color" isn't bad (but does'nt capture anti-aliased areas perfectly). Eventually I got into the habit of a much simpler way:</p>
 
 <ol>
@@ -141,6 +143,8 @@
 <p><img src="https://lh4.googleusercontent.com/-Kvxw_pqsjV0/Tzg-D_dIzXI/AAAAAAAAI2Q/egDujGmzQfg/s800/halftone-background-step4.png" alt="finished half-tone background" /></p>
 
 <p>Notice that the edges of the dots in this version of the image are decidedly jagged, compared to the version created by using the colour-to-alpha technique. This is to do with the select-by-colour method not including anti-aliasing pixels that are closer to white than black in the selection.</p>
+
+<h4>Step 4: Optional - de-focus for use as a background</h4>
 
 <p>I used this technique to create the backgrounds for my icons, adding one more step: gaussian blur to de-focus the background and make the foreground icon stand out nice and sharp.</p>
 
