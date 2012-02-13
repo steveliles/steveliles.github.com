@@ -103,6 +103,10 @@
 <li>Click OK and you'll see your background gradient shine through the dots</li>
 </ol>
 
+<p><em>Note: If you noticed that the dots don't quite match up between the following image and the others on this page, its because I added this image after I originally posted, and had to re-create it because I had already deleted the .xcf file I originally used while writing this post. Oops.</em></p>
+
+<p><img src="https://lh6.googleusercontent.com/-W8yUnXLKhWY/TzjVIugjWwI/AAAAAAAAI2o/BZIgOGNtrD8/s800/halftone-background-step4a.png" alt="" /></p>
+
 <p>For completeness, here's the "Select->By Color" method, which I don't use any more because it involves more steps and leaves the dots with slightly jagged edges:</p>
 
 <ol>
@@ -113,6 +117,8 @@
 </ol>
 
 <p><img src="https://lh4.googleusercontent.com/-Kvxw_pqsjV0/Tzg-D_dIzXI/AAAAAAAAI2Q/egDujGmzQfg/s800/halftone-background-step4.png" alt="finished half-tone background" /></p>
+
+<p>Notice that the edges of the dots in this version of the image are decidedly jagged, compared to the version created by using the colour-to-alpha technique. This is to do with the select-by-colour method not including anti-aliasing pixels that are closer to white than black in the selection.</p>
 
 <p>I used this technique to create the backgrounds for my icons, adding one more step: gaussian blur to de-focus the background and make the foreground icon stand out nice and sharp.</p>
 
