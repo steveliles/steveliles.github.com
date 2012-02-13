@@ -95,7 +95,15 @@
 
 <p><img src="https://lh3.googleusercontent.com/-jJ3x3SwAO10/Tzg7UDPi7RI/AAAAAAAAI14/gZLsPkiYrbo/s800/halftone-background-step3.png" alt="newsprint effect" /></p>
 
-<p>Almost done! We just need to let the colour shine through from the background layer. I tried various ways of doing this. Masks worked well, but eventually I got into the habit of this much simpler way:</p>
+<p>Almost done! We just need to let the colour shine through from the background layer. I tried various ways of doing this. Masks worked well, and "Select->By Color" isn't bad (but does'nt capture anti-aliased areas perfectly). Eventually I got into the habit of a much simpler way:</p>
+
+<ol>
+<li>From Gimp's "Colors" menu choose "Color to Alpha"</li>
+<li>Click the colour-box (from:) and select full black</li>
+<li>Click OK and you'll see your background gradient shine through the dots</li>
+</ol>
+
+<p>For completeness, here's the "Select->By Color" method, which I don't use any more because it involves more steps and leaves the dots with slightly jagged edges:</p>
 
 <ol>
 <li>From Gimp's "Select" menu, choose "By Color", and then select the white background of the image.</li>
