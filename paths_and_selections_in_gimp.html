@@ -1,0 +1,175 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="Gimp" itemprop="keywords"></meta>
+      <meta name="keywords" content="Icon" itemprop="keywords"></meta>
+      <meta name="keywords" content="Path" itemprop="keywords"></meta>
+      <meta name="keywords" content="Selection" itemprop="keywords"></meta>
+    <meta name="description" content="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp's paths and selections. Here are my notes."></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Paths and Selections in Gimp</title>
+  </head>
+  <body>
+    <div>
+      <div class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </div>
+      <div class="nav">
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </div>
+      <div class="content">
+        <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="751" description="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp's paths and selections. Here are my notes.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-02-14">February 14, 2012</time></span>
+              <a itemprop="url" href="paths_and_selections_in_gimp.html"><h1 itemprop="name" itemprop="headline">Paths and Selections in Gimp</h1></a>
+	      <span itemprop="articleBody"><p>As I mentioned in my previous post, I've been learning to use Gimp so I can produce icons for my apps. The most significant new finding for me has been the discovery of paths and how to use them in combination with selections.</p>
+
+<p>The ability to use set operations to combine selections in different ways, and to remember selections as paths opens up a whole world of possibilities. Lets look at a really simple example:</p>
+
+<p>Fire up the Gimp, and create a new image to work on. I'm going with a 512x512 canvas again. Choose the oval selection tool and draw an oval on your canvas, then hold down shift and draw another oval that overlaps the first a little. (I was already surprised that I could add to the selections like this actually!)</p>
+
+<p><img src="https://lh6.googleusercontent.com/-V7Kv9JeUjCg/TzogTnl5N9I/AAAAAAAAI3A/gdMgMCdWnAY/s800/Screen%2520Shot%25202012-02-14%2520at%252008.49.07.png" alt="multiple concurrent selections with gimp" /></p>
+
+<p>Now, in the "Layers, Channels, Paths, É" window, open the paths tab, and click the "Selection to Path" icon (red circle with black lines above and below). You'll see a new entry added in the palette for your current selection shape. Here's how mine looks at this point:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-DewiC7SQ5XY/TzohG7h9qHI/AAAAAAAAI3Y/QvwAoWgS4Sg/s800/Screen%2520Shot%25202012-02-14%2520at%252008.53.24.png" alt="gimp path dialog" /></p>
+
+<p>There are immediately some neat things we can do:</p>
+
+<ul>
+<li>We can recreate this same selection at any time by selecting the path in the paths palette and clicking the "path to selection"" icon (the red square icon with dotted outline).</li>
+<li>We can "Stroke" this path (draw around its outline), using the currently selected tool, brush and colour, by clicking the paint-brush icon on the paths panel.</li>
+<li>We can add to or subtract from this selection using other selections, by drawing a new selection then holding down shift/ctrl/shift+ctrl and clicking the "path to selection" icon.</li>
+<li>We can add hand-drawn shapes to our path by using the path tool to create them, then adding them to a selection as described above.</li>
+</ul>
+
+<p>One thing I found very useful, is that you can convert text to a path, which allows you to get creative with the stroke and fill used on that text. I'm going to clear my canvas and add some text:</p>
+
+<ol>
+<li>Select the text tool, click on the canvas and enter some text (I went with "Hello!")</li>
+<li>Increase the font size so that the text just fits on the canvas (I'm using Trebuchet MS bold italic at 175px). You might have to grab the corners of the text selection and expand it so that you can see all of the text.</li>
+<li>Move the text into the centre of the canvas.</li>
+<li>On the tool window, in the section at the bottom containing the tool controls, look for a button  that says "Path from Text" - should be right at the bottom. Click it.</li>
+<li>Open the paths dialog again (from the layers, channels, paths.. window) - you should see that you now have a path called "Hello!", which looks like an outlined version of your text.</li>
+</ol>
+
+<p>Now you can stroke and fill your text, convert it to a selection (allowing you to paint only inside or only outside), and generally do all kinds of neat things. For example:</p>
+
+<ol>
+<li>Switch to the "layers" dialog, and delete the floating text layer.</li>
+<li>Switch back to the "Paths" dialog again, click the "path to selection" icon</li>
+<li>Pick a nice colour to outline your text with (I've selected a deep blue)</li>
+<li>Invert your selection (ctrl-i) - this is so that we only paint around the outside in the next step</li>
+<li>From the "Paths" dialog, click the stroke icon</li>
+<li>In the dialog that pops up, set the stroke width to be around 10. Because we are stroking the line at the edge of the selection, half of the stroke width falls inside the text outline and will not be painted because it isn't part of our current selection. Click OK to stroke the path.</li>
+</ol>
+
+<p><img src="https://lh5.googleusercontent.com/-Mu31NnkM59o/Tzonpy4bkqI/AAAAAAAAI3w/r8ab3bN_aVs/s800/hello-1.png" alt="" /></p>
+
+<p>Now lets paint a gradient inside our text:</p>
+
+<ol>
+<li>From the "paths" dialog, click the "path to selection" icon</li>
+<li>From the tool palette, select the gradient tool</li>
+<li>Choose a foreground and background colour for the end-colours of your gradient (I'm going with red and yellow)</li>
+<li>Click and hold the left button in the "H" of your text, then drag over to the "!" before letting go of the button. A gradient will be painted <em>inside</em> your text outline only.</li>
+</ol>
+
+<p><img src="https://lh4.googleusercontent.com/-q35MFgTHqRE/Tzoovka7aRI/AAAAAAAAI4I/r9J_Fi06MX0/s800/hello-2.png" alt="" /></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Gimp">Gimp</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Icon">Icon</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Path">Path</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Selection">Selection</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </div>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
+                <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
+                <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
+                <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="links">
+          
+          <div class="next"><a title="next" href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style i...</a></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

@@ -35,6 +35,32 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="41" description="command-line to dump and restore mysql databases">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-12-06">December 06, 2010</time></span>
+              <a itemprop="url" href="dumping_and_restoring_mysql_db_s.html"><h1 itemprop="name" itemprop="headline">Dumping and restoring mysql db's</h1></a>
+	      <span itemprop="articleBody"><p>Dump a db with:</p>
+
+<pre><code>mysqldump -h&lt;host-or-ip&gt; -u&lt;username&gt; -p&lt;password&gt; &lt;db-name&gt; &gt; dump.sql
+</code></pre>
+
+<p>To import, first create the target db, then import the dump with:</p>
+
+<pre><code>mysql -h&lt;host-or-ip&gt; -u&lt;username&gt; -p&lt;password&gt; &lt;db-name&gt; &lt; dump.sql
+</code></pre>
+
+<p>Yep, its that easy.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=mysql">mysql</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dump">dump</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=restore">restore</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="dumping_and_restoring_mysql_db_s.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="410" description="Some of my colour pencil sketches">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-30">October 30, 2010</time></span>
               <a itemprop="url" href="some_old_sketches.html"><h1 itemprop="name" itemprop="headline">Some old sketches ...</h1></a>
@@ -458,30 +484,6 @@ public class TestSimpleApp {
 	        <a href="testing_gwt_apps_in_dev_mode_with_webdriver.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
-              <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
-	      <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
-
-<p>Flushing the mysql buffers is as easy as restarting mysql (<code>sudo service mysql restart</code> in Maverick). Flushing the OS buffers is also dead easy:</p>
-
-<pre><code>sudo sh -c "sync; echo 3 &gt; /proc/sys/vm/drop_caches"
-</code></pre>
-
-<p>I have system-monitor gauges on my taskbar showing cpu, memory and disk activity, and its a beautiful thing to see the cache suddenly get wiped :)</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=cache">cache</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=buffers">buffers</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=memory">memory</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="how_to_clear_memory_caches_in_ubuntu.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -499,11 +501,11 @@ public class TestSimpleApp {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="paths_and_selections_in_gimp.html">Paths and Selections in Gimp</a><span class="date"> - Feb 14, 2012</span></li>
                 <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
                 <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
                 <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
                 <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
-                <li><a href="maven_android_and_eclipse_joining_the_team.html">Maven, Android and Eclipse - joining the team</a><span class="date"> - Jan 23, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
@@ -512,7 +514,7 @@ public class TestSimpleApp {
       <div class="nav">
         <div class="links">
           <div class="prev"><a title="previous" href="index_9.html">Newer Posts</a></div>
-          
+          <div class="next"><a title="next" href="index_11.html">Older Posts</a></div>
         </div>
       </div>
     </div>
