@@ -115,11 +115,11 @@ _image.setImageBitmap(getImageBitmap(aScene));
 <li>The nature of my app (making comic strips from your own images) means that I am dealing with potentially many images at any given time. Applying FX requires at least two such images concurrently in-memory (the source, and the target). The finished strips are rendered as rows of 350x350 images, so the size of that final bitmap depends on how many frames you add to your strip.</li>
 </ol>
 
-<p>A quick investigation revealed that I wasn't exceeding the VM budget - nowhere near in fact: the app crashed frequently with the VM size still less than 7Mb. Switching back and forth between API levels 7 and 8 showed that this was definitely only a problem at AI level 7 (Android 2.1). </p>
+<p>A quick investigation revealed that I wasn't exceeding the VM budget - nowhere near in fact: the app crashed frequently with the VM size still less than 7Mb. Switching back and forth between API levels 7 and 8 showed that this was definitely only a problem at API level 7 (Android 2.1). </p>
 
 <p>In 2.2 and above I can go through all of the FX several times over with no problems. In 2.1 the app usually crashes at the application of the second effect, but sometimes goes at the first or third attempt.</p>
 
-<h4>SIGSEGV while recycling Bitmap's</h4>
+<h3>SIGSEGV while recycling Bitmap's</h3>
 
 <p>My app allows you to apply some image effects to the photos you select for each frame, to give a more comic-book feel. For example, you can apply a half-tone print effect, or a quantised and outlined "cartoon" effect.</p>
 
