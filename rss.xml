@@ -13,6 +13,55 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Custom fonts in Android]]></title>
+        <link><![CDATA[http://steveliles.github.com/custom_fonts_in_android.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/custom_fonts_in_android.html</guid>
+        <description><![CDATA[<p>I've been playing with Android since late December (2011). Its been fun. I've been meaning to document some things I've picked up, but I've been pretty busy hacking away. Time to write a few things down before I forget!</p>
+
+<p>In my - admittedly limited - experience, Android devices typically come pre-installed with just the one font family. Before Ice-Cream Sandwich that font was <a href="http://en.wikipedia.org/wiki/Droid_(font">Droid</a>). In Ice-Cream Sandwich its <a href="http://en.wikipedia.org/wiki/Roboto">Roboto</a>.</p>
+
+<p>If you want to use other fonts in your app, you must package them as assets. I believe Android has supported true-type fonts since the beginning, but now also supports open-type fonts (since 1.6). I always use true-type fonts anyway.</p>
+
+<p>To bundle the font, simply place the .tff file in your project's assets directory. Here's how you load the font in your <code>Activity</code> code:</p>
+
+<pre><code>Typeface t = Typeface.createFromAsset(getAssets(), "my-font.ttf");
+</code></pre>
+
+<p>If you want to reference the font from xml markup you're in for a frustrating time. If you do want to take that path, check out this handy <a href="http://stackoverflow.com/questions/2376250/custom-fonts-and-xml-layouts-android">StackOverflow post</a>.</p>
+
+<p>If, like me, you prefer to set the font programmatically to the necessary views, you can call <code>setTypeface(Typeface)</code> on <code>TextView</code>'s and <code>EditText</code>'s.</p>
+
+<p>In some of my layouts (for example "help" screens) I have many <code>TextView</code>'s interspersed with <code>ImageView</code>'s. To make life a bit easier I use the following utility method to set the font on all <code>TextView</code>'s in the view hierarchy:</p>
+
+<pre><code>public static void setFontForAllTextViewsInHierarchy(
+    ViewGroup aViewGroup, Typeface aFont) {
+    for (int i=0; i&amp;lt;aViewGroup.getChildCount(); i++) {
+        View _v = aViewGroup.getChildAt(i);
+        if (_v instanceof TextView) {
+            ((TextView) _v).setTypeface(aFont);
+        } else if (_v instanceof ViewGroup) {
+            setFontForAllTextViewsInHierarchy((ViewGroup) _v, aFont);
+        }
+    }
+}
+</code></pre>
+
+<p>Using this utility method is as simple as finding <code>ViewGroup</code> whose descendants need a font change, then invoking the method with that <code>ViewGroup</code>:</p>
+
+<pre><code>// somewhere in an Activity..
+Typeface font = Typeface.createFromAsset(getAssets(), "my-font.ttf");
+ViewGroup vg = (ViewGroup) findViewById(R.id.myViewGroup);
+Utils.setFontForAllTextViewsInHierarchy(vg, font);
+</code></pre>
+
+<p>I worried at first that this would cause a noticeable re-draw where you first see the system font, then it flashes over to the custom font. Since I tend to set my fonts in my <code>Activity</code>'s <code>onCreate</code>  method immediately following the call to <code>setContentView</code>, my custom font is already specified before the first <code>onDraw</code> invocation hits any of my <code>View</code>'s.</p>
+]]></description>
+          <category>fonts</category>
+          <category>android</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 20 Feb 2012 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Android 2.1 - trouble with bitmaps]]></title>
         <link><![CDATA[http://steveliles.github.com/android_2_1_trouble_with_bitmaps.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/android_2_1_trouble_with_bitmaps.html</guid>
@@ -4138,147 +4187,6 @@ function doScrollCheck() {
           <category>runtimeerror</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Fri, 27 May 2011 00:00:00 +0100</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Unit Testing code written in "Tell, Don't Ask" style]]></title>
-        <link><![CDATA[http://steveliles.github.com/unit_testing_code_written_in_tell_don_t_ask_style.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/unit_testing_code_written_in_tell_don_t_ask_style.html</guid>
-        <description><![CDATA[<p>More and more I find myself enjoying the "Tell, Don't Ask" style of programming, to the extent that recently I've been challenging myself to write all my code that way. </p>
-
-<p>This brought up an interesting discussion while working on a proto-type with an excellent developer I've known and worked with for years - how do you test code written in this style?</p>
-
-<h3>Setting the scene</h3>
-
-<p>The idea of the proto-type was to play with and test out several Entity-Extraction and Text-Clustering algorithms - some that we had researched, some using existing libraries, and others of our own devising. We collected a few dozen Mb-worth of sample data to toy with, and I knocked up a quick harness to feed the test data into the Entity-Extraction and Test-Clustering routines, which just needed to implement a bunch of Java interfaces I'd written (using "Tell, Don't Ask" style). Each of us then proceeded to implement some of the algorithms, which we plugged in Strategy-Pattern style.</p>
-
-<p>Every so often as we were working, my colleague would turn and say something like "I need to add Xxxx to the Yyyy interface, so I can unit-test my implementation". His feeling was that whilst in principle "Tell, Don't Ask" is laudable, it makes testing very awkward and ungainly.</p>
-
-<p>As a result the interfaces drifted away from "Tell, Don't Ask" so that, whilst they still included the callback-style methods, they now presented a more typical "Ask" style API too - a simple example being: implementing <code>Iterable&lt;T&gt;</code> as well as providing <code>each(T)</code> methods.</p>
-
-<h3>Example Tests</h3>
-
-<p>Let's look at a simple example of the kind of tests that appear to be made difficult due to the "Tell, Don't Ask" style. Note that I'm using junit 3.8 style for these examples.</p>
-
-<p>Say we have a Stuff interface, which is an immutable container of Thing's, and a ThingMaker that creates many Thing's and returns them packed in a Stuff.  Here are the "Tell, Don't Ask" interfaces we might have started off with:</p>
-
-<pre><code>  public interface Thing {
-    public String getName();
-    public void doThings();
-  }
-
-  public interface ThingCallback {
-    public void with(Thing thing);
-  }
-
-  public interface Stuff {
-    public void each(ThingCallback callback);
-  }
-
-  public interface ThingMaker {
-    public Stuff makeThings(int howMany);
-  }
-</code></pre>
-
-<p>Pretty straight-forward. Now, lets see what happens when we want to test that when we ask the ThingMaker to make two Thing's, we actually get two non-null Thing's. Here's what the test method might look like:</p>
-
-<pre><code>public void testMakesCorrectNumberOfThings() {
-  ThingMaker tm = new SimpleThingMaker();
-  Stuff result = tm.makeThings(2);
-
-  final boolean[] calledBack = new boolean[1];
-  final int[] count = new int[1];
-
-  result.each(new ThingCallback() {
-    public void with(Thing thing) {
-      calledBack[0] = true;
-      if (thing != null) {
-        count[0] = count[0]++;
-      }
-    }
-  });
-
-  assertTrue(calledBack[0]);
-  assertEquals(2, count.length);
-}
-</code></pre>
-
-<p>Yikes, that's pretty nasty. What's all that nonsense with the final arrays? Well, given that we're working in an anonymous inner class (the callback) we can't just update a boolean or an int that we've declared in the enclosing scope, the only option we have is to cheat and use final variables that have mutable content - arrays are a cheap way to do that. But I think you'll agree this is hideous.</p>
-
-<p>An alternative is to make the inner class do the checking and counting. To do that we have to raise its profile somewhat, to make it a named inner class:</p>
-
-<pre><code>  class TestThingCallback implements ThingCallback {
-    boolean called;
-    int count;
-
-    public void with(Thing thing) {
-      called = true;
-      count++;
-    }
-  }
-
-  public void testMakesCorrectNumberOfThings() {
-    ThingMaker tm = new SimpleThingMaker();
-    Stuff result = tm.makeThings(2);
-
-    TestThingCallback cb = new TestThingCallback();
-    result.each(cb);
-
-    assertTrue(cb.called);
-    assertEquals(2, cb.count);
-  }
-</code></pre>
-
-<p>OK, well that's a lot better, but the effort of making these "Test Spy" objects grows very quickly, and although this is more readable it somehow feels less concise, and by moving code outside of the test-method it makes it just that little bit more awkward to read.</p>
-
-<p>I think this shows that "classical" unit testing of "Tell, Don't Ask" style code is actually awkward enough to want to find a better way. But can we do any better? Absolutely ...</p>
-
-<h3>Enter, jMock</h3>
-
-<p>jMock is an astonishingly useful tool in the testing arsenal. It makes truly unit testing your code possible without masses of work creating Test Double's, because it does all the grunt work for you. Lets quickly re-write our test using jmock.</p>
-
-<pre><code>  public class TestCaseThingMaker extends MockObjectTestCase {
-    public void testMakesCorrectNumberOfThings() {
-      final ThingCallback callback = mock(ThingCallback.class);
-      checking(new Expectations(){{
-        exactly(2).of(callback).each(with(any(Thing.class)));
-      }});
-
-      ThingMaker tm = new SimpleThingMaker();
-      Stuff result = tm.makeThings(2);
-      result.each(callback);
-    }
-  }
-</code></pre>
-
-<p>Some of that might need a little explanation, so here goes:</p>
-
-<p>The first thing we do inside our test method is create a "mock" instance of the ThingCallback interface. jMock does this for you in the invocation of the mock method.</p>
-
-<p>Next we set up our "expectations" of what will happen to the mock ThingCallback during our test. The slightly funky syntax with the double braces is just an instance initializer on an anonymous inner class. The interesting bit is the declaration of what we expect to happen to our mock object - this is the bit inside those {{ ... }} written in jMock's intuitive internal DSL. To understand it you just have to read the whole line from left to right - we're expecting exactly 2 invocations of callback.each() with any instance of Thing.</p>
-
-<p>Once we've set up our expectations it only remains to build the object under test - SimpleThingMaker - and invoke the methods we want to test.
-If you are staring at that and wondering how JMock knows that the test is finished and the expectations should have been met (and that it should fail the test if not), notice that I'm using the JUnit-3 integration here - extending MockObjectTestCase - and the behind the scenes plumbing is taking care of that last step for me. </p>
-
-<p>If you're using the JUnit-4 integration you need to explicitly invoke assertIsSatisfied on the mock object context (org.jmock.Mockery) which supplied your mock objects.
-jMock takes a little getting used to, as it involves quite a different way of thinking about your test. If you want to write good tests with it it certainly involves considerable effort to learn how to use it well (its easy to use it badly and end up with tests which are very difficult to understand). Once you get used to it though, it really does make tests much easier to write and, more importantly, to read.</p>
-
-<p>I find that jMock really comes into its own when testing Tell, Don't Ask code - the code under test is clean and, by nature of the improved data-hiding, more robust, whilst jMock provides a very neat way to test that code with a minimum of fuss and boiler-plate. </p>
-
-<p><em>UPDATE:</em> After ruminating on this for a while I came to the conclusion that JMock is so good at testing "Tell, don't ask" code that I was sure the designers of JMock must have set out with that in mind. I found a very nice post from @natpryce (one of the JMock authors) which confirmed my suspicions - Nat describes tell don't ask very succinctly:</p>
-
-<blockquote>
-  <p>"...objects tell each other what to do by sending commands to one another, they don't ask each other for information and then make decisions upon the results of those queries. </p>
-  
-  <p>The end result of this style is that it is easy to swap one object for another that can respond to the same commands but in a different way. This is because the behaviour of one object is not tied to the internal structure of the objects that it talks to."</p>
-</blockquote>
-
-<p>Nat goes on to say that the only way to test tell-dont-ask code is to see how the state of the world is affected when objects are told to do something (because you can't ask them about their state), and that this is best achieved with mock objects, whereas "train wreck" code (Nat's description of code that is not written tell-dont-ask style, and commonly violates demeter's law) is hard to test with mock objects.</p>
-]]></description>
-          <category>TDD</category>
-          <category>Unit Testing</category>
-          <category>Tell Dont Ask</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 15 Mar 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>

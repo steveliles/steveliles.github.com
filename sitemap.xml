@@ -71,6 +71,11 @@
     </url>
 
     <url> 
+      <loc>http://steveliles.github.com/custom_fonts_in_android.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/android_2_1_trouble_with_bitmaps.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
