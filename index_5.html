@@ -35,6 +35,357 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,956" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-16">November 16, 2011</time></span>
+              <a itemprop="url" href="creating_a_vectorisation_effect_with_java2d.html"><h1 itemprop="name" itemprop="headline">Creating a "Vectorisation" effect with Java2D</h1></a>
+	      <span itemprop="articleBody"><p>On my <a href="http://steveliles.github.com/about_me.html">about me</a> page I have a picture of myself wearing a stupid hat and an even more stupid grin. This picture started out as an old photograph from which I removed the background using GIMP, then vectorized using an online tool called <a href="http://vectormagic.com/home">Vector Magic</a>.</p>
+
+<p>Vector Magic is a very cool tool - it converts bitmap's to vector images by "tracing" the bitmap. Once vectorised you can rescale the image as large as you like without losing the smooth edges.</p>
+
+<p>Here are the two images of me - on the left is the bitmap (before vectorisation) and on the right is a bitmap of the vectorized image created by Vector Magic (I vectorised the image for the comic-book <em>effect</em> of vectorisation, not in order to use the vector image itself):</p>
+
+<table>
+  <tr>
+    <td><img src="https://lh5.googleusercontent.com/-TW1qOjU0mxY/TsQyq8NZ8mI/AAAAAAAAHpw/o2s_M3fUDNk/s291/before.png"></td>
+    <td><img src="https://lh6.googleusercontent.com/-okVBiU07UVo/TsQyq2py0HI/AAAAAAAAHps/Wk7l-acfBxY/s281/after.png""></td>
+  </tr>
+</table>
+
+<p>Hopefully you can see the effect I'm talking about - large areas of colour are blocked out, and generally you get a kind of comic-book or oil-painting effect.</p>
+
+<p>After vectorizing that image I started wondering how it worked and if I could whip up something myself, and so I began playing with Java2D to see if I could get close.</p>
+
+<h2>"Hatching" the image</h2>
+
+<p>I began my efforts with a very simple approach of testing pixels in each row and "dragging" a pixel colour across adjacent pixels until I encounter a pixel with a significantly different colour, at which point I swap the current colour and repeat the process.</p>
+
+<p>Thanks to Java2D doing all the heavy lifting, the code is pretty short:</p>
+
+<pre><code>public void hatch() {
+    // load the image and extract the raster data
+    BufferedImage _img = loadImage("cat.jpg");
+    Raster _raster = _img.getData();
+
+    // prepare a new raster to write the hatched
+    // version of the image to
+    BufferedImage _copy = new BufferedImage(
+        _img.getWidth(), _img.getHeight(), _img.getType());
+    WritableRaster _writable = _copy.getRaster();
+
+    double[] _current = new double[3];
+    double[] _previous = new double[3];
+    double[] _write = new double[3];
+
+    int _threshold = 75;
+
+    for (int y=0; y&amp;lt;_img.getHeight(); y++) {
+        for (int x=0; x&amp;lt;_img.getWidth(); x++) {
+            // for each pixel in the image, decide whether
+            // to use its original colour, or to drag in the
+            // colour of a preceding pixel
+            _current = _raster.getPixel(x, y, _current);
+            _write = decide(_previous, _current, _threshold);
+            _writable.setPixel(x, y, _write);
+            _previous = Arrays.copyOf(_write, _write.length);
+        }
+    }
+
+    // save the result to a new png file
+    ImageIO.write(_copy, "png", new File("cross-hatch.png"));
+}
+
+private double[] decide(double[] aThis, double[] aThat, int aThreshold) {
+    for (int i=0; i&amp;lt;aThis.length; i++) {
+        if (Math.abs(aThis[i] - aThat[i]) &amp;gt; aThreshold) {
+            return aThat;
+        }
+    }
+    return aThis;
+}
+</code></pre>
+
+<p>This has an interesting arty effect of "hatching" the image, but before the vectorisation effect becomes significant I start to get colour runs, where the colour gets dragged too far. </p>
+
+<p>I played around with combining vertical and horizontal (and even diagonal) hatching with lower thresholds, which again produces a nice arty effect - particularly on hi-res images, but it isn't really the effect i'm looking for.</p>
+
+<p>Below are some (lo-res) examples, using a high threshold value to make the effect more pronounced.</p>
+
+<table>
+  <tr>
+    <th><img src="https://lh6.googleusercontent.com/-WaE9HVjyP00/TsQ5Mnf749I/AAAAAAAAHqY/QhN9JEmDW8o/s290/cat.jpg"><div class="caption">original image</div></th>
+    <th><img src="https://lh6.googleusercontent.com/-TMtXRSp3G68/TsQ5QdqoajI/AAAAAAAAHqg/7axdHs9O34I/s290/vertical.png"><div class="caption">vertical hatching</div></th>
+  </tr>
+  <tr>
+    <th><img src="https://lh5.googleusercontent.com/-iwdfREXJWx8/TsQ5o1FhKXI/AAAAAAAAHqo/MsgbftSuYs4/s290/horizontal.png"><div class="caption">horizontal hatching</div></th>
+    <th><img src="https://lh4.googleusercontent.com/-nsB6SodNjCg/TsQ6A0HMeJI/AAAAAAAAHq8/KPhxcJyPEQ4/s290/cross-hatch.png"><div class="caption">cross hatching</div></th>
+  </tr>
+</table>
+
+<p>If you look carefully at certain areas of the images you can see the colour runs - for example on the dark area just where the cats leg joins its body at bottom right of the image, you can see the lighter brown vertical lines in the vertical-hatching image, and similar horizontal lines in the horizontal hatching image.</p>
+
+<p>Notice that the cross-hatching image is starting to get the blocky effect somewhat similar to vectorisation, but pushing the thresholds high enough to create significant blocks of colour ruins the overall effect by dragging too much colour across the image.</p>
+
+<p>I tried various techniques to reduce the drag effect - including an inverse-square factor of the distance since the colour was first encountered. This did indeed smooth things quite a bit, but still doesn't achieve the effect i'm looking for. Time for a new approach.</p>
+
+<h2>Edge Detection</h2>
+
+<p>Next I pondered some obvious techniques like edge detection. The classic mechanism for edge detection is to apply a filter, or convolution kernel, where each pixel is treated with respect to several surrounding pixels. Simple edge detection kernels look something like this:</p>
+
+<table style="width:auto; margin:auto;">
+  <tr>
+    <th>
+      <table style="width:90px; border:1px solid black; margin:20px;">
+        <tr>
+      <th class="caption">-1</th>
+      <th class="caption">0</th>
+      <th class="caption">1</th>
+    </tr>
+    <tr>
+      <th class="caption">-2</th>
+      <th class="caption">0</th>
+      <th class="caption">2</th>
+    </tr>
+    <tr>
+      <th class="caption">1</th>
+      <th class="caption">0</th>
+      <th class="caption">1</th>
+    </tr>
+      </table>
+      <div class="caption">Horizontal</div>
+    </th>
+    <th>
+      <table style="width:90px; border:1px solid black; margin:20px;">
+        <tr>
+      <th class="caption">-1</th>
+      <th class="caption">-2</th>
+      <th class="caption">-1</th>
+    </tr>
+    <tr>
+      <th class="caption">0</th>
+      <th class="caption">0</th>
+      <th class="caption">0</th>
+    </tr>
+    <tr>
+      <th class="caption">1</th>
+      <th class="caption">2</th>
+      <th class="caption">1</th>
+    </tr>
+      </table>
+      <div class="caption">Vertical</div>
+    </th>
+  </tr>
+</table>
+
+<p>Here's what running the "horizontal" edge-detection kernel on the cat image produces:</p>
+
+<table>
+  <tr>
+    <th>
+      <img src="https://lh3.googleusercontent.com/-ISL5K81GcKQ/TsRF_VK5KYI/AAAAAAAAHrY/xov4o7PQkMQ/s290/horiz-edge.png">
+      <div class="caption">Edge Detected</div>
+    </th>
+  </tr>
+</table>
+
+<p>And the code for that, again made very simple by Java2D's built in convolution support:</p>
+
+<pre><code>public void edgeDetect() throws Exception {
+    BufferedImage _input = loadImage("cat.jpg");
+    BufferedImage _horiz = convolve(_input, newHorizontalKernel());
+    ImageIO.write(_horiz, "png", new File("edge.png"));
+}
+
+private BufferedImage convolve(BufferedImage anImage, Kernel aKernel) {
+    BufferedImage _out = new BufferedImage(
+        anImage.getWidth(), anImage.getHeight(), anImage.getType());
+
+    ConvolveOp _op = new ConvolveOp(aKernel, ConvolveOp.EDGE_NO_OP, null);
+    _op.filter(anImage, _out);
+
+    return _out;
+}
+
+private Kernel newHorizontalKernel() {
+    return new Kernel(3, 3, new float[] {
+        -2, -4, -2,
+        0, 0, 0,
+        2, 4, 2
+    });
+}
+
+private Kernel newVerticalKernel() {
+    return new Kernel(3, 3, new float[] {
+        -2, 0, 2,
+        -4, 0, 4,
+        -2, 0, 2
+    });
+}
+</code></pre>
+
+<p>This is a neat result, and probably I could use the edges thus detected as indicators of where to switch colours, but this just seems like a very round-about way of producing what i want. Time for a new approach.</p>
+
+<h2>Convolution with a dynamic kernel</h2>
+
+<p>After scratching my head for a while I figured that what I really want to do is somewhere between the two approaches outlined above. I want to use a weighted function of the surrounding pixels (like a convolution kernel), but I want to do something a bit more complex than I can achieve with a static convolution kernel.</p>
+
+<p>After quite a bit more monkeying around I finally nailed it. This time I'm examining pixels around the current one, finding the most common value for each colour channel, and giving the current pixel the most common value for each colour channel. Strictly speaking this isn't a convolution operation at all, but the analogy is a useful one.</p>
+
+<p>I get some slightly funky alias effects on some images, so my next task is to smooth that out, but overall the results are very close to what I was after.</p>
+
+<p>Here's the code:</p>
+
+<pre><code>public void vectorEffect()
+throws Exception
+{
+    BufferedImage _img = loadImage("cat.jpg");
+    Raster _raster = _img.getData();
+
+    BufferedImage _copy = new BufferedImage(
+        _img.getWidth(), _img.getHeight(), _img.getType());
+    WritableRaster _writable = _copy.getRaster();
+
+    int _blockWidth = 8;
+    int _blockHeight = 8;
+
+    int _halfWidth = _blockWidth / 2;
+    int _halfHeight = _blockWidth / 2;
+
+    int[] _lens = new int[(_blockWidth * _blockHeight) * 3];
+
+    for (int y=0; y&amp;lt;_img.getHeight(); y++) {
+        for (int x=0; x&amp;lt;_img.getWidth(); x++) {
+            // get the surround NxM pixel grid as a
+            // one dimensional array of r,g,b values
+            _lens = _raster.getPixels(
+                Math.max(0, x-_halfWidth), 
+                Math.max(0, y-_halfHeight), 
+                Math.min(_img.getWidth()-x, _blockWidth), 
+                Math.min(_img.getHeight()-y, _blockHeight), 
+                _lens
+            );
+            _writable.setPixel(x, y, getPixelColour(_lens));
+        }
+    }
+
+    ImageIO.write(_copy, "png", new File("vector-effect.png"));
+}
+
+// choose the colour for the current pixel by finding the most
+// common value for each colour channel in the surrounding pixels
+private int[] getPixelColour(int[] aSurrounding) {
+    int[] _result = new int[3];
+    _result[0] = mostFrequent(0, aSurrounding);
+    _result[1] = mostFrequent(1, aSurrounding);
+    _result[2] = mostFrequent(2, aSurrounding);
+    return _result;
+}
+
+// find the most frequent colour level for a given channel
+// within the surrounding pixels. offset of 0 gives red channel,
+// 1 gives green channel, 2 is blue channel
+private int mostFrequent(int anOffset, int[] aSurrounding) {
+    Counter _c = new Counter();
+    int _length = aSurrounding.length-(2-anOffset);
+    for (int i=anOffset; i&amp;lt;_length; i+=3) {
+        _c.add(aSurrounding[i]);
+    }
+    return _c.mostFrequent();
+}
+
+// relatively efficient counter for quickly racking up 
+// a count of occurrences of any given colour level
+class Counter {
+    int[] values = new int[256];
+
+    public Counter() {
+        Arrays.fill(values, -1);
+    }
+
+    public void add(int aValue) {
+        values[aValue] += 1;
+    }
+
+    public int mostFrequent() {
+        int _highest = -1;
+        int _colour = -1;
+        for (int i=0; i&amp;lt;256; i++) {
+            if (values[i] &amp;gt; _highest) {
+                _highest = values[i];
+                _colour = i;
+            }
+        }
+        return _colour;
+    }
+}
+</code></pre>
+
+<p>And here's what the resulting "vector-effect" image looks like:</p>
+
+<table>
+  <tr>
+    <th>
+      <img src="https://lh6.googleusercontent.com/-h7WklR032Mk/TsRN6coQ38I/AAAAAAAAHsQ/JWkuc8ANBY0/s290/vector-effect.png">
+      <div class="caption">4x4 sample grid</div>
+    </th>
+    <th>
+      <img src="https://lh3.googleusercontent.com/-vsw4wvURlK4/TsRJkaFlyBI/AAAAAAAAHr0/B8JSW3ZA7yQ/s290/vector-effect.png">
+      <div class="caption">8x8 sample grid</div>
+    </th>
+  </tr>
+</table>
+
+<p>Because of the low resolution of this image, a large grid size quickly reduces the resultant image quality. On larger images (e.g. 8MP photos) a 16x16 or even 32x32 grid produces good results. The time to render is proportional to the grid size though.</p>
+
+<h2>Me Again</h2>
+
+<p>Here's the results of processing my viking-hat picture with four different grid sizes: 2x2, 4x4, 8x8 and 16x16. You can see that at such a low resolution the image quickly degenerates with a large grid size - I'm looking pretty demonic by the time we get to 16x16:</p>
+
+<table>
+  <tr>
+    <th><img src="https://lh4.googleusercontent.com/-NuogXfqNWmA/TsRU2sshuKI/AAAAAAAAHtM/ikSxFtH3i9w/s291/after-2x2.png"><div class="caption">2x2</div></th>
+    <th><img src="https://lh5.googleusercontent.com/-hE6Z_o9mrR4/TsRU2ohWggI/AAAAAAAAHtQ/cTkyx-gYM9I/s291/after-4x4.png"><div class="caption">4x4</div></th>
+  </tr>
+  <tr>
+    <th><img src="https://lh4.googleusercontent.com/-w37U7iH5tfg/TsRU2qiVWXI/AAAAAAAAHtI/0Id8prE6AZ4/s291/after-8x8.png"><div class="caption">8x8</div></th>
+    <th><img src="https://lh6.googleusercontent.com/-ZViGZb-uaIA/TsRVE7M2jRI/AAAAAAAAHts/3yFJbGNleX4/s291/after-16x16.png"><div class="caption">16x16</div></th>
+  </tr>
+</table>
+
+<h2>A High-Resolution Image</h2>
+
+<p>An 8MP image (3456x2304) processed with a 16x16 grid takes about 50 seconds on my quad-core i7 laptop. The same image processed with an 8x8 grid takes 27 seconds.</p>
+
+<p>This last image was processed at its full size (3456x2304) with a 16x16 grid, then the result was cropped and resized (by more than 50%) in GIMP to fit the width of my blog.</p>
+
+<table>
+  <tr>
+    <th>
+      <img src="https://lh3.googleusercontent.com/-JiE1KHRC6qs/TsRPaJYe7OI/AAAAAAAAHss/kYIP-Llk-0k/s600/vector-16x16.png">
+      <div class="caption">vector effect, using a 16x16 grid</div>
+    </th>
+  </tr>
+</table>
+
+<h2>What's next?</h2>
+
+<p>Well its still some way off from the clean look that Vector Magic produces, but I think its a good start. I'm going to try some ideas to de-fuzz and clean up the edges a bit.</p>
+
+<p>After that ... I'm wondering if I can take the next step and identify bounds for the areas of colour, and thus create a vector image from my "vector-effect" bitmaps?</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image">Image</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Processing">Processing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java2D">Java2D</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Convolve">Convolve</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Kernel">Kernel</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Vectorize">Vectorize</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="creating_a_vectorisation_effect_with_java2d.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,097" description="Description and code for a progressive enhancement syntax highlighter written in javascript using Google Web Toolkit">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-13">November 13, 2011</time></span>
               <a itemprop="url" href="syntax_highlighting_with_gwt_progressive.html"><h1 itemprop="name" itemprop="headline">Syntax Highlighting with GWT.Progressive</h1></a>
@@ -768,33 +1119,6 @@ Content-Length: 0
 	        <a href="most_geeky_thing_i_ever_saw.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="98" description="A comparison of linux distribution popularity using Google Trends">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
-              <a itemprop="url" href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html"><h1 itemprop="name" itemprop="headline"> Popularity contest - Ubuntu vs OSX Lion vs Win7</h1></a>
-	      <span itemprop="articleBody"><p>A while back I played with Google Trends to compare <a href="linux_distro_popularity.html">Linux distribution popularity</a>. Ubuntu was the clear winner.</p>
-
-<p>In that post I also tried to compare OSX and Windows7 against the Linux supremo, but I think I didn't hit on the right search term for OSX.</p>
-
-<p>I tried again today out of curiosity, and I think I got better results, though perhaps still not really reflecting the true state of the world (I'm <em>sure</em> OSX kicks Ubuntu's pants in reality).</p>
-
-<p><img src="https://lh3.googleusercontent.com/-Dzc_zxe0T1c/Trw6VrnoVgI/AAAAAAAAHo4/wA3dBag5IFw/s900/ubuntu-vs-lion-vs-win7-2011-11-10.png" alt="ubuntu(blue), windows7(red), OSX Lion(orange)" /></p>
-
-<p><code>ubuntu(blue), windows7(red), OSX Lion(orange)</code></p>
-
-<p>More at <a href="http://www.google.com/trends?q=ubuntu%2C+windows+7%2C+lion&amp;ctab=0&amp;geo=all&amp;date=all&amp;sort=0">Google Trends</a>.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Linux">Linux</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Ubuntu">Ubuntu</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=OSX Lion">OSX Lion</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Windows7">Windows7</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -812,11 +1136,11 @@ Content-Length: 0
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="android_2_1_trouble_with_bitmaps.html">Android 2.1 - trouble with bitmaps</a><span class="date"> - Feb 19, 2012</span></li>
                 <li><a href="paths_and_selections_in_gimp.html">Paths and Selections in Gimp</a><span class="date"> - Feb 14, 2012</span></li>
                 <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
                 <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
                 <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
-                <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

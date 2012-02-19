@@ -35,6 +35,81 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="646" description="After quite a bit of effort and a lot of frustration I'm beginning to think Google's approach to rel=author, microformats, and all that jazz is borderline evil, or at the very least flawed by favouring those who already have high page-rank.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
+              <a itemprop="url" href="google_and_rel_author_not_a_level_playing_field.html"><h1 itemprop="name" itemprop="headline">Google and rel=author - not a level playing field</h1></a>
+	      <span itemprop="articleBody"><p>If you've read my earlier post documenting my attempts to get Google to recognize my <a href="microformats_rich_snippets_rel_author_and_search_listings.html">rel=author</a> markup you'll see that I expended quite a bit of effort trying to get my mugshot to appear with search result listings for my blog pages. Here's what I'm aiming for:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="rich-snippets test tool example of how search-result listings could look" /></p>
+
+<p>Its been more than a month now, and the Googlebot has crawled my site many times, but still no mugshots. </p>
+
+<p>Just lately I'm starting to think that there's absolutely nothing wrong with how I've marked up my content (this is confirmed by Google's rich-snippets testing tool as you can see in the screen-shot above). Rather I'm beginning to suspect a minor evil (or stupidity) is at play.</p>
+
+<h3>rel=author: The small-print</h3>
+
+<p>My suspicions were aroused on my latest re-reading of Google's documentation on rel=author. There are three things that struck me on this re-reading:</p>
+
+<p>First, on the subject of your Google Profile picture, Google have this to say:</p>
+
+<blockquote>
+  <p>"you'll need a Google Profile with a good, recognizable headshot as your profile photo"</p>
+</blockquote>
+
+<p>Mm, ok, well my profile pic is a headshot, and (I think) is pretty recognizable... but what, in Google's subjective judgement, is a "good" photo?</p>
+
+<p>Second, and more ominously:</p>
+
+<blockquote>
+  <p>"Google doesn't guarantee to show author information in Google Web Search or Google News results."</p>
+</blockquote>
+
+<p>Riiiight. Here's the thing: when do Google actually show author information? Is it based on something algorithmic as you might expect from Google (e.g. PageRank), or is it a subjective human judgement?</p>
+
+<p>Finally:</p>
+
+<blockquote>
+  <p>"Once you're done, please complete this <a href="https://spreadsheets.google.com/a/google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">form</a> so we can let you know of any implementation issues. While we won't be able to individually reply to everyone who fills out this form, we may be in touch with questions about your data."</p>
+</blockquote>
+
+<p>OK, so this suggests that there actually may be a human in the loop, and google are actively white-listing sites for inclusion of author information. </p>
+
+<p>I hope this is the case, because that would mean at least some small chance that my authorship info will <em>eventually</em> appear in search result listings.</p>
+
+<h3>page-rank: The rich get richer</h3>
+
+<p>Right now - perhaps somewhat pessimistically - I'm guessing that Google will show authorship information if you already have a sufficiently high page-rank (I've no idea what rank is required, but I'm pretty sure I'm a long way below it). </p>
+
+<p>Here's why I think that:</p>
+
+<ol>
+<li>It would be very un-Google-like - not to mention unscalable - to have a human in the loop making subjective judgements.</li>
+<li>Page-rank gives Google a heuristic on which to judge the quality of a site, and they (understandably) want to promote high-quality sites more vigourously.</li>
+</ol>
+
+<h3>Google: Evil, or just stupid?</h3>
+
+<p>And here's why I think that is borderline evil, or at least stupid: it creates a situation where the already popular gain even more popularity, and the rest of us fade even further into obscurity. Its an example of the <a href="http://en.wikipedia.org/wiki/Greedy_algorithm">greedy algorithm</a> at work. </p>
+
+<p>Come on Google - I'm following your rules to the letter, working hard to make the web a better place and helping you to better <a href="http://www.google.com/about/corporate/company/">organise the world's information</a>, why aren't you taking advantage of that?</p>
+
+<h3>Conclusion: It's all just speculation</h3>
+
+<p>Actually my only real problem with all this is that it isn't clear how, when or why authorship information will or will not be used, which leads to the sort of speculation I've presented in this article. </p>
+
+<p>If it were possible to understand definitively why my authorship information isn't showing I could potentially do something about it instead of spinning my wheels guessing how to make it work (and whining about it :)).</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=google">google</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=good-evil-stupid?">good-evil-stupid?</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rel=author">rel=author</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="google_and_rel_author_not_a_level_playing_field.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="384" description="My second foray into the chromium issue tracker in two days - this time relating to a bug with text-rendering">
               <span class="meta" itemprop="datePublished"><time datetime="2011-12-14">December 14, 2011</time></span>
               <a itemprop="url" href="another_google_chrome_css_bug.html"><h1 itemprop="name" itemprop="headline">Another Google Chrome CSS bug</h1></a>
@@ -237,90 +312,6 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
 	        <a href="plus_one_any_page_google_1_bookmarklet.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="513" description="Step-by-step run through of setting up an Amazon S3 bucket as a static web-site">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
-              <a itemprop="url" href="hosting_a_static_website_in_amazon_s3.html"><h1 itemprop="name" itemprop="headline">Hosting a static website in Amazon S3</h1></a>
-	      <span itemprop="articleBody"><p>Amazon Simple Storage Service - S3 - can be used to host a static web-site, but it isn't immediately obvious how to set this up. Here's how I did it (I'm using the standard AWS console for this):</p>
-
-<h4>Step-1: If you haven't already, sign up for Amazon S3</h4>
-
-<h4>Step-2: Log-in to the AWS console, and go to the S3 Tab</h4>
-
-<h4>Step-3: Create an S3 bucket:</h4>
-
-<p>It doesn't really matter what name you give your bucket unless you plan to <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">forward a domain name to your S3 hosted site</a> </p>
-
-<p><img src="https://lh6.googleusercontent.com/-ntmu1ROjx_k/TtEulvLq2qI/AAAAAAAAHy0/kAz8dljKeMU/s578/create-bucket.png" alt="Create a bucket" /></p>
-
-<h4>Step-4: Upload your static site to the bucket</h4>
-
-<p>Select your bucket in the "Buckets" pane, then right-click in the "Objects and Folders" pane and choose "upload". If you are uploading many folders you'll probably want to use the "enhanced" uploader applet.</p>
-
-<h4>Step-5: Set your bucket to be a website:</h4>
-
-<p>First, right-click on your bucket in the "Buckets" pane (far left) and choose "Properties".</p>
-
-<p><img src="https://lh6.googleusercontent.com/-5qHHItMStOU/TtEumMeQGeI/AAAAAAAAHzA/3HSscD7aFr0/s426/bucket-properties.png" alt="Open Bucket Properties" /></p>
-
-<p>The properties of your bucket will appear in the "Properties" pane at the bottom of the screen.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-4B_VhzIeRjw/TtEzQSqQdUI/AAAAAAAAHzY/EcMc-2ruk98/s600/bucket-properties-tabs.png" alt="Bucket Properties" /></p>
-
-<p>In the bucket propertes go to the "Website" tab. Make sure to:</p>
-
-<ol>
-<li>Check the "enabled" box</li>
-<li>Enter the name of an "index document" in the box (this will be page that should be loaded if someone visits the root of your bucket - websites typically us index.html).</li>
-<li>Note the "endpoint" url - this will be the url to your website.</li>
-</ol>
-
-<p><img src="https://lh4.googleusercontent.com/-poLROP8Apoc/TtE1Fn9kH2I/AAAAAAAAH0M/XQJ1XrGLoS8/s600/bucket-properties-website.png" alt="Bucket Properties Website Tab" /></p>
-
-<p>If you open the endpoint url in a separate tab in your browser now you will see permission denied errors, so lets fix that...</p>
-
-<h4>Step-6: Make your web-site accessable to viewers:</h4>
-
-<ol>
-<li>Still in the bucket "Properties" pane, open the "Permissions" tab and click "Edit Bucket Policy" - a window pops up.</li>
-<li>Paste in the code from the box below, replacing <code>mybucketname</code> with, well, your bucket name :)</li>
-<li>Click <code>save</code> and your done - go visit that end-point url which should now be hosting your static website :)</li>
-</ol>
-
-<p>Here's the permissions policy you need - don't forget to change <code>mybucketname</code>!</p>
-
-<pre><code>{
-    "Version": "2008-10-17",
-    "Statement": [{
-        "Sid": "PublicReadForGetBucketObjects",
-        "Effect": "Allow",
-        "Principal": {
-            "AWS": "*"
-        },
-        "Action": "s3:GetObject",
-        "Resource": "arn:aws:s3:::mybucketname/*"
-    }]
-}
-</code></pre>
-
-<p><img src="https://lh5.googleusercontent.com/-loUsJEs3JC4/TtEulGDjuEI/AAAAAAAAHyw/Q1QYKwZY5WQ/s600/bucket-policy-edit.png" alt="Edit Bucket Policy" /></p>
-
-<h4>Step-7: Registered a domain-name? Point it at your S3 hosted website...</h4>
-
-<p>See my other post on <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">how to forward a domain name to an S3 bucket</a>.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=static">static</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=website">website</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=amazon">amazon</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=S3">S3</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=hosting">hosting</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="hosting_a_static_website_in_amazon_s3.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -338,11 +329,11 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="android_2_1_trouble_with_bitmaps.html">Android 2.1 - trouble with bitmaps</a><span class="date"> - Feb 19, 2012</span></li>
                 <li><a href="paths_and_selections_in_gimp.html">Paths and Selections in Gimp</a><span class="date"> - Feb 14, 2012</span></li>
                 <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
                 <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
                 <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
-                <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

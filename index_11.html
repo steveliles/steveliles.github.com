@@ -35,6 +35,242 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,644" description="A description of how to set up eclipse and firefox to test Google Web Toolkit apps in hosted development mode with WebDriver and maven">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-16">October 16, 2010</time></span>
+              <a itemprop="url" href="testing_gwt_apps_in_dev_mode_with_webdriver.html"><h1 itemprop="name" itemprop="headline">Testing GWT apps in dev-mode with WebDriver</h1></a>
+	      <span itemprop="articleBody"><p>Today I've been playing a little with WebDriver for testing GWT apps.  First impressions:
+* WebDriver is awesome - can't wait to try testing more complex web-apps!
+* WebDriver opens up all kinds of possibilities beyond testing web-apps - for example to drive interactive demos and tutorials.
+* Did I mention WebDriver is awesome? :)</p>
+
+<h2>Preparing the Eclipse project</h2>
+
+<p>To get started I made a new toy project to play in. I don't use the Google Eclipse plugins for GWT dev - if you do you could create this project using the wizards instead. I develop in Eclipse, but always set up my projects with Maven, so the first step for me was to create a new maven project:</p>
+
+<pre><code>mvn archetype:create -DgroupId=com.sjl -DartifactId=webdriver
+</code></pre>
+
+<p>Next, create the Eclipse project so I can use eclipse to edit the maven pom...</p>
+
+<pre><code>mvn eclipse:eclipse
+</code></pre>
+
+<p>And then edit <code>pom.xml</code> in Eclipse to add the GWT, JUnit4 and WebDriver dependencies (by default maven adds JUnit 3.8, so I replace that with JUnit 4.4).</p>
+
+<p>To add the GWT dependencies you also need a repository that actually has them - I use the CodeHaus gwt maven plugins during the build step, which also exposes the CodeHaus repository for fetching the dependences:</p>
+
+<pre><code>  &lt;pluginRepositories&gt;
+    &lt;pluginRepository&gt;
+      &lt;id&gt;codehaus-snapshots&lt;/id&gt;
+      &lt;name&gt;Codehaus plugin snapshot repository&lt;/name&gt;
+      &lt;url&gt;http://snapshots.repository.codehaus.org&lt;/url&gt;
+    &lt;/pluginRepository&gt;
+  &lt;/pluginRepositories&gt; 
+  ...
+  &lt;dependencies&gt;
+   &lt;dependency&gt;
+      &lt;groupId&gt;com.google.gwt&lt;/groupId&gt;
+      &lt;artifactId&gt;gwt-dev&lt;/artifactId&gt;
+      &lt;version&gt;2.0.4&lt;/version&gt;
+      &lt;optional&gt;true&lt;/optional&gt;
+   &lt;/dependency&gt;
+   &lt;dependency&gt;
+      &lt;groupId&gt;com.google.gwt&lt;/groupId&gt;
+      &lt;artifactId&gt;gwt-user&lt;/artifactId&gt;
+      &lt;version&gt;2.0.4&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+   &lt;/dependency&gt;
+   ...
+</code></pre>
+
+<p>Next the WebDriver dependencies - I got these as transitive dependencies of selenium2:</p>
+
+<pre><code>  &lt;dependency&gt;
+     &lt;groupId&gt;org.seleniumhq.selenium&lt;/groupId&gt;
+     &lt;artifactId&gt;selenium&lt;/artifactId&gt;
+     &lt;version&gt;2.0a4&lt;/version&gt;
+  &lt;/dependency&gt;
+</code></pre>
+
+<p>Having edited the <code>pom.xml</code> file you need to rebuild the eclipse project using the eclipse maven plugin:</p>
+
+<pre><code>mvn eclipse:eclipse
+</code></pre>
+
+<p>This will take a little while to download the dependencies if you don't already have them - the gwt dependencies in particular are quite large.  Once the command completes you need to refresh the project in Eclipse for it to reload the project classpath.</p>
+
+<h2>Creating a simple GWT app</h2>
+
+<p>I made a really simple application to play with, consisting of just an EntryPoint that displays a Label, and a PushButton which adds more Label's when clicked.  I had just a handful of aims in mind for this first attempt:
+1. Get a GWT app to load via WebDriver
+2. Find an element which GWT has created (the first Label)
+3. Interact with an element that does something (the PushButton)
+4. Check that the something actually happened and that we can test for it.</p>
+
+<p>The GWT code for this is extremely simple:</p>
+
+<pre><code>package com.sjl.webdriver.client;
+
+import com.google.gwt.core.client.*;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.ui.*;
+
+public class SimpleApp implements EntryPoint {
+
+  public void onModuleLoad() {
+    final RootPanel _root = RootPanel.get();
+    _root.add(new Label("Hello"));
+    _root.add(newButton());
+  }
+
+  private PushButton newButton() {
+    PushButton _b = new PushButton("push me");
+    _b.ensureDebugId("button");
+
+    _b.addClickHandler(new ClickHandler(){
+    public void onClick(ClickEvent event) {
+    _root.add(new Label("whoop"));
+      }
+    });
+
+    return _b;
+  }
+}
+</code></pre>
+
+<p>Pushing the button adds a new Label for each push - something we should be able to detect pretty easily.</p>
+
+<p>My gwt module file looks like this:</p>
+
+<pre><code> &lt;module rename-to="webdriver"&gt;  
+  &lt;inherits name="com.google.gwt.user.User"/&gt;
+  &lt;inherits name="com.google.gwt.user.Debug"/&gt;
+  &lt;entry-point class="com.sjl.webdriver.client.SimpleApp" /&gt;  
+ &lt;/module&gt;
+</code></pre>
+
+<p>Next I made an <code>ApplicationDriver</code> class to wrap up the details of getting WebDriver to interact with the web app and let our tests deal with the web app in terms of a ubiquitous domain language - overkill for this simple example i'm sure, but if you want to write expressive tests for a complex web app you really need to do so at a higher level than WebDriver invocations. </p>
+
+<p>The <code>ApplicationDriver</code> class looks like this:</p>
+
+<pre><code>package com.sjl.webdriver;
+
+import java.util.*;
+import org.openqa.selenium.*;
+import org.openqa.selenium.firefox.*;
+
+public class ApplicationDriver {
+
+  private WebDriver driver;
+
+  public ApplicationDriver() {
+    System.setProperty("webdriver.firefox.profile", "default");
+    driver = new FirefoxDriver();
+    driver.get(
+    "http://127.0.0.1:8888/index.html?" + 
+    "gwt.codesvr=127.0.0.1:9997"); 
+  }
+
+  public void pushTheButton() { 
+    WebElement _element = driver.findElement(
+    By.id("gwt-debug-button"));
+    _element.click();
+  }
+
+  public int countLabels() {
+    List&lt;WebElement&gt; _elements = driver.findElements(
+    By.className("gwt-Label"));
+    return _elements.size();
+  }
+
+  public void quit() {
+    driver.close();
+  }
+}
+</code></pre>
+
+<p>Now there are a few things worth noting here, as it took me a while to arrive at this point with something that actually worked.</p>
+
+<p>First of all, notice that i'm using the <code>FirefoxDriver</code> implementation. I had started out with <code>HtmlUnitDriver</code> which works just fine for testing a compiled GWT app (provided you create it with javascript support - <code>new HtmlUnitDriver(true)</code> - and ignore the warnings about x-javascript) but I wanted to test during development by running OOPHM. </p>
+
+<p>Stupidly I was trying to get this to work with the <code>HtmlUnitDriver</code> for a while, til I had a Homer Simpson moment (doh!) and realized that of course <code>HtmlUnitDriver</code> can't work - it doesn't have a GWT plugin :).</p>
+
+<p>Secondly, the <code>FirefoxDriver</code> implementation starts up an instance of Firefox with a profile called "WebDriver". If you don't have a profile with that name Firefox will create one when it starts, but it won't have any of your plugins (including the GWT plugin!). </p>
+
+<h3>Creating a Firefox profile for WebDriver</h3>
+
+<p>Its easy to create a new profile (close all instances of firefox down completely then run it from the cmdline with the -profilemanager switch) - <a href="http://kb.mozillazine.org/Profile_manager">precise instructions vary by platform</a>. I created the profile then just copied my existing profile contents to it to save installing all the plugins again. In the sample code above i've told WebDriver to use the "default" profile instead by setting a system property.</p>
+
+<p>Finally, note that I'm finding the <code>PushButton</code> by id lookup. To make this work you have to force GWT to spit out an id for the element, and allow for the fact that GWT adds a prefix ("gwt-debug-") to the id you specify. To force GWT to produce id's for your Widget elements:</p>
+
+<ul>
+<li>Inherit the Debug module in your module descriptor file (.gwt.xml)</li>
+<li>Set an id on the Widget using widget.ensureDebugId("theId");</li>
+</ul>
+
+<p>Last of all I built the testcase on top of the <code>ApplicationDriver</code>, starting with a test to detect the first Label, then a test to click the PushButton and check that a new Label is added.  The testcase looks like this:</p>
+
+<pre><code>package com.sjl.webdriver;
+
+import static junit.framework.Assert.*;
+import org.junit.*;
+
+public class TestSimpleApp {
+
+  private ApplicationDriver driver;
+
+  @Before
+  public void openBrowser() {
+    driver = new ApplicationDriver();
+  }
+
+  @After
+  public void closeBrowser() {
+    driver.quit();
+  }
+
+  @Test
+  public void canDetectALabel() {
+    assertEquals(1, driver.countLabels());
+  }
+
+  @Test
+  public void pushingTheButtonAddsALabel() {
+    assertEquals(1, driver.countLabels());
+    driver.pushTheButton();
+    assertEquals(2, driver.countLabels());
+  }
+
+  @Test
+  public void pushingTheButtonAgainAddsAnotherLabel() {
+    assertEquals(1, driver.countLabels());
+    driver.pushTheButton();
+    assertEquals(2, driver.countLabels());
+    driver.pushTheButton();
+    assertEquals(3, driver.countLabels());
+  }
+}
+</code></pre>
+
+<p>That's it ... start up GWT OOPHM, run the Junit testcase, and marvel as Firefox starts up, runs the app, and shuts down again (3 times - once for each test), leaving you with a nice green bar in JUnit. I'm sure that restarting firefox between each test would be a bad idea - slooooow - in practice, I just wanted to try it to see that it worked :)</p>
+
+<p>The next interesting test to play with will be testing asynchronous activity like AJAX requests.  I'm hoping there'll be some nice Patterns described by the WebDriver community for writing such tests.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=testing">testing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=webdriver">webdriver</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=development">development</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=hosted">hosted</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="testing_gwt_apps_in_dev_mode_with_webdriver.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
               <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
               <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
@@ -76,11 +312,11 @@
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="android_2_1_trouble_with_bitmaps.html">Android 2.1 - trouble with bitmaps</a><span class="date"> - Feb 19, 2012</span></li>
                 <li><a href="paths_and_selections_in_gimp.html">Paths and Selections in Gimp</a><span class="date"> - Feb 14, 2012</span></li>
                 <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
                 <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
                 <li><a href="invoking_processes_from_java.html">Invoking Processes from Java</a><span class="date"> - Jan 26, 2012</span></li>
-                <li><a href="another_mini_figure_another_comic_strip.html">Another mini-figure, another comic strip...</a><span class="date"> - Jan 25, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
