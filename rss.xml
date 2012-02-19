@@ -102,6 +102,8 @@ _image.setImageBitmap(getImageBitmap(aScene));
 
 <p>If the Uri really resolves to a missing file then I'll still get black images, but this is only likely in fairly extreme circumstances, and at least the app doesn't crash :). I suppose a better solution would be to return the app icon in such cases.</p>
 
+<p>So to the next problem...</p>
+
 <h3>Force-Close while applying FX</h3>
 
 <p>My first guess was that this was going to be a VM budget issue. I've had them before, but with the v1.5.0 release I seemed to have largely solved them (no crash reports <em>at all</em> since). Here are some of the issues:</p>

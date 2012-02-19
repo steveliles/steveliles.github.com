@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,781" description="Following a bug report from a user, this documents my efforts to track down and fix some Bitmap related issues in Android 2.1 (eclair), including the first SIGSEGV I've fallen victim to in Android.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,787" description="Following a bug report from a user, this documents my efforts to track down and fix some Bitmap related issues in Android 2.1 (eclair), including the first SIGSEGV I've fallen victim to in Android.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-02-19">February 19, 2012</time></span>
               <a itemprop="url" href="android_2_1_trouble_with_bitmaps.html"><h1 itemprop="name" itemprop="headline">Android 2.1 - trouble with bitmaps</h1></a>
 	      <span itemprop="articleBody"><p>I got the following mail from a user of my app:</p>
@@ -123,6 +123,8 @@ _image.setImageBitmap(getImageBitmap(aScene));
 </code></pre>
 
 <p>If the Uri really resolves to a missing file then I'll still get black images, but this is only likely in fairly extreme circumstances, and at least the app doesn't crash :). I suppose a better solution would be to return the app icon in such cases.</p>
+
+<p>So to the next problem...</p>
 
 <h3>Force-Close while applying FX</h3>
 
