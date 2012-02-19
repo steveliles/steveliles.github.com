@@ -264,6 +264,63 @@ _image.setImageBitmap(getImageBitmap(aScene));
 <p>This looks like a monstrous bug in Android-2.1 to me. If I can't work around it I'll refund my user (he's a user of the paid version), but I doubt if that will lead to recovery of my previously 4.8 star rating.</p>
 
 <p>Did I mention that I thought the rating mechanism was pretty harsh on developers? :(</p>
+
+<h3>Update - a few hours later :)</h3>
+
+<p>After some more debugging, I isolated the problem and created the simplest re-construction possible. The following code crashes reliably under API level 7, but runs to completion under API level 8 or above:</p>
+
+<pre><code>package com.roundwoodstudios.bitmaptest;
+
+import android.app.Activity;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+
+public class BitmapActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
+        for (int i=0; i&lt;100; i++) {
+            Log.i("Bitmap Test", "Iteration: " + i);
+            Canvas _c = new Canvas();
+            _c.drawColor(Color.WHITE);
+        }
+    }
+}
+</code></pre>
+
+<p>When you look at it like that its fairly clear what's wrong: the canvas isn't really initialised properly yet - it doesn't know how large it is, for example. If I set a bitmap to it <em>first</em> it runs fine even under API level 7:</p>
+
+<pre><code>package com.roundwoodstudios.bitmaptest;
+
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+
+public class BitmapActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
+        for (int i=0; i&lt;100; i++) {
+            Log.i("Bitmap Test", "Iteration: " + i);
+            Canvas _c = new Canvas();
+            Bitmap _b = Bitmap.createBitmap(350, 350, Bitmap.Config.ARGB_8888);
+            _c.setBitmap(_b);
+            _c.drawColor(Color.WHITE);
+        }
+    }
+}
+</code></pre>
+
+<p>Phew, that's a relief :)</p>
 ]]></description>
           <category>android</category>
           <category>eclair</category>
