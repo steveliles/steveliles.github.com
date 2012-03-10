@@ -13,6 +13,97 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Returning a result from an Android Activity]]></title>
+        <link><![CDATA[http://steveliles.github.com/returning_a_result_from_an_android_activity.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/returning_a_result_from_an_android_activity.html</guid>
+        <description><![CDATA[<p>The Android platform prescribes a number of patterns for putting together an application that plays well with the platform and feels familiar to users.</p>
+
+<p>One of those patterns is the hierarchical use of <code>Activities</code> to segregate the application, and to provide re-usable chunks of application that can service certain requirements. </p>
+
+<p>The higher design goal is to create an eco-system of separable <code>Activities</code> that fulfil <code>Intents</code> that can be re-used by other applications - for example: if my application needs an image, it can request one by invoking an Intent to use an image, and all <code>Activities</code> that can fulfil that <code>Intent</code> will be offered as a choice to the user.</p>
+
+<p>Lets see what that looks like with a code example.</p>
+
+<h3>Invoking an Activity with an Intent</h3>
+
+<p>First of all, lets look at how to invoke an activity with an Intent. Lets say we want to explicitly open the Gallery app to select an image to use in our application. Its very simple:</p>
+
+<pre><code>private static final int PICK_IMAGE_REQUEST = 1;
+
+public void selectImageFromGallery() {
+    Intent _intent = new Intent();
+    _intent.setType("image/*");
+    _intent.setAction(Intent.ACTION_GET_CONTENT);
+    startActivityForResult(
+        Intent.createChooser(_intent, "Select Picture"), 
+        PICK_IMAGE_REQUEST
+    );
+}
+</code></pre>
+
+<p>This will open the gallery app and allow the user to select an image. Notice that in the call to <code>startActivityForResult</code> we provided an int value in the form of <code>PICK_IMAGE_REQUEST</code> - this tells the system what return-code to use when the invoked <code>Activity</code> completes, so that we can respond correctly. </p>
+
+<p>Lets see how we do that ..</p>
+
+<pre><code>@Override
+protected void onActivityResult(
+    int aRequestCode, int aResultCode, Intent aData
+) {
+    switch (aRequestCode) {
+        case PICK_IMAGE_REQUEST:
+            handleUserPickedImage(aData);
+            break;
+        case SOME_OTHER_REQUEST:
+            handleSomethingElse(aData);
+            break;
+    }
+    super.onActivityResult(aRequestCode, aResultCode, aData);
+}
+</code></pre>
+
+<p>Here we're overriding a method of <code>Activity</code> to handle results being passed back from invoked activities. </p>
+
+<p>The value of <code>aRequestCode</code> is the value passed to the <code>startActivityForResult</code> method (so for us its <code>PICK_IMAGE_REQUEST</code>), and is how we distinguish which activity is returning a result.</p>
+
+<p><code>aResultCode</code> will contain the value set by the invoked <code>Activity</code>'s setResult(int), while <code>aData</code> Intent contains any data returned by the <code>Activity</code>. In our example the Intent contains the Uri of the selected image, which we can access like this:</p>
+
+<pre><code>private void handleUserPickedImage(Intent aData) {
+    if ((aData != null) &amp;&amp; (aData.getData() != null)) {
+        Uri _imageUri = aData.getData();
+        // Do something neat with the image...
+    } else {
+        // We didn't receive an image...
+    }
+}
+</code></pre>
+
+<h3>Returning values from an Activity</h3>
+
+<p>Great, we can invoke existing <code>Activity</code>'s and collect results. What does it look like from the other side? - How does the Activity return its results to us?</p>
+
+<pre><code>Uri _resultUri = .. // Some uri we want to return  
+Intent _result = new Intent();              
+_result.setData(_resultUri);
+setResult(Activity.RESULT_OK, _result);
+finish();
+</code></pre>
+
+<p>Its a simple as that: </p>
+
+<ol>
+<li>Create an Intent (the result object)</li>
+<li>Set the result data (you don't have to return a Uri - you can use the putExtra methods to set any values you want)</li>
+<li>Call <code>setResult</code> on your Activity, giving it the result Intent</li>
+<li>Call <code>finish</code> on your Activity</li>
+</ol>
+]]></description>
+          <category>Android</category>
+          <category>Activity</category>
+          <category>Result</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sat, 03 Mar 2012 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Custom fonts in Android]]></title>
         <link><![CDATA[http://steveliles.github.com/custom_fonts_in_android.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/custom_fonts_in_android.html</guid>
@@ -176,7 +267,7 @@ _image.setImageBitmap(getImageBitmap(aScene));
 
 <p>To make the user-experience more friendly the FX are processed in a background thread. On the UI thread I show a dialog with a spinner to let the user know something is happening. This is nothing special - I'm using the <code>AsyncTask</code> class provided by the Android framework for exactly this purpose.</p>
 
-<p>In Android, Bitmap memory is allocated off-heap by JNI calls in the Bitmap class. It doesn't seem to gain you extra memory to play with in your VM (witness the number of StackOverflow questions pertaining to Bitmap's and VM budget!), so I suspect the reasons behind it are mostly to do with performance.</p>
+<p>In Android - pre Honeycomb - Bitmap memory is allocated off-heap by JNI calls in the Bitmap class. It doesn't gain you extra memory to play with in your VM - the bitmap pixel data is still counted within the total memory used by your app (witness the number of StackOverflow questions pertaining to Bitmap's and VM budget!). In Honeycomb the bitmap pixel data has <a href="http://www.youtube.com/watch?v=_CruQY55HOk">moved into the VM</a></p>
 
 <p>As soon as you're done with a Bitmap, you are supposed to let the Runtime know, by invoking <code>Bitmap.recycle()</code>, then null'ing the reference to the Bitmap. Fine, my app works great on API levels above 7 - no crashes, no warnings, no memory leaks. </p>
 
@@ -4134,59 +4225,6 @@ Content-Length: 0
           <category>Threading</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Tue, 19 Jul 2011 00:00:00 +0100</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[JQuery + HtmlUnit = runtimeError messages galore]]></title>
-        <link><![CDATA[http://steveliles.github.com/jquery_htmlunit_runtimeerror_messages_galore.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/jquery_htmlunit_runtimeerror_messages_galore.html</guid>
-        <description><![CDATA[<p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
-
-<p>...
-One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
-
-<pre><code>runtimeError: message=
-  [The data necessary to complete this operation is not yet available.]
-  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
-  lineSource=[null] lineOffset=[0]
-</code></pre>
-
-<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
-
-<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
-
-<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
-
-<pre><code>// The DOM ready check for Internet Explorer
-function doScrollCheck() {
- if ( jQuery.isReady ) {
-  return;
- }
-
- try {
-  // If IE is used, use the trick by Diego Perini
-  // http://javascript.nwbox.com/IEContentLoaded/
-     document.documentElement.doScroll("left");
- } catch(e) {
-  setTimeout( doScrollCheck, 1 );
-  return;
- }
-
- // and execute any waiting functions
- jQuery.ready();
-}
-</code></pre>
-
-<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
-
-<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
-
-<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
-]]></description>
-          <category>JQuery</category>
-          <category>HtmlUnit</category>
-          <category>runtimeerror</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Fri, 27 May 2011 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>

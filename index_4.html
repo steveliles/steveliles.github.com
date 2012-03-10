@@ -35,6 +35,54 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="407" description="How to point a registered domain name to an Amazon S3 website bucket">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
+              <a itemprop="url" href="pointing_a_domain_name_to_an_amazon_s3_bucket.html"><h1 itemprop="name" itemprop="headline">Pointing a domain name to an Amazon S3 bucket</h1></a>
+	      <span itemprop="articleBody"><p>I recently registered a domain name for some static content i'm hosting in Amazon's Simple Storage Service (S3). <a href="hosting_a_static_website_in_amazon_s3.html">Setting up an S3 bucket as a static website</a> is pretty straight-forward, but pointing your domain to it is tricky. After a bit of playing and googling I think I've got the right combination:</p>
+
+<h4>Step-1: Create your S3 website bucket</h4>
+
+<p>When naming your bucket you <em>must</em> use the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. If you don't do this you will get warnings (404 not found, nosuchbucket).</p>
+
+<h4>Step-2: Remove any existing "A" records</h4>
+
+<p>Using the administration tools provided by your domain registrar, remove any <code>"A"</code> records that may have been automatically set up for your domain - you don't want your domain name pointing to "parking" sites.</p>
+
+<h4>Step-3: Forward your root domain to www</h4>
+
+<p>Forward your root domain (<code>mydomain.com</code>) to the <code>www</code> subdomain (<code>www.mydomain.com</code>). Most registrars and hosting companies give you the ability to forward domain names. With Fasthosts I had to "add" forwarding to my package, but it didn't cost anything extra.</p>
+
+<p>If you can <em>mask</em> the forwarding, so much the better, as this will mean that visitors to your site will see your registered domain rather than the S3 url (depends what your registrar offers - fasthosts and godaddy both support masked forwarding). In Fasthosts admin, masking is a checkbox option in the forwarding configuration.</p>
+
+<h4>Step-4: Add a `CNAME` pointing to your S3 site</h4>
+
+<p>Add a CNAME for the <code>www</code> subdomain, pointing to your S3 website (<code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>). The admin tools should make this easy for you.</p>
+
+<p><img src="https://lh4.googleusercontent.com/-6aH7JLLgpVQ/TtFmqVjl4QI/AAAAAAAAH0k/vT_wK-8EEd0/s522/cname-config.png" alt="Add a CNAME" /></p>
+
+<p>That's it - all you have to do now is wait for the changes to propagate (this can take a while).</p>
+
+<h4>See it in action...</h4>
+
+<p>You can see this in action with my setup:</p>
+
+<p>My domain-name is overpayment-calculator.com, which forwards to <a href="http://www.overpayment-calculator.com">www.overpayment-calculator.com</a>, which points (via CNAME) at my S3 bucket <a href="http://www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com">www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com</a>, masking the S3 name (so that when you visit via the overpayment-calculator.com address you don't see the S3 address in the address bar).</p>
+
+<p><em>p.s.</em> props to <a href="http://www.fasthosts.co.uk/">fasthosts</a> - the dns information propagated extremely quickly - from registering the domain name to acessing my site via that domain name (including the time it took me to do the set up) took less than one hour!</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Amazon">Amazon</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=S3">S3</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=domain name">domain name</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=forward">forward</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=mask">mask</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="227" description="Many pages that you might want to share don't have Google+ plus-one buttons. This bookmarklet makes it easy to +1 any page directly while browsing it.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
               <a itemprop="url" href="plus_one_any_page_google_1_bookmarklet.html"><h1 itemprop="name" itemprop="headline">Plus-One any page - Google +1 Bookmarklet</h1></a>
@@ -316,150 +364,6 @@ Several times while working on the styling of this blog I've wanted to style ele
 	        <a href="a_multi_class_union_css_selector.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
-              <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
-	      <span itemprop="articleBody"><p>Since my <a href="">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
-
-<pre><code>interface Counter {
-    // add a colour channel value for one of 
-    // the neighbouring pixels
-    public void add(int aValue);
-
-    // calculates the value we should use
-    // for the current colour channel of the
-    // current pixel based on its neighbours
-    public int mostFrequent();
-}
-</code></pre>
-
-<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green /blue). The client code looks like this:</p>
-
-<pre><code>// calculate the colour 
-private int count(int anOffset, int[] aSurrounding) {
-    Counter _c = getCounter();
-    int _length = aSurrounding.length-(2-anOffset);
-    for (int i=anOffset; i&amp;lt;_length; i+=3) {
-        _c.add(aSurrounding[i]);
-    }
-    return _c.mostFrequent();
-}
-</code></pre>
-
-<p>Here you can see that I can easily supply different implementations of Counter, so I can try different algorithms easily.</p>
-
-<h3>The original colour-selection algorithm</h3>
-
-<p>The original algorithm simply takes the most frequent value of each colour channel so that, for example, if 51% of the surrounding pixels are bright blue, and the other 49% are bright red, this pixel will be bright red.</p>
-
-<pre><code>class SimpleCounter implements Counter {
-    int[] values = new int[256];
-
-    public SimpleCounter() {
-        Arrays.fill(values, -1);
-    }
-
-    public void add(int aValue) {
-        values[aValue] += 1;
-    }
-
-    public int mostFrequent() {
-        int _highest = -1;
-        int _colour = -1;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &amp;gt; _highest) {
-            _highest = values[i];
-            _colour = i;
-            }
-        }
-        return _colour;
-    }
-}
-</code></pre>
-
-<p>This algorithm does produce the effect I'm looking for, but I get some sharp edges and colour bleeding that I don't really want (see example output below).</p>
-
-<h3>The weighted-average algorithm</h3>
-
-<p>This algorithm weights the values of the surrounding pixels relative to the most common value, so we get a weighted average that does take some account of less popular colours in the neighbourhood of the current pixel.</p>
-
-<pre><code>class WeightedAverageCounter implements Counter {
-    int[] values = new int[256];
-
-    public WeightedAverageCounter() {
-        Arrays.fill(values, 0);
-    }
-
-    public void add(int aValue) {
-        values[aValue] += 1;
-    }
-
-    public int mostFrequent() {
-        int _max = max();
-        double _weight=0, _colour=0, _count=0;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &gt; 0) {
-                _weight = (((double)values[i]) / _max);
-                _weight = Math.pow(_weight, 5);
-                _colour += _weight * i;
-                _count += _weight;
-            }
-        }
-        return (int) (_colour / _count);
-    }
-
-    private int max() {
-        int _highest = 0;
-        for (int i=0; i&amp;lt;256; i++) {
-            if (values[i] &gt; _highest) {
-                _highest = values[i];
-            }
-        }
-        return _highest;
-    }
-}
-</code></pre>
-
-<p>The result of the weighted average algorithm is a much smoother colour composition with a reduction in the aliasing effects that can be seen in the more simple algorithm's output. It does have a significant performance penalty however - on my quad core i7 laptop on an image of 600x650 pixels and a 16x16 neighbourhood, the simple algorithm completes in 10 seconds, whereas the weighted-average needs 90 seconds!</p>
-
-<h3>Output for comparison</h3>
-
-<p>Here are some examples for comparison. First is the original image, then then the image processed with the simple colour selection algorithm, followed by the weighted average algorithm.</p>
-
-<p><img alt="The original photograph" width="600" height="654" src="https://lh3.googleusercontent.com/-zPwUf1ZwEes/TsfLHPhDT0I/AAAAAAAAHuI/Rpt4as1QyIE/s600/duck.jpg"></p>
-
-<div class="caption">The original image</div>
-
-<p><img alt="Processed with 'Simple' algorithm" width="600" height="654" src="https://lh6.googleusercontent.com/--uqph05DLD4/TsfLMt4MJ3I/AAAAAAAAHuU/aJ_bXBLOFEw/s600/duck-16x16-simple.png"></p>
-
-<div class="caption">Processed with 'Simple' algorithm</div>
-
-<p><img alt="Processed with 'Weighted Average' algorithm" width="600" height="654" src="https://lh5.googleusercontent.com/-C6hRgaQDTtA/TsfLRfOMKLI/AAAAAAAAHuc/gLLTePCCUfo/s600/duck-16x16-weighted-average.png"></p>
-
-<div class="caption">Processed with 'Weighted Average' algorithm</div>
-
-<p>It might be a little difficult to see the difference, so here's one final composite image showing the difference close-up and side-by-side</p>
-
-<p><img alt="composite - left-side 'simple', right-side 'weighted average'" width="600" height="327" src="https://lh6.googleusercontent.com/-i6hEeV2vdC0/TsfYihtEPaI/AAAAAAAAHu8/Yx2b4FTSvBM/s600/duck-composite.jpg"></p>
-
-<div class="caption">Composite for comparison</div>
-
-<p>The left-side shows the image processed with the simple algorithm, whilst the right-side shows the smoother result of the weighted-average algorithm.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image">Image</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Processing">Processing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java2D">Java2D</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Convolve">Convolve</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Kernel">Kernel</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Vectorize">Vectorize</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="weighted_average_smoothing_with_java2d.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -477,11 +381,11 @@ private int count(int anOffset, int[] aSurrounding) {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
                 <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
                 <li><a href="android_2_1_trouble_with_bitmaps.html">Android 2.1 - trouble with bitmaps</a><span class="date"> - Feb 19, 2012</span></li>
                 <li><a href="paths_and_selections_in_gimp.html">Paths and Selections in Gimp</a><span class="date"> - Feb 14, 2012</span></li>
                 <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
-                <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

@@ -35,6 +35,150 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
+              <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
+	      <span itemprop="articleBody"><p>Since my <a href="">original post</a> I've done a little bit more playing with processing images to try to give them a "vectorised" look. I really didn't change much, just played with the algorithm for choosing pixel colour. The algorithms all work by examining the colours of the current and surrounding pixels to determine what colour to paint the current pixel. The colour selection is performed by classes that implement the following simple interface:   </p>
+
+<pre><code>interface Counter {
+    // add a colour channel value for one of 
+    // the neighbouring pixels
+    public void add(int aValue);
+
+    // calculates the value we should use
+    // for the current colour channel of the
+    // current pixel based on its neighbours
+    public int mostFrequent();
+}
+</code></pre>
+
+<p>The client code that deals this interface invokes the add method 3 times for each pixel - once for each colour channel (red / green /blue). The client code looks like this:</p>
+
+<pre><code>// calculate the colour 
+private int count(int anOffset, int[] aSurrounding) {
+    Counter _c = getCounter();
+    int _length = aSurrounding.length-(2-anOffset);
+    for (int i=anOffset; i&amp;lt;_length; i+=3) {
+        _c.add(aSurrounding[i]);
+    }
+    return _c.mostFrequent();
+}
+</code></pre>
+
+<p>Here you can see that I can easily supply different implementations of Counter, so I can try different algorithms easily.</p>
+
+<h3>The original colour-selection algorithm</h3>
+
+<p>The original algorithm simply takes the most frequent value of each colour channel so that, for example, if 51% of the surrounding pixels are bright blue, and the other 49% are bright red, this pixel will be bright red.</p>
+
+<pre><code>class SimpleCounter implements Counter {
+    int[] values = new int[256];
+
+    public SimpleCounter() {
+        Arrays.fill(values, -1);
+    }
+
+    public void add(int aValue) {
+        values[aValue] += 1;
+    }
+
+    public int mostFrequent() {
+        int _highest = -1;
+        int _colour = -1;
+        for (int i=0; i&amp;lt;256; i++) {
+            if (values[i] &amp;gt; _highest) {
+            _highest = values[i];
+            _colour = i;
+            }
+        }
+        return _colour;
+    }
+}
+</code></pre>
+
+<p>This algorithm does produce the effect I'm looking for, but I get some sharp edges and colour bleeding that I don't really want (see example output below).</p>
+
+<h3>The weighted-average algorithm</h3>
+
+<p>This algorithm weights the values of the surrounding pixels relative to the most common value, so we get a weighted average that does take some account of less popular colours in the neighbourhood of the current pixel.</p>
+
+<pre><code>class WeightedAverageCounter implements Counter {
+    int[] values = new int[256];
+
+    public WeightedAverageCounter() {
+        Arrays.fill(values, 0);
+    }
+
+    public void add(int aValue) {
+        values[aValue] += 1;
+    }
+
+    public int mostFrequent() {
+        int _max = max();
+        double _weight=0, _colour=0, _count=0;
+        for (int i=0; i&amp;lt;256; i++) {
+            if (values[i] &gt; 0) {
+                _weight = (((double)values[i]) / _max);
+                _weight = Math.pow(_weight, 5);
+                _colour += _weight * i;
+                _count += _weight;
+            }
+        }
+        return (int) (_colour / _count);
+    }
+
+    private int max() {
+        int _highest = 0;
+        for (int i=0; i&amp;lt;256; i++) {
+            if (values[i] &gt; _highest) {
+                _highest = values[i];
+            }
+        }
+        return _highest;
+    }
+}
+</code></pre>
+
+<p>The result of the weighted average algorithm is a much smoother colour composition with a reduction in the aliasing effects that can be seen in the more simple algorithm's output. It does have a significant performance penalty however - on my quad core i7 laptop on an image of 600x650 pixels and a 16x16 neighbourhood, the simple algorithm completes in 10 seconds, whereas the weighted-average needs 90 seconds!</p>
+
+<h3>Output for comparison</h3>
+
+<p>Here are some examples for comparison. First is the original image, then then the image processed with the simple colour selection algorithm, followed by the weighted average algorithm.</p>
+
+<p><img alt="The original photograph" width="600" height="654" src="https://lh3.googleusercontent.com/-zPwUf1ZwEes/TsfLHPhDT0I/AAAAAAAAHuI/Rpt4as1QyIE/s600/duck.jpg"></p>
+
+<div class="caption">The original image</div>
+
+<p><img alt="Processed with 'Simple' algorithm" width="600" height="654" src="https://lh6.googleusercontent.com/--uqph05DLD4/TsfLMt4MJ3I/AAAAAAAAHuU/aJ_bXBLOFEw/s600/duck-16x16-simple.png"></p>
+
+<div class="caption">Processed with 'Simple' algorithm</div>
+
+<p><img alt="Processed with 'Weighted Average' algorithm" width="600" height="654" src="https://lh5.googleusercontent.com/-C6hRgaQDTtA/TsfLRfOMKLI/AAAAAAAAHuc/gLLTePCCUfo/s600/duck-16x16-weighted-average.png"></p>
+
+<div class="caption">Processed with 'Weighted Average' algorithm</div>
+
+<p>It might be a little difficult to see the difference, so here's one final composite image showing the difference close-up and side-by-side</p>
+
+<p><img alt="composite - left-side 'simple', right-side 'weighted average'" width="600" height="327" src="https://lh6.googleusercontent.com/-i6hEeV2vdC0/TsfYihtEPaI/AAAAAAAAHu8/Yx2b4FTSvBM/s600/duck-composite.jpg"></p>
+
+<div class="caption">Composite for comparison</div>
+
+<p>The left-side shows the image processed with the simple algorithm, whilst the right-side shows the smoother result of the weighted-average algorithm.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image">Image</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Processing">Processing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java2D">Java2D</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Convolve">Convolve</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Kernel">Kernel</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Vectorize">Vectorize</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="weighted_average_smoothing_with_java2d.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="421" description="Description and code samples for a mortgage or loan overpayment calculator written using Google Web Toolkit and progressive enhancement techniques">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-17">November 17, 2011</time></span>
               <a itemprop="url" href="mortgage_loan_overpayment_calculator.html"><h1 itemprop="name" itemprop="headline">Mortgage/Loan Overpayment Calculator</h1></a>
@@ -1025,133 +1169,6 @@ class MyWidget extends BoundRootPanel {
 	        <a href="gwt_progressive.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="898" description="Description and code for creating a sitemap xml using freemarker">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-11">November 11, 2011</time></span>
-              <a itemprop="url" href="templating_my_blog_with_freemarker.html"><h1 itemprop="name" itemprop="headline">Templating my Blog with FreeMarker</h1></a>
-	      <span itemprop="articleBody"><p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
-
-<p>I'm using <a href="http://code.google.com/p/markdownj/">MarkdownJ</a> to convert the Markdown syntax to HTML, and <a href="http://freemarker.sourceforge.net/">FreeMarker</a> for templating.</p>
-
-<p>FreeMarker for templating was an easy choice for me:</p>
-
-<ul>
-<li>It is a decent templating engine that I've used recently for a dynamic website,</li>
-<li>It is very easy to set up in Java for my one-hit templating needs,</li>
-<li>I like its syntax compared to, say, Velocity</li>
-</ul>
-
-<p>Yesterday I used FreeMarker to add two new productions to my site-generator: a sitemap, and an RSS feed, and thought I'd make some quick notes...</p>
-
-<p>FreeMarker strives to be a pure templating language, and as such resists the temptation to ... shall we say, make certain things easy that you probably shouldn't do in a template. </p>
-
-<p>This can make templating a little uncomfortable sometimes - all the more so if you try to use complex domain objects directly in your templates instead of producing model's specifically for output (YMMV depending on the complexity of your domain model of course).</p>
-
-<p>For the simple needs of my Blog FreeMarker has been great, allowing me to whiz up the sitemap template in a couple of minutes, and not much longer for the RSS-2.0 template.</p>
-
-<p>Setting up FreeMarker in Java is very very simple indeed. I chose to abstract FreeMarker away behind my own interface (<code>TemplateProcessor</code>), in case I want to use something different later:</p>
-
-<pre><code>import java.io.*;
-import freemarker.template.*;
-
-public class FreemarkerTemplateProcessor implements TemplateProcessor
-{
-    private Configuration cfg;
-
-    public FreemarkerTemplateProcessor(File aTemplateDir) 
-    throws IOException
-    {
-        cfg = new Configuration();
-        cfg.setDirectoryForTemplateLoading(aTemplateDir);
-        cfg.setObjectWrapper(new DefaultObjectWrapper());
-    }
-
-    @Override
-    public void process(Object aModel, String aTemplate, Writer aWriter) 
-    throws IOException, TemplateException
-    {
-        Template _tpl = cfg.getTemplate(aTemplate);
-        _tpl.process(aModel, aWriter);
-    }
-}
-</code></pre>
-
-<p>The templating language is quite neat, and very easy to write - as I mentioned before, it helps if your model is a good fit for the view you are trying to render so you don't need to squeeze to many conditionals into the template. </p>
-
-<h2>Freemarker template for sitemap.xml</h2>
-
-<p>There are only 3 lines of FreeMarker markup in my sitemap template:</p>
-
-<ul>
-<li><code>&lt;#list posts as post&gt;</code> which iterates over an <code>Iterable</code> containing <code>Post</code> objects,</li>
-<li>the closing <code>&lt;/#list&gt;</code>, and</li>
-<li>the line that reads the post's link <code>&lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;</code></li>
-</ul>
-
-<p>Here's the template in full:</p>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
-&lt;urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation=
-        "http://www.sitemaps.org/schemas/sitemap/0.9 
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt; 
-
-  &lt;url&gt;
-    &lt;loc&gt;${blog.url}/index.html&lt;/loc&gt;
-    &lt;changefreq&gt;daily&lt;/changefreq&gt;
-    &lt;priority&gt;1.0&lt;/priority&gt;
-  &lt;/url&gt;
-  &lt;url&gt;
-    &lt;loc&gt;${blog.url}/about_me.html&lt;/loc&gt;
-    &lt;changefreq&gt;daily&lt;/changefreq&gt;
-    &lt;priority&gt;0.9&lt;/priority&gt;
-  &lt;/url&gt;
-
-  &lt;#list posts as post&gt;
-    &lt;url&gt; 
-      &lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;
-      &lt;changefreq&gt;hourly&lt;/changefreq&gt;
-    &lt;/url&gt;
-  &lt;/#list&gt;
-
-&lt;/urlset&gt;
-</code></pre>
-
-<h2>Freemarker template for RSS 2.0</h2>
-
-<p>The RSS template is very similar to the sitemap template, as it deals with exactly the same model. Skipping the pre-amble, here's the part that actually involves any freemarker markup:</p>
-
-<pre><code>&lt;#list posts as post&gt;
-  &lt;item&gt;
-    &lt;title&gt;&lt;![CDATA[${post.title}]]&gt;&lt;/title&gt;
-    &lt;link&gt;&lt;![CDATA[http://${blog.url}/${post.link}]]&gt;&lt;/link&gt;
-    &lt;guid isPermaLink="true"&gt;${blog.url}/${post.link}&lt;/guid&gt;
-    &lt;description&gt;&lt;![CDATA[${post.body}]]&gt;&lt;/description&gt;
-    &lt;#list post.keywords as keyword&gt;
-      &lt;category&gt;${keyword}&lt;/category&gt;
-    &lt;/#list&gt;
-    &lt;dc:creator&gt;&lt;![CDATA[ Steve Liles ]]&gt;&lt;/dc:creator&gt;
-    &lt;pubDate&gt;${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}&lt;/pubDate&gt;
-  &lt;/item&gt;
-&lt;/#list&gt;
-</code></pre>
-
-<p>I like the date built-in here: <code>${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}</code> which keeps the date format in the template where it belongs. </p>
-
-<p>Of course, here I've just written it directly into this template because I only use this format once in my whole site - if I were using it more I could define a re-usable FreeMarker macro instead to avoid repetition.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=FreeMarker">FreeMarker</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Template">Template</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Sitemap">Sitemap</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=RSS">RSS</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="templating_my_blog_with_freemarker.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -1169,11 +1186,11 @@ public class FreemarkerTemplateProcessor implements TemplateProcessor
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
                 <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
                 <li><a href="android_2_1_trouble_with_bitmaps.html">Android 2.1 - trouble with bitmaps</a><span class="date"> - Feb 19, 2012</span></li>
                 <li><a href="paths_and_selections_in_gimp.html">Paths and Selections in Gimp</a><span class="date"> - Feb 14, 2012</span></li>
                 <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
-                <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

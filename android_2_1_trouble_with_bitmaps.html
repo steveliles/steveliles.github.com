@@ -40,7 +40,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,195" description="Following a bug report from a user, this documents my efforts to track down and fix some Bitmap related issues in Android 2.1 (eclair), including the first SIGSEGV I've fallen victim to in Android.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,211" description="Following a bug report from a user, this documents my efforts to track down and fix some Bitmap related issues in Android 2.1 (eclair), including the first SIGSEGV I've fallen victim to in Android.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-02-19">February 19, 2012</time></span>
               <a itemprop="url" href="android_2_1_trouble_with_bitmaps.html"><h1 itemprop="name" itemprop="headline">Android 2.1 - trouble with bitmaps</h1></a>
 	      <span itemprop="articleBody"><p>I got the following mail from a user of my app:</p>
@@ -154,7 +154,7 @@ _image.setImageBitmap(getImageBitmap(aScene));
 
 <p>To make the user-experience more friendly the FX are processed in a background thread. On the UI thread I show a dialog with a spinner to let the user know something is happening. This is nothing special - I'm using the <code>AsyncTask</code> class provided by the Android framework for exactly this purpose.</p>
 
-<p>In Android, Bitmap memory is allocated off-heap by JNI calls in the Bitmap class. It doesn't seem to gain you extra memory to play with in your VM (witness the number of StackOverflow questions pertaining to Bitmap's and VM budget!), so I suspect the reasons behind it are mostly to do with performance.</p>
+<p>In Android - pre Honeycomb - Bitmap memory is allocated off-heap by JNI calls in the Bitmap class. It doesn't gain you extra memory to play with in your VM - the bitmap pixel data is still counted within the total memory used by your app (witness the number of StackOverflow questions pertaining to Bitmap's and VM budget!). In Honeycomb the bitmap pixel data has <a href="http://www.youtube.com/watch?v=_CruQY55HOk">moved into the VM</a></p>
 
 <p>As soon as you're done with a Bitmap, you are supposed to let the Runtime know, by invoking <code>Bitmap.recycle()</code>, then null'ing the reference to the Bitmap. Fine, my app works great on API levels above 7 - no crashes, no warnings, no memory leaks. </p>
 
@@ -407,10 +407,10 @@ public class BitmapActivity extends Activity {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
                 <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
                 <li><a href="paths_and_selections_in_gimp.html">Paths and Selections in Gimp</a><span class="date"> - Feb 14, 2012</span></li>
                 <li><a href="creating_comic_book_style_icons_with_gimp.html">Creating comic-book style icons with Gimp</a><span class="date"> - Feb 12, 2012</span></li>
-                <li><a href="creating_ios_style_icons_with_imagemagick.html">Creating iOS style icons with ImageMagick</a><span class="date"> - Jan 27, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
