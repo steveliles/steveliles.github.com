@@ -13,6 +13,135 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Android's AsyncTask]]></title>
+        <link><![CDATA[http://steveliles.github.com/android_s_asynctask.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/android_s_asynctask.html</guid>
+        <description><![CDATA[<p>The Android platform allows you to use all of the normal Java concurrency constructs. You should use them if you need to do any long-running operations: you must do these off the main UI thread if you want keep your users happy, and the platform even enforces this by displaying an Application Not Responding dialog if an app does not respond to user-input within 5 seconds.</p>
+
+<p>The kinds of things you will want to do off the UI thread are reading/writing data from databases, network calls fetching data from web-servcies, and any time-consuming computational work.</p>
+
+<p>The platform provides a couple of mechanisms to facilitate communication between background threads and the main application thread: <code>Handler</code>'s and <code>AsyncTask</code>s. In this article I want to concentrate on <code>AsyncTask</code>.</p>
+
+<h3>The basics of AsyncTask</h3>
+
+<p>AsyncTask provides a simple API for doing work in the background and re-integrating the result with the main thread. Here's what it looks like:</p>
+
+<pre><code>new AsyncTask&lt;Param, Progress, Result&gt;() {
+    protected void onPreExecute() {
+        // perhaps show a dialog 
+        // with a progress bar
+        // to let your users know
+        // something is happening
+    }
+
+    protected Result doInBackground(Param... aParams) {
+        // do some expensive work 
+        // in the background here
+    }
+
+    protected void onPostExecute(Result aResult) {
+        // background work is finished, 
+        // we can update the UI here
+        // including removing the dialog
+    }
+}.execute();
+</code></pre>
+
+<p>The template methods <code>onPreExecute()</code> and <code>onPostExecute(Result)</code> are invoked such that you can safely update the UI from there. </p>
+
+<p>There is a fourth template method - <code>onProgressUpdate(Progress[])</code> - which you can implement if you want to update the UI to show progress is being made within the background thread. For this to actually work you will need to invoke <code>publishProgress(Progress[])</code> regularly from within <code>doInBackground(Param[])</code>.</p>
+
+<p>AsyncTask is generic, and presents three type variables:</p>
+
+<pre><code>class AsyncTask&amp;lt;Params, Progress, Result&gt;
+</code></pre>
+
+<p>They are used as follows:</p>
+
+<ol>
+<li><code>Params</code> is the argument type for the <em>varargs array</em> passed in to doInBackground.</li>
+<li><code>Progress</code> is the argument type for the <em>varargs array</em> passed in to <code>onProgressUpdate</code>, and so is also the type (of array) you must use when invoking <code>publishProgress</code>.</li>
+<li><code>Result</code> is the return type of <code>doInBackground</code>, which in turn is the argument type passed in to <code>onPostExecute</code>.</li>
+</ol>
+
+<h3>What happens when you execute()?</h3>
+
+<p>When <code>execute(Object.. params)</code> is invoked on an <code>AsyncTask</code> the task is executed in a background thread. Depending on the platform <code>AsyncTask</code>s may be executed serially (pre 1.6 and potentially again in 4+), or concurrently (1.6-3.2). </p>
+
+<p>To be sure of running serially or concurrently as you require, from API Level 11 onwards you can use the <code>executeOnExecutor(Executor executor, Object.. params)</code> method instead, and supply an executor. The platform provides two executors for convenience, accessable as <code>AsyncTask.SERIAL_EXECUTOR</code> and <code>AsyncTask.THREAD_POOL_EXECUTOR</code> respectively. (Note: If you are targeting earlier API levels <code>executeOnExecutor</code> is not available, but you have several options - see below).</p>
+
+<p>I have not tested exhaustively, but at least on tablets running HoneyComb the <code>THREAD_POOL_EXECUTOR</code> is set up with a maximum pool size of 128 and an additional queue length of 10. </p>
+
+<p>If you exhaust the pool by submitting too many <code>AsyncTask</code>'s concurrently you will receive <code>RejectedExecutionException</code>'s - a subclass of RuntimeException which, unless handled, will crash your application. </p>
+
+<p>I suspect that on a resource-constrained device it is probably quite a disaster if you actually have that many <code>AsyncTask</code>'s active concurrently - context-switching all those threads will render the cpu-cache ineffective, cost a lot in terms of CPU time, and anyway all those concurrently active threads will likely be using a good chunk of your heap and generating garbage for the GC to contend with.</p>
+
+<p>You might want to consider an alternative <code>Executor</code> configured with a lower max threads and a longer queue, or a more appropriate strategy for managing the background work: for example if you have many files to download you could enqueue a url and a callback to a download-manager instead of executing an <code>AsyncTask</code> for each one.</p>
+
+<h3>executeOnExecutor for API levels below 11</h3>
+
+<p>AsyncTask gained a nice new method at API level 11 - <code>executeOnExecutor</code> - allowing you some control of the concurrency of your <code>AsyncTask</code>'s. If you need to support older API levels you have a choice to make: do you absolutely have to have <code>executeOnExecutor</code>, or do you simply want to use it when it is available, and fall-back to <code>execute</code> otherwise?</p>
+
+<h4>The fallback approach</h4>
+
+<p>If you want a simple way to take some measure of control where possible, you can subclass AsyncTask, test for the API level at runtime, and invoke the executeOnExecutor method if it is available - something like this:</p>
+
+<pre><code>class MyAsyncTask&lt;Param, Progress, Result&gt; {
+
+    private static final boolean API_LEVEL_11 
+        = android.os.Build.VERSION.SDK_INT &gt; 11;
+
+    public void execute(Executor aExecutor, Params... aParams) {     
+        if(EXECUTOR_ON_EXECUTOR_AVAILABLE)
+            executeOnExecutor(aExecutor, aParams); 
+        else
+            super.execute(aParams);
+    }
+
+}
+</code></pre>
+
+<p>I know that at first glance something appears wrong here:</p>
+
+<pre><code>private static final boolean API_LEVEL_11 
+    = android.os.Build.VERSION.SDK_INT &gt; 11;
+</code></pre>
+
+<p>This <em>looks</em> like it will be optimised out by the compiler - a static comparison of a literal integer (11) with what appears to be another static integer (android.os.Build.VERSION.SDK<em>INT), but in fact the upper-case VERSION.SDK</em>INT is slightly misleading - the values in VERSION are extracted at runtime from system properties, so the comparison is not baked in at compile-time.</p>
+
+<h4>executeOnExecutor for all API levels</h4>
+
+<p>If you insist on having executeOnExecutor available for all API levels you might try this: copy the code for AsyncTask from API level 15, rename it (and make a few small changes as described <a href="http://stackoverflow.com/questions/7211684/asynctask-executeonexecutor-before-api-level-11">here</a>), and use that everywhere in place of the SDK version.</p>
+
+<h3>AsyncTask and the Activity lifecycle</h3>
+
+<p>The <code>Activity</code> lifecycle is well defined and provides template methods which are invoked when critical events occur in the life of an <code>Activity</code>. </p>
+
+<p><code>AsyncTask</code>'s are started by an <code>Activity</code> because it needs some potentially blocking work done off the UI thread, and unless you <em>really really know what you are doing</em> they should live and die with that <code>Activity</code>.</p>
+
+<p>If your <code>AsyncTask</code> retains a reference to the <code>Activity</code>, not cancelling the task when the <code>Activity</code> dies wastes CPU resources on work that cannot update its UI, and creates a memory leak (the <code>Activity</code> and all its <code>View</code> hierarchy will be retained <em>until the task completes</em>). </p>
+
+<p>Don't forget that the Activity is destroyed and re-created even on something as simple as a device orientation change, so if a user rotates their device you will have two copies of your Activity retained until the last <code>AsyncTask</code> completes. In a memory constrained environment this can be a disaster!</p>
+
+<p>If you do not intend to update the UI after processing you <em>may</em> be using the wrong construct in some cases - consider whether using a Service would be more appropriate.</p>
+
+<p>For some useful discussion and ideas related to <code>AsyncTask</code> and lifecycle management, see <a href="http://stackoverflow.com/questions/3357477/is-asynctask-really-conceptually-flawed-or-am-i-just-missing-something">this stackoverflow post</a>.</p>
+
+<h4>AsyncTask and good Android citizenship</h4>
+
+<p><code>AsyncTask</code> is in the SDK because it fulfils a common need, but it does not enforce a usage pattern that makes your app a good Android citizen.</p>
+
+<p>In an environment where users switch contexts frequently and quickly (example: receive a phone call while in the midst of writing an email on your phone), it is probably important that your app does not hog resources whilst it is not the current focus.</p>
+
+<p>If, as described above, you've set yourself up to cancel tasks according to the Activity lifecycle methods then you're all set and should not face any issues here.</p>
+]]></description>
+          <category>Android</category>
+          <category>AsyncTask</category>
+          <category>Threads</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 26 Mar 2012 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Returning a result from an Android Activity]]></title>
         <link><![CDATA[http://steveliles.github.com/returning_a_result_from_an_android_activity.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/returning_a_result_from_an_android_activity.html</guid>
@@ -4198,33 +4327,6 @@ Content-Length: 0
           <category>Twitter</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Thu, 08 Sep 2011 00:00:00 +0100</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Replicating Java threading issues between machines with different cpu counts]]></title>
-        <link><![CDATA[http://steveliles.github.com/replicating_java_threading_issues_between_machines_with_different_cpu_counts.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/replicating_java_threading_issues_between_machines_with_different_cpu_counts.html</guid>
-        <description><![CDATA[<p>Today I had a problem where a multi-threaded testcase which runs fine on my 8-core dev box failed when committed to the single-cpu build-server.</p>
-
-<p>To replicate I needed to run on a single-cpu but I didn't want to commit more potentially broken tests to source-control and run repeatedly breaking builds on the build-server.</p>
-
-<p>I discovered that its possible to bind an exec'd process to a single CPU in newer 'nix's using taskset. Invoking my maven build using taskset to bind the test-run to a single CPU core replicated the failure immediately, and from there it was an easy fix. Here's the cmdline to bind a maven build to a single CPU (I'm running Ubuntu, YMMV):</p>
-
-<pre><code>taskset -pc 0 mvn clean test
-</code></pre>
-
-<p>tasket is part of schedutils, which you may or may not have installed. It was installed on my machine already, possibly because of other things i've installed in the past. If needed you can install it with:</p>
-
-<pre><code>sudo apt-get install schedutils
-</code></pre>
-
-<p>It basically sets processor affinity by setting some process properties that tell the linux cpu scheduler to only allow the process to run on the stated CPU's.</p>
-]]></description>
-          <category>CPU affinity</category>
-          <category>Linux</category>
-          <category>Java</category>
-          <category>Threading</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Tue, 19 Jul 2011 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>
