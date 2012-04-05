@@ -6,12 +6,9 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-      <meta name="keywords" content="github" itemprop="keywords"></meta>
-      <meta name="keywords" content="geek" itemprop="keywords"></meta>
-      <meta name="keywords" content="url-shortener" itemprop="keywords"></meta>
-    <meta name="description" content="A quick test of github's url shortener, invoked using curl"></meta>
+    <meta name="description" content="Thoughts on Java, GWT, programming, and other geek stuff"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Most geeky thing I ever saw</title>
+    <title>Steve Liles' Blog</title>
   </head>
   <body>
     <div>
@@ -38,65 +35,28 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="80" description="A quick test of github's url shortener, invoked using curl">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-10">November 10, 2011</time></span>
-              <a itemprop="url" href="most_geeky_thing_i_ever_saw.html"><h1 itemprop="name" itemprop="headline">Most geeky thing I ever saw</h1></a>
-	      <span itemprop="articleBody"><p>There's something fabulously, deliciously geeky about using Curl to call a url-shortening service for url's to the web-management console of an online source-code-control system! <a href="http://git.io/help">Githubber's you ROCK!</a></p>
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="117" description="command-line to quickly clear ubuntu memory buffers">
+              <span class="meta" itemprop="datePublished"><time datetime="2010-10-02">October 02, 2010</time></span>
+              <a itemprop="url" href="how_to_clear_memory_caches_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">How to clear memory caches in ubuntu</h1></a>
+	      <span itemprop="articleBody"><p>While performance testing some mysql queries in ubuntu I came across the old problem that even after restarting mysql to clear its own buffers, the OS caches speed up consecutive runs of the same query. In order to get consistent results you need to flush both the mysql buffers and the native OS buffers.</p>
 
-<p><code>curl -i http://git.io -F "url=https://github.com/blog/985-git-io-github-url-shortener" -F "code=geek"</code></p>
+<p>Flushing the mysql buffers is as easy as restarting mysql (<code>sudo service mysql restart</code> in Maverick). Flushing the OS buffers is also dead easy:</p>
 
-<p>gives:</p>
-
-<pre><code>HTTP/1.1 201 Created
-Server: nginx/1.0.4
-X-Node: gitio2
-X-Sha: 50f8f21981a362dfbaa5fbc85193621e56379dfb
-Content-Type: text/html;charset=utf-8
-Date: Thu, 10 Nov 2011 23:23:12 GMT
-Status: 201 Created
-Location: http://git.io/help
-X-Runtime: 0.008420
-Connection: keep-alive
-Content-Length: 0
+<pre><code>sudo sh -c "sync; echo 3 &gt; /proc/sys/vm/drop_caches"
 </code></pre>
+
+<p>I have system-monitor gauges on my taskbar showing cpu, memory and disk activity, and its a beautiful thing to see the cache suddenly get wiped :)</p>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=github">github</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=geek">geek</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=url-shortener">url-shortener</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=cache">cache</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=buffers">buffers</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=memory">memory</a></li>
               </ul>
               <div style="clear:both"></div>
 
-
-                <a name="comments"></a>
-                <div id="disqus_thread"></div>
- 	        <script type="text/javascript">    	     
-	          var disqus_shortname = 'steveliles';
-	          (function() {
-	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
-	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-	          })();
-	        </script>
-	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
-
-                <div class="sharing">
-		  <ul>
-		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
-		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
-	          </ul>
-                </div>
-                
-                <script type="text/javascript">
-                  window.___gcfg = {lang: 'en-GB'};
-                  (function() {
-                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-                    po.src = 'https://apis.google.com/js/plusone.js';
-                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-                  })();
-                </script>
-
+	        <a href="how_to_clear_memory_caches_in_ubuntu.html">Comment on this post</a>
 
             </div>
         </div>
@@ -128,11 +88,12 @@ Content-Length: 0
       </div>
       <div class="nav">
         <div class="links">
-          <div class="prev"><a title="previous" href="templating_my_blog_with_freemarker.html">Templating my Blog with Fre...</a></div>
-          <div class="next"><a title="next" href="popularity_contest_ubuntu_vs_osx_lion_vs_win7.html"> Popularity contest - Ubunt...</a></div>
+          <div class="prev"><a title="previous" href="index_11.html">Newer Posts</a></div>
+          
         </div>
       </div>
     </div>
     <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>
 </html>
+
