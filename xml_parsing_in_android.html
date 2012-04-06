@@ -40,7 +40,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,173" description="A note on some experiments and observations noted while optimising a slow Android app">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,822" description="A note on some experiments and observations noted while optimising a slow Android app">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
               <a itemprop="url" href="xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">XML Parsing in Android</h1></a>
 	      <span itemprop="articleBody"><p>The short story: 15x performance improvement in XML parsing, and a simple DSL for describing the mapping between XML and POJO's - quick example:</p>
@@ -141,6 +141,116 @@ class BooksMarshaller {
 </ol>
 
 <p>The result is starting to take shape in github as <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>. It removes all of the boiler plate in exchange for a small performance penalty due to use of reflection. I don't have comparative performance figures yet, but will post some when I get time.</p>
+
+<h3>Another example</h3>
+
+<p>XML:</p>
+
+<pre><code>&lt;hobbit&gt;
+  &lt;name firstname="Frodo" surname="Baggins"/&gt;
+  &lt;dob&gt;11400930&lt;/dob&gt;
+  &lt;address&gt;
+    &lt;house&gt;
+      &lt;name&gt;Bag End&lt;/name&gt;
+      &lt;number&gt;&lt;/number&gt;
+    &lt;/house&gt;
+    &lt;street&gt;Bagshot Row&lt;/street&gt;
+    &lt;town&gt;Hobbiton&lt;/town&gt;
+    &lt;country&gt;The Shire&lt;/country&gt;
+  &lt;/address&gt;
+&lt;/hobbit&gt;
+</code></pre>
+
+<p>POJO's: <a href="https://github.com/steveliles/dsl4xml/commit/ad2141df218a776ebd68a75072feab16a5221fd5#diff-4">See the source-code of the test-case</a></p>
+
+<p>Marshalling code:</p>
+
+<pre><code>private static DocumentMarshaller&lt;Hobbit&gt; newMarshaller() {
+    DocumentMarshaller&lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
+        tag("name", Name.class).with(
+            attributes("firstname", "surname")
+        ),
+        tag("dob").withCData(),
+        tag("address", Address.class).with(
+            tag("house", Address.House.class).with(
+                tag("name").withCData(),
+                tag("number").withCData()
+            ),
+            tag("street").withCData(),
+            tag("town").withCData(),
+            tag("country").withCData()
+        )
+    );
+
+    _marshaller.registerConverters(new UnsafeDateConverter("yyyyMMdd"));
+
+    return _marshaller;
+}
+</code></pre>
+
+<p>A marshaller, once constructed, is intended to be re-used repeatedly. The marshaller itself is <em>completely thread-safe</em> as marshalling does not modify any of its internal state. To ensure thread-safety you must use only thread-safe type converters (see type conversion section below).</p>
+
+<p>A minimum of garbage is generated because we're using a pull parser to skip over parts of the document we don't care about, and the only state maintained along the way is the domain objects we're creating.</p>
+
+<h3>Type conversion</h3>
+
+<p>You can create and register your own type converters. They are used only to map the lowest level xml data to your Java objects - attribute values and CData <code>String</code>s. The <code>Converter</code> interface looks like this:</p>
+
+<pre><code>package com.sjl.dsl4xml.support;
+
+public interface Converter&lt;T&gt; {
+    public boolean canConvertTo(Class&lt;?&gt; aClass);
+    public T convert(String aValue);
+}
+</code></pre>
+
+<p>An example <code>Converter</code> for converting <code>String</code> values to primitive int's looks like this:</p>
+
+<pre><code>class PrimitiveIntConverter implements Converter&lt;Integer&gt; {
+    @Override
+    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Integer.TYPE);
+    }
+
+    @Override
+    public Integer convert(String aValue) {
+        return ((aValue == null) || ("".equals(aValue))) ? 
+            0 : new Integer(aValue);
+    }
+}
+</code></pre>
+
+<p>You can use optimised type converters in situations where you <em>know</em> you will not be marshalling from multiple threads concurrently. An example is the <code>UnsafeDateConverter</code> which is used in the example above because it came from a test-case that will only ever run single-threaded. </p>
+
+<p>The alternative <code>ThreadSafeDateConverter</code> looks like this:</p>
+
+<pre><code>class ThreadSafeDateConverter implements Converter&lt;Date&gt; {
+    private ThreadLocal&lt;DateFormat&gt; dateFormat;
+
+    public ThreadSafeDateConverter(final String aDateFormatPattern) {
+        dateFormat = new ThreadLocal&lt;DateFormat&gt;() {
+            protected DateFormat initialValue() {
+                return new SimpleDateFormat(aDateFormatPattern);
+            }
+        };
+    }
+
+    @Override
+    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Date.class);
+    }
+
+    @Override
+    public Date convert(String aValue) {
+        try {
+            return ((aValue == null) || ("".equals(aValue))) ? 
+                null : dateFormat.get().parse(aValue);
+        } catch (ParseException anExc) {
+            throw new XmlMarshallingException(anExc);
+        }
+    }
+}
+</code></pre>
 </span>
 
               <ul class="keywords">
