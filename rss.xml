@@ -100,7 +100,7 @@ class BooksMarshaller {
 
 <p>In the end I decided to spend just a few hours turning the problem over in code to see if I could come up with something more readable for working with the pull-parser directly. </p>
 
-<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small DSL for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
+<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
 
 <p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would be much less irritating :)</p>
 
