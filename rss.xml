@@ -224,6 +224,20 @@ public interface Converter&lt;T&gt; {
     }
 }
 </code></pre>
+
+<h3>Missing features</h3>
+
+<p>This is still a very new project, and in an experimental stage. There's loads still to do:</p>
+
+<ul>
+<li>More converters for the obvious types (e.g., primitives, primitive wrappers)</li>
+<li>Support for namespaced documents</li>
+<li>Performance comparisons with DOM, SAX and non-dsl'd Pull parsing</li>
+<li>Support for explicit (non-reflective) marshalling of properties</li>
+<li>Performance optimisations</li>
+</ul>
+
+<p>I also came across some interesting comments by <a href="https://plus.google.com/105051985738280261832/posts">Diane Hackborn</a> (Android platform developer) in <a href="http://groups.google.com/group/android-developers/browse_thread/thread/3f9c5fc7402ecdf">this thread</a>, where she points out that SAX parsing is faster than Pull Parsing (at least on Android). I had been under the impression it was the other way around, hence I went with Pull parsing. If perf tests show SAX to be the faster I will probably refactor to use SAX.</p>
 ]]></description>
           <category>xml</category>
           <category>marshall</category>
