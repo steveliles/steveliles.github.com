@@ -16,7 +16,7 @@
         <title><![CDATA[XML Parsing in Android]]></title>
         <link><![CDATA[http://steveliles.github.com/xml_parsing_in_android.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/xml_parsing_in_android.html</guid>
-        <description><![CDATA[<p>The short story: 15x performance improvement in XML parsing, and a simple DSL for describing the mapping between XML and POJO's - quick example:</p>
+        <description><![CDATA[<p>The short story: 15x performance improvement over DOM parsing, with a super-simple DSL for describing the mapping between XML and POJO's - quick example:</p>
 
 <pre><code>&lt;books&gt;
   &lt;book&gt;
