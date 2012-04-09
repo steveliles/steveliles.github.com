@@ -108,9 +108,10 @@ class BooksReader {
 
 <ol>
 <li>To make readable, maintainable, declarative code that unmarshalls XML documents to Java objects.</li>
-<li>To make unmarshalling XML documents to Java objects very fast (near pull-parsing speeds).</li>
+<li>To make unmarshalling XML documents to Java objects very fast (sax/pull-parsing speeds).</li>
 <li>To avoid polluting model classes with metadata about xml parsing (no annotations).</li>
 <li>To avoid additional build-time steps or "untouchable" code (code generators, etc).</li>
+<li>To produce a very small jar with no large dependencies.</li>
 </ol>
 
 <p>The result is starting to take shape in github as <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>. It removes all of the boiler plate in exchange for a small performance penalty due to use of reflection. I don't have comparative performance figures yet, but will post some when I get time.</p>

@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,200" description="A note on some experiments and observations noted while optimising a slow Android app">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,210" description="A note on some experiments and observations noted while optimising a slow Android app">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
               <a itemprop="url" href="xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">XML Parsing in Android</h1></a>
 	      <span itemprop="articleBody"><p>The short story: 15x performance improvement over DOM parsing, with a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's - quick example:</p>
@@ -130,9 +130,10 @@ class BooksReader {
 
 <ol>
 <li>To make readable, maintainable, declarative code that unmarshalls XML documents to Java objects.</li>
-<li>To make unmarshalling XML documents to Java objects very fast (near pull-parsing speeds).</li>
+<li>To make unmarshalling XML documents to Java objects very fast (sax/pull-parsing speeds).</li>
 <li>To avoid polluting model classes with metadata about xml parsing (no annotations).</li>
 <li>To avoid additional build-time steps or "untouchable" code (code generators, etc).</li>
+<li>To produce a very small jar with no large dependencies.</li>
 </ol>
 
 <p>The result is starting to take shape in github as <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>. It removes all of the boiler plate in exchange for a small performance penalty due to use of reflection. I don't have comparative performance figures yet, but will post some when I get time.</p>
