@@ -76,6 +76,11 @@
     </url>
 
     <url> 
+      <loc>http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/xml_parsing_in_android.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>

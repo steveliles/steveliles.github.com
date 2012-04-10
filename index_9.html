@@ -35,6 +35,66 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="536" description="A quick overview of pro's and con's of ElasticSearch vs SOLRCloud from some brief initial research into both">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-02-24">February 24, 2011</time></span>
+              <a itemprop="url" href="elasticsearch_vs_solrcloud.html"><h1 itemprop="name" itemprop="headline">ElasticSearch vs SOLRCloud</h1></a>
+	      <span itemprop="articleBody"><p>For an upcoming work project I need a scalable search platform - scalable to tens or hundreds of millions of documents (news articles), and millions of queries per day. We're a (mostly) Java shop, and have a lot of experience with Lucene, so two solutions that pique my curiosity are SOLRCloud (SOLR + ZooKeeper) and ElasticSearch.</p>
+
+<h3>Initial Impressions - ElasticSearch</h3>
+
+<p>ElasticSearch is impressive. Its clean, simple, and elegant. For those who are familiar with Compass, ElasticSearch can be considered as Compass 3.0 (quoting Shay Bannon, author of Compass). ElasticSearch has been under development for about 9 months at time of writing, and is currently at version 0.15. It appears to be very actively developed, with new features and fixes flowing steadily. </p>
+
+<p>My main worry at this point is that there appears to be only one "resource" active on the project - Shay Bannon (@kimchy) himself, who seems to be architect, developer, documentation-writer, and a prolific commenter on forums.</p>
+
+<h4>Noteworthy features include:</h4>
+
+<ul>
+<li>Document-oriented / Schema-free (JSON documents)</li>
+<li>Store, retrieve, index and search multiple versions of documents</li>
+<li>Self-hosting RESTful web-service api</li>
+<li>Exposes the full power of lucene queries</li>
+<li>Multiple Indexes in one cluster (described as Multi-Tenancy)</li>
+<li>Built from the ground-up with scalability and distributed-operation in mind - supporting distributed search, automatic fail-over and re-balancing, with no single point of failure</li>
+<li>Support for async write/backup to shared storage (Gateway, in ElasticSearch parlance)</li>
+<li>"Percolator" (aka. prospective search)</li>
+</ul>
+
+<h3>Initial Impressions - SOLRCloud</h3>
+
+<p>SOLR is a project from the same (Apache) stable as Lucene itself, and the projects have recently merged to some degree. SOLRCloud is an extension that integrates ZooKeeper with SOLR with the express aim of "enabling and simplifying the creation and use of Solr clusters."</p>
+
+<p>SOLRCloud is described as "still under development", ie., not yet a GA release. </p>
+
+<h4>Currently proclaimed features include:</h4>
+
+<ul>
+<li>Central configuration of the entire cluster</li>
+<li>Automatic load-balancing and fail-over for queries</li>
+<li>ZooKeeper integration for cluster coordination and configuration (not sure I would have listed that as a feature personally!)</li>
+<li>I'll add that SOLRCloud is part of the SOLR code-base, and is being developed by core Lucene and SOLR committers including Mark Miller and Yonik Seeley. This can only be a good thing :). On top of all that, SOLR has been around for a good long time now, so it is battle-tested and there's lots of information available (including numerous books).</li>
+</ul>
+
+<p>That said, I still have two big worries about SOLRCloud:
+* Setup/deployment just sounds fiddly - it is recommended not to deploy zookeeper embedded with SOLR (though I cannot find any explanation to back up that recommendation), which means you need both a ZooKeeper ensemble - multiple ZooKeeper instances - and a SOLRCloud ... er ... cloud.
+* No GA release as yet, and no roadmap that I can find (this is the closest I got).</p>
+
+<h3>Next Steps</h3>
+
+<p>My next steps are to dive in to both technologies and really get to see which best suits our needs, and really how difficult these things are likely to be to manage in a medium/large-scale deployment.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ElasticSearch">ElasticSearch</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOLRCloud">SOLRCloud</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Lucene">Lucene</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Search">Search</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Scalability">Scalability</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="elasticsearch_vs_solrcloud.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,532" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 3">
               <span class="meta" itemprop="datePublished"><time datetime="2011-02-15">February 15, 2011</time></span>
               <a itemprop="url" href="progressive_enhancement_with_gwt_part_3.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 3</h1></a>
@@ -397,41 +457,6 @@
 	        <a href="progressive_enhancement_with_gwt_part_1.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="114" description="Some interesting tech books relating to scalability, domain specific languages, semantic web, REST, and continuous delivery.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-01-17">January 17, 2011</time></span>
-              <a itemprop="url" href="reading_list_17_01_2011.html"><h1 itemprop="name" itemprop="headline">Reading List, 17-01-2011</h1></a>
-	      <span itemprop="articleBody"><p>I love it when I get a box from Amazon. Today's new arrivals: five (count 'em) new tech books:
-<br />
-<table cellpadding="2" cellspacing="0" style="border:0px; padding:0px; margin:0px;"><tr>
-<td><br />
-<a href="http://www.amazon.co.uk/gp/product/0137030428?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0137030428"><img border="0" src="http://4.bp.blogspot.com/_hG-kje6-TJM/TTRSN0S4WzI/AAAAAAAAHBU/AAA_9H_2vL0/s1600/scalability.jpg" /></a><br />
-</td>
-<td><br />
-<a href="http://www.amazon.co.uk/gp/product/0596153813?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0596153813"><img border="0" src="http://2.bp.blogspot.com/_hG-kje6-TJM/TTRSM-wm1rI/AAAAAAAAHBI/00iR-DpdRQk/s1600/semantic.jpg" /></a><br />
-</td>
-<td><br />
-<a href="http://www.amazon.co.uk/gp/product/0596805829?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0596805829"><img border="0" src="http://2.bp.blogspot.com/_hG-kje6-TJM/TTRSNFhjZNI/AAAAAAAAHBM/6cPI6CzmaMU/s1600/rest.jpg" /></a><br />
-</td>
-<td><br />
-<a href="http://www.amazon.co.uk/gp/product/0321601912?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0321601912"><img border="0" src="http://2.bp.blogspot.com/_hG-kje6-TJM/TTRSNs49zyI/AAAAAAAAHBQ/AN8rHxCWlpY/s1600/delivery.jpg" /></a><br />
-</td>
-<td><br />
-<a href="http://www.amazon.co.uk/gp/product/0321712943?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0321712943"><img border="0" src="http://3.bp.blogspot.com/_hG-kje6-TJM/TTRSOD2aquI/AAAAAAAAHBY/b04xakC9YiI/s1600/dslbook.jpg" /></a><br />
-</td>
-</tr>
-</table><br />
-I'm particularly intrigued to read "The Art of Scalability" - I've never come across a book quite like this that addresses the organisational aspects of scaling a company and processes alongside the architectural aspects of developing scalable software.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=books">books</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=reading list">reading list</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="reading_list_17_01_2011.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -449,11 +474,11 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="comparing_java_xml_parsing_mechanisms.html">Comparing Java XML parsing mechanisms</a><span class="date"> - Apr 10, 2012</span></li>
                 <li><a href="xml_parsing_in_android.html">XML Parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
                 <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
                 <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
                 <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
-                <li><a href="android_2_1_trouble_with_bitmaps.html">Android 2.1 - trouble with bitmaps</a><span class="date"> - Feb 19, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

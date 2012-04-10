@@ -13,10 +13,527 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Comparing Java XML parsing mechanisms]]></title>
+        <link><![CDATA[http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html</guid>
+        <description><![CDATA[<p>I recently spent some time building a small dsl (<a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>) to make pull-parsing code easier to read and write. </p>
+
+<p>In <a href="https://github.com/steveliles/dsl4xml-perf">performance testing</a> that library I took the opportunity to try parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - for readability and performance comparisons.</p>
+
+<p>The parsing mechanisms compared here are:</p>
+
+<ol>
+<li>W3C DOM parsing</li>
+<li>W3C DOM and XPath</li>
+<li>SAX Parsing</li>
+<li>Pull Parsing</li>
+<li><a href="https://github.com/steveliles/dsl4xml">dsl4xml</a> (dsl around Pull-Parser)</li>
+<li><a href="http://www.thebuzzmedia.com/software/simple-java-xml-parser-sjxp/">SJXP</a> (thin Pull-Parser wrapper using xpath-like expressions)</li>
+</ol>
+
+<p>I hope to add more later - some contenders include: straight xml pull-parsing; <a href="http://www.oracle.com/technetwork/articles/javase/index-140168.html">jaxb</a>; <a href="http://xstream.codehaus.org/">xstream</a>; and <a href="http://simple.sourceforge.net/">Simple</a>.</p>
+
+<h2>The XML</h2>
+
+<p>The XML file being parsed is a Twitter search result (Atom feed). You can see the actual file <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/twitter-atom.xml">here</a>, but this is a snippet of the parts I'm interested in parsing for these tests (the 15 <code>&lt;entry&gt;</code>'s in the document):</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;feed .. &gt;
+  ..
+  &lt;entry&gt;
+    ..
+    &lt;published&gt;2012-04-09T10:10:24Z&lt;/published&gt;
+    &lt;title&gt;Tweet title&lt;/title&gt;
+    &lt;content type="html"&gt;Full tweet content&lt;/content&gt;
+    ..
+    &lt;twitter:lang&gt;en&lt;/twitter:lang&gt;
+    &lt;author&gt;
+        &lt;name&gt;steveliles (Steve Liles)&lt;/name&gt;
+        &lt;uri&gt;http://twitter.com/steveliles&lt;/uri&gt;
+    &lt;/author&gt;
+  &lt;/entry&gt;
+  ..
+&lt;/feed&gt;
+</code></pre>
+
+<h2>The POJO's</h2>
+
+<p>The Java objects we're unmarshalling to are very simple and don't need any explanation. You can see them in Github <a href="https://github.com/steveliles/dsl4xml-perf/tree/master/src/main/java/com/sjl/dsl4xml/performance">here</a>.</p>
+
+<h2>Parsing the Twitter/Atom feed</h2>
+
+<p>First, just a few notes on what I'm trying to do. I basically want to compare two things:</p>
+
+<ol>
+<li>Readability/maintainability of <em>typical</em> parsing code.</li>
+<li>Parsing performance with said <em>typical</em> parsing code, incl. under concurrent load.</li>
+</ol>
+
+<p>With that in mind, I've tried to keep the parsing code small, tight, and (AFAIK) typical for each mechanism, but without layering any further libraries or helper methods on top. </p>
+
+<p>In working with each parsing mechanism I have tried to choose more performant approaches where the readability trade-off is not high.</p>
+
+<p>Without further ado, lets see what parsing this document and marshalling to Java objects is like using the various libraries.</p>
+
+<h3>W3C DOM</h3>
+
+<p>DOM (Document Object Model) parsing builds an in-memory object representation of the entire XML document. You can then rummage around in the DOM, going and back and forth between elements and reading data them in whatever order you like.</p>
+
+<p>Because the entire document is read into memory, there is an upper limit on the size of document you can read (constrained by the size of your Java heap). </p>
+
+<p>Memory is not used particularly efficiently either - a DOM may consist of very many sparsely populated <code>List</code> objects (backed by mostly empty arrays). A side effect of all these objects in memory is that when you're finished with them there's a lot for the Garbage Collector to clean up.</p>
+
+<p>On the plus side, DOM parsing is straight-forward to work with, particularly if you don't care much about speed and use <code>getElementsByTagName()</code> wherever possible.</p>
+
+<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/dsl4xml/DOMPerformanceTest.java">here</a>, but this is roughly what it ended up looking like:</p>
+
+<pre><code>DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+public Tweets parse(InputStream anInputStream)
+throws Exception {
+    DocumentBuilderFactory _factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder _builder = _factory.newDocumentBuilder();
+    Document _d = _builder.parse(anInputStream, "utf-8");
+
+    Tweets _tweets = new Tweets();
+    unmarshall(_d, _tweets);
+    return _tweets;
+}
+
+private void unmarshall(Document aDoc, Tweets aTo) 
+throws Exception {
+    NodeList _entries = aDoc.getElementsByTagName("entry");
+    for (int i=0; i&amp;lt;_entries.getLength(); i++) {
+        Tweet _tweet = new Tweet();
+        aTo.addTweet(_tweet);
+        unmarshallEntry((Element)_entries.item(i), _tweet);
+    }
+}
+
+private void unmarshallEntry(Element aTweetEl, Tweet aTo)
+throws Exception {
+    NodeList _nodes = aTweetEl.getChildNodes();
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
+        Node _n = _nodes.item(i);
+        if (_n.getNodeType() == Node.ELEMENT_NODE) {
+            if ("published".equals(_n.getNodeName())) {
+                aTo.setPublished(dateFormat.parse(getPCData(_n)));
+            } else if ("title".equals(_n.getNodeName())) {
+                aTo.setTitle(getPCData(_n));
+            } else if ("content".equals(_n.getNodeName())) {
+                Content _content = new Content();
+                aTo.setContent(_content);
+                unmarshallContent((Element)_n, _content);
+            } else if ("lang".equals(_n.getNodeName())) {
+                aTo.setLanguage(getPCData(_n));
+            } else if ("author".equals(_n.getNodeName())) {
+                Author _author = new Author();
+                aTo.setAuthor(_author);
+                unmarshallAuthor((Element)_n, _author);
+            }
+        }
+    }
+}
+
+private void unmarshallContent(Element aContentEl, Content aTo) {
+    aTo.setType(aContentEl.getAttribute("type"));
+    aTo.setValue(aContentEl.getNodeValue());
+}
+
+private void unmarshallAuthor(Element anAuthorEl, Author aTo) {
+    NodeList _nodes = anAuthorEl.getChildNodes();
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
+        Node _n = _nodes.item(i);
+        if ("name".equals(_n.getNodeName())) {
+            aTo.setName(getPCData(_n));
+        } else if ("uri".equals(_n.getNodeName())) {
+            aTo.setUri(getPCData(_n));
+        }
+    }
+}
+
+private String getPCData(Node aNode) {
+    StringBuilder _sb = new StringBuilder();
+    if (Node.ELEMENT_NODE == aNode.getNodeType()) {
+        NodeList _nodes = aNode.getChildNodes();
+        for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
+            Node _n = _nodes.item(i);
+            if (Node.ELEMENT_NODE == _n.getNodeType()) {
+                _sb.append(getPCData(_n));
+            } else if (Node.TEXT_NODE == _n.getNodeType()) {
+                _sb.append(_n.getNodeValue());
+            }
+        }
+    }
+    return _sb.toString();
+}
+</code></pre>
+
+<p>Its worth noting that I would normally extract some useful utility classes/methods - for example <code>getPCData(Node)</code> - but here I'm trying to keep the sample self-contained.</p>
+
+<p>Note that this is code is not thread-safe because of the unsynchronized use of <code>SimpleDateFormat</code>. </p>
+
+<p>With regard to performance, I am unnecessarily re-creating <code>DocumentBuilder</code>'s every time I parse in the sample code above. (In the <em>actual</em> test code I'm not doing that, I just did it hear to present things more clearly).</p>
+
+<h3>W3C DOM and XPath</h3>
+
+<p>TODO..</p>
+
+<h3>SAX Parser</h3>
+
+<p>SAX stands for Simple API for XML. It uses a "push" approach: whereas with DOM you can dig around in the document in whatever order you like, SAX parsing is event-driven which means you have to handle the data as it is given to you.</p>
+
+<p>SAX Parsers fire events when they encounter the various components that make up an XML file. You register a <code>ContentHandler</code> whose methods are called-back when these events occur (for example when the SAX Parser finds a new start element, it invokes the startElement method of your <code>ContentHandler</code>).</p>
+
+<p>The API assumes that the consumer (<code>ContentHandler</code>) is going to maintain some awareness of its state (e.g. where it currently is within the document). In the code sample I'm using a <code>Stack</code> to push/pop/peek at which element I'm currently working in.</p>
+
+<p>I'm extending <code>DefaultHandler</code> because I'm not interested in many of the events (it provides a default empty implementation of those methods for me).</p>
+
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/dsl4xml/SAXParserPerformanceTest.java">actual test code</a> is in github, but here's the gist of it:</p>
+
+<pre><code>public Tweets parse(InputStream anInputStream)
+throws Exception {
+    SAXParserFactory _f = SAXParserFactory.newInstance();
+    SAXParser _p = _f.newSAXParser();
+    XMLReader _r = _p.getXMLReader();
+    TweetsHandler _h = new TweetsHandler();
+    _r.setContentHandler(_h);
+
+    _r.parse(new InputSource(anInputStream));
+    return _h.getResult();
+}
+
+class TweetsHandler extends DefaultHandler {
+
+    private DateFormat dateFormat = 
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private Tweets tweets;
+    private Tweet tweet;
+    private Stack&amp;lt;String&gt; ctx;
+
+    public Tweets getResult() {
+        return tweets;
+    }
+
+    @Override
+    public void startDocument() throws SAXException {
+        tweets = new Tweets();
+        ctx = new Stack&amp;lt;String&gt;();
+    }
+
+    @Override
+    public void startElement(
+        String aUri, String aLocalName, 
+        String aQName, Attributes aAttributes
+    ) throws SAXException { 
+        ctx.push(aQName);
+        if ("entry".equals(aQName)) {
+            tweets.addTweet(tweet = new Tweet());
+        } else if ("content".equals(aQName)) {
+            tweet.setContent(new Content());
+            tweet.getContent().setType(aAttributes.getValue("type"));
+        } else if ("author".equals(aQName)) {
+            tweet.setAuthor(new Author());
+        }
+    }
+
+    @Override
+    public void endElement(String aUri, String aLocalName, String aQName) 
+    throws SAXException {
+        ctx.pop();
+    }
+
+    @Override
+    public void characters(char[] aCh, int aStart, int aLength)
+    throws SAXException {
+        String _currentElement = ctx.peek();
+
+        if ("published".equals(_currentElement)) {
+            try {
+                tweet.setPublished(
+                    dateFormat.parse(new String(aCh, aStart, aLength))
+                );
+            } catch (ParseException anExc) {
+                throw new SAXException(anExc);
+            }
+        } else if (("title".equals(_currentElement)) &amp;&amp; (tweet != null)) {
+            tweet.setTitle(new String(aCh, aStart, aLength));
+        } else if ("content".equals(_currentElement)) {
+            tweet.getContent().setValue(new String(aCh, aStart, aLength));
+        } else if ("lang".equals(_currentElement)) {
+            tweet.setLanguage(new String(aCh, aStart, aLength));
+        } else if ("name".equals(_currentElement)) {
+            tweet.getAuthor().setName(new String(aCh, aStart, aLength));
+        } else if ("uri".equals(_currentElement)) {
+            tweet.getAuthor().setUri(new String(aCh, aStart, aLength));
+        }
+    }
+}
+</code></pre>
+
+<p>I used to quite dislike SAX parsing back in the day - DOM felt much more comfortable. What was I thinking?</p>
+
+<p>One downside when handling more complicated documents is that the <code>ContentHandler</code> can get littered with intermediate state objects - for example here I have the <code>tweet</code> field which is used to carry the current Tweet object around.</p>
+
+<h3>Pull Parsing</h3>
+
+<p>TODO</p>
+
+<h3>SJXP (Pull-Parser wrapper)</h3>
+
+<p>The first of the pull-parser <em>wrappers</em> under test, I stumbled upon this one yesterday almost by accident. I liked the idea behind it so decided to give it a try. </p>
+
+<p>I'm a big fan of callbacks generally, and having spent quite some time working with XPath in the past the idea of using XPath-like syntax to request callbacks from the pull-parser seems tempting.</p>
+
+<p>There was one problem I couldn't work around which seems like either a gap in my knowledge (and the documentation) or an irritating bug - when declaring the paths you have to use the full namespace uri <em>even on elements in the default namespace</em>. </p>
+
+<p>This means that my path declarations even on this shallow document are enormous and I had to split them onto three lines to fit the width of my blog.</p>
+
+<p><a href="">Code is in github</a>, this is the gist of it:</p>
+
+<pre><code>Tweet currentTweet;
+DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+IRule&amp;lt;Tweets&gt; _tweet = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry"
+) {
+    public void handleTag(
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject) 
+    {
+        if (aIsStartTag)
+            aUserObject.addTweet(currentTweet = new Tweet());
+    }   
+};
+
+IRule&amp;lt;Tweets&gt; _published = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]published"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        try {                   
+            currentTweet.setPublished(dateFormat.parse(aText));
+        } catch (ParseException anExc) {
+            throw new XMLParserException("date-parsing problem", anExc);
+        }
+    }           
+}; 
+
+IRule&amp;lt;Tweets&gt; _title = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]title"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.setTitle(aText);
+    }           
+};
+
+IRule&amp;lt;Tweets&gt; _content = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]content"
+) {
+    public void handleTag(
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
+    ) {
+        if (aIsStartTag)
+            currentTweet.setContent(new Content());
+        super.handleTag(aParser, aIsStartTag, aUserObject);
+    }
+};
+
+IRule&amp;lt;Tweets&gt; _contentType = new DefaultRule&amp;lt;Tweets&gt;(Type.ATTRIBUTE, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]content", "type"
+) {
+    public void handleParsedAttribute(
+        XMLParser&amp;lt;Tweets&gt; aParser, int aIndex, 
+        String aValue, Tweets aUserObject
+    ) {                 
+        currentTweet.getContent().setType(aValue);
+    }
+};
+
+IRule&amp;lt;Tweets&gt; _contentText = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]content"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {                 
+        currentTweet.getContent().setValue(aText);      }
+};
+
+IRule&amp;lt;Tweets&gt; _lang = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://api.twitter.com/]lang"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.setLanguage(aText);
+    }
+};
+
+IRule&amp;lt;Tweets&gt; _author = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]author"
+) {
+    public void handleTag(
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
+    ) {
+        if (aIsStartTag)
+            currentTweet.setAuthor(new Author());
+        super.handleTag(aParser, aIsStartTag, aUserObject);
+    }
+};
+
+IRule&amp;lt;Tweets&gt; _authorName = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]author/" +
+    "[http://www.w3.org/2005/Atom]name"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.getAuthor().setName(aText);
+    }
+};
+
+IRule&amp;lt;Tweets&gt; _authorUri = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed/" +
+    "[http://www.w3.org/2005/Atom]entry/" +
+    "[http://www.w3.org/2005/Atom]author/" +
+    "[http://www.w3.org/2005/Atom]uri"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.getAuthor().setUri(aText);     }
+}; 
+
+@SuppressWarnings("all")
+public Tweets parse(InputStream anInputStream)
+throws Exception {
+    XMLParser&amp;lt;Tweets&gt; _parser = new XMLParser&amp;lt;Tweets&gt;(
+        _tweet, _published, _title, _content, _contentType, 
+        _contentText, _lang, _author, _authorName, _authorUri
+    ); 
+
+    Tweets _result = new Tweets();  
+    parser.parse(anInputStream, "utf-8", _result);
+    return _result;
+}
+</code></pre>
+
+<p>I like the idea of SXJP and I think that - particularly on more complex documents - it will lead to code that is easier to understand and maintain because you can consider each part entirely separately. It bulks up with boiler-plate though, especially with that namespace issue I mentioned.</p>
+
+<p>Like SAX and "straight" Pull parsing it also suffers the problem of having to manage intermediate state (in my sample its <code>currentTweet</code>). It does allow a state/context object to pushed into the callback methods, so I could have passed a customised context class to manage my state in instead of passing <code>Tweets</code>.</p>
+
+<h3>dsl4xml</h3>
+
+<p>This is my own small wrapper around XMLPullParser. The goals and reasons for it are stated at length <a href="https://github.com/steveliles/dsl4xml">else</a>-<a href="http://steveliles.github.com/xml_parsing_in_android.html">where</a>, but suffice to say that readability without sacrificing speed was my main aim.</p>
+
+<p><a href="">Actual code</a> is in Github, here's what it looks like:</p>
+
+<pre><code>private DocumentReader&amp;lt;Tweets&gt; tweetsReader;
+
+private DocumentReader&amp;lt;Tweets&gt; getReader() {
+    if (tweetsReader == null) {
+        // describe the mapping betweem XML tags
+        // and properties of the Tweets class
+        tweetsReader = mappingOf(Tweets.class).to(
+            tag("entry", Tweet.class).with(
+                tag("published"),
+                tag("title"),
+                tag("content", Content.class).with(
+                    attribute("type"),
+                    pcdataMappedTo("value")
+                ),
+                tag("twitter", "lang").
+                    withPCDataMappedTo("language"),
+                tag("author", Author.class).with(
+                    tag("name"),
+                    tag("uri")
+                )
+            )
+        );
+
+        tweetsReader.registerConverters(
+            new ThreadSafeDateConverter("yyyy-MM-dd'T'HH:mm:ss")
+        );
+    }
+    return tweetsReader;
+}
+
+public Tweets parse(InputStream anInputStream) {
+    return getReader().read(anInputStream, "utf-8");
+}
+</code></pre>
+
+<p>There are two things I want to point out, which I guess you will have noticed already:</p>
+
+<ol>
+<li>This is by far the shortest and simplest code for parsing the feed of all the samples shown.</li>
+<li>The code is slightly unusual in its style because it uses an <a href="http://martinfowler.com/bliki/DomainSpecificLanguage.html">Internal Domain Specific Language</a>. The nice thing (IMHO) is that it is very readable, and even mimics the structure of the XML itself.</li>
+</ol>
+
+<p>Its still early days for dsl4xml, so the dsl may evolve a bit with time.</p>
+
+<h2>Performance Comparison</h2>
+
+<p>I built some performance tests using the mechanisms described above to parse the same document repeatedly. </p>
+
+<p>The tests are run repeatedly with increasing numbers of threads, from 1 to 12, parsing 1000 documents in each thread. The xml document is read into a byte array in memory before the test starts, to eliminate disk IO from consideration.</p>
+
+<p>When the statistics for each method have been collected, the test generates a html document that uses Google charts to render the results.</p>
+
+<p>Each parsing method is tested 3 times and the results averaged to smooth out inconsistencies. I ran the tests on my MacBook Air and my Core i7 Desktop. </p>
+
+<p>Here is the chart for the Core i7 1.8GHz, 4GB RAM. There are noticeable humps at both 4 and 8 threads - presumably because its a Quad core with Hyperthreading:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-eWy-LQ4ZjrI/T4R2ZnLMetI/AAAAAAAAJA8/OeOpz5od9Ac/s800/parsing-throughput.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a Core i7 desktop" /></p>
+
+<p>And here's the chart from my MacBook Air - Core i5 (dual) 1.7GHz, 4GB RAM:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-9kem6GMG--A/T4R2W1i9rZI/AAAAAAAAJAw/vA5wBVs4L3M/s800/mac-parsing-throughput.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a MacBook Air" /></p>
+
+<p>I plan to try to get these tests running on an Android device also, since Android was the primary reason I started on this path in the first place. The difference I saw between DOM and Pull parsing under Android was <em>enormous</em>, and I'd really like to get some numbers to back that up.</p>
+
+<h2>Conclusions</h2>
+
+<p>Of the mechanisms tested so far, and from the code samples above, I think that dsl4xml produces far the most readable and maintainable parsing code. Of course I am biased. I think SAX parsing worked out to be the most readable (IMHO) of the other mechanisms.</p>
+
+<p>Performance-wise there really isn't much in it between SAX and the two pull-parser wrappers, all of which blow DOM parsing out of the water. Pull-parsing does seem to consistently beat SAX, but not by much.</p>
+
+<p>The Twitter Atom feed document is not particularly complicated - for example tags are not deeply nested. I suspect that the performance gap between the different mechanisms widens as the document complexity increases.</p>
+]]></description>
+          <category>java</category>
+          <category>xml</category>
+          <category>parse</category>
+          <category>unmarshall</category>
+          <category>comparison</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Tue, 10 Apr 2012 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[XML Parsing in Android]]></title>
         <link><![CDATA[http://steveliles.github.com/xml_parsing_in_android.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/xml_parsing_in_android.html</guid>
-        <description><![CDATA[<p>The short story: 15x performance improvement over DOM parsing, with a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's - quick example:</p>
+        <description><![CDATA[<p><em>The short story:</em> Use Pull-Parsing, not DOM parsing on Android!</p>
+
+<p><em>The mid-length story:</em> Pull-parsing is <em>fast</em>, but doesn't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
 
 <pre><code>&lt;books&gt;
   &lt;book&gt;
@@ -58,11 +575,11 @@ class BooksReader {
 }
 </code></pre>
 
-<p>The long story...</p>
+<p><em>The long story:</em></p>
 
 <p>I recently had occasion to work on an Android app that was suffering horrible performance problems on startup (approx 7-12 seconds before displaying content).</p>
 
-<p>A quick look at the code showed up several possible contenders for the source of the problem:</p>
+<p>A look at the code showed up several possible contenders for the source of the problem:</p>
 
 <ol>
 <li>Many concurrent http requests to fetch XML content from web</li>
@@ -74,35 +591,37 @@ class BooksReader {
 
 <p>Since the app was subsequently discarding the parsed Document object, the large heap consumption was contributing a huge garbage-collection load as a side-effect.</p>
 
-<p>Parsing many documents at once meant that the app suffered a perfect storm of issues that exacerbated each other: Slow DOM parsing; constant thread context-switching; massive heap consumption; and huge object churn.</p>
+<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM parsing; constant thread context-switching; massive heap consumption; and huge object churn.</p>
 
-<p>It was pleasantly surprising to note that the network requests - even over 3G - were pretty insignificant in the grand scheme.</p>
+<p>On a side note, the network requests - even over 3G - were pretty insignificant in the grand scheme.</p>
 
 <h2>Reducing thread context switching</h2>
 
-<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
+<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. </p>
+
+<p>I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
 
 <h2>More efficient parsing</h2>
 
-<p>DOM parsing is very easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
+<p>DOM parsing is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
 
 <p>I decided to try an experiment with an alternative parsing method, to see if a worthwhile performance gain could be achieved on one of the smaller documents that could then be applied to others.</p>
 
 <p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM parsing.</p>
 
-<p>The result was quite pleasing: 5x faster on a small and simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
+<p>The result was quite pleasing: 5x faster on a simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
 
 <p>However, I had one major concern that put me off: the code for parsing even a simple document was already quite long and had a nasty whiff of conditional-overkill (think: lots of if statements). I wasn't too happy about trading code readability for performance.</p>
 
 <p>I pondered a few alternatives like <a href="http://xstream.codehaus.org/">XStream</a> which I've used a lot for converting from Java to XML but not much the other way around, and <a href="http://simple.sourceforge.net/">SimpleXML</a> which I have used previously and can be nice, but pollutes your model objects with annotations and in some situations can be a real pain to get working.</p>
 
-<h2>An internal DSL for mapping XML to POJO's</h2>
+<h2>An Internal DSL for mapping XML to POJO's</h2>
 
 <p>In the end I decided to spend just a few hours turning the problem over in code to see if I could come up with something more readable for working with the pull-parser directly. </p>
 
-<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
+<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small Internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
 
-<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would be much less irritating :)</p>
+<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would have been much less irritating :)</p>
 
 <p>As it was the boiler plate irked me - too much <em>stuff</em> getting in the way of reading what was really important. I thought about it a bit in my spare time, and had another shot at it. My aims were:</p>
 
@@ -4244,55 +4763,6 @@ Content-Length: 0
           <category>Productivity</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Thu, 22 Sep 2011 00:00:00 +0100</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[About Me]]></title>
-        <link><![CDATA[http://steveliles.github.com/about_me.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/about_me.html</guid>
-        <description><![CDATA[<p>I didn't intend to have an about me page, but it turns out that to get google to display my mugshot next to search listings I have to have one. So here it is.</p>
-
-<table>
-<tr>
-<td>
-  <img src="images/viking.png">
-</td>
-<td>
-  <img src="images/arrow-left.png">
-</td>
-<td>
-  <p>This is me, the grinning idiot in the viking hat. Sadly I no longer have the hat.</p>
-  <p>If you're interested, I took an (old) picture and vectorised it using <a href="http://vectormagic.com/">Vector Magic</a>, which allows online vectorising of a couple of images for free (thanks VectorMagic!)</p>
-</td>
-</tr>
-</table>
-
-<p>I graduated from Reading University with a BSc hons. degree in Computer Science and <a href="http://www.reading.ac.uk/cybernetics/">Cybernetics</a>, and immediately started work as a programmer at <a href="http://www.baesystems.com/">British Aerospace</a>, where I stayed for about a year and a half.</p>
-
-<p>Next I moved on to work at a much smaller and more exciting company - <a href="http://www.knowledgeview.com">KnowledgeView</a> - where I have spent the last 11 years (oh me, oh my) developing a variety of web-based Editorial, Publishing and Syndication systems for news publishers - many based in the Middle-East and working and publishing in Arabic. We also build native and web apps for iPhone, iPad and Android devices to complement our publishing systems. </p>
-
-<p>My current title is "Development Manager", though I think the job description would be better represented by the title "Chief Engineer". (A peculiar quirk of being a programmer is that you become a <a href="http://rcm-uk.amazon.co.uk/e/cm?lt1=_blank&amp;bc1=000000&amp;IS2=1&amp;bg1=FFFFFF&amp;fc1=000000&amp;lc1=0000FF&amp;t=stlibl-21&amp;o=2&amp;p=8&amp;l=as4&amp;m=amazon&amp;f=ifr&amp;ref=ss_til&amp;asins=B005LI3W9W]">pedant for nomenclature</a>). </p>
-
-<p>I still code every day, for as many hours as I can. My "management style", if I have such a thing, is to lead by example. I care a lot about writing good code, using good tools, and leaving things in a better state than I found them. I try hard to <a href="what_makes_a_good_developer.html">enthuse my team</a> to the same ideals.</p>
-
-<p>KnowledgeView is still small, though we have a growing team in Beirut. It's also occasionally quite exciting, otherwise I wouldn't still be there. Over the years we've had many high-profile customers, including:</p>
-
-<ul>
-<li><a href="http://www.newsint.co.uk/">News International</a></li>
-<li><a href="http://www.cnnarabic.com">CNN arabic</a></li>
-<li><a href="http://www.inmplc.com/">Independent News and Media</a></li>
-<li><a href="http://www.srmg.com/en">Saudi Research and Media Group</a></li>
-<li><a href="http://www.daralhayat.com/">Al-Hayat Newspaper</a></li>
-<li><a href="http://www.alquds.co.uk/">Al-Quds</a></li>
-<li>... and many more besides</li>
-</ul>
-
-<p>When I'm not at work I divide my time between growing veg on my allotment (conveniently just outside my garden gate) and working on my personal programming projects. </p>
-
-<p>I believe that programming is the most fun a person can have on their own, and I often wonder if non-programmers know what they are missing out on. I sometimes find time to <a href="some_old_sketches.html">draw</a>, and wish I could find <a href="more_old_sketches.html">more</a>.</p>
-]]></description>
-          <category>steve liles</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 11 Sep 2011 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>

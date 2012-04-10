@@ -40,10 +40,12 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,210" description="A note on some experiments and observations noted while optimising a slow Android app">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,223" description="A note on some experiments and observations noted while optimising a slow Android app">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
               <a itemprop="url" href="xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">XML Parsing in Android</h1></a>
-	      <span itemprop="articleBody"><p>The short story: 15x performance improvement over DOM parsing, with a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's - quick example:</p>
+	      <span itemprop="articleBody"><p><em>The short story:</em> Use Pull-Parsing, not DOM parsing on Android!</p>
+
+<p><em>The mid-length story:</em> Pull-parsing is <em>fast</em>, but doesn't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
 
 <pre><code>&lt;books&gt;
   &lt;book&gt;
@@ -85,11 +87,11 @@ class BooksReader {
 }
 </code></pre>
 
-<p>The long story...</p>
+<p><em>The long story:</em></p>
 
 <p>I recently had occasion to work on an Android app that was suffering horrible performance problems on startup (approx 7-12 seconds before displaying content).</p>
 
-<p>A quick look at the code showed up several possible contenders for the source of the problem:</p>
+<p>A look at the code showed up several possible contenders for the source of the problem:</p>
 
 <ol>
 <li>Many concurrent http requests to fetch XML content from web</li>
@@ -101,35 +103,37 @@ class BooksReader {
 
 <p>Since the app was subsequently discarding the parsed Document object, the large heap consumption was contributing a huge garbage-collection load as a side-effect.</p>
 
-<p>Parsing many documents at once meant that the app suffered a perfect storm of issues that exacerbated each other: Slow DOM parsing; constant thread context-switching; massive heap consumption; and huge object churn.</p>
+<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM parsing; constant thread context-switching; massive heap consumption; and huge object churn.</p>
 
-<p>It was pleasantly surprising to note that the network requests - even over 3G - were pretty insignificant in the grand scheme.</p>
+<p>On a side note, the network requests - even over 3G - were pretty insignificant in the grand scheme.</p>
 
 <h2>Reducing thread context switching</h2>
 
-<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
+<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. </p>
+
+<p>I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
 
 <h2>More efficient parsing</h2>
 
-<p>DOM parsing is very easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
+<p>DOM parsing is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
 
 <p>I decided to try an experiment with an alternative parsing method, to see if a worthwhile performance gain could be achieved on one of the smaller documents that could then be applied to others.</p>
 
 <p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM parsing.</p>
 
-<p>The result was quite pleasing: 5x faster on a small and simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
+<p>The result was quite pleasing: 5x faster on a simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
 
 <p>However, I had one major concern that put me off: the code for parsing even a simple document was already quite long and had a nasty whiff of conditional-overkill (think: lots of if statements). I wasn't too happy about trading code readability for performance.</p>
 
 <p>I pondered a few alternatives like <a href="http://xstream.codehaus.org/">XStream</a> which I've used a lot for converting from Java to XML but not much the other way around, and <a href="http://simple.sourceforge.net/">SimpleXML</a> which I have used previously and can be nice, but pollutes your model objects with annotations and in some situations can be a real pain to get working.</p>
 
-<h2>An internal DSL for mapping XML to POJO's</h2>
+<h2>An Internal DSL for mapping XML to POJO's</h2>
 
 <p>In the end I decided to spend just a few hours turning the problem over in code to see if I could come up with something more readable for working with the pull-parser directly. </p>
 
-<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
+<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small Internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
 
-<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would be much less irritating :)</p>
+<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would have been much less irritating :)</p>
 
 <p>As it was the boiler plate irked me - too much <em>stuff</em> getting in the way of reading what was really important. I thought about it a bit in my spare time, and had another shot at it. My aims were:</p>
 
@@ -360,10 +364,10 @@ public interface Converter&lt;T&gt; {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="comparing_java_xml_parsing_mechanisms.html">Comparing Java XML parsing mechanisms</a><span class="date"> - Apr 10, 2012</span></li>
                 <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
                 <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
                 <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
-                <li><a href="android_2_1_trouble_with_bitmaps.html">Android 2.1 - trouble with bitmaps</a><span class="date"> - Feb 19, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
@@ -371,7 +375,7 @@ public interface Converter&lt;T&gt; {
       </div>
       <div class="nav">
         <div class="links">
-          
+          <div class="prev"><a title="previous" href="comparing_java_xml_parsing_mechanisms.html">Comparing Java XML parsing ...</a></div>
           <div class="next"><a title="next" href="android_s_asynctask.html">Android's AsyncTask</a></div>
         </div>
       </div>
