@@ -77,7 +77,7 @@
 
 <h3>W3C DOM</h3>
 
-<p>DOM (Document Object Model) parsing builds an in-memory object representation of the entire XML document. You can then rummage around in the DOM, going and back and forth between elements and reading data them in whatever order you like.</p>
+<p>DOM (Document Object Model) parsing builds an in-memory object representation of the entire XML document. You can then rummage around in the DOM, going and back and forth between elements and reading data from them in whatever order you like.</p>
 
 <p>Because the entire document is read into memory, there is an upper limit on the size of document you can read (constrained by the size of your Java heap). </p>
 
