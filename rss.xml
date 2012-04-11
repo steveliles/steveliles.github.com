@@ -27,8 +27,8 @@
 <li>W3C DOM and XPath</li>
 <li>SAX Parsing</li>
 <li>Pull Parsing</li>
-<li><a href="https://github.com/steveliles/dsl4xml">dsl4xml</a> (dsl around Pull-Parser)</li>
-<li><a href="http://www.thebuzzmedia.com/software/simple-java-xml-parser-sjxp/">SJXP</a> (thin Pull-Parser wrapper using xpath-like expressions)</li>
+<li><a href="https://github.com/steveliles/dsl4xml">dsl4xml</a> (dsl around Pull-parser)</li>
+<li><a href="http://www.thebuzzmedia.com/software/simple-java-xml-parser-sjxp/">SJXP</a> (thin Pull-parser wrapper using xpath-like expressions)</li>
 </ol>
 
 <p>I hope to add more later - some contenders include: straight xml pull-parsing; <a href="http://www.oracle.com/technetwork/articles/javase/index-140168.html">jaxb</a>; <a href="http://xstream.codehaus.org/">xstream</a>; and <a href="http://simple.sourceforge.net/">Simple</a>.</p>
@@ -85,7 +85,7 @@
 
 <p>On the plus side, DOM parsing is straight-forward to work with, particularly if you don't care much about speed and use <code>getElementsByTagName()</code> wherever possible.</p>
 
-<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/dsl4xml/DOMPerformanceTest.java">here</a>, but this is roughly what it ended up looking like:</p>
+<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/DOMPerformanceTest.java">here</a>, but this is roughly what it ended up looking like:</p>
 
 <pre><code>DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -183,13 +183,13 @@ private String getPCData(Node aNode) {
 
 <p>SAX stands for Simple API for XML. It uses a "push" approach: whereas with DOM you can dig around in the document in whatever order you like, SAX parsing is event-driven which means you have to handle the data as it is given to you.</p>
 
-<p>SAX Parsers fire events when they encounter the various components that make up an XML file. You register a <code>ContentHandler</code> whose methods are called-back when these events occur (for example when the SAX Parser finds a new start element, it invokes the startElement method of your <code>ContentHandler</code>).</p>
+<p>SAX parsers fire events when they encounter the various components that make up an XML file. You register a <code>ContentHandler</code> whose methods are called-back when these events occur (for example when the parser finds a new start element, it invokes the startElement method of your <code>ContentHandler</code>).</p>
 
 <p>The API assumes that the consumer (<code>ContentHandler</code>) is going to maintain some awareness of its state (e.g. where it currently is within the document). In the code sample I'm using a <code>Stack</code> to push/pop/peek at which element I'm currently working in.</p>
 
 <p>I'm extending <code>DefaultHandler</code> because I'm not interested in many of the events (it provides a default empty implementation of those methods for me).</p>
 
-<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/dsl4xml/SAXParserPerformanceTest.java">actual test code</a> is in github, but here's the gist of it:</p>
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/SAXParserPerformanceTest.java">actual test code</a> is in github, but here's the gist of it:</p>
 
 <pre><code>public Tweets parse(InputStream anInputStream)
 throws Exception {
@@ -289,7 +289,7 @@ class TweetsHandler extends DefaultHandler {
 
 <p>This means that my path declarations even on this shallow document are enormous and I had to split them onto three lines to fit the width of my blog.</p>
 
-<p><a href="">Code is in github</a>, this is the gist of it:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/SJXPPerformanceTest.java">Code is in github</a>, this is the gist of it:</p>
 
 <pre><code>Tweet currentTweet;
 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -439,13 +439,13 @@ throws Exception {
 
 <p>I like the idea of SXJP and I think that - particularly on more complex documents - it will lead to code that is easier to understand and maintain because you can consider each part entirely separately. It bulks up with boiler-plate though, especially with that namespace issue I mentioned.</p>
 
-<p>Like SAX and "straight" Pull parsing it also suffers the problem of having to manage intermediate state (in my sample its <code>currentTweet</code>). It does allow a state/context object to pushed into the callback methods, so I could have passed a customised context class to manage my state in instead of passing <code>Tweets</code>.</p>
+<p>Like SAX and "straight" Pull parsing it also suffers the problem of having to manage intermediate state (in my sample its <code>currentTweet</code>). It does allow a state/context object to be pushed into the callback methods, so I could have passed a customised context class to manage my state in instead of passing <code>Tweets</code>.</p>
 
 <h3>dsl4xml</h3>
 
 <p>This is my own small wrapper around XMLPullParser. The goals and reasons for it are stated at length <a href="https://github.com/steveliles/dsl4xml">else</a>-<a href="http://steveliles.github.com/xml_parsing_in_android.html">where</a>, but suffice to say that readability without sacrificing speed was my main aim.</p>
 
-<p><a href="">Actual code</a> is in Github, here's what it looks like:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/Dsl4XmlPerformanceTest.java">Actual code</a> is in Github, here's what it looks like:</p>
 
 <pre><code>private DocumentReader&amp;lt;Tweets&gt; tweetsReader;
 
@@ -485,7 +485,7 @@ public Tweets parse(InputStream anInputStream) {
 <p>There are two things I want to point out, which I guess you will have noticed already:</p>
 
 <ol>
-<li>This is by far the shortest and simplest code for parsing the feed of all the samples shown.</li>
+<li>This is by far the shortest and simplest code of all the samples shown.</li>
 <li>The code is slightly unusual in its style because it uses an <a href="http://martinfowler.com/bliki/DomainSpecificLanguage.html">Internal Domain Specific Language</a>. The nice thing (IMHO) is that it is very readable, and even mimics the structure of the XML itself.</li>
 </ol>
 
@@ -495,7 +495,7 @@ public Tweets parse(InputStream anInputStream) {
 
 <p>I built some performance tests using the mechanisms described above to parse the same document repeatedly. </p>
 
-<p>The tests are run repeatedly with increasing numbers of threads, from 1 to 12, parsing 1000 documents in each thread. The xml document is read into a byte array in memory before the test starts, to eliminate disk IO from consideration.</p>
+<p>The tests are run repeatedly with increasing numbers of threads, from 1 to 12, parsing 1000 documents in each thread. The xml document is read into a byte array in memory before the test starts to eliminate disk IO from consideration.</p>
 
 <p>When the statistics for each method have been collected, the test generates a html document that uses Google charts to render the results.</p>
 
@@ -505,7 +505,7 @@ public Tweets parse(InputStream anInputStream) {
 
 <p><img src="https://lh3.googleusercontent.com/-eWy-LQ4ZjrI/T4R2ZnLMetI/AAAAAAAAJA8/OeOpz5od9Ac/s800/parsing-throughput.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a Core i7 desktop" /></p>
 
-<p>And here's the chart from my MacBook Air - Core i5 (dual) 1.7GHz, 4GB RAM:</p>
+<p>And here's the chart from my MacBook Air - Core i5 (dual) 1.7GHz, 4GB RAM. Note that I cut the max threads down to 8 for the Mac to bring down the total time required to run the test (and because its not interesting above 8 threads anyway):</p>
 
 <p><img src="https://lh5.googleusercontent.com/-9kem6GMG--A/T4R2W1i9rZI/AAAAAAAAJAw/vA5wBVs4L3M/s800/mac-parsing-throughput.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a MacBook Air" /></p>
 
