@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,066" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,030" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
               <a itemprop="url" href="comparing_java_xml_parsing_mechanisms.html"><h1 itemprop="name" itemprop="headline">Comparing Java XML parsing mechanisms</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing and comparing the results for readability and performance. The parsing mechanisms compared here are:</p>
@@ -481,7 +481,7 @@ private static class Tag {
 
 <h3>SJXP (Pull-Parser wrapper)</h3>
 
-<p>The first of the pull-parser <em>wrappers</em> under test, I stumbled upon this one yesterday almost by accident. I liked the idea behind it so decided to give it a try. </p>
+<p>The first of the pull-parser <em>wrappers</em> under test, I stumbled upon <a href="http://www.thebuzzmedia.com/software/simple-java-xml-parser-sjxp/">this one</a> yesterday. I liked the idea behind it so decided to give it a try. </p>
 
 <p>I'm a big fan of callbacks generally, and having spent quite some time working with XPath in the past the idea of using XPath-like syntax to request callbacks from the pull-parser seems tempting.</p>
 
@@ -707,7 +707,7 @@ public Tweets parse(InputStream anInputStream) {
 
 <p><img src="https://lh6.googleusercontent.com/-AEu8imfo3SI/T4WlccNzJRI/AAAAAAAAJBU/-rl2Uu9-iug/s800/performance-on-core-i7.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a Core i7 desktop" /></p>
 
-<p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31). Note that I cut the max threads down to 8 for the Mac to bring down the total time required to run the test (and because its not interesting above 8 threads anyway):</p>
+<p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31):</p>
 
 <p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a MacBook Air" /></p>
 
