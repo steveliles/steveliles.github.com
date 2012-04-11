@@ -40,14 +40,10 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="4,919" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,066" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
               <a itemprop="url" href="comparing_java_xml_parsing_mechanisms.html"><h1 itemprop="name" itemprop="headline">Comparing Java XML parsing mechanisms</h1></a>
-	      <span itemprop="articleBody"><p>I recently spent some time building a small dsl (<a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>) to make pull-parsing code easier to read and write. </p>
-
-<p>In <a href="https://github.com/steveliles/dsl4xml-perf">performance testing</a> that library I took the opportunity to try parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - for readability and performance comparisons.</p>
-
-<p>The parsing mechanisms compared here are:</p>
+	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing and comparing the results for readability and performance. The parsing mechanisms compared here are:</p>
 
 <ol>
 <li>W3C DOM parsing</li>
@@ -58,7 +54,11 @@
 <li><a href="http://www.thebuzzmedia.com/software/simple-java-xml-parser-sjxp/">SJXP</a> (thin Pull-parser wrapper using xpath-like expressions)</li>
 </ol>
 
-<p>I hope to add more later - some contenders include: straight xml pull-parsing; <a href="http://www.oracle.com/technetwork/articles/javase/index-140168.html">jaxb</a>; <a href="http://xstream.codehaus.org/">xstream</a>; and <a href="http://simple.sourceforge.net/">Simple</a>.</p>
+<p>I hope to add more later - some contenders include: <a href="http://www.oracle.com/technetwork/articles/javase/index-140168.html">jaxb</a>; <a href="http://xstream.codehaus.org/">xstream</a>; and <a href="http://simple.sourceforge.net/">Simple</a>.</p>
+
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf">code for the entire project</a> is in github. You will need to Maven install the <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a> library if you want to run the tests yourself, as I'm afraid I don't have a public repo for it yet.</p>
+
+<p><em>Important Note</em>: This experiment was inspired by some work I did to optimise a slow Android app, where the original authors had used mostly DOM parsing with a sprinkling of XPath. My ultimate aim was to run these perf tests on one or more real Android devices and show how they compare there.</p>
 
 <h2>The XML</h2>
 
@@ -368,7 +368,7 @@ class TweetsHandler extends DefaultHandler {
 
 <p>One downside when handling more complicated documents is that the <code>ContentHandler</code> can get littered with intermediate state objects - for example here I have the <code>tweet</code> field which is used to carry the current Tweet object around.</p>
 
-<h3>Pull Parsing</h3>
+<h3>Pull Parser</h3>
 
 <p>Pull-parsing is the "pull" to SAX parsing's "push". SAX pushes content at you by firing events as it encounters constructs within the xml document. Pull-parsing lets you ask for (pull) the next significant construct you are interested in.</p>
 
@@ -646,9 +646,11 @@ throws Exception {
 
 <p>Like SAX and "straight" Pull parsing it also suffers the problem of having to manage intermediate state (in my sample its <code>currentTweet</code>). It does allow a state/context object to be pushed into the callback methods, so I could have passed a customised context class to manage my state in instead of passing <code>Tweets</code>.</p>
 
-<h3>dsl4xml</h3>
+<h3>dsl4xml (Pull-parser wrapper)</h3>
 
 <p>This is my own small wrapper around XMLPullParser. The goals and reasons for it are stated at length <a href="https://github.com/steveliles/dsl4xml">else</a>-<a href="http://steveliles.github.com/xml_parsing_in_android.html">where</a>, but suffice to say that readability without sacrificing speed was my main aim.</p>
+
+<p>Dsl4xml parsing code has a declarative style, is concise, and uses reflection to cut boiler-plate to a minimum.</p>
 
 <p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/Dsl4XmlPerformanceTest.java">Actual code</a> is in Github, here's what it looks like:</p>
 
@@ -694,7 +696,7 @@ public Tweets parse(InputStream anInputStream) {
 <li>The code is slightly unusual in its style because it uses an <a href="http://martinfowler.com/bliki/DomainSpecificLanguage.html">Internal Domain Specific Language</a>. The nice thing (IMHO) is that it is very readable, and even mimics the structure of the XML itself.</li>
 </ol>
 
-<p>Its still early days for dsl4xml, so the dsl may evolve a bit with time.</p>
+<p>Its still early days for dsl4xml, so the DSL may evolve a bit with time. I'm also looking into ways to keep the same tight syntax without resorting to reflection - the aim being to narrow the performance gap between "raw" pull-parsing and dsl4xml.</p>
 
 <h2>Performance Comparison</h2>
 
@@ -704,13 +706,13 @@ public Tweets parse(InputStream anInputStream) {
 
 <p>When the statistics for each method have been collected, the test generates a html document that uses Google charts to render the results.</p>
 
-<p>Each parsing method is tested 3 times and the results averaged to smooth out inconsistencies. I ran the tests on my MacBook Air and my Core i7 Desktop. </p>
+<p>Each parsing method is tested 3 times and the results averaged to smooth out some of the wilder outliers (still far from perfect, partly due to garbage collection). I ran the tests on my MacBook Air and my Desktop. </p>
 
-<p>Here is the chart for the Core i7 1.8GHz, 4GB RAM. There is a noticeable hump at 4 threads, presumably because its a quad core. Performance keeps rising up to 8 threads, this presumably because the cpu has hyperthreading. After 8 threads the performance slowly drops off as the context-switching overhead builds up (not shown here):</p>
+<p>Here is the chart for the desktop (Core i7 (quad) 1.8GHz, 4GB RAM, Ubuntu 11.10, Sun JDK 1.6.0-26). There is a noticeable hump at 4 threads, presumably because its a quad core. Performance keeps rising up to 8 threads, this presumably because the cpu has hyperthreading. After 8 threads the performance slowly drops off as the context-switching overhead builds up (not shown here):</p>
 
 <p><img src="https://lh6.googleusercontent.com/-AEu8imfo3SI/T4WlccNzJRI/AAAAAAAAJBU/-rl2Uu9-iug/s800/performance-on-core-i7.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a Core i7 desktop" /></p>
 
-<p>And here's the chart from my MacBook Air - Core i5 (dual) 1.7GHz, 4GB RAM. Note that I cut the max threads down to 8 for the Mac to bring down the total time required to run the test (and because its not interesting above 8 threads anyway):</p>
+<p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31). Note that I cut the max threads down to 8 for the Mac to bring down the total time required to run the test (and because its not interesting above 8 threads anyway):</p>
 
 <p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a MacBook Air" /></p>
 
@@ -771,7 +773,7 @@ public Tweets parse(InputStream anInputStream) {
 
 <p>Performance-wise there really isn't much in it between SAX and the two pull-parser wrappers, all of which blow DOM parsing out of the water. Raw Pull-parsing beats the lot by a margin of around 15%. Don't go near XPath based parsing unless you have no concerns whatsoever for performance.</p>
 
-<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. I suspect that the performance gap between the different mechanisms widens as the document complexity increases.</p>
+<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. I suspect that the performance gap between the different mechanisms widens as the document complexity increases, but as yet have no real evidence to back that up.</p>
 </span>
 
               <ul class="keywords">
