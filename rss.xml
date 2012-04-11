@@ -16,7 +16,7 @@
         <title><![CDATA[Comparing Java XML parsing mechanisms]]></title>
         <link><![CDATA[http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html</guid>
-        <description><![CDATA[<p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing and comparing the results for readability and performance. The parsing mechanisms compared here are:</p>
+        <description><![CDATA[<p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance. The parsing mechanisms compared here are:</p>
 
 <ol>
 <li>W3C DOM parsing</li>
@@ -760,7 +760,9 @@ public Tweets parse(InputStream anInputStream) {
         <title><![CDATA[XML Parsing in Android]]></title>
         <link><![CDATA[http://steveliles.github.com/xml_parsing_in_android.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/xml_parsing_in_android.html</guid>
-        <description><![CDATA[<p><em>The short story:</em> Use Pull-Parsing, not DOM parsing on Android!</p>
+        <description><![CDATA[<p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
+
+<p><em>The short story:</em> Use Pull-Parsing, not DOM parsing on Android!</p>
 
 <p><em>The mid-length story:</em> Pull-parsing is <em>fast</em>, but doesn't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
 

@@ -40,10 +40,12 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,223" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,260" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
               <a itemprop="url" href="xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">XML Parsing in Android</h1></a>
-	      <span itemprop="articleBody"><p><em>The short story:</em> Use Pull-Parsing, not DOM parsing on Android!</p>
+	      <span itemprop="articleBody"><p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
+
+<p><em>The short story:</em> Use Pull-Parsing, not DOM parsing on Android!</p>
 
 <p><em>The mid-length story:</em> Pull-parsing is <em>fast</em>, but doesn't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
 
