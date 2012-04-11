@@ -177,7 +177,73 @@ private String getPCData(Node aNode) {
 
 <h3>W3C DOM and XPath</h3>
 
-<p>TODO..</p>
+<p>XPath is a language for describing locations within an XML document as paths from a starting location (which can be the root of the document (/), the current location (.//) or anywhere (//)).</p>
+
+<p>I've used XPath on and off for years, mostly in XSLT stylesheets, but also occasionally to pluck bits of information out of documents in code. It is very straight-forward to use.</p>
+
+<p>Here's a sample for parsing our Twitter Atom feed. The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/DOMXPathPerformanceTest.java">actual test code</a> is in github.</p>
+
+<pre><code>final DocumentBuilder _builder = 
+    DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+XPathFactory _f = XPathFactory.newInstance();
+
+final XPathExpression _entry = _f.newXPath().compile("/feed/entry");
+final XPathExpression _published = _f.newXPath().compile(".//published");
+final XPathExpression _title = _f.newXPath().compile(".//title");
+final XPathExpression _contentType = _f.newXPath().compile(".//content/@type");
+final XPathExpression _content = _f.newXPath().compile(".//content");
+final XPathExpression _lang = _f.newXPath().compile(".//twitter:lang");
+final XPathExpression _authorName = _f.newXPath().compile(".//author/name");
+final XPathExpression _authorUri = _f.newXPath().compile(".//author/uri");
+
+final DateFormat _dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+public Tweets parse(InputStream anInputStream) {
+    try {
+        Tweets _result = new Tweets();
+        Document _document = _builder.parse(anInputStream);
+
+        NodeList _entries = (NodeList) _entry.evaluate(
+            _document, XPathConstants.NODESET
+        );                  
+
+        for (int i=0; i&lt;_entries.getLength(); i++) {
+            Tweet _tweet = new Tweet();
+            _result.addTweet(_tweet);
+
+            Node _entryNode = _entries.item(i);
+
+            _tweet.setPublished(getPublishedDate(_entryNode));
+            _tweet.setTitle(_title.evaluate(_entryNode));
+            _tweet.setLanguage(_lang.evaluate(_entryNode));
+
+            Content _c = new Content();
+            _tweet.setContent(_c);
+
+            _c.setType(_contentType.evaluate(_entryNode));
+            _c.setValue(_content.evaluate(_entryNode));
+
+            Author _a = new Author();
+            _tweet.setAuthor(_a);
+
+            _a.setName(_authorName.evaluate(_entryNode));
+            _a.setUri(_authorUri.evaluate(_entryNode));
+        }
+
+        return _result;
+    } catch (Exception anExc) {
+        throw new RuntimeException(anExc);
+    }
+}
+
+private Date getPublishedDate(Node aNode) 
+throws Exception {
+    return _dateFormat.parse(_published.evaluate(aNode));
+}
+</code></pre>
+
+<p>The code ends up being quite easy to read and nests in a way that mimics the document structure. There is a very big downside - as you'll see later - the performance is <em>atrocious</em>. </p>
 
 <h3>SAX Parser</h3>
 
@@ -277,7 +343,119 @@ class TweetsHandler extends DefaultHandler {
 
 <h3>Pull Parsing</h3>
 
-<p>TODO</p>
+<p>Pull-parsing is the "pull" to SAX parsing's "push". SAX pushes content at you by firing events as it encounters constructs within the xml document. Pull-parsing lets you ask for (pull) the next significant construct you are interested in.</p>
+
+<p>You still have to take the data in the order it appears in the document - you can't go back and forth through the document like you can with DOM, but you can skip over bits you aren't interested in, which enables pull-parsing to be extremely fast.</p>
+
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/PullParserPerformanceTest.java">Test code</a> is in github, this is roughly what it looks like:</p>
+
+<pre><code>private static final Tag ENTRY_TAG = new Tag(null, "entry");
+private static final Tag PUBLISHED_TAG = new Tag(null, "published");
+private static final Tag TITLE_TAG = new Tag(null, "title");
+private static final Tag CONTENT_TAG = new Tag(null, "content");
+private static final Tag LANG_TAG = new Tag("twitter", "lang");
+private static final Tag AUTHOR_TAG = new Tag(null, "author");
+private static final Tag NAME_TAG = new Tag(null, "name");
+private static final Tag URI_TAG = new Tag(null, "uri");
+
+private DateFormat _dateFormat =
+    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+private XmlPullParserFactory _f = XmlPullParserFactory.newInstance();
+
+private Tweets tweets;
+private Tweet currentTweet;
+private Author currentAuthor;
+
+public PullParser() {
+    _f.setNamespaceAware(true);
+}
+
+public Tweets parse(InputStream anInputStream) {
+    try {
+        XmlPullParser _p = _f.newPullParser();
+        _p.setInput(anInputStream, "utf-8");
+        return parse(_p);
+    } catch (Exception anExc) {
+        throw new RuntimeException(anExc);
+    }
+}
+
+private Tweets parse(XmlPullParser aParser) 
+throws Exception {
+    tweets = new Tweets();
+    currentTweet = null;
+
+    int _e = aParser.next();
+    while (_e != XmlPullParser.END_DOCUMENT) {
+        if (_e == XmlPullParser.START_TAG) {
+            startTag(new Tag(
+                aParser.getPrefix(), aParser.getName()), aParser
+            );
+        }
+        _e = aParser.next();
+    }
+
+    return tweets;
+}
+
+private void startTag(Tag aTag, XmlPullParser aParser)
+throws Exception {
+    if (ENTRY_TAG.equals(aTag)) {
+        tweets.addTweet(currentTweet = new Tweet());
+    } else if (PUBLISHED_TAG.equals(aTag)) {
+        aParser.next();
+        currentTweet.setPublished(_dateFormat.parse(aParser.getText()));
+    } else if ((TITLE_TAG.equals(aTag)) &amp;&amp; (currentTweet != null)) {
+        aParser.next();
+        currentTweet.setTitle(aParser.getText());
+    } else if (CONTENT_TAG.equals(aTag)) {
+        Content _c = new Content();
+        _c.setType(aParser.getAttributeValue(null, "type"));
+        aParser.next();
+        _c.setValue(aParser.getText());
+        currentTweet.setContent(_c);
+    } else if (LANG_TAG.equals(aTag)) {
+        aParser.next();
+        currentTweet.setLanguage(aParser.getText());
+    } else if (AUTHOR_TAG.equals(aTag)) {
+        currentTweet.setAuthor(currentAuthor = new Author());
+    } else if (NAME_TAG.equals(aTag)) {
+        aParser.next();
+        currentAuthor.setName(aParser.getText());
+    } else if (URI_TAG.equals(aTag)) {
+        aParser.next();
+        currentAuthor.setUri(aParser.getText());
+    }
+}
+
+private static class Tag {
+    private String ns;
+    private String name;
+
+    public Tag(String aNamespace, String aName) {
+        ns = aNamespace;
+        name = aName;
+    }
+
+    public boolean equals(Object anOther) {
+        if (anOther instanceof Tag) {
+            Tag _other = (Tag) anOther;
+            return (
+                ((ns != null) ? ns.equals(_other.ns) : _other.ns == null) &amp;&amp;
+                ((name != null) ? 
+                    name.equals(_other.name) : _other.name == null)
+            );
+        }
+        return false;
+    }
+
+    public int hashCode() {
+        return ns.hashCode() ^ name.hashCode();
+    }
+}
+</code></pre>
+
+<p>The Tag class isn't entirely necessary here, but it makes it a bit easier to deal with namespaced elements.</p>
 
 <h3>SJXP (Pull-Parser wrapper)</h3>
 
@@ -495,29 +673,78 @@ public Tweets parse(InputStream anInputStream) {
 
 <p>I built some performance tests using the mechanisms described above to parse the same document repeatedly. </p>
 
-<p>The tests are run repeatedly with increasing numbers of threads, from 1 to 12, parsing 1000 documents in each thread. The xml document is read into a byte array in memory before the test starts to eliminate disk IO from consideration.</p>
+<p>The tests are run repeatedly with increasing numbers of threads, from 1 to 8, parsing 1000 documents in each thread. The xml document is read into a byte array in memory before the test starts to eliminate disk IO from consideration.</p>
 
 <p>When the statistics for each method have been collected, the test generates a html document that uses Google charts to render the results.</p>
 
 <p>Each parsing method is tested 3 times and the results averaged to smooth out inconsistencies. I ran the tests on my MacBook Air and my Core i7 Desktop. </p>
 
-<p>Here is the chart for the Core i7 1.8GHz, 4GB RAM. There are noticeable humps at both 4 and 8 threads - presumably because its a Quad core with Hyperthreading:</p>
+<p>Here is the chart for the Core i7 1.8GHz, 4GB RAM. There is a noticeable hump at 4 threads, presumably because its a quad core. Performance keeps rising up to 8 threads, this presumably because the cpu has hyperthreading. After 8 threads the performance slowly drops off as the context-switching overhead builds up (not shown here):</p>
 
-<p><img src="https://lh3.googleusercontent.com/-eWy-LQ4ZjrI/T4R2ZnLMetI/AAAAAAAAJA8/OeOpz5od9Ac/s800/parsing-throughput.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a Core i7 desktop" /></p>
+<p><img src="https://lh6.googleusercontent.com/-AEu8imfo3SI/T4WlccNzJRI/AAAAAAAAJBU/-rl2Uu9-iug/s800/performance-on-core-i7.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a Core i7 desktop" /></p>
 
 <p>And here's the chart from my MacBook Air - Core i5 (dual) 1.7GHz, 4GB RAM. Note that I cut the max threads down to 8 for the Mac to bring down the total time required to run the test (and because its not interesting above 8 threads anyway):</p>
 
-<p><img src="https://lh5.googleusercontent.com/-9kem6GMG--A/T4R2W1i9rZI/AAAAAAAAJAw/vA5wBVs4L3M/s800/mac-parsing-throughput.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a MacBook Air" /></p>
+<p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a MacBook Air" /></p>
 
 <p>I plan to try to get these tests running on an Android device also, since Android was the primary reason I started on this path in the first place. The difference I saw between DOM and Pull parsing under Android was <em>enormous</em>, and I'd really like to get some numbers to back that up.</p>
 
+<p>You may have spotted the line for XPath based parsing sitting pretty squarely on the horizontal axis, two orders of magnitude slower than pull parsing. </p>
+
+<p>This appalling performance seems to be because when executing <em>each</em> xpath expression a context object is created which involves looking up several files on the classpath (and all the inherent synchronisation this entails). I don't intend to waste my time digging into why this can't done once and cached :(.</p>
+
+<p>This is what my threads spent most of their time doing in the XPath test:</p>
+
+<pre><code>"Thread-11" prio=5 tid=7fcf544d2000 nid=0x10d6bb000 
+    waiting for monitor entry [10d6b9000]
+    java.lang.Thread.State: BLOCKED (on object monitor)
+    at java.util.zip.ZipFile.getEntry(ZipFile.java:159)
+    - locked &lt;7f4514c88&gt; (a java.util.jar.JarFile)
+    at java.util.jar.JarFile.getEntry(JarFile.java:208)
+    at java.util.jar.JarFile.getJarEntry(JarFile.java:191)
+    at sun.misc.URLClassPath$JarLoader.getResource(URLClassPath.java:757)
+    at sun.misc.URLClassPath$JarLoader.findResource(URLClassPath.java:735)
+    at sun.misc.URLClassPath.findResource(URLClassPath.java:146)
+    at java.net.URLClassLoader$2.run(URLClassLoader.java:385)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at java.net.URLClassLoader.findResource(URLClassLoader.java:382)
+    at java.lang.ClassLoader.getResource(ClassLoader.java:1002)
+    at java.lang.ClassLoader.getResource(ClassLoader.java:997)
+    at java.lang.ClassLoader.getSystemResource(ClassLoader.java:1100)
+    at java.lang.ClassLoader.getSystemResourceAsStream(ClassLoader.java:1214)
+    at com.sun.org.apache.xml.internal.dtm.SecuritySupport12$6.run
+        (SecuritySupport12.java:117)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at
+    com.sun.org.apache.xml.internal.dtm.SecuritySupport12.
+        getResourceAsStream(SecuritySupport12.java:112)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        findJarServiceProviderName(ObjectFactory.java:549)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        lookUpFactoryClassName(ObjectFactory.java:373)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        lookUpFactoryClass(ObjectFactory.java:206)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        createObject(ObjectFactory.java:131)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        createObject(ObjectFactory.java:101)
+    at com.sun.org.apache.xml.internal.dtm.DTMManager.
+        newInstance(DTMManager.java:135)
+    at com.sun.org.apache.xpath.internal.XPathContext.
+        &lt;init&gt;(XPathContext.java:100)
+    at com.sun.org.apache.xpath.internal.jaxp.XPathExpressionImpl.
+        eval(XPathExpressionImpl.java:110)
+</code></pre>
+
 <h2>Conclusions</h2>
 
-<p>Of the mechanisms tested so far, and from the code samples above, I think that dsl4xml produces far the most readable and maintainable parsing code. Of course I am biased. I think SAX parsing worked out to be the most readable (IMHO) of the other mechanisms.</p>
+<p>Of the mechanisms tested so far, and from the code samples above, I think that dsl4xml produces far the most readable and maintainable parsing code. Of course I am biased. </p>
 
-<p>Performance-wise there really isn't much in it between SAX and the two pull-parser wrappers, all of which blow DOM parsing out of the water. Pull-parsing does seem to consistently beat SAX, but not by much.</p>
+<p>I think SAX parsing worked out to be the most readable of the other mechanisms, though Pull-parsing is very similar and there's not really much to separate them.</p>
 
-<p>The Twitter Atom feed document is not particularly complicated - for example tags are not deeply nested. I suspect that the performance gap between the different mechanisms widens as the document complexity increases.</p>
+<p>Performance-wise there really isn't much in it between SAX and the two pull-parser wrappers, all of which blow DOM parsing out of the water. Raw Pull-parsing beats the lot by a margin of around 15%. Don't go near XPath based parsing unless you have no concerns whatsoever for performance.</p>
+
+<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. I suspect that the performance gap between the different mechanisms widens as the document complexity increases.</p>
 ]]></description>
           <category>java</category>
           <category>xml</category>
