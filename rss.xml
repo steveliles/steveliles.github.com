@@ -16,7 +16,7 @@
         <title><![CDATA[Comparing Java XML parsing mechanisms]]></title>
         <link><![CDATA[http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html</guid>
-        <description><![CDATA[<p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance. The parsing mechanisms compared here are:</p>
+        <description><![CDATA[<p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance - especially for Android. The parsing mechanisms compared here are:</p>
 
 <ol>
 <li>W3C DOM parsing</li>
