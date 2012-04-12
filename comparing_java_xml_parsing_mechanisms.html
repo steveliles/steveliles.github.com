@@ -40,7 +40,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,214" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,233" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
               <a itemprop="url" href="comparing_java_xml_parsing_mechanisms.html"><h1 itemprop="name" itemprop="headline">Comparing Java XML parsing mechanisms</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance. The parsing mechanisms compared here are:</p>
@@ -63,6 +63,8 @@
 <p>My ultimate aim was to run these perf tests on one or more real Android devices and show how they compare there.</p>
 
 <p>For this reason if you look at the project in github, you'll see that I've imported the Android 4 jar and used only the parser implementations that are available without additional imports in Android. (OK, the two pull-parser wrappers require very small standalone jars, sorry).</p>
+
+<p>The Android project and Activity for running the tests on a device is in a separate project <a href="https://github.com/steveliles/dsl4xml-perf-android">here</a>.</p>
 
 <h2>The XML</h2>
 

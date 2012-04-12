@@ -37,6 +37,8 @@
 
 <p>For this reason if you look at the project in github, you'll see that I've imported the Android 4 jar and used only the parser implementations that are available without additional imports in Android. (OK, the two pull-parser wrappers require very small standalone jars, sorry).</p>
 
+<p>The Android project and Activity for running the tests on a device is in a separate project <a href="https://github.com/steveliles/dsl4xml-perf-android">here</a>.</p>
+
 <h2>The XML</h2>
 
 <p>The XML file being parsed is a Twitter search result (Atom feed). You can see the actual file <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/twitter-atom.xml">here</a>, but this is a snippet of the parts I'm interested in parsing for these tests (the 15 <code>&lt;entry&gt;</code>'s in the document):</p>
