@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,237" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,271" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
               <a itemprop="url" href="comparing_java_xml_parsing_mechanisms.html"><h1 itemprop="name" itemprop="headline">Comparing Java XML parsing mechanisms</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance - especially for Android. The parsing mechanisms compared here are:</p>
@@ -717,11 +717,17 @@ public Tweets parse(InputStream anInputStream) {
 
 <p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on a MacBook Air" /></p>
 
-<p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2 running Android 2.3.4. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
+<p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2 running Android 2.3.4, 64Mb heap. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
 
-<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on an Android phone (Samsung Galaxy S2)" /></p>
+<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on an Android phone (Samsung Galaxy S2, 64Mb heap)" /></p>
 
 <p>Yep, SAX kicking ass right there.</p>
+
+<p>Here's how it looks on a dual core Motorola Xoom 2 Media edition running Android 3.2.2 (with 48Mb heap):</p>
+
+<p><img src="https://lh3.googleusercontent.com/-5Va8zV3v1bw/T4bMbzENp0I/AAAAAAAAJBw/21ZPnf51s5k/s800/performance-xoom2-media.png" alt="" /></p>
+
+<p>Confirming that SAX (and Samsung) kick ass.</p>
 
 <p>On the earlier two charts you may have spotted the line for XPath based parsing sitting pretty squarely on the horizontal axis, two orders of magnitude slower than pull parsing. I skipped xpath parsing on Android after the first run didn't complete within 30 minutes (seriously).</p>
 
