@@ -108,11 +108,16 @@ throws Exception {
 
 private void unmarshall(Document aDoc, Tweets aTo) 
 throws Exception {
-    NodeList _entries = aDoc.getElementsByTagName("entry");
-    for (int i=0; i&amp;lt;_entries.getLength(); i++) {
-        Tweet _tweet = new Tweet();
-        aTo.addTweet(_tweet);
-        unmarshallEntry((Element)_entries.item(i), _tweet);
+    NodeList _nodes = aDoc.getChildNodes().item(0).getChildNodes();
+    for (int i=0; i&lt;_nodes.getLength(); i++) {
+        Node _n = _nodes.item(i);
+        if ((_n.getNodeType() == Node.ELEMENT_NODE) &amp;&amp; 
+            ("entry".equals(_n.getNodeName()))
+        ) {
+            Tweet _tweet = new Tweet();
+            aTo.addTweet(_tweet);
+            unmarshallEntry((Element)_n, _tweet);
+        }
     }
 }
 
@@ -706,6 +711,8 @@ public Tweets parse(InputStream anInputStream) {
 <p><img src="https://lh3.googleusercontent.com/-5Va8zV3v1bw/T4bMbzENp0I/AAAAAAAAJBw/21ZPnf51s5k/s800/performance-xoom2-media.png" alt="" /></p>
 
 <p>Confirming that SAX (and Samsung) kick ass.</p>
+
+<p>Anecdotally, my friend <a href="http://twitter.com/#!/prestonmr">Matt Preston</a> did a quick port of the <em>DOM</em> parsing test to iOS. He didn't produce a chart (yet!), but the throughput on an iPhone 4S was approximately twice as good as <em>SAX</em> parsing on my Samsung.</p>
 
 <p>On the earlier two charts you may have spotted the line for XPath based parsing sitting pretty squarely on the horizontal axis, two orders of magnitude slower than pull parsing. I skipped xpath parsing on Android after the first run didn't complete within 30 minutes (seriously).</p>
 
