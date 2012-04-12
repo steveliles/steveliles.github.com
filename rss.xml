@@ -31,7 +31,11 @@
 
 <p>The <a href="https://github.com/steveliles/dsl4xml-perf">code for the entire project</a> is in github. You will need to Maven install the <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a> library if you want to run the tests yourself, as I'm afraid I don't have a public repo for it yet.</p>
 
-<p><em>Important Note</em>: This experiment was inspired by some work I did to optimise a slow Android app, where the original authors had used mostly DOM parsing with a sprinkling of XPath. My ultimate aim was to run these perf tests on one or more real Android devices and show how they compare there.</p>
+<p><em>Important Note</em>: This experiment was inspired by some work I did to optimise a slow Android app, where the original authors had used mostly DOM parsing with a sprinkling of XPath. </p>
+
+<p>My ultimate aim was to run these perf tests on one or more real Android devices and show how they compare there.</p>
+
+<p>For this reason if you look at the project in github, you'll see that I've imported the Android 4 jar and used only the parser implementations that are available without additional imports in Android. (OK, the two pull-parser wrappers require very small standalone jars, sorry).</p>
 
 <h2>The XML</h2>
 
@@ -683,15 +687,19 @@ public Tweets parse(InputStream anInputStream) {
 
 <p>Here is the chart for the desktop (Core i7 (quad) 1.8GHz, 4GB RAM, Ubuntu 11.10, Sun JDK 1.6.0-26). There is a noticeable hump at 4 threads, presumably because its a quad core. Performance keeps rising up to 8 threads, this presumably because the cpu has hyperthreading. After 8 threads the performance slowly drops off as the context-switching overhead builds up (not shown here):</p>
 
-<p><img src="https://lh6.googleusercontent.com/-AEu8imfo3SI/T4WlccNzJRI/AAAAAAAAJBU/-rl2Uu9-iug/s800/performance-on-core-i7.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a Core i7 desktop" /></p>
+<p><img src="https://lh6.googleusercontent.com/-AEu8imfo3SI/T4WlccNzJRI/AAAAAAAAJBU/-rl2Uu9-iug/s800/performance-on-core-i7.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml, and raw pull-parsing on a Core i7 desktop" /></p>
 
 <p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31):</p>
 
-<p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP and dsl4xml on a MacBook Air" /></p>
+<p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on a MacBook Air" /></p>
 
-<p>I plan to try to get these tests running on an Android device also, since Android was the primary reason I started on this path in the first place. The difference I saw between DOM and Pull parsing under Android was <em>enormous</em>, and I'd really like to get some numbers to back that up.</p>
+<p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
 
-<p>You may have spotted the line for XPath based parsing sitting pretty squarely on the horizontal axis, two orders of magnitude slower than pull parsing. </p>
+<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on an Android phone (Samsung Galaxy S2)" /></p>
+
+<p>Yep, SAX kicking ass right there.</p>
+
+<p>On the earlier two charts you may have spotted the line for XPath based parsing sitting pretty squarely on the horizontal axis, two orders of magnitude slower than pull parsing. I skipped xpath parsing on Android after the first run didn't complete within 30 minutes (seriously).</p>
 
 <p>This appalling performance seems to be because when executing <em>each</em> xpath expression a context object is created which involves looking up several files on the classpath (and all the inherent synchronisation this entails). I don't intend to waste my time digging into why this can't done once and cached :(.</p>
 
@@ -740,11 +748,25 @@ public Tweets parse(InputStream anInputStream) {
 
 <h2>Conclusions</h2>
 
+<h3>Readability</h3>
+
 <p>Of the mechanisms tested so far, and from the code samples above, I think that dsl4xml produces far the most readable and maintainable parsing code. Of course I am biased. </p>
 
 <p>I think SAX parsing worked out to be the most readable of the other mechanisms, though Pull-parsing is very similar and there's not really much to separate them.</p>
 
-<p>Performance-wise there really isn't much in it between SAX and the two pull-parser wrappers, all of which blow DOM parsing out of the water. Raw Pull-parsing beats the lot by a margin of around 15%. Don't go near XPath based parsing unless you have no concerns whatsoever for performance.</p>
+<h3>Desktop/laptop xml parsing performance</h3>
+
+<p>SAX parsing and the pull-parsing wrappers give comparable performance. Raw Pull-parsing beats the lot by a margin of around 15%. DOM performs relatively badly - around twice as slow as any of the others. Don't go near XPath based parsing unless you like watching paint dry.</p>
+
+<p>Recommendation: SAX, unless you are processing vast numbers of docs and performance is critical. dsl4xml if you like readability :)</p>
+
+<h3>Android xml parsing performance</h3>
+
+<p>DOM/XPath parsing sucks so bad you'll be wearing false teeth before you can parse two documents -avoid at all costs. DOM and pull-parsing appear to have very similar performance characteristics. SAX absolutely destroys all the others.</p>
+
+<p>Recommendation: SAX, every time. I'll get working on a SAX-based dsl4xml implementation :)</p>
+
+<h3>Final word</h3>
 
 <p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. I suspect that the performance gap between the different mechanisms widens as the document complexity increases, but as yet have no real evidence to back that up.</p>
 ]]></description>
@@ -762,7 +784,7 @@ public Tweets parse(InputStream anInputStream) {
         <guid isPermaLink="true">http://steveliles.github.com/xml_parsing_in_android.html</guid>
         <description><![CDATA[<p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
 
-<p><em>The short story:</em> Use Pull-Parsing, not DOM parsing on Android!</p>
+<p><em>The short story:</em> Always use SAX in Android (<a href="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png">here's why</a>).</p>
 
 <p><em>The mid-length story:</em> Pull-parsing is <em>fast</em>, but doesn't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
 
