@@ -40,7 +40,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,211" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,214" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
               <a itemprop="url" href="comparing_java_xml_parsing_mechanisms.html"><h1 itemprop="name" itemprop="headline">Comparing Java XML parsing mechanisms</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance. The parsing mechanisms compared here are:</p>
@@ -116,7 +116,7 @@
 
 <p>On the plus side, DOM parsing is straight-forward to work with, particularly if you don't care much about speed and use <code>getElementsByTagName()</code> wherever possible.</p>
 
-<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/DOMPerformanceTest.java">here</a>, but this is roughly what it ended up looking like:</p>
+<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/DOMPerformanceTest.java">here</a>, but this is roughly what it ended up looking like:</p>
 
 <pre><code>DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -212,7 +212,7 @@ private String getPCData(Node aNode) {
 
 <p>I've used XPath on and off for years, mostly in XSLT stylesheets, but also occasionally to pluck bits of information out of documents in code. It is very straight-forward to use.</p>
 
-<p>Here's a sample for parsing our Twitter Atom feed. The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/DOMXPathPerformanceTest.java">actual test code</a> is in github.</p>
+<p>Here's a sample for parsing our Twitter Atom feed. The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/DOMXPathPerformanceTest.java">actual test code</a> is in github.</p>
 
 <pre><code>final DocumentBuilder _builder = 
     DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -286,7 +286,7 @@ throws Exception {
 
 <p>I'm extending <code>DefaultHandler</code> because I'm not interested in many of the events (it provides a default empty implementation of those methods for me).</p>
 
-<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/SAXParserPerformanceTest.java">actual test code</a> is in github, but here's the gist of it:</p>
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/SAXParserPerformanceTest.java">actual test code</a> is in github, but here's the gist of it:</p>
 
 <pre><code>public Tweets parse(InputStream anInputStream)
 throws Exception {
@@ -378,7 +378,7 @@ class TweetsHandler extends DefaultHandler {
 
 <p>You still have to take the data in the order it appears in the document - you can't go back and forth through the document like you can with DOM, but you can skip over bits you aren't interested in, which enables pull-parsing to be extremely fast.</p>
 
-<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/PullParserPerformanceTest.java">Test code</a> is in github, this is roughly what it looks like:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/PullParserPerformanceTest.java">Test code</a> is in github, this is roughly what it looks like:</p>
 
 <pre><code>private static final Tag ENTRY_TAG = new Tag(null, "entry");
 private static final Tag PUBLISHED_TAG = new Tag(null, "published");
@@ -498,7 +498,7 @@ private static class Tag {
 
 <p>This means that my path declarations even on this shallow document are enormous and I had to split them onto three lines to fit the width of my blog.</p>
 
-<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/SJXPPerformanceTest.java">Code is in github</a>, this is the gist of it:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/SJXPPerformanceTest.java">Code is in github</a>, this is the gist of it:</p>
 
 <pre><code>Tweet currentTweet;
 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -656,7 +656,7 @@ throws Exception {
 
 <p>Dsl4xml parsing code has a declarative style, is concise, and uses reflection to cut boiler-plate to a minimum.</p>
 
-<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/test/java/com/sjl/dsl4xml/performance/impl/Dsl4XmlPerformanceTest.java">Actual code</a> is in Github, here's what it looks like:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/Dsl4XmlPerformanceTest.java">Actual code</a> is in Github, here's what it looks like:</p>
 
 <pre><code>private DocumentReader&amp;lt;Tweets&gt; tweetsReader;
 
@@ -720,7 +720,7 @@ public Tweets parse(InputStream anInputStream) {
 
 <p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on a MacBook Air" /></p>
 
-<p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
+<p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2 running Android 2.3.4. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
 
 <p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on an Android phone (Samsung Galaxy S2)" /></p>
 
