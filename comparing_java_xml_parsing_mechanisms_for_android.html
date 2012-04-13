@@ -6,9 +6,14 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-    <meta name="description" content="Thoughts on Java, GWT, programming, and other geek stuff"></meta>
+      <meta name="keywords" content="java" itemprop="keywords"></meta>
+      <meta name="keywords" content="xml" itemprop="keywords"></meta>
+      <meta name="keywords" content="parse" itemprop="keywords"></meta>
+      <meta name="keywords" content="unmarshall" itemprop="keywords"></meta>
+      <meta name="keywords" content="comparison" itemprop="keywords"></meta>
+    <meta name="description" content="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools."></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Steve Liles' Blog</title>
+    <title>Comparing Java XML parsing mechanisms for Android</title>
   </head>
   <body>
     <div>
@@ -846,569 +851,35 @@ public Tweets read(InputStream anInputStream) throws Exception {
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="comparing_java_xml_parsing_mechanisms_for_android.html">Comment on this post</a>
 
-            </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,260" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
-              <a itemprop="url" href="xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">XML Parsing in Android</h1></a>
-	      <span itemprop="articleBody"><p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
 
-<p><em>The short story:</em> Always use SAX in Android (<a href="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png">here's why</a>).</p>
-
-<p><em>The mid-length story:</em> Pull-parsing is <em>fast</em>, but doesn't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
-
-<pre><code>&lt;books&gt;
-  &lt;book&gt;
-    &lt;title&gt;The Hobbit&lt;/title&gt;
-    &lt;synopsis&gt;
-        A little guy goes on an adventure, 
-        finds ring, comes back.
-    &lt;/synopsis&gt;
-  &lt;/book&gt;
-  &lt;book&gt;
-    &lt;title&gt;The Lord of the Rings&lt;/title&gt;
-    &lt;synopsis&gt;
-        A couple of little guys go on an adventure, 
-        lose ring, come back.
-    &lt;/synopsis&gt;
-  &lt;/book&gt;
-&lt;/books&gt;
-</code></pre>
-
-<p>Can be unmarshalled to simple POJO's with this:</p>
-
-<pre><code>import static com.sjl.dsl4xml.DocumentReader.*;
-
-class BooksReader {
-    private DocumentReader&lt;Books&gt; reader;
-
-    public BooksReader() {
-        reader = mappingOf(Books.class).to(
-           tag("book", Book.class).with(
-               tag("title"),
-               tag("synopsis")
-           )
-        );
-    }
-
-    public Books reader(Reader aReader) {
-        return reader.read(aReader);
-    }
-}
-</code></pre>
-
-<p><em>The long story:</em></p>
-
-<p>I recently had occasion to work on an Android app that was suffering horrible performance problems on startup (approx 7-12 seconds before displaying content).</p>
-
-<p>A look at the code showed up several possible contenders for the source of the problem:</p>
-
-<ol>
-<li>Many concurrent http requests to fetch XML content from web</li>
-<li>Parsing the returned XML documents concurrently</li>
-<li>Parsing documents using a DOM parser</li>
-</ol>
-
-<p>A quick run through with the excellent profiler built in to DDMS immediately showed lots of time spent in DOM parsing methods, and masses of heap being consumed by sparsely populated <code>java.util.List</code> objects (used to represent the DOM in memory).</p>
-
-<p>Since the app was subsequently discarding the parsed Document object, the large heap consumption was contributing a huge garbage-collection load as a side-effect.</p>
-
-<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM parsing; constant thread context-switching; massive heap consumption; and huge object churn.</p>
-
-<p>On a side note, the network requests - even over 3G - were pretty insignificant in the grand scheme.</p>
-
-<h2>Reducing thread context switching</h2>
-
-<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. </p>
-
-<p>I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
-
-<h2>More efficient parsing</h2>
-
-<p>DOM parsing is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
-
-<p>I decided to try an experiment with an alternative parsing method, to see if a worthwhile performance gain could be achieved on one of the smaller documents that could then be applied to others.</p>
-
-<p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM parsing.</p>
-
-<p>The result was quite pleasing: 5x faster on a simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
-
-<p>However, I had one major concern that put me off: the code for parsing even a simple document was already quite long and had a nasty whiff of conditional-overkill (think: lots of if statements). I wasn't too happy about trading code readability for performance.</p>
-
-<p>I pondered a few alternatives like <a href="http://xstream.codehaus.org/">XStream</a> which I've used a lot for converting from Java to XML but not much the other way around, and <a href="http://simple.sourceforge.net/">SimpleXML</a> which I have used previously and can be nice, but pollutes your model objects with annotations and in some situations can be a real pain to get working.</p>
-
-<h2>An Internal DSL for mapping XML to POJO's</h2>
-
-<p>In the end I decided to spend just a few hours turning the problem over in code to see if I could come up with something more readable for working with the pull-parser directly. </p>
-
-<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small Internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
-
-<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would have been much less irritating :)</p>
-
-<p>As it was the boiler plate irked me - too much <em>stuff</em> getting in the way of reading what was really important. I thought about it a bit in my spare time, and had another shot at it. My aims were:</p>
-
-<ol>
-<li>To make readable, maintainable, declarative code that unmarshalls XML documents to Java objects.</li>
-<li>To make unmarshalling XML documents to Java objects very fast (sax/pull-parsing speeds).</li>
-<li>To avoid polluting model classes with metadata about xml parsing (no annotations).</li>
-<li>To avoid additional build-time steps or "untouchable" code (code generators, etc).</li>
-<li>To produce a very small jar with no large dependencies.</li>
-</ol>
-
-<p>The result is starting to take shape in github as <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>. It removes all of the boiler plate in exchange for a small performance penalty due to use of reflection. I don't have comparative performance figures yet, but will post some when I get time.</p>
-
-<h3>Another example</h3>
-
-<p>XML:</p>
-
-<pre><code>&lt;hobbit&gt;
-  &lt;name firstname="Frodo" surname="Baggins"/&gt;
-  &lt;dob&gt;11400930&lt;/dob&gt;
-  &lt;address&gt;
-    &lt;house&gt;
-      &lt;name&gt;Bag End&lt;/name&gt;
-      &lt;number&gt;&lt;/number&gt;
-    &lt;/house&gt;
-    &lt;street&gt;Bagshot Row&lt;/street&gt;
-    &lt;town&gt;Hobbiton&lt;/town&gt;
-    &lt;country&gt;The Shire&lt;/country&gt;
-  &lt;/address&gt;
-&lt;/hobbit&gt;
-</code></pre>
-
-<p>POJO's: <a href="https://github.com/steveliles/dsl4xml/commit/ad2141df218a776ebd68a75072feab16a5221fd5#diff-4">See the source-code of the test-case</a></p>
-
-<p>Unmarshalling code:</p>
-
-<pre><code>private static DocumentReader&lt;Hobbit&gt; newReader() {
-    DocumentReader&lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
-        tag("name", Name.class).with(
-            attributes("firstname", "surname")
-        ),
-        tag("dob"),
-        tag("address", Address.class).with(
-            tag("house", Address.House.class).with(
-                tag("name"),
-                tag("number")
-            ),
-            tag("street"),
-            tag("town"),
-            tag("country")
-        )
-    );
-
-    _reader.registerConverters(new ThreadUnsafeDateConverter("yyyyMMdd"));
-
-    return _reader;
-}
-</code></pre>
-
-<p>A <code>DocumentReader</code>, once constructed, is intended to be re-used repeatedly. The <code>DocumentReader</code> itself is <em>completely thread-safe</em> as unmarshalling does not modify any of its internal state. To ensure thread-safety you must use only thread-safe type converters (see type conversion section below).</p>
-
-<p>A minimum of garbage is generated because we're using a pull parser to skip over parts of the document we don't care about, and the only state maintained along the way (in a single-use context object for thread safety) is the domain objects we're creating.</p>
-
-<h3>Type conversion</h3>
-
-<p>You can create and register your own type converters. They are used only to map the lowest level xml data to your Java objects - attribute values and CData <code>String</code>s. The <code>Converter</code> interface looks like this:</p>
-
-<pre><code>package com.sjl.dsl4xml.support;
-
-public interface Converter&lt;T&gt; {
-    public boolean canConvertTo(Class&lt;?&gt; aClass);
-    public T convert(String aValue);
-}
-</code></pre>
-
-<p>An example <code>Converter</code> for converting <code>String</code> values to primitive int's looks like this:</p>
-
-<pre><code>class PrimitiveIntConverter implements Converter&lt;Integer&gt; {
-    @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
-        return aClass.isAssignableFrom(Integer.TYPE);
-    }
-
-    @Override
-    public Integer convert(String aValue) {
-        return ((aValue == null) || ("".equals(aValue))) ? 
-            0 : new Integer(aValue);
-    }
-}
-</code></pre>
-
-<p>Most converters can be thread-safe, but some may require concurrency control for multi-threaded use (example: when converting dates using SimpleDateFormat). </p>
-
-<p>You can use optimised type converters in situations where you <em>know</em> you will not be unmarshalling from multiple threads concurrently. An example is the <code>ThreadUnsafeDateConverter</code> which is used in the example above because it came from a test-case that will only ever run single-threaded. </p>
-
-<pre><code>public class ThreadUnsafeDateConverter implements Converter&lt;Date&gt; {
-    private DateFormat dateFormat;
-
-    public ThreadUnsafeDateConverter(String aDateFormatPattern) {
-        // SimpleDateFormat is NOT thread-safe
-        dateFormat = new SimpleDateFormat(aDateFormatPattern);
-    }
-
-    @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
-        return aClass.isAssignableFrom(Date.class);
-    }
-
-    @Override
-    public Date convert(String aValue) {
-        try {
-            return ((aValue == null) || ("".equals(aValue))) ? 
-                null : dateFormat.parse(aValue);
-        } catch (ParseException anExc) {
-            throw new XmlMarshallingException(anExc);
-        }
-    }
-}
-</code></pre>
-
-<p>The alternative <code>ThreadSafeDateConverter</code> looks like this:</p>
-
-<pre><code>class ThreadSafeDateConverter implements Converter&lt;Date&gt; {
-    private ThreadLocal&lt;DateFormat&gt; dateFormat;
-
-    public ThreadSafeDateConverter(final String aDateFormatPattern) {
-        dateFormat = new ThreadLocal&lt;DateFormat&gt;() {
-            protected DateFormat initialValue() {
-                return new SimpleDateFormat(aDateFormatPattern);
-            }
-        };
-    }
-
-    @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
-        return aClass.isAssignableFrom(Date.class);
-    }
-
-    @Override
-    public Date convert(String aValue) {
-        try {
-            return ((aValue == null) || ("".equals(aValue))) ? 
-                null : dateFormat.get().parse(aValue);
-        } catch (ParseException anExc) {
-            throw new XmlMarshallingException(anExc);
-        }
-    }
-}
-</code></pre>
-
-<h3>Missing features</h3>
-
-<p>This is still a very new project, and in an experimental stage. There's loads still to do:</p>
-
-<ul>
-<li>Experiment with more documents to drive improvements to the DSL</li>
-<li>More converters for the obvious types (e.g., BigDecimal, BigInteger, File, URI, etc.)</li>
-<li>Support for namespaced documents</li>
-<li>Support for CDATA (so far only tested with PCDATA)</li>
-<li>Performance comparisons with DOM, SAX and non-DSL'd Pull parsing</li>
-<li>Support for explicit (non-reflective) marshalling of properties</li>
-<li>Support for SAX parsing instead of Pull-Parsing (see notes below)</li>
-<li>Performance tests</li>
-<li>Performance optimisations</li>
-</ul>
-
-<h3>Notes</h3>
-
-<p>I came across some interesting comments by <a href="https://plus.google.com/105051985738280261832/posts">Diane Hackborn</a> (Android platform developer) in <a href="http://groups.google.com/group/android-developers/browse_thread/thread/3f9c5fc7402ecdf">this thread</a>. </p>
-
-<p>Diane points out that SAX parsing is faster than Pull Parsing (at least on Android). I had been under the impression it was the other way around, hence I went with Pull parsing. If perf tests show SAX to be the faster I will probably refactor to use SAX.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=unmarshall">unmarshall</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pull-parsing">pull-parsing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dsl">dsl</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="xml_parsing_in_android.html">Comment on this post</a>
-
-            </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,503" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-03-26">March 26, 2012</time></span>
-              <a itemprop="url" href="android_s_asynctask.html"><h1 itemprop="name" itemprop="headline">Android's AsyncTask</h1></a>
-	      <span itemprop="articleBody"><p>The Android platform allows you to use all of the normal Java concurrency constructs. You should use them if you need to do any long-running operations: you must do these off the main UI thread if you want keep your users happy, and the platform even enforces this by displaying an Application Not Responding dialog if an app does not respond to user-input within 5 seconds.</p>
-
-<p>The kinds of things you will want to do off the UI thread are reading/writing data from databases, network calls fetching data from web-servcies, and any time-consuming computational work.</p>
-
-<p>The platform provides a couple of mechanisms to facilitate communication between background threads and the main application thread: <code>Handler</code>'s and <code>AsyncTask</code>s. In this article I want to concentrate on <code>AsyncTask</code>.</p>
-
-<h3>The basics of AsyncTask</h3>
-
-<p>AsyncTask provides a simple API for doing work in the background and re-integrating the result with the main thread. Here's what it looks like:</p>
-
-<pre><code>new AsyncTask&lt;Param, Progress, Result&gt;() {
-    protected void onPreExecute() {
-        // perhaps show a dialog 
-        // with a progress bar
-        // to let your users know
-        // something is happening
-    }
-
-    protected Result doInBackground(Param... aParams) {
-        // do some expensive work 
-        // in the background here
-    }
-
-    protected void onPostExecute(Result aResult) {
-        // background work is finished, 
-        // we can update the UI here
-        // including removing the dialog
-    }
-}.execute();
-</code></pre>
-
-<p>The template methods <code>onPreExecute()</code> and <code>onPostExecute(Result)</code> are invoked such that you can safely update the UI from there. </p>
-
-<p>There is a fourth template method - <code>onProgressUpdate(Progress[])</code> - which you can implement if you want to update the UI to show progress is being made within the background thread. For this to actually work you will need to invoke <code>publishProgress(Progress[])</code> regularly from within <code>doInBackground(Param[])</code>.</p>
-
-<p>AsyncTask is generic, and presents three type variables:</p>
-
-<pre><code>class AsyncTask&amp;lt;Params, Progress, Result&gt;
-</code></pre>
-
-<p>They are used as follows:</p>
-
-<ol>
-<li><code>Params</code> is the argument type for the <em>varargs array</em> passed in to doInBackground.</li>
-<li><code>Progress</code> is the argument type for the <em>varargs array</em> passed in to <code>onProgressUpdate</code>, and so is also the type (of array) you must use when invoking <code>publishProgress</code>.</li>
-<li><code>Result</code> is the return type of <code>doInBackground</code>, which in turn is the argument type passed in to <code>onPostExecute</code>.</li>
-</ol>
-
-<h3>What happens when you execute()?</h3>
-
-<p>When <code>execute(Object.. params)</code> is invoked on an <code>AsyncTask</code> the task is executed in a background thread. Depending on the platform <code>AsyncTask</code>s may be executed serially (pre 1.6 and potentially again in 4+), or concurrently (1.6-3.2). </p>
-
-<p>To be sure of running serially or concurrently as you require, from API Level 11 onwards you can use the <code>executeOnExecutor(Executor executor, Object.. params)</code> method instead, and supply an executor. The platform provides two executors for convenience, accessable as <code>AsyncTask.SERIAL_EXECUTOR</code> and <code>AsyncTask.THREAD_POOL_EXECUTOR</code> respectively. (Note: If you are targeting earlier API levels <code>executeOnExecutor</code> is not available, but you have several options - see below).</p>
-
-<p>I have not tested exhaustively, but at least on tablets running HoneyComb the <code>THREAD_POOL_EXECUTOR</code> is set up with a maximum pool size of 128 and an additional queue length of 10. </p>
-
-<p>If you exhaust the pool by submitting too many <code>AsyncTask</code>'s concurrently you will receive <code>RejectedExecutionException</code>'s - a subclass of RuntimeException which, unless handled, will crash your application. </p>
-
-<p>I suspect that on a resource-constrained device it is probably quite a disaster if you actually have that many <code>AsyncTask</code>'s active concurrently - context-switching all those threads will render the cpu-cache ineffective, cost a lot in terms of CPU time, and anyway all those concurrently active threads will likely be using a good chunk of your heap and generating garbage for the GC to contend with.</p>
-
-<p>You might want to consider an alternative <code>Executor</code> configured with a lower max threads and a longer queue, or a more appropriate strategy for managing the background work: for example if you have many files to download you could enqueue a url and a callback to a download-manager instead of executing an <code>AsyncTask</code> for each one.</p>
-
-<h3>executeOnExecutor for API levels below 11</h3>
-
-<p>AsyncTask gained a nice new method at API level 11 - <code>executeOnExecutor</code> - allowing you some control of the concurrency of your <code>AsyncTask</code>'s. If you need to support older API levels you have a choice to make: do you absolutely have to have <code>executeOnExecutor</code>, or do you simply want to use it when it is available, and fall-back to <code>execute</code> otherwise?</p>
-
-<h4>The fallback approach</h4>
-
-<p>If you want a simple way to take some measure of control where possible, you can subclass AsyncTask, test for the API level at runtime, and invoke the executeOnExecutor method if it is available - something like this:</p>
-
-<pre><code>class MyAsyncTask&lt;Param, Progress, Result&gt; {
-
-    private static final boolean API_LEVEL_11 
-        = android.os.Build.VERSION.SDK_INT &gt; 11;
-
-    public void execute(Executor aExecutor, Params... aParams) {     
-        if(EXECUTOR_ON_EXECUTOR_AVAILABLE)
-            executeOnExecutor(aExecutor, aParams); 
-        else
-            super.execute(aParams);
-    }
-
-}
-</code></pre>
-
-<p>I know that at first glance something appears wrong here:</p>
-
-<pre><code>private static final boolean API_LEVEL_11 
-    = android.os.Build.VERSION.SDK_INT &gt; 11;
-</code></pre>
-
-<p>This <em>looks</em> like it will be optimised out by the compiler - a static comparison of a literal integer (11) with what appears to be another static integer (android.os.Build.VERSION.SDK<em>INT), but in fact the upper-case VERSION.SDK</em>INT is slightly misleading - the values in VERSION are extracted at runtime from system properties, so the comparison is not baked in at compile-time.</p>
-
-<h4>executeOnExecutor for all API levels</h4>
-
-<p>If you insist on having executeOnExecutor available for all API levels you might try this: copy the code for AsyncTask from API level 15, rename it (and make a few small changes as described <a href="http://stackoverflow.com/questions/7211684/asynctask-executeonexecutor-before-api-level-11">here</a>), and use that everywhere in place of the SDK version.</p>
-
-<h3>AsyncTask and the Activity lifecycle</h3>
-
-<p>The <code>Activity</code> lifecycle is well defined and provides template methods which are invoked when critical events occur in the life of an <code>Activity</code>. </p>
-
-<p><code>AsyncTask</code>'s are started by an <code>Activity</code> because it needs some potentially blocking work done off the UI thread, and unless you <em>really really know what you are doing</em> they should live and die with that <code>Activity</code>.</p>
-
-<p>If your <code>AsyncTask</code> retains a reference to the <code>Activity</code>, not cancelling the task when the <code>Activity</code> dies wastes CPU resources on work that cannot update its UI, and creates a memory leak (the <code>Activity</code> and all its <code>View</code> hierarchy will be retained <em>until the task completes</em>). </p>
-
-<p>Don't forget that the Activity is destroyed and re-created even on something as simple as a device orientation change, so if a user rotates their device you will have two copies of your Activity retained until the last <code>AsyncTask</code> completes. In a memory constrained environment this can be a disaster!</p>
-
-<p>If you do not intend to update the UI after processing you <em>may</em> be using the wrong construct in some cases - consider whether using a Service would be more appropriate.</p>
-
-<p>For some useful discussion and ideas related to <code>AsyncTask</code> and lifecycle management, see <a href="http://stackoverflow.com/questions/3357477/is-asynctask-really-conceptually-flawed-or-am-i-just-missing-something">this stackoverflow post</a>.</p>
-
-<h4>AsyncTask and good Android citizenship</h4>
-
-<p><code>AsyncTask</code> is in the SDK because it fulfils a common need, but it does not enforce a usage pattern that makes your app a good Android citizen.</p>
-
-<p>In an environment where users switch contexts frequently and quickly (example: receive a phone call while in the midst of writing an email on your phone), it is probably important that your app does not hog resources whilst it is not the current focus.</p>
-
-<p>If, as described above, you've set yourself up to cancel tasks according to the Activity lifecycle methods then you're all set and should not face any issues here.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=AsyncTask">AsyncTask</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threads">Threads</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="android_s_asynctask.html">Comment on this post</a>
-
-            </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="649" description="A quick intro to how to return a result from an Android Activity">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-03-03">March 03, 2012</time></span>
-              <a itemprop="url" href="returning_a_result_from_an_android_activity.html"><h1 itemprop="name" itemprop="headline">Returning a result from an Android Activity</h1></a>
-	      <span itemprop="articleBody"><p>The Android platform prescribes a number of patterns for putting together an application that plays well with the platform and feels familiar to users.</p>
-
-<p>One of those patterns is the hierarchical use of <code>Activities</code> to segregate the application, and to provide re-usable chunks of application that can service certain requirements. </p>
-
-<p>The higher design goal is to create an eco-system of separable <code>Activities</code> that fulfil <code>Intents</code> that can be re-used by other applications - for example: if my application needs an image, it can request one by invoking an Intent to use an image, and all <code>Activities</code> that can fulfil that <code>Intent</code> will be offered as a choice to the user.</p>
-
-<p>Lets see what that looks like with a code example.</p>
-
-<h3>Invoking an Activity with an Intent</h3>
-
-<p>First of all, lets look at how to invoke an activity with an Intent. Lets say we want to explicitly open the Gallery app to select an image to use in our application. Its very simple:</p>
-
-<pre><code>private static final int PICK_IMAGE_REQUEST = 1;
-
-public void selectImageFromGallery() {
-    Intent _intent = new Intent();
-    _intent.setType("image/*");
-    _intent.setAction(Intent.ACTION_GET_CONTENT);
-    startActivityForResult(
-        Intent.createChooser(_intent, "Select Picture"), 
-        PICK_IMAGE_REQUEST
-    );
-}
-</code></pre>
-
-<p>This will open the gallery app and allow the user to select an image. Notice that in the call to <code>startActivityForResult</code> we provided an int value in the form of <code>PICK_IMAGE_REQUEST</code> - this tells the system what return-code to use when the invoked <code>Activity</code> completes, so that we can respond correctly. </p>
-
-<p>Lets see how we do that ..</p>
-
-<pre><code>@Override
-protected void onActivityResult(
-    int aRequestCode, int aResultCode, Intent aData
-) {
-    switch (aRequestCode) {
-        case PICK_IMAGE_REQUEST:
-            handleUserPickedImage(aData);
-            break;
-        case SOME_OTHER_REQUEST:
-            handleSomethingElse(aData);
-            break;
-    }
-    super.onActivityResult(aRequestCode, aResultCode, aData);
-}
-</code></pre>
-
-<p>Here we're overriding a method of <code>Activity</code> to handle results being passed back from invoked activities. </p>
-
-<p>The value of <code>aRequestCode</code> is the value passed to the <code>startActivityForResult</code> method (so for us its <code>PICK_IMAGE_REQUEST</code>), and is how we distinguish which activity is returning a result.</p>
-
-<p><code>aResultCode</code> will contain the value set by the invoked <code>Activity</code>'s setResult(int), while <code>aData</code> Intent contains any data returned by the <code>Activity</code>. In our example the Intent contains the Uri of the selected image, which we can access like this:</p>
-
-<pre><code>private void handleUserPickedImage(Intent aData) {
-    if ((aData != null) &amp;&amp; (aData.getData() != null)) {
-        Uri _imageUri = aData.getData();
-        // Do something neat with the image...
-    } else {
-        // We didn't receive an image...
-    }
-}
-</code></pre>
-
-<h3>Returning values from an Activity</h3>
-
-<p>Great, we can invoke existing <code>Activity</code>'s and collect results. What does it look like from the other side? - How does the Activity return its results to us?</p>
-
-<pre><code>Uri _resultUri = .. // Some uri we want to return  
-Intent _result = new Intent();              
-_result.setData(_resultUri);
-setResult(Activity.RESULT_OK, _result);
-finish();
-</code></pre>
-
-<p>Its a simple as that: </p>
-
-<ol>
-<li>Create an Intent (the result object)</li>
-<li>Set the result data (you don't have to return a Uri - you can use the putExtra methods to set any values you want)</li>
-<li>Call <code>setResult</code> on your Activity, giving it the result Intent</li>
-<li>Call <code>finish</code> on your Activity</li>
-</ol>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Activity">Activity</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Result">Result</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="returning_a_result_from_an_android_activity.html">Comment on this post</a>
-
-            </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="414" description="Some stuff I learned about using custom fonts in Android.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-02-20">February 20, 2012</time></span>
-              <a itemprop="url" href="custom_fonts_in_android.html"><h1 itemprop="name" itemprop="headline">Custom fonts in Android</h1></a>
-	      <span itemprop="articleBody"><p>I've been playing with Android since late December (2011). Its been fun. I've been meaning to document some things I've picked up, but I've been pretty busy hacking away. Time to write a few things down before I forget!</p>
-
-<p>In my - admittedly limited - experience, Android devices typically come pre-installed with just the one font family. Before Ice-Cream Sandwich that font was <a href="http://goo.gl/ssJLD">Droid</a>. In Ice-Cream Sandwich its <a href="http://en.wikipedia.org/wiki/Roboto">Roboto</a>.</p>
-
-<p>If you want to use other fonts in your app, you must package them as assets. I believe Android has supported true-type fonts since the beginning, but now also supports open-type fonts (since 1.6). I always use true-type fonts anyway.</p>
-
-<p>To bundle the font, simply place the .tff file in your project's assets directory. Here's how you load the font in your <code>Activity</code> code:</p>
-
-<pre><code>Typeface t = Typeface.createFromAsset(getAssets(), "my-font.ttf");
-</code></pre>
-
-<p>If you want to reference the font from xml markup you're in for a frustrating time. If you do want to take that path, check out this handy <a href="http://stackoverflow.com/questions/2376250/custom-fonts-and-xml-layouts-android">StackOverflow post</a>.</p>
-
-<p>If, like me, you prefer to set the font programmatically to the necessary views, you can call <code>setTypeface(Typeface)</code> on <code>TextView</code>'s and <code>EditText</code>'s.</p>
-
-<p>In some of my layouts (for example "help" screens) I have many <code>TextView</code>'s interspersed with <code>ImageView</code>'s. To make life a bit easier I use the following utility method to set the font on all <code>TextView</code>'s in the view hierarchy:</p>
-
-<pre><code>public static void setFontForAllTextViewsInHierarchy(
-    ViewGroup aViewGroup, Typeface aFont) {
-    for (int i=0; i&amp;lt;aViewGroup.getChildCount(); i++) {
-        View _v = aViewGroup.getChildAt(i);
-        if (_v instanceof TextView) {
-            ((TextView) _v).setTypeface(aFont);
-        } else if (_v instanceof ViewGroup) {
-            setFontForAllTextViewsInHierarchy((ViewGroup) _v, aFont);
-        }
-    }
-}
-</code></pre>
-
-<p>Using this utility method is as simple as finding <code>ViewGroup</code> whose descendants need a font change, then invoking the method with that <code>ViewGroup</code>:</p>
-
-<pre><code>// somewhere in an Activity..
-Typeface font = Typeface.createFromAsset(getAssets(), "my-font.ttf");
-ViewGroup vg = (ViewGroup) findViewById(R.id.myViewGroup);
-Utils.setFontForAllTextViewsInHierarchy(vg, font);
-</code></pre>
-
-<p>I worried at first that this would cause a noticeable re-draw where you first see the system font, then it flashes over to the custom font. Since I tend to set my fonts in my <code>Activity</code>'s <code>onCreate</code>  method immediately following the call to <code>setContentView</code>, my custom font is already specified before the first <code>onDraw</code> invocation hits any of my <code>View</code>'s.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=fonts">fonts</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="custom_fonts_in_android.html">Comment on this post</a>
 
             </div>
         </div>
@@ -1428,7 +899,6 @@ Utils.setFontForAllTextViewsInHierarchy(vg, font);
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="comparing_java_xml_parsing_mechanisms_for_android.html">Comparing Java XML parsing mechanisms for Android</a><span class="date"> - Apr 10, 2012</span></li>
                 <li><a href="xml_parsing_in_android.html">XML Parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
                 <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
                 <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
@@ -1441,11 +911,10 @@ Utils.setFontForAllTextViewsInHierarchy(vg, font);
       <div class="nav">
         <div class="links">
           
-          <div class="next"><a title="next" href="index_1.html">Older Posts</a></div>
+          <div class="next"><a title="next" href="xml_parsing_in_android.html">XML Parsing in Android</a></div>
         </div>
       </div>
     </div>
     <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
   </body>
 </html>
-
