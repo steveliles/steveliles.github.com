@@ -37,7 +37,7 @@
         <div class="main">
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,199" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
-              <a itemprop="url" href="comparing_java_xml_parsing_mechanisms_for_android.html"><h1 itemprop="name" itemprop="headline">Comparing Java XML parsing mechanisms for Android</h1></a>
+              <a itemprop="url" href="comparing_methods_of_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">Comparing methods of XML parsing in Android</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance - especially for Android. The parsing mechanisms compared here are:</p>
 
 <ol>
@@ -846,17 +846,17 @@ public Tweets read(InputStream anInputStream) throws Exception {
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="comparing_java_xml_parsing_mechanisms_for_android.html">Comment on this post</a>
+	        <a href="comparing_methods_of_xml_parsing_in_android.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,260" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,266" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
-              <a itemprop="url" href="xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">XML Parsing in Android</h1></a>
-	      <span itemprop="articleBody"><p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_java_xml_parsing_mechanisms.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
+              <a itemprop="url" href="dsl_for_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">DSL for XML parsing in Android</h1></a>
+	      <span itemprop="articleBody"><p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_methods_of_xml_parsing_in_android.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
 
 <p><em>The short story:</em> Always use SAX in Android (<a href="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png">here's why</a>).</p>
 
-<p><em>The mid-length story:</em> Pull-parsing is <em>fast</em>, but doesn't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
+<p>SAX and Pull-parsing are fast, but don't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
 
 <pre><code>&lt;books&gt;
   &lt;book&gt;
@@ -907,16 +907,16 @@ class BooksReader {
 <ol>
 <li>Many concurrent http requests to fetch XML content from web</li>
 <li>Parsing the returned XML documents concurrently</li>
-<li>Parsing documents using a DOM parser</li>
+<li>Parsing documents using DOM (and some XPath)</li>
 </ol>
 
-<p>A quick run through with the excellent profiler built in to DDMS immediately showed lots of time spent in DOM parsing methods, and masses of heap being consumed by sparsely populated <code>java.util.List</code> objects (used to represent the DOM in memory).</p>
+<p>A quick run through with the excellent profiler built in to DDMS immediately showed lots of time spent in DOM methods, and masses of heap being consumed by sparsely populated <code>java.util.List</code> objects (used to represent the DOM in memory).</p>
 
 <p>Since the app was subsequently discarding the parsed Document object, the large heap consumption was contributing a huge garbage-collection load as a side-effect.</p>
 
-<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM parsing; constant thread context-switching; massive heap consumption; and huge object churn.</p>
+<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM traversal with XPath; constant thread context-switching; massive heap consumption; and huge object churn.</p>
 
-<p>On a side note, the network requests - even over 3G - were pretty insignificant in the grand scheme.</p>
+<p>The network requests - even over 3G - were comparatively insignificant in the grand scheme.</p>
 
 <h2>Reducing thread context switching</h2>
 
@@ -926,11 +926,11 @@ class BooksReader {
 
 <h2>More efficient parsing</h2>
 
-<p>DOM parsing is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
+<p>XPath is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
 
 <p>I decided to try an experiment with an alternative parsing method, to see if a worthwhile performance gain could be achieved on one of the smaller documents that could then be applied to others.</p>
 
-<p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM parsing.</p>
+<p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM and XPath.</p>
 
 <p>The result was quite pleasing: 5x faster on a simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
 
@@ -1115,7 +1115,11 @@ public interface Converter&lt;T&gt; {
 
 <p>I came across some interesting comments by <a href="https://plus.google.com/105051985738280261832/posts">Diane Hackborn</a> (Android platform developer) in <a href="http://groups.google.com/group/android-developers/browse_thread/thread/3f9c5fc7402ecdf">this thread</a>. </p>
 
-<p>Diane points out that SAX parsing is faster than Pull Parsing (at least on Android). I had been under the impression it was the other way around, hence I went with Pull parsing. If perf tests show SAX to be the faster I will probably refactor to use SAX.</p>
+<p>Diane points out that SAX parsing is faster than Pull Parsing (at least on Android). I had been under the impression it was the other way around, hence I went with Pull parsing. </p>
+
+<p>Later perf tests show SAX to be <em>much</em> faster on Android, so I will probably refactor to use SAX.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="android parser performance" /></p>
 </span>
 
               <ul class="keywords">
@@ -1127,7 +1131,7 @@ public interface Converter&lt;T&gt; {
               </ul>
               <div style="clear:both"></div>
 
-	        <a href="xml_parsing_in_android.html">Comment on this post</a>
+	        <a href="dsl_for_xml_parsing_in_android.html">Comment on this post</a>
 
             </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,503" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
@@ -1428,8 +1432,8 @@ Utils.setFontForAllTextViewsInHierarchy(vg, font);
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="comparing_java_xml_parsing_mechanisms_for_android.html">Comparing Java XML parsing mechanisms for Android</a><span class="date"> - Apr 10, 2012</span></li>
-                <li><a href="xml_parsing_in_android.html">XML Parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
+                <li><a href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML parsing in Android</a><span class="date"> - Apr 10, 2012</span></li>
+                <li><a href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
                 <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
                 <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
                 <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>

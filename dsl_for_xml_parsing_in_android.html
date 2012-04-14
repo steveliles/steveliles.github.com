@@ -1,0 +1,391 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="xml" itemprop="keywords"></meta>
+      <meta name="keywords" content="unmarshall" itemprop="keywords"></meta>
+      <meta name="keywords" content="android" itemprop="keywords"></meta>
+      <meta name="keywords" content="pull-parsing" itemprop="keywords"></meta>
+      <meta name="keywords" content="dsl" itemprop="keywords"></meta>
+    <meta name="description" content="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android."></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>DSL for XML parsing in Android</title>
+  </head>
+  <body>
+    <div>
+      <div class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </div>
+      <div class="nav">
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </div>
+      <div class="content">
+        <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,266" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
+              <a itemprop="url" href="dsl_for_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">DSL for XML parsing in Android</h1></a>
+	      <span itemprop="articleBody"><p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_methods_of_xml_parsing_in_android.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
+
+<p><em>The short story:</em> Always use SAX in Android (<a href="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png">here's why</a>).</p>
+
+<p>SAX and Pull-parsing are fast, but don't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
+
+<pre><code>&lt;books&gt;
+  &lt;book&gt;
+    &lt;title&gt;The Hobbit&lt;/title&gt;
+    &lt;synopsis&gt;
+        A little guy goes on an adventure, 
+        finds ring, comes back.
+    &lt;/synopsis&gt;
+  &lt;/book&gt;
+  &lt;book&gt;
+    &lt;title&gt;The Lord of the Rings&lt;/title&gt;
+    &lt;synopsis&gt;
+        A couple of little guys go on an adventure, 
+        lose ring, come back.
+    &lt;/synopsis&gt;
+  &lt;/book&gt;
+&lt;/books&gt;
+</code></pre>
+
+<p>Can be unmarshalled to simple POJO's with this:</p>
+
+<pre><code>import static com.sjl.dsl4xml.DocumentReader.*;
+
+class BooksReader {
+    private DocumentReader&lt;Books&gt; reader;
+
+    public BooksReader() {
+        reader = mappingOf(Books.class).to(
+           tag("book", Book.class).with(
+               tag("title"),
+               tag("synopsis")
+           )
+        );
+    }
+
+    public Books reader(Reader aReader) {
+        return reader.read(aReader);
+    }
+}
+</code></pre>
+
+<p><em>The long story:</em></p>
+
+<p>I recently had occasion to work on an Android app that was suffering horrible performance problems on startup (approx 7-12 seconds before displaying content).</p>
+
+<p>A look at the code showed up several possible contenders for the source of the problem:</p>
+
+<ol>
+<li>Many concurrent http requests to fetch XML content from web</li>
+<li>Parsing the returned XML documents concurrently</li>
+<li>Parsing documents using DOM (and some XPath)</li>
+</ol>
+
+<p>A quick run through with the excellent profiler built in to DDMS immediately showed lots of time spent in DOM methods, and masses of heap being consumed by sparsely populated <code>java.util.List</code> objects (used to represent the DOM in memory).</p>
+
+<p>Since the app was subsequently discarding the parsed Document object, the large heap consumption was contributing a huge garbage-collection load as a side-effect.</p>
+
+<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM traversal with XPath; constant thread context-switching; massive heap consumption; and huge object churn.</p>
+
+<p>The network requests - even over 3G - were comparatively insignificant in the grand scheme.</p>
+
+<h2>Reducing thread context switching</h2>
+
+<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. </p>
+
+<p>I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
+
+<h2>More efficient parsing</h2>
+
+<p>XPath is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
+
+<p>I decided to try an experiment with an alternative parsing method, to see if a worthwhile performance gain could be achieved on one of the smaller documents that could then be applied to others.</p>
+
+<p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM and XPath.</p>
+
+<p>The result was quite pleasing: 5x faster on a simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
+
+<p>However, I had one major concern that put me off: the code for parsing even a simple document was already quite long and had a nasty whiff of conditional-overkill (think: lots of if statements). I wasn't too happy about trading code readability for performance.</p>
+
+<p>I pondered a few alternatives like <a href="http://xstream.codehaus.org/">XStream</a> which I've used a lot for converting from Java to XML but not much the other way around, and <a href="http://simple.sourceforge.net/">SimpleXML</a> which I have used previously and can be nice, but pollutes your model objects with annotations and in some situations can be a real pain to get working.</p>
+
+<h2>An Internal DSL for mapping XML to POJO's</h2>
+
+<p>In the end I decided to spend just a few hours turning the problem over in code to see if I could come up with something more readable for working with the pull-parser directly. </p>
+
+<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small Internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
+
+<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would have been much less irritating :)</p>
+
+<p>As it was the boiler plate irked me - too much <em>stuff</em> getting in the way of reading what was really important. I thought about it a bit in my spare time, and had another shot at it. My aims were:</p>
+
+<ol>
+<li>To make readable, maintainable, declarative code that unmarshalls XML documents to Java objects.</li>
+<li>To make unmarshalling XML documents to Java objects very fast (sax/pull-parsing speeds).</li>
+<li>To avoid polluting model classes with metadata about xml parsing (no annotations).</li>
+<li>To avoid additional build-time steps or "untouchable" code (code generators, etc).</li>
+<li>To produce a very small jar with no large dependencies.</li>
+</ol>
+
+<p>The result is starting to take shape in github as <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>. It removes all of the boiler plate in exchange for a small performance penalty due to use of reflection. I don't have comparative performance figures yet, but will post some when I get time.</p>
+
+<h3>Another example</h3>
+
+<p>XML:</p>
+
+<pre><code>&lt;hobbit&gt;
+  &lt;name firstname="Frodo" surname="Baggins"/&gt;
+  &lt;dob&gt;11400930&lt;/dob&gt;
+  &lt;address&gt;
+    &lt;house&gt;
+      &lt;name&gt;Bag End&lt;/name&gt;
+      &lt;number&gt;&lt;/number&gt;
+    &lt;/house&gt;
+    &lt;street&gt;Bagshot Row&lt;/street&gt;
+    &lt;town&gt;Hobbiton&lt;/town&gt;
+    &lt;country&gt;The Shire&lt;/country&gt;
+  &lt;/address&gt;
+&lt;/hobbit&gt;
+</code></pre>
+
+<p>POJO's: <a href="https://github.com/steveliles/dsl4xml/commit/ad2141df218a776ebd68a75072feab16a5221fd5#diff-4">See the source-code of the test-case</a></p>
+
+<p>Unmarshalling code:</p>
+
+<pre><code>private static DocumentReader&lt;Hobbit&gt; newReader() {
+    DocumentReader&lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
+        tag("name", Name.class).with(
+            attributes("firstname", "surname")
+        ),
+        tag("dob"),
+        tag("address", Address.class).with(
+            tag("house", Address.House.class).with(
+                tag("name"),
+                tag("number")
+            ),
+            tag("street"),
+            tag("town"),
+            tag("country")
+        )
+    );
+
+    _reader.registerConverters(new ThreadUnsafeDateConverter("yyyyMMdd"));
+
+    return _reader;
+}
+</code></pre>
+
+<p>A <code>DocumentReader</code>, once constructed, is intended to be re-used repeatedly. The <code>DocumentReader</code> itself is <em>completely thread-safe</em> as unmarshalling does not modify any of its internal state. To ensure thread-safety you must use only thread-safe type converters (see type conversion section below).</p>
+
+<p>A minimum of garbage is generated because we're using a pull parser to skip over parts of the document we don't care about, and the only state maintained along the way (in a single-use context object for thread safety) is the domain objects we're creating.</p>
+
+<h3>Type conversion</h3>
+
+<p>You can create and register your own type converters. They are used only to map the lowest level xml data to your Java objects - attribute values and CData <code>String</code>s. The <code>Converter</code> interface looks like this:</p>
+
+<pre><code>package com.sjl.dsl4xml.support;
+
+public interface Converter&lt;T&gt; {
+    public boolean canConvertTo(Class&lt;?&gt; aClass);
+    public T convert(String aValue);
+}
+</code></pre>
+
+<p>An example <code>Converter</code> for converting <code>String</code> values to primitive int's looks like this:</p>
+
+<pre><code>class PrimitiveIntConverter implements Converter&lt;Integer&gt; {
+    @Override
+    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Integer.TYPE);
+    }
+
+    @Override
+    public Integer convert(String aValue) {
+        return ((aValue == null) || ("".equals(aValue))) ? 
+            0 : new Integer(aValue);
+    }
+}
+</code></pre>
+
+<p>Most converters can be thread-safe, but some may require concurrency control for multi-threaded use (example: when converting dates using SimpleDateFormat). </p>
+
+<p>You can use optimised type converters in situations where you <em>know</em> you will not be unmarshalling from multiple threads concurrently. An example is the <code>ThreadUnsafeDateConverter</code> which is used in the example above because it came from a test-case that will only ever run single-threaded. </p>
+
+<pre><code>public class ThreadUnsafeDateConverter implements Converter&lt;Date&gt; {
+    private DateFormat dateFormat;
+
+    public ThreadUnsafeDateConverter(String aDateFormatPattern) {
+        // SimpleDateFormat is NOT thread-safe
+        dateFormat = new SimpleDateFormat(aDateFormatPattern);
+    }
+
+    @Override
+    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Date.class);
+    }
+
+    @Override
+    public Date convert(String aValue) {
+        try {
+            return ((aValue == null) || ("".equals(aValue))) ? 
+                null : dateFormat.parse(aValue);
+        } catch (ParseException anExc) {
+            throw new XmlMarshallingException(anExc);
+        }
+    }
+}
+</code></pre>
+
+<p>The alternative <code>ThreadSafeDateConverter</code> looks like this:</p>
+
+<pre><code>class ThreadSafeDateConverter implements Converter&lt;Date&gt; {
+    private ThreadLocal&lt;DateFormat&gt; dateFormat;
+
+    public ThreadSafeDateConverter(final String aDateFormatPattern) {
+        dateFormat = new ThreadLocal&lt;DateFormat&gt;() {
+            protected DateFormat initialValue() {
+                return new SimpleDateFormat(aDateFormatPattern);
+            }
+        };
+    }
+
+    @Override
+    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Date.class);
+    }
+
+    @Override
+    public Date convert(String aValue) {
+        try {
+            return ((aValue == null) || ("".equals(aValue))) ? 
+                null : dateFormat.get().parse(aValue);
+        } catch (ParseException anExc) {
+            throw new XmlMarshallingException(anExc);
+        }
+    }
+}
+</code></pre>
+
+<h3>Missing features</h3>
+
+<p>This is still a very new project, and in an experimental stage. There's loads still to do:</p>
+
+<ul>
+<li>Experiment with more documents to drive improvements to the DSL</li>
+<li>More converters for the obvious types (e.g., BigDecimal, BigInteger, File, URI, etc.)</li>
+<li>Support for namespaced documents</li>
+<li>Support for CDATA (so far only tested with PCDATA)</li>
+<li>Performance comparisons with DOM, SAX and non-DSL'd Pull parsing</li>
+<li>Support for explicit (non-reflective) marshalling of properties</li>
+<li>Support for SAX parsing instead of Pull-Parsing (see notes below)</li>
+<li>Performance tests</li>
+<li>Performance optimisations</li>
+</ul>
+
+<h3>Notes</h3>
+
+<p>I came across some interesting comments by <a href="https://plus.google.com/105051985738280261832/posts">Diane Hackborn</a> (Android platform developer) in <a href="http://groups.google.com/group/android-developers/browse_thread/thread/3f9c5fc7402ecdf">this thread</a>. </p>
+
+<p>Diane points out that SAX parsing is faster than Pull Parsing (at least on Android). I had been under the impression it was the other way around, hence I went with Pull parsing. </p>
+
+<p>Later perf tests show SAX to be <em>much</em> faster on Android, so I will probably refactor to use SAX.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="android parser performance" /></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=unmarshall">unmarshall</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pull-parsing">pull-parsing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dsl">dsl</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </div>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML parsing in Android</a><span class="date"> - Apr 10, 2012</span></li>
+                <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
+                <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
+                <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="links">
+          <div class="prev"><a title="previous" href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML pa...</a></div>
+          <div class="next"><a title="next" href="android_s_asynctask.html">Android's AsyncTask</a></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

@@ -76,12 +76,12 @@
     </url>
 
     <url> 
-      <loc>http://steveliles.github.com/comparing_java_xml_parsing_mechanisms_for_android.html</loc>
+      <loc>http://steveliles.github.com/comparing_methods_of_xml_parsing_in_android.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
     </url>
     <url> 
-      <loc>http://steveliles.github.com/xml_parsing_in_android.html</loc>
+      <loc>http://steveliles.github.com/dsl_for_xml_parsing_in_android.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
     </url>
