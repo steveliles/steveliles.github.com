@@ -40,7 +40,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,199" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="6,182" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
               <a itemprop="url" href="comparing_methods_of_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">Comparing methods of XML parsing in Android</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance - especially for Android. The parsing mechanisms compared here are:</p>
@@ -740,23 +740,156 @@ public Tweets read(InputStream anInputStream) throws Exception {
 
 <p>Here is the chart for the desktop (Core i7 (quad) 1.8GHz, 4GB RAM, Ubuntu 11.10, Sun JDK 1.6.0-26). There is a noticeable hump at 4 threads, presumably because its a quad core. Performance keeps rising up to 8 threads, this presumably because the cpu has hyperthreading. After 8 threads the performance slowly drops off as the context-switching overhead builds up (not shown here):</p>
 
-<p><img src="https://lh6.googleusercontent.com/-AEu8imfo3SI/T4WlccNzJRI/AAAAAAAAJBU/-rl2Uu9-iug/s800/performance-on-core-i7.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml, and raw pull-parsing on a Core i7 desktop" /></p>
+<div id="desktop_chart_div"></div>
 
-<p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31). Note that I dropped DOM/XPath parsing as its really not a contender:</p>
+<p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31):</p>
 
-<p><img src="https://lh4.googleusercontent.com/-2GBcxteuLI8/T4it0mQNGHI/AAAAAAAAJB4/VkV9vNKR4UY/s800/macbook-air-performance.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on a MacBook Air" /></p>
+<div id="laptop_chart_div"></div>
 
 <p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2 running Android 2.3.4, 64Mb heap. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
 
-<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on an Android phone (Samsung Galaxy S2, 64Mb heap)" /></p>
+<div id="mobile_chart_div"></div>
 
 <p>Yep, SAX kicking ass right there.</p>
 
 <p>Here's how it looks on a Motorola Xoom 2 Media edition running Android 3.2.2 (with 48Mb heap):</p>
 
-<p><img src="https://lh3.googleusercontent.com/-5Va8zV3v1bw/T4bMbzENp0I/AAAAAAAAJBw/21ZPnf51s5k/s800/performance-xoom2-media.png" alt="" /></p>
+<div id="tablet_chart_div"></div>
 
-<p>Confirming that SAX (and Samsung) kick ass.</p>
+<p>Confirming that SAX is the way to go on Android!</p>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawCharts);
+
+      function drawCharts() {
+        drawDesktopChart();
+        drawLaptopChart();
+        drawMobileChart();
+        drawTabletChart();
+      }
+
+      function drawDesktopChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 1832.602735709364, 3047.309539315194, 3173.0422460858813, 3107.05642523978, 3135.5741046887833],
+['2', 3582.1149494513074, 5472.478667789554, 7353.287244493242, 5612.2292748296813, 5523.7554631906182],
+['3', 4677.6970491022244, 6051.68803044958, 8035.124424148545, 7802.535738870123, 6631.802574047084],
+['4', 5359.016501380009, 9074.944239050174, 13088.8170146974735, 10659.357606318107, 9064.701562460433],
+['5', 5840.4790247755773, 8386.967417466271, 11803.470921843835, 9494.022503516175, 9404.295333931408],
+['6', 7090.0232840469225, 10439.749336350581, 12337.1859987374073, 11472.185791651998, 10465.21753387524],
+['7', 7686.6631274700644, 10403.344206920294, 14162.5448904135455, 11761.212554175974, 11103.283101461672],
+['8', 7968.051665388115, 10980.660778139436, 14713.042602646617, 12341.624527230158, 12035.611975742948]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('desktop_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawLaptopChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 1832.602735709364, 2647.309539315194, 3473.0422460858813, 2387.05642523978, 2535.5741046887833],
+['2', 2182.1149494513074, 3972.478667789554, 5253.287244493242, 4012.2292748296813, 3823.7554631906182],
+['3', 2977.6970491022244, 4951.68803044958, 6035.124424148545, 4802.535738870123, 4631.802574047084],
+['4', 3559.016501380009, 5074.944239050174, 6388.8170146974735, 5659.357606318107, 5064.701562460433],
+['5', 3440.4790247755773, 5386.967417466271, 6103.470921843835, 5494.022503516175, 5404.295333931408],
+['6', 3690.0232840469225, 5439.749336350581, 6137.1859987374073, 5472.185791651998, 5465.21753387524],
+['7', 3686.6631274700644, 5403.344206920294, 5462.5448904135455, 5761.212554175974, 5503.283101461672],
+['8', 3568.051665388115, 5580.660778139436, 6713.042602646617, 5541.624527230158, 5535.611975742948]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('laptop_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawMobileChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 2.541707357944222, 39.240257662110984, 3.5759414102545857, 3.1541200188086482, 2.5026521752567215],
+['2', 4.330846368265108, 61.60437643946365, 6.456946359247942, 5.686983737649393, 4.732176431626203],
+['3', 4.351606992043577, 61.514316431090535, 6.307925946534443, 5.685825899522886, 4.586118360054465],
+['4', 4.459386705412041, 61.89969059133254, 6.448053162500682, 5.741419718006399, 4.58759932615774]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('mobile_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawTabletChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 2.808355131127302, 41.19998995148725, 5.265999845098719, 4.471127605806691, 3.2549656900511446],
+['2', 3.7760722761427994, 56.689099096842824, 9.289035040035463, 7.928630708496687, 5.984694902484068],
+['3', 3.7462729340199994, 59.54930941243503, 9.301339793390131, 7.970383487927541, 5.957854290081462],
+['4', 3.6944918608450323, 58.9957330285963, 9.50247436158096, 8.08040954423548, 6.088092287251627]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('tablet_chart_div'));
+        chart.draw(data, options);
+      }
+</script>
 
 <h4>Quick side note about iOS</h4>
 
@@ -768,7 +901,7 @@ public Tweets read(InputStream anInputStream) throws Exception {
 
 <h4>Why XPath parsing sucked so bad</h4>
 
-<p>On the first chart you may have spotted the line for XPath based parsing sitting pretty squarely on the horizontal axis, two orders of magnitude slower than pull parsing. I skipped xpath parsing entirely on Android after the first run didn't complete within 30 minutes (seriously).</p>
+<p>The observant will have noticed the charts do not contain figures for the XPath parsing. That's because I dropped it when I realised it was two orders of magnitude slower even than DOM parsing.</p>
 
 <p>This appalling performance seems to be because when executing <em>each</em> xpath expression a context object is created which involves looking up several files on the classpath (and all the inherent synchronisation this entails). I don't intend to waste my time digging into why this can't done once and cached :(.</p>
 
