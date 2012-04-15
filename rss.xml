@@ -292,7 +292,7 @@ throws Exception {
 
 <p>SAX parsers fire events when they encounter the various components that make up an XML file. You register a <code>ContentHandler</code> whose methods are called-back when these events occur (for example when the parser finds a new start element, it invokes the startElement method of your <code>ContentHandler</code>).</p>
 
-<p>The API assumes that the consumer (<code>ContentHandler</code>) is going to maintain some awareness of its state (e.g. where it currently is within the document). In the code sample I'm using a <code>Stack</code> to push/pop/peek at which element I'm currently working in.</p>
+<p>The API assumes that the consumer (<code>ContentHandler</code>) is going to maintain some awareness of its state (e.g. where it currently is within the document). I sometimes use a <code>java.util.Stack</code> to push/pop/peek at which element I'm currently working in, but here I can get away with just recording the name of the current element.</p>
 
 <p>I'm extending <code>DefaultHandler</code> because I'm not interested in many of the events (it provides a default empty implementation of those methods for me).</p>
 
