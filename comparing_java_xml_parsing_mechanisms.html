@@ -13,7 +13,7 @@
       <meta name="keywords" content="comparison" itemprop="keywords"></meta>
     <meta name="description" content="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools."></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Comparing Java XML parsing mechanisms</title>
+    <title>Comparing methods of XML parsing in Android</title>
   </head>
   <body>
     <div>
@@ -40,9 +40,9 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="5,369" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="6,194" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
-              <a itemprop="url" href="comparing_java_xml_parsing_mechanisms.html"><h1 itemprop="name" itemprop="headline">Comparing Java XML parsing mechanisms</h1></a>
+              <a itemprop="url" href="comparing_methods_of_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">Comparing methods of XML parsing in Android</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance - especially for Android. The parsing mechanisms compared here are:</p>
 
 <ol>
@@ -68,7 +68,7 @@
 
 <h2>The XML</h2>
 
-<p>The XML file being parsed is a Twitter search result (Atom feed). You can see the actual file <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/twitter-atom.xml">here</a>, but this is a snippet of the parts I'm interested in parsing for these tests (the 15 <code>&lt;entry&gt;</code>'s in the document):</p>
+<p>The XML file being parsed is a Twitter search result (Atom feed). You can see the actual file <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/model/twitter-atom.xml">here</a>, but this is a snippet of the parts I'm interested in parsing for these tests (the 15 <code>&lt;entry&gt;</code>'s in the document):</p>
 
 <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;feed .. &gt;
@@ -91,7 +91,7 @@
 
 <h2>The POJO's</h2>
 
-<p>The Java objects we're unmarshalling to are very simple and don't need any explanation. You can see them in Github <a href="https://github.com/steveliles/dsl4xml-perf/tree/master/src/main/java/com/sjl/dsl4xml/performance">here</a>.</p>
+<p>The Java objects we're unmarshalling to are very simple and don't need any explanation. You can see them in Github <a href="https://github.com/steveliles/dsl4xml-perf/tree/master/src/main/java/com/sjl/dsl4xml/performance/model">here</a>.</p>
 
 <h2>Parsing the Twitter/Atom feed</h2>
 
@@ -118,29 +118,40 @@
 
 <p>On the plus side, DOM parsing is straight-forward to work with, particularly if you don't care much about speed and use <code>getElementsByTagName()</code> wherever possible.</p>
 
-<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/DOMPerformanceTest.java">here</a>, but this is roughly what it ended up looking like:</p>
+<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/DOMTweetsReader.java">here</a>, but this is roughly what it ended up looking like:</p>
 
-<pre><code>DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+<pre><code>private DocumentBuilder builder;
+private DateFormat dateFormat;
 
-public Tweets parse(InputStream anInputStream)
+public DOMTweetsReader() 
 throws Exception {
-    DocumentBuilderFactory _factory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder _builder = _factory.newDocumentBuilder();
-    Document _d = _builder.parse(anInputStream, "utf-8");
-
-    Tweets _tweets = new Tweets();
-    unmarshall(_d, _tweets);
-    return _tweets;
+    DocumentBuilderFactory factory = 
+        DocumentBuilderFactory.newInstance();
+    builder = factory.newDocumentBuilder();
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 }
 
-private void unmarshall(Document aDoc, Tweets aTo) 
+@Override
+public String getParserName() {
+    return "W3C DOM";
+}
+
+public Tweets read(InputStream anInputStream) 
+throws Exception {
+    Document _d = builder.parse(anInputStream, "utf-8");
+    Tweets _result = new Tweets();
+    unmarshall(_d, _result);
+    return _result;
+}
+
+public void unmarshall(Document aDoc, Tweets aTo) 
 throws Exception {
     NodeList _nodes = aDoc.getChildNodes().item(0).getChildNodes();
-    for (int i=0; i&lt;_nodes.getLength(); i++) {
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
         Node _n = _nodes.item(i);
         if ((_n.getNodeType() == Node.ELEMENT_NODE) &amp;&amp; 
-            ("entry".equals(_n.getNodeName()))
-        ) {
+            ("entry".equals(_n.getNodeName())
+         ){
             Tweet _tweet = new Tweet();
             aTo.addTweet(_tweet);
             unmarshallEntry((Element)_n, _tweet);
@@ -153,8 +164,8 @@ throws Exception {
     NodeList _nodes = aTweetEl.getChildNodes();
     for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
         Node _n = _nodes.item(i);
-        if (_n.getNodeType() == Node.ELEMENT_NODE) {
-            if ("published".equals(_n.getNodeName())) {
+        if (_n.getNodeType() == Node.ELEMENT_NODE) {                    
+            if ("published".equals(_n.getNodeName())) {                         
                 aTo.setPublished(dateFormat.parse(getPCData(_n)));
             } else if ("title".equals(_n.getNodeName())) {
                 aTo.setTitle(getPCData(_n));
@@ -209,9 +220,7 @@ private String getPCData(Node aNode) {
 
 <p>Its worth noting that I would normally extract some useful utility classes/methods - for example <code>getPCData(Node)</code> - but here I'm trying to keep the sample self-contained.</p>
 
-<p>Note that this is code is not thread-safe because of the unsynchronized use of <code>SimpleDateFormat</code>. </p>
-
-<p>With regard to performance, I am unnecessarily re-creating <code>DocumentBuilder</code>'s every time I parse in the sample code above. (In the <em>actual</em> test code I'm not doing that, I just did it hear to present things more clearly).</p>
+<p>Note that this code is not thread-safe because of the unsynchronized use of <code>SimpleDateFormat</code>. I am using separate instances of the Reader classes in each thread for my threaded tests.</p>
 
 <h3>W3C DOM and XPath</h3>
 
@@ -219,65 +228,86 @@ private String getPCData(Node aNode) {
 
 <p>I've used XPath on and off for years, mostly in XSLT stylesheets, but also occasionally to pluck bits of information out of documents in code. It is very straight-forward to use.</p>
 
-<p>Here's a sample for parsing our Twitter Atom feed. The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/DOMXPathPerformanceTest.java">actual test code</a> is in github.</p>
+<p>Here's a sample for parsing our Twitter Atom feed. The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/DOMXPathTweetsReader.java">actual test code</a> is in github.</p>
 
-<pre><code>final DocumentBuilder _builder = 
-    DocumentBuilderFactory.newInstance().newDocumentBuilder();
+<pre><code>private DocumentBuilder builder;
+private XPathFactory factory;
 
-XPathFactory _f = XPathFactory.newInstance();
+private XPathExpression entry;
+private XPathExpression published;
+private XPathExpression title;
+private XPathExpression contentType;
+private XPathExpression content;
+private XPathExpression lang;
+private XPathExpression authorName;
+private XPathExpression authorUri;
 
-final XPathExpression _entry = _f.newXPath().compile("/feed/entry");
-final XPathExpression _published = _f.newXPath().compile(".//published");
-final XPathExpression _title = _f.newXPath().compile(".//title");
-final XPathExpression _contentType = _f.newXPath().compile(".//content/@type");
-final XPathExpression _content = _f.newXPath().compile(".//content");
-final XPathExpression _lang = _f.newXPath().compile(".//twitter:lang");
-final XPathExpression _authorName = _f.newXPath().compile(".//author/name");
-final XPathExpression _authorUri = _f.newXPath().compile(".//author/uri");
+private DateFormat dateFormat;
 
-final DateFormat _dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+public DOMXPathTweetsReader() 
+throws Exception {
+    builder = DocumentBuilderFactory.
+        newInstance().newDocumentBuilder();
+    factory = XPathFactory.newInstance();
 
-public Tweets parse(InputStream anInputStream) {
-    try {
-        Tweets _result = new Tweets();
-        Document _document = _builder.parse(anInputStream);
+    entry = factory.newXPath().compile("/feed/entry");
+    published = factory.newXPath().compile(".//published");
+    title = factory.newXPath().compile(".//title");
+    contentType = factory.newXPath().compile(".//content/@type");
+    content = factory.newXPath().compile(".//content");
+    lang = factory.newXPath().compile(".//twitter:lang");
+    authorName = factory.newXPath().compile(".//author/name");
+    authorUri = factory.newXPath().compile(".//author/uri");
 
-        NodeList _entries = (NodeList) _entry.evaluate(
-            _document, XPathConstants.NODESET
-        );                  
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+}
 
-        for (int i=0; i&lt;_entries.getLength(); i++) {
-            Tweet _tweet = new Tweet();
-            _result.addTweet(_tweet);
+@Override
+public String getParserName() {
+    return "W3C DOM/XPath";
+}
 
-            Node _entryNode = _entries.item(i);
 
-            _tweet.setPublished(getPublishedDate(_entryNode));
-            _tweet.setTitle(_title.evaluate(_entryNode));
-            _tweet.setLanguage(_lang.evaluate(_entryNode));
 
-            Content _c = new Content();
-            _tweet.setContent(_c);
+@Override
+public Tweets read(InputStream anInputStream)
+throws Exception {
+    Tweets _result = new Tweets();
+    Document _document = builder.parse(anInputStream);
 
-            _c.setType(_contentType.evaluate(_entryNode));
-            _c.setValue(_content.evaluate(_entryNode));
+    NodeList _entries = (NodeList) entry.evaluate(
+        _document, XPathConstants.NODESET
+    );
 
-            Author _a = new Author();
-            _tweet.setAuthor(_a);
+    for (int i=0; i&amp;lt;_entries.getLength(); i++) {
+        Tweet _tweet = new Tweet();
+        _result.addTweet(_tweet);
 
-            _a.setName(_authorName.evaluate(_entryNode));
-            _a.setUri(_authorUri.evaluate(_entryNode));
-        }
+        Node _entryNode = _entries.item(i);
 
-        return _result;
-    } catch (Exception anExc) {
-        throw new RuntimeException(anExc);
+        _tweet.setPublished(getPublishedDate(_entryNode));
+        _tweet.setTitle(title.evaluate(_entryNode));
+        _tweet.setLanguage(lang.evaluate(_entryNode));
+
+        Content _c = new Content();
+        _tweet.setContent(_c);
+
+        _c.setType(contentType.evaluate(_entryNode));
+        _c.setValue(content.evaluate(_entryNode));
+
+        Author _a = new Author();
+        _tweet.setAuthor(_a);
+
+        _a.setName(authorName.evaluate(_entryNode));
+        _a.setUri(authorUri.evaluate(_entryNode));
     }
+
+    return _result;
 }
 
 private Date getPublishedDate(Node aNode) 
 throws Exception {
-    return _dateFormat.parse(_published.evaluate(aNode));
+    return dateFormat.parse(published.evaluate(aNode));
 }
 </code></pre>
 
@@ -289,31 +319,45 @@ throws Exception {
 
 <p>SAX parsers fire events when they encounter the various components that make up an XML file. You register a <code>ContentHandler</code> whose methods are called-back when these events occur (for example when the parser finds a new start element, it invokes the startElement method of your <code>ContentHandler</code>).</p>
 
-<p>The API assumes that the consumer (<code>ContentHandler</code>) is going to maintain some awareness of its state (e.g. where it currently is within the document). In the code sample I'm using a <code>Stack</code> to push/pop/peek at which element I'm currently working in.</p>
+<p>The API assumes that the consumer (<code>ContentHandler</code>) is going to maintain some awareness of its state (e.g. where it currently is within the document). I sometimes use a <code>java.util.Stack</code> to push/pop/peek at which element I'm currently working in, but here I can get away with just recording the name of the current element.</p>
 
 <p>I'm extending <code>DefaultHandler</code> because I'm not interested in many of the events (it provides a default empty implementation of those methods for me).</p>
 
-<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/SAXParserPerformanceTest.java">actual test code</a> is in github, but here's the gist of it:</p>
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/SAXTweetsReader.java">actual test code</a> is in github, but here's the gist of it:</p>
 
-<pre><code>public Tweets parse(InputStream anInputStream)
+<pre><code>private XMLReader reader;
+private TweetsHandler handler;
+
+public SAXTweetsReader() 
 throws Exception {
     SAXParserFactory _f = SAXParserFactory.newInstance();
     SAXParser _p = _f.newSAXParser();
-    XMLReader _r = _p.getXMLReader();
-    TweetsHandler _h = new TweetsHandler();
-    _r.setContentHandler(_h);
-
-    _r.parse(new InputSource(anInputStream));
-    return _h.getResult();
+    reader = _p.getXMLReader();
+    handler = new TweetsHandler();
+    reader.setContentHandler(handler);
 }
 
-class TweetsHandler extends DefaultHandler {
+@Override
+public String getParserName() {
+    return "SAX";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) 
+throws Exception {
+    reader.parse(new InputSource(anInputStream));
+    return handler.getResult();
+}
+
+private static class TweetsHandler extends DefaultHandler {
 
     private DateFormat dateFormat = 
         new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     private Tweets tweets;
     private Tweet tweet;
-    private Stack&amp;lt;String&gt; ctx;
+    private Content content;
+    private Author author;
+    private String currentElement;
 
     public Tweets getResult() {
         return tweets;
@@ -322,54 +366,55 @@ class TweetsHandler extends DefaultHandler {
     @Override
     public void startDocument() throws SAXException {
         tweets = new Tweets();
-        ctx = new Stack&amp;lt;String&gt;();
     }
 
     @Override
     public void startElement(
         String aUri, String aLocalName, 
         String aQName, Attributes aAttributes
-    ) throws SAXException { 
-        ctx.push(aQName);
+    ) throws SAXException {
+        currentElement = aQName;
         if ("entry".equals(aQName)) {
             tweets.addTweet(tweet = new Tweet());
         } else if ("content".equals(aQName)) {
-            tweet.setContent(new Content());
-            tweet.getContent().setType(aAttributes.getValue("type"));
+            tweet.setContent(content = new Content());
+            content.setType(aAttributes.getValue("type"));
         } else if ("author".equals(aQName)) {
-            tweet.setAuthor(new Author());
+            tweet.setAuthor(author = new Author());
         }
     }
 
     @Override
-    public void endElement(String aUri, String aLocalName, String aQName) 
-    throws SAXException {
-        ctx.pop();
+    public void endElement(
+        String aUri, String aLocalName, String aQName
+    ) throws SAXException {
+        currentElement = null;
     }
 
     @Override
     public void characters(char[] aCh, int aStart, int aLength)
     throws SAXException {
-        String _currentElement = ctx.peek();
-
-        if ("published".equals(_currentElement)) {
+        if ("published".equals(currentElement)) {
             try {
-                tweet.setPublished(
-                    dateFormat.parse(new String(aCh, aStart, aLength))
+                tweet.setPublished(dateFormat.parse(
+                    new String(aCh, aStart, aLength))
                 );
             } catch (ParseException anExc) {
                 throw new SAXException(anExc);
             }
-        } else if (("title".equals(_currentElement)) &amp;&amp; (tweet != null)) {
+        } else if (
+            ("title".equals(currentElement)) &amp;&amp;
+            (tweet != null)
+        ) {
             tweet.setTitle(new String(aCh, aStart, aLength));
-        } else if ("content".equals(_currentElement)) {
-            tweet.getContent().setValue(new String(aCh, aStart, aLength));
-        } else if ("lang".equals(_currentElement)) {
+        } else if ("content".equals(currentElement)) {
+            content.setValue(new String(aCh, aStart, aLength));
+        } else if ("lang".equals(currentElement)) {
             tweet.setLanguage(new String(aCh, aStart, aLength));
-        } else if ("name".equals(_currentElement)) {
-            tweet.getAuthor().setName(new String(aCh, aStart, aLength));
-        } else if ("uri".equals(_currentElement)) {
-            tweet.getAuthor().setUri(new String(aCh, aStart, aLength));
+        } else if ("name".equals(currentElement)) {
+            author.setName(new String(aCh, aStart, aLength));
+        } else if ("uri".equals(currentElement)) {
+            author.setUri(new String(aCh, aStart, aLength));
         }
     }
 }
@@ -377,58 +422,49 @@ class TweetsHandler extends DefaultHandler {
 
 <p>I used to quite dislike SAX parsing back in the day - DOM felt much more comfortable. What was I thinking?</p>
 
-<p>One downside when handling more complicated documents is that the <code>ContentHandler</code> can get littered with intermediate state objects - for example here I have the <code>tweet</code> field which is used to carry the current Tweet object around.</p>
+<p>One downside when handling more complicated documents is that the <code>ContentHandler</code> can get littered with intermediate state objects - for example here I have the <code>tweet</code>, <code>content</code>, and <code>author</code> fields.</p>
 
 <h3>Pull Parser</h3>
 
 <p>Pull-parsing is the "pull" to SAX parsing's "push". SAX pushes content at you by firing events as it encounters constructs within the xml document. Pull-parsing lets you ask for (pull) the next significant construct you are interested in.</p>
 
-<p>You still have to take the data in the order it appears in the document - you can't go back and forth through the document like you can with DOM, but you can skip over bits you aren't interested in, which enables pull-parsing to be extremely fast.</p>
+<p>You still have to take the data in the order it appears in the document - you can't go back and forth through the document like you can with DOM - but you can skip over bits you aren't interested in.</p>
 
-<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/PullParserPerformanceTest.java">Test code</a> is in github, this is roughly what it looks like:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/PullParserTweetsReader.java">Test code</a> is in github, this is roughly what it looks like:</p>
 
-<pre><code>private static final Tag ENTRY_TAG = new Tag(null, "entry");
-private static final Tag PUBLISHED_TAG = new Tag(null, "published");
-private static final Tag TITLE_TAG = new Tag(null, "title");
-private static final Tag CONTENT_TAG = new Tag(null, "content");
-private static final Tag LANG_TAG = new Tag("twitter", "lang");
-private static final Tag AUTHOR_TAG = new Tag(null, "author");
-private static final Tag NAME_TAG = new Tag(null, "name");
-private static final Tag URI_TAG = new Tag(null, "uri");
-
-private DateFormat _dateFormat =
-    new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-private XmlPullParserFactory _f = XmlPullParserFactory.newInstance();
-
+<pre><code>private DateFormat dateFormat;
+private XmlPullParserFactory f;
 private Tweets tweets;
 private Tweet currentTweet;
 private Author currentAuthor;
 
-public PullParser() {
-    _f.setNamespaceAware(true);
+public PullParserTweetsReader() 
+throws Exception {
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    f = XmlPullParserFactory.newInstance();
+    f.setNamespaceAware(true);
 }
 
-public Tweets parse(InputStream anInputStream) {
-    try {
-        XmlPullParser _p = _f.newPullParser();
-        _p.setInput(anInputStream, "utf-8");
-        return parse(_p);
-    } catch (Exception anExc) {
-        throw new RuntimeException(anExc);
-    }
+@Override
+public String getParserName() {
+    return "Pull-Parser";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) throws Exception {
+    XmlPullParser _p = f.newPullParser();
+    _p.setInput(anInputStream, "utf-8");
+    return parse(_p);
 }
 
 private Tweets parse(XmlPullParser aParser) 
 throws Exception {
     tweets = new Tweets();
-    currentTweet = null;
 
     int _e = aParser.next();
     while (_e != XmlPullParser.END_DOCUMENT) {
         if (_e == XmlPullParser.START_TAG) {
-            startTag(new Tag(
-                aParser.getPrefix(), aParser.getName()), aParser
-            );
+            startTag(aParser.getPrefix(), aParser.getName(), aParser);
         }
         _e = aParser.next();
     }
@@ -436,64 +472,36 @@ throws Exception {
     return tweets;
 }
 
-private void startTag(Tag aTag, XmlPullParser aParser)
+private void startTag(String aPrefix, String aName, XmlPullParser aParser)
 throws Exception {
-    if (ENTRY_TAG.equals(aTag)) {
+    if ("entry".equals(aName)) {
         tweets.addTweet(currentTweet = new Tweet());
-    } else if (PUBLISHED_TAG.equals(aTag)) {
+    } else if ("published".equals(aName)) {
         aParser.next();
-        currentTweet.setPublished(_dateFormat.parse(aParser.getText()));
-    } else if ((TITLE_TAG.equals(aTag)) &amp;&amp; (currentTweet != null)) {
+        currentTweet.setPublished(dateFormat.parse(aParser.getText()));
+    } else if (("title".equals(aName)) &amp;&amp; (currentTweet != null)) {
         aParser.next();
         currentTweet.setTitle(aParser.getText());
-    } else if (CONTENT_TAG.equals(aTag)) {
+    } else if ("content".equals(aName)) {
         Content _c = new Content();
         _c.setType(aParser.getAttributeValue(null, "type"));
         aParser.next();
         _c.setValue(aParser.getText());
         currentTweet.setContent(_c);
-    } else if (LANG_TAG.equals(aTag)) {
+    } else if ("lang".equals(aName)) {
         aParser.next();
         currentTweet.setLanguage(aParser.getText());
-    } else if (AUTHOR_TAG.equals(aTag)) {
+    } else if ("author".equals(aName)) {
         currentTweet.setAuthor(currentAuthor = new Author());
-    } else if (NAME_TAG.equals(aTag)) {
+    } else if ("name".equals(aName)) {
         aParser.next();
         currentAuthor.setName(aParser.getText());
-    } else if (URI_TAG.equals(aTag)) {
+    } else if ("uri".equals(aName)) {
         aParser.next();
         currentAuthor.setUri(aParser.getText());
     }
 }
-
-private static class Tag {
-    private String ns;
-    private String name;
-
-    public Tag(String aNamespace, String aName) {
-        ns = aNamespace;
-        name = aName;
-    }
-
-    public boolean equals(Object anOther) {
-        if (anOther instanceof Tag) {
-            Tag _other = (Tag) anOther;
-            return (
-                ((ns != null) ? ns.equals(_other.ns) : _other.ns == null) &amp;&amp;
-                ((name != null) ? 
-                    name.equals(_other.name) : _other.name == null)
-            );
-        }
-        return false;
-    }
-
-    public int hashCode() {
-        return ns.hashCode() ^ name.hashCode();
-    }
-}
 </code></pre>
-
-<p>The Tag class isn't entirely necessary here, but it makes it a bit easier to deal with namespaced elements.</p>
 
 <h3>SJXP (Pull-Parser wrapper)</h3>
 
@@ -505,27 +513,27 @@ private static class Tag {
 
 <p>This means that my path declarations even on this shallow document are enormous and I had to split them onto three lines to fit the width of my blog.</p>
 
-<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/SJXPPerformanceTest.java">Code is in github</a>, this is the gist of it:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/SJXPTweetsReader.java">Code is in github</a>, this is the gist of it:</p>
 
-<pre><code>Tweet currentTweet;
-DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+<pre><code>private Tweet currentTweet;
+private DateFormat dateFormat;
+private XMLParser&amp;lt;Tweets&gt; parser; 
 
-IRule&amp;lt;Tweets&gt; _tweet = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry"
+private IRule&amp;lt;Tweets&gt; tweet = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry"
 ) {
     public void handleTag(
-        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject) 
-    {
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject) {
         if (aIsStartTag)
             aUserObject.addTweet(currentTweet = new Tweet());
     }   
 };
 
-IRule&amp;lt;Tweets&gt; _published = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]published"
+private IRule&amp;lt;Tweets&gt; published = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]published"
 ) {
     public void handleParsedCharacters(
         XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
@@ -538,10 +546,10 @@ IRule&amp;lt;Tweets&gt; _published = new DefaultRule&amp;lt;Tweets&gt;(Type.CHAR
     }           
 }; 
 
-IRule&amp;lt;Tweets&gt; _title = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]title"
+private IRule&amp;lt;Tweets&gt; title = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]title"
 ) {
     public void handleParsedCharacters(
         XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
@@ -550,10 +558,10 @@ IRule&amp;lt;Tweets&gt; _title = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTE
     }           
 };
 
-IRule&amp;lt;Tweets&gt; _content = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]content"
+IRule&amp;lt;Tweets&gt; content = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]content" +
 ) {
     public void handleTag(
         XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
@@ -564,34 +572,34 @@ IRule&amp;lt;Tweets&gt; _content = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG,
     }
 };
 
-IRule&amp;lt;Tweets&gt; _contentType = new DefaultRule&amp;lt;Tweets&gt;(Type.ATTRIBUTE, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]content", "type"
+private IRule&amp;lt;Tweets&gt; contentType = new DefaultRule&amp;lt;Tweets&gt;(Type.ATTRIBUTE, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]content", "type"
 ) {
     public void handleParsedAttribute(
-        XMLParser&amp;lt;Tweets&gt; aParser, int aIndex, 
-        String aValue, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, int aIndex, String aValue, Tweets aUserObject
     ) {                 
         currentTweet.getContent().setType(aValue);
     }
 };
 
-IRule&amp;lt;Tweets&gt; _contentText = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]content"
+private IRule&amp;lt;Tweets&gt; contentText = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]content"
 ) {
     public void handleParsedCharacters(
         XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {                 
-        currentTweet.getContent().setValue(aText);      }
+        currentTweet.getContent().setValue(aText);
+    }
 };
 
-IRule&amp;lt;Tweets&gt; _lang = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://api.twitter.com/]lang"
+private IRule&amp;lt;Tweets&gt; lang = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://api.twitter.com/]lang"
 ) {
     public void handleParsedCharacters(
         XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
@@ -600,10 +608,10 @@ IRule&amp;lt;Tweets&gt; _lang = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER
     }
 };
 
-IRule&amp;lt;Tweets&gt; _author = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]author"
+private IRule&amp;lt;Tweets&gt; author = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]author"
 ) {
     public void handleTag(
         XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
@@ -614,11 +622,11 @@ IRule&amp;lt;Tweets&gt; _author = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG,
     }
 };
 
-IRule&amp;lt;Tweets&gt; _authorName = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]author/" +
-    "[http://www.w3.org/2005/Atom]name"
+private IRule&amp;lt;Tweets&gt; authorName = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed"
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]author" +
+    "/[http://www.w3.org/2005/Atom]name"
 ) {
     public void handleParsedCharacters(
         XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
@@ -627,26 +635,36 @@ IRule&amp;lt;Tweets&gt; _authorName = new DefaultRule&amp;lt;Tweets&gt;(Type.CHA
     }
 };
 
-IRule&amp;lt;Tweets&gt; _authorUri = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
-    "/[http://www.w3.org/2005/Atom]feed/" +
-    "[http://www.w3.org/2005/Atom]entry/" +
-    "[http://www.w3.org/2005/Atom]author/" +
-    "[http://www.w3.org/2005/Atom]uri"
+private IRule&amp;lt;Tweets&gt; authorUri = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]author" +
+    "/[http://www.w3.org/2005/Atom]uri"
 ) {
     public void handleParsedCharacters(
         XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {
-        currentTweet.getAuthor().setUri(aText);     }
-}; 
+        currentTweet.getAuthor().setUri(aText);
+    }
+};
 
 @SuppressWarnings("all")
-public Tweets parse(InputStream anInputStream)
-throws Exception {
-    XMLParser&amp;lt;Tweets&gt; _parser = new XMLParser&amp;lt;Tweets&gt;(
-        _tweet, _published, _title, _content, _contentType, 
-        _contentText, _lang, _author, _authorName, _authorUri
-    ); 
+public SJXPTweetsReader() {
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    parser = parser = new XMLParser&amp;lt;Tweets&gt;(
+        tweet, published, title, content, contentType, 
+        contentText, lang, author, authorName, authorUri
+    );
+}
 
+@Override
+public String getParserName() {
+    return "SJXP (pull)";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) 
+throws Exception {
     Tweets _result = new Tweets();  
     parser.parse(anInputStream, "utf-8", _result);
     return _result;
@@ -663,40 +681,41 @@ throws Exception {
 
 <p>Dsl4xml parsing code has a declarative style, is concise, and uses reflection to cut boiler-plate to a minimum.</p>
 
-<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/impl/Dsl4XmlPerformanceTest.java">Actual code</a> is in Github, here's what it looks like:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/Dsl4XmlTweetsReader.java">Actual code</a> is in Github, here's what it looks like:</p>
 
-<pre><code>private DocumentReader&amp;lt;Tweets&gt; tweetsReader;
+<pre><code>private DocumentReader&amp;lt;Tweets&gt; reader;
 
-private DocumentReader&amp;lt;Tweets&gt; getReader() {
-    if (tweetsReader == null) {
-        // describe the mapping betweem XML tags
-        // and properties of the Tweets class
-        tweetsReader = mappingOf(Tweets.class).to(
-            tag("entry", Tweet.class).with(
-                tag("published"),
-                tag("title"),
-                tag("content", Content.class).with(
-                    attribute("type"),
-                    pcdataMappedTo("value")
-                ),
-                tag("twitter", "lang").
-                    withPCDataMappedTo("language"),
-                tag("author", Author.class).with(
-                    tag("name"),
-                    tag("uri")
-                )
+public Dsl4XmlTweetsReader() {
+    reader = mappingOf(Tweets.class).to(
+        tag("entry", Tweet.class).with(
+            tag("published"),
+            tag("title"),
+            tag("content", Content.class).with(
+                attribute("type"),
+                pcdataMappedTo("value")
+            ),
+            tag("twitter", "lang").
+                withPCDataMappedTo("language"),
+            tag("author", Author.class).with(
+                tag("name"),
+                tag("uri")
             )
-        );
+        )
+    );
 
-        tweetsReader.registerConverters(
-            new ThreadSafeDateConverter("yyyy-MM-dd'T'HH:mm:ss")
-        );
-    }
-    return tweetsReader;
+    reader.registerConverters(
+        new ThreadUnsafeDateConverter("yyyy-MM-dd'T'HH:mm:ss")
+    );
 }
 
-public Tweets parse(InputStream anInputStream) {
-    return getReader().read(anInputStream, "utf-8");
+@Override
+public String getParserName() {
+    return "DSL4XML (pull)";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) throws Exception {
+    return reader.read(anInputStream, "utf-8");
 }
 </code></pre>
 
@@ -707,7 +726,7 @@ public Tweets parse(InputStream anInputStream) {
 <li>The code is slightly unusual in its style because it uses an <a href="http://martinfowler.com/bliki/DomainSpecificLanguage.html">Internal Domain Specific Language</a>. The nice thing (IMHO) is that it is very readable, and even mimics the structure of the XML itself.</li>
 </ol>
 
-<p>Its still early days for dsl4xml, so the DSL may evolve a bit with time. I'm also looking into ways to keep the same tight syntax without resorting to reflection - the aim being to narrow the performance gap between "raw" pull-parsing and dsl4xml.</p>
+<p>Its still early days for dsl4xml, so the DSL may evolve a bit with time. I'm also looking into ways to keep the same tight syntax without resorting to reflection - the aim being to narrow the performance gap between the raw underlying parser (currently a Pull parser) and dsl4xml.</p>
 
 <h2>Performance Comparison</h2>
 
@@ -717,41 +736,182 @@ public Tweets parse(InputStream anInputStream) {
 
 <p>When the statistics for each method have been collected, the test generates a html document that uses Google charts to render the results.</p>
 
-<p>Each parsing method is tested 3 times and the results averaged to smooth out some of the wilder outliers (still far from perfect, partly due to garbage collection). I ran the tests on my MacBook Air and my Desktop. </p>
+<p>Each parsing method is tested several times and the results averaged to smooth out some of the wilder outliers (still far from perfect, partly due to garbage collection). I ran the tests on my Linux Desktop, Macbook Air, Samsung Galaxy S2 and Morotola Xoom2 Media Edition. </p>
 
 <p>Here is the chart for the desktop (Core i7 (quad) 1.8GHz, 4GB RAM, Ubuntu 11.10, Sun JDK 1.6.0-26). There is a noticeable hump at 4 threads, presumably because its a quad core. Performance keeps rising up to 8 threads, this presumably because the cpu has hyperthreading. After 8 threads the performance slowly drops off as the context-switching overhead builds up (not shown here):</p>
 
-<p><img src="https://lh6.googleusercontent.com/-AEu8imfo3SI/T4WlccNzJRI/AAAAAAAAJBU/-rl2Uu9-iug/s800/performance-on-core-i7.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml, and raw pull-parsing on a Core i7 desktop" /></p>
+<div id="desktop_chart_div"></div>
 
 <p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31):</p>
 
-<p><img src="https://lh3.googleusercontent.com/-2RtBwjA21Fk/T4WxBRtkvFI/AAAAAAAAJBc/nG89DiD9WtQ/s800/performance-macbook-air.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on a MacBook Air" /></p>
+<div id="laptop_chart_div"></div>
 
 <p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2 running Android 2.3.4, 64Mb heap. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
 
-<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="Chart comparing performance between SAX, DOM, SJXP, dsl4xml and raw pull-parsing on an Android phone (Samsung Galaxy S2, 64Mb heap)" /></p>
+<div id="mobile_chart_div"></div>
 
 <p>Yep, SAX kicking ass right there.</p>
 
-<p>Here's how it looks on a dual core Motorola Xoom 2 Media edition running Android 3.2.2 (with 48Mb heap):</p>
+<p>Here's how it looks on a Motorola Xoom 2 Media edition running Android 3.2.2 (with 48Mb heap):</p>
 
-<p><img src="https://lh3.googleusercontent.com/-5Va8zV3v1bw/T4bMbzENp0I/AAAAAAAAJBw/21ZPnf51s5k/s800/performance-xoom2-media.png" alt="" /></p>
+<div id="tablet_chart_div"></div>
 
-<p>Confirming that SAX (and Samsung) kick ass.</p>
+<p>Confirming that SAX is the way to go on Android!</p>
 
-<p>Anecdotally, my friend <a href="http://twitter.com/#!/prestonmr">Matt Preston</a> did a quick port of the <em>DOM</em> parsing test to iOS. He didn't produce a chart (yet!), but the throughput on an iPhone 4S was approximately twice as good as <em>SAX</em> parsing on my Samsung.</p>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawCharts);
 
-<p>On the earlier two charts you may have spotted the line for XPath based parsing sitting pretty squarely on the horizontal axis, two orders of magnitude slower than pull parsing. I skipped xpath parsing on Android after the first run didn't complete within 30 minutes (seriously).</p>
+      function drawCharts() {
+        drawDesktopChart();
+        drawLaptopChart();
+        drawMobileChart();
+        drawTabletChart();
+      }
+
+      function drawDesktopChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 1832.602735709364, 3047.309539315194, 3173.0422460858813, 3107.05642523978, 3135.5741046887833],
+['2', 3582.1149494513074, 5472.478667789554, 7353.287244493242, 5612.2292748296813, 5523.7554631906182],
+['3', 4677.6970491022244, 6051.68803044958, 8035.124424148545, 7802.535738870123, 6631.802574047084],
+['4', 5359.016501380009, 9074.944239050174, 13088.8170146974735, 10659.357606318107, 9064.701562460433],
+['5', 5840.4790247755773, 8386.967417466271, 11803.470921843835, 9494.022503516175, 9404.295333931408],
+['6', 7090.0232840469225, 10439.749336350581, 12337.1859987374073, 11472.185791651998, 10465.21753387524],
+['7', 7686.6631274700644, 10403.344206920294, 14162.5448904135455, 11761.212554175974, 11103.283101461672],
+['8', 7968.051665388115, 10980.660778139436, 14713.042602646617, 12341.624527230158, 12035.611975742948]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('desktop_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawLaptopChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 1832.602735709364, 2647.309539315194, 3473.0422460858813, 2387.05642523978, 2535.5741046887833],
+['2', 2182.1149494513074, 3972.478667789554, 5253.287244493242, 4012.2292748296813, 3823.7554631906182],
+['3', 2977.6970491022244, 4951.68803044958, 6035.124424148545, 4802.535738870123, 4631.802574047084],
+['4', 3559.016501380009, 5074.944239050174, 6388.8170146974735, 5659.357606318107, 5064.701562460433],
+['5', 3440.4790247755773, 5386.967417466271, 6103.470921843835, 5494.022503516175, 5404.295333931408],
+['6', 3690.0232840469225, 5439.749336350581, 6137.1859987374073, 5472.185791651998, 5465.21753387524],
+['7', 3686.6631274700644, 5403.344206920294, 5462.5448904135455, 5761.212554175974, 5503.283101461672],
+['8', 3568.051665388115, 5580.660778139436, 6713.042602646617, 5541.624527230158, 5535.611975742948]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('laptop_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawMobileChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 2.541707357944222, 39.240257662110984, 3.5759414102545857, 3.1541200188086482, 2.5026521752567215],
+['2', 4.330846368265108, 61.60437643946365, 6.456946359247942, 5.686983737649393, 4.732176431626203],
+['3', 4.351606992043577, 61.514316431090535, 6.307925946534443, 5.685825899522886, 4.586118360054465],
+['4', 4.459386705412041, 61.89969059133254, 6.448053162500682, 5.741419718006399, 4.58759932615774]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('mobile_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawTabletChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 2.808355131127302, 41.19998995148725, 5.265999845098719, 4.471127605806691, 3.2549656900511446],
+['2', 3.7760722761427994, 56.689099096842824, 9.289035040035463, 7.928630708496687, 5.984694902484068],
+['3', 3.7462729340199994, 59.54930941243503, 9.301339793390131, 7.970383487927541, 5.957854290081462],
+['4', 3.6944918608450323, 58.9957330285963, 9.50247436158096, 8.08040954423548, 6.088092287251627]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('tablet_chart_div'));
+        chart.draw(data, options);
+      }
+</script>
+
+<h4>Quick side note about iOS</h4>
+
+<p>My friend <a href="http://twitter.com/#!/prestonmr">Matt Preston</a> did a quick port of the <em>DOM</em> and <em>SAX</em> parsing tests to iOS. </p>
+
+<p>He didn't produce a chart (yet!), but the <em>DOM</em> parsing throughput on an iPhone 4S was approximately twice as good as <em>SAX</em> parsing on my Samsung. SAX Parsing on the iPhone churned through on average 150 docs/sec!</p>
+
+<p>Its interesting to note that the iPhone4S runs a 1GHz Cortex A9 CPU <em>clocked down</em> to 800Mhz, while my Samsung is running a <em>1.2GHz</em> Cortex A9.</p>
+
+<h4>Why XPath parsing sucked so bad</h4>
+
+<p>The observant will have noticed the charts do not contain figures for the XPath parsing. That's because I dropped it when I realised it was two orders of magnitude slower even than DOM parsing.</p>
 
 <p>This appalling performance seems to be because when executing <em>each</em> xpath expression a context object is created which involves looking up several files on the classpath (and all the inherent synchronisation this entails). I don't intend to waste my time digging into why this can't done once and cached :(.</p>
 
-<p>This is what my threads spent most of their time doing in the XPath test:</p>
+<p>If you're interested, this is what my threads spent most of their time doing in the XPath test:</p>
 
 <pre><code>"Thread-11" prio=5 tid=7fcf544d2000 nid=0x10d6bb000 
     waiting for monitor entry [10d6b9000]
     java.lang.Thread.State: BLOCKED (on object monitor)
     at java.util.zip.ZipFile.getEntry(ZipFile.java:159)
-    - locked &lt;7f4514c88&gt; (a java.util.jar.JarFile)
+    - locked &amp;lt;7f4514c88&gt; (a java.util.jar.JarFile)
     at java.util.jar.JarFile.getEntry(JarFile.java:208)
     at java.util.jar.JarFile.getJarEntry(JarFile.java:191)
     at sun.misc.URLClassPath$JarLoader.getResource(URLClassPath.java:757)
@@ -783,7 +943,7 @@ public Tweets parse(InputStream anInputStream) {
     at com.sun.org.apache.xml.internal.dtm.DTMManager.
         newInstance(DTMManager.java:135)
     at com.sun.org.apache.xpath.internal.XPathContext.
-        &lt;init&gt;(XPathContext.java:100)
+        &amp;lt;init&gt;(XPathContext.java:100)
     at com.sun.org.apache.xpath.internal.jaxp.XPathExpressionImpl.
         eval(XPathExpressionImpl.java:110)
 </code></pre>
@@ -800,17 +960,19 @@ public Tweets parse(InputStream anInputStream) {
 
 <p>SAX parsing and the pull-parsing wrappers give comparable performance. Raw Pull-parsing beats the lot by a margin of around 15%. DOM performs relatively badly - around twice as slow as any of the others. Don't go near XPath based parsing unless you like watching paint dry.</p>
 
-<p>Recommendation: SAX, unless you are processing vast numbers of docs and performance is critical. dsl4xml if you like readability :)</p>
+<p>Recommendation: Pull Parser for max performance, SAX is also a good choice. Dsl4xml if you favour readability :)</p>
 
 <h3>Android xml parsing performance</h3>
 
-<p>DOM/XPath parsing sucks so bad you'll be wearing false teeth before you can parse two documents -avoid at all costs. DOM and pull-parsing appear to have very similar performance characteristics. SAX absolutely destroys all the others.</p>
+<p>Avoid XPath at all costs. DOM and pull-parsing appear to have similarly poor performance characteristics. SAX absolutely <em>destroys</em> all the others - roughly an order of magnitude quicker.</p>
 
 <p>Recommendation: SAX, every time. I'll get working on a SAX-based dsl4xml implementation :)</p>
 
-<h3>Final word</h3>
+<h3>Final words</h3>
 
-<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. I suspect that the performance gap between the different mechanisms widens as the document complexity increases, but as yet have no real evidence to back that up.</p>
+<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. </p>
+
+<p>I suspect that the performance gap between the different mechanisms widens as the document complexity increases, but as yet have no real evidence to back that up.</p>
 </span>
 
               <ul class="keywords">
@@ -870,7 +1032,7 @@ public Tweets parse(InputStream anInputStream) {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="xml_parsing_in_android.html">XML Parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
+                <li><a href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
                 <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
                 <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
                 <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
@@ -882,7 +1044,7 @@ public Tweets parse(InputStream anInputStream) {
       <div class="nav">
         <div class="links">
           
-          <div class="next"><a title="next" href="xml_parsing_in_android.html">XML Parsing in Android</a></div>
+          <div class="next"><a title="next" href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a></div>
         </div>
       </div>
     </div>
