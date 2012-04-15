@@ -172,8 +172,8 @@ class BooksReader {
 
 <p>Unmarshalling code:</p>
 
-<pre><code>private static DocumentReader&lt;Hobbit&gt; newReader() {
-    DocumentReader&lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
+<pre><code>private static DocumentReader&amp;lt;Hobbit&gt; newReader() {
+    DocumentReader&amp;lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
         tag("name", Name.class).with(
             attributes("firstname", "surname")
         ),
@@ -205,7 +205,7 @@ class BooksReader {
 
 <pre><code>package com.sjl.dsl4xml.support;
 
-public interface Converter&lt;T&gt; {
+public interface Converter&amp;lt;T&gt; {
     public boolean canConvertTo(Class&lt;?&gt; aClass);
     public T convert(String aValue);
 }
@@ -213,9 +213,9 @@ public interface Converter&lt;T&gt; {
 
 <p>An example <code>Converter</code> for converting <code>String</code> values to primitive int's looks like this:</p>
 
-<pre><code>class PrimitiveIntConverter implements Converter&lt;Integer&gt; {
+<pre><code>class PrimitiveIntConverter implements Converter&amp;lt;Integer&gt; {
     @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
         return aClass.isAssignableFrom(Integer.TYPE);
     }
 
@@ -231,7 +231,7 @@ public interface Converter&lt;T&gt; {
 
 <p>You can use optimised type converters in situations where you <em>know</em> you will not be unmarshalling from multiple threads concurrently. An example is the <code>ThreadUnsafeDateConverter</code> which is used in the example above because it came from a test-case that will only ever run single-threaded. </p>
 
-<pre><code>public class ThreadUnsafeDateConverter implements Converter&lt;Date&gt; {
+<pre><code>public class ThreadUnsafeDateConverter implements Converter&amp;lt;Date&gt; {
     private DateFormat dateFormat;
 
     public ThreadUnsafeDateConverter(String aDateFormatPattern) {
@@ -240,7 +240,7 @@ public interface Converter&lt;T&gt; {
     }
 
     @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
         return aClass.isAssignableFrom(Date.class);
     }
 
@@ -258,11 +258,11 @@ public interface Converter&lt;T&gt; {
 
 <p>The alternative <code>ThreadSafeDateConverter</code> looks like this:</p>
 
-<pre><code>class ThreadSafeDateConverter implements Converter&lt;Date&gt; {
-    private ThreadLocal&lt;DateFormat&gt; dateFormat;
+<pre><code>class ThreadSafeDateConverter implements Converter&amp;lt;Date&gt; {
+    private ThreadLocal&amp;lt;DateFormat&gt; dateFormat;
 
     public ThreadSafeDateConverter(final String aDateFormatPattern) {
-        dateFormat = new ThreadLocal&lt;DateFormat&gt;() {
+        dateFormat = new ThreadLocal&amp;lt;DateFormat&gt;() {
             protected DateFormat initialValue() {
                 return new SimpleDateFormat(aDateFormatPattern);
             }
@@ -270,7 +270,7 @@ public interface Converter&lt;T&gt; {
     }
 
     @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
         return aClass.isAssignableFrom(Date.class);
     }
 

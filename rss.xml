@@ -120,7 +120,7 @@ throws Exception {
 public void unmarshall(Document aDoc, Tweets aTo) 
 throws Exception {
     NodeList _nodes = aDoc.getChildNodes().item(0).getChildNodes();
-    for (int i=0; i&lt;_nodes.getLength(); i++) {
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
         Node _n = _nodes.item(i);
         if ((_n.getNodeType() == Node.ELEMENT_NODE) &amp;&amp; 
             ("entry".equals(_n.getNodeName())
@@ -135,7 +135,7 @@ throws Exception {
 private void unmarshallEntry(Element aTweetEl, Tweet aTo)
 throws Exception {
     NodeList _nodes = aTweetEl.getChildNodes();
-    for (int i=0; i&lt;_nodes.getLength(); i++) {
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
         Node _n = _nodes.item(i);
         if (_n.getNodeType() == Node.ELEMENT_NODE) {                    
             if ("published".equals(_n.getNodeName())) {                         
@@ -164,7 +164,7 @@ private void unmarshallContent(Element aContentEl, Content aTo) {
 
 private void unmarshallAuthor(Element anAuthorEl, Author aTo) {
     NodeList _nodes = anAuthorEl.getChildNodes();
-    for (int i=0; i&lt;_nodes.getLength(); i++) {
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
         Node _n = _nodes.item(i);
         if ("name".equals(_n.getNodeName())) {
             aTo.setName(getPCData(_n));
@@ -178,7 +178,7 @@ private String getPCData(Node aNode) {
     StringBuilder _sb = new StringBuilder();
     if (Node.ELEMENT_NODE == aNode.getNodeType()) {
         NodeList _nodes = aNode.getChildNodes();
-        for (int i=0; i&lt;_nodes.getLength(); i++) {
+        for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
             Node _n = _nodes.item(i);
             if (Node.ELEMENT_NODE == _n.getNodeType()) {
                 _sb.append(getPCData(_n));
@@ -252,7 +252,7 @@ throws Exception {
         _document, XPathConstants.NODESET
     );
 
-    for (int i=0; i&lt;_entries.getLength(); i++) {
+    for (int i=0; i&amp;lt;_entries.getLength(); i++) {
         Tweet _tweet = new Tweet();
         _result.addTweet(_tweet);
 
@@ -490,26 +490,26 @@ throws Exception {
 
 <pre><code>private Tweet currentTweet;
 private DateFormat dateFormat;
-private XMLParser&lt;Tweets&gt; parser; 
+private XMLParser&amp;lt;Tweets&gt; parser; 
 
-private IRule&lt;Tweets&gt; tweet = new DefaultRule&lt;Tweets&gt;(Type.TAG, 
+private IRule&amp;lt;Tweets&gt; tweet = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry"
 ) {
     public void handleTag(
-        XMLParser&lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject) {
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject) {
         if (aIsStartTag)
             aUserObject.addTweet(currentTweet = new Tweet());
     }   
 };
 
-private IRule&lt;Tweets&gt; published = new DefaultRule&lt;Tweets&gt;(Type.CHARACTER, 
+private IRule&amp;lt;Tweets&gt; published = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]published"
 ) {
     public void handleParsedCharacters(
-        XMLParser&lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {
         try {                   
             currentTweet.setPublished(dateFormat.parse(aText));
@@ -519,25 +519,25 @@ private IRule&lt;Tweets&gt; published = new DefaultRule&lt;Tweets&gt;(Type.CHARA
     }           
 }; 
 
-private IRule&lt;Tweets&gt; title = new DefaultRule&lt;Tweets&gt;(Type.CHARACTER, 
+private IRule&amp;lt;Tweets&gt; title = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]title"
 ) {
     public void handleParsedCharacters(
-        XMLParser&lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {
         currentTweet.setTitle(aText);
     }           
 };
 
-IRule&lt;Tweets&gt; content = new DefaultRule&lt;Tweets&gt;(Type.TAG, 
+IRule&amp;lt;Tweets&gt; content = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]content" +
 ) {
     public void handleTag(
-        XMLParser&lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
     ) {
         if (aIsStartTag)
             currentTweet.setContent(new Content());
@@ -545,49 +545,49 @@ IRule&lt;Tweets&gt; content = new DefaultRule&lt;Tweets&gt;(Type.TAG,
     }
 };
 
-private IRule&lt;Tweets&gt; contentType = new DefaultRule&lt;Tweets&gt;(Type.ATTRIBUTE, 
+private IRule&amp;lt;Tweets&gt; contentType = new DefaultRule&amp;lt;Tweets&gt;(Type.ATTRIBUTE, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]content", "type"
 ) {
     public void handleParsedAttribute(
-        XMLParser&lt;Tweets&gt; aParser, int aIndex, String aValue, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, int aIndex, String aValue, Tweets aUserObject
     ) {                 
         currentTweet.getContent().setType(aValue);
     }
 };
 
-private IRule&lt;Tweets&gt; contentText = new DefaultRule&lt;Tweets&gt;(Type.CHARACTER, 
+private IRule&amp;lt;Tweets&gt; contentText = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]content"
 ) {
     public void handleParsedCharacters(
-        XMLParser&lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {                 
         currentTweet.getContent().setValue(aText);
     }
 };
 
-private IRule&lt;Tweets&gt; lang = new DefaultRule&lt;Tweets&gt;(Type.CHARACTER, 
+private IRule&amp;lt;Tweets&gt; lang = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://api.twitter.com/]lang"
 ) {
     public void handleParsedCharacters(
-        XMLParser&lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {
         currentTweet.setLanguage(aText);
     }
 };
 
-private IRule&lt;Tweets&gt; author = new DefaultRule&lt;Tweets&gt;(Type.TAG, 
+private IRule&amp;lt;Tweets&gt; author = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]author"
 ) {
     public void handleTag(
-        XMLParser&lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
     ) {
         if (aIsStartTag)
             currentTweet.setAuthor(new Author());
@@ -595,27 +595,27 @@ private IRule&lt;Tweets&gt; author = new DefaultRule&lt;Tweets&gt;(Type.TAG,
     }
 };
 
-private IRule&lt;Tweets&gt; authorName = new DefaultRule&lt;Tweets&gt;(Type.CHARACTER, 
+private IRule&amp;lt;Tweets&gt; authorName = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
     "/[http://www.w3.org/2005/Atom]feed"
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]author" +
     "/[http://www.w3.org/2005/Atom]name"
 ) {
     public void handleParsedCharacters(
-        XMLParser&lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {
         currentTweet.getAuthor().setName(aText);
     }
 };
 
-private IRule&lt;Tweets&gt; authorUri = new DefaultRule&lt;Tweets&gt;(Type.CHARACTER, 
+private IRule&amp;lt;Tweets&gt; authorUri = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
     "/[http://www.w3.org/2005/Atom]feed" +
     "/[http://www.w3.org/2005/Atom]entry" +
     "/[http://www.w3.org/2005/Atom]author" +
     "/[http://www.w3.org/2005/Atom]uri"
 ) {
     public void handleParsedCharacters(
-        XMLParser&lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
     ) {
         currentTweet.getAuthor().setUri(aText);
     }
@@ -624,7 +624,7 @@ private IRule&lt;Tweets&gt; authorUri = new DefaultRule&lt;Tweets&gt;(Type.CHARA
 @SuppressWarnings("all")
 public SJXPTweetsReader() {
     dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    parser = parser = new XMLParser&lt;Tweets&gt;(
+    parser = parser = new XMLParser&amp;lt;Tweets&gt;(
         tweet, published, title, content, contentType, 
         contentText, lang, author, authorName, authorUri
     );
@@ -656,7 +656,7 @@ throws Exception {
 
 <p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/Dsl4XmlTweetsReader.java">Actual code</a> is in Github, here's what it looks like:</p>
 
-<pre><code>private DocumentReader&lt;Tweets&gt; reader;
+<pre><code>private DocumentReader&amp;lt;Tweets&gt; reader;
 
 public Dsl4XmlTweetsReader() {
     reader = mappingOf(Tweets.class).to(
@@ -751,7 +751,7 @@ public Tweets read(InputStream anInputStream) throws Exception {
     waiting for monitor entry [10d6b9000]
     java.lang.Thread.State: BLOCKED (on object monitor)
     at java.util.zip.ZipFile.getEntry(ZipFile.java:159)
-    - locked &lt;7f4514c88&gt; (a java.util.jar.JarFile)
+    - locked &amp;lt;7f4514c88&gt; (a java.util.jar.JarFile)
     at java.util.jar.JarFile.getEntry(JarFile.java:208)
     at java.util.jar.JarFile.getJarEntry(JarFile.java:191)
     at sun.misc.URLClassPath$JarLoader.getResource(URLClassPath.java:757)
@@ -783,7 +783,7 @@ public Tweets read(InputStream anInputStream) throws Exception {
     at com.sun.org.apache.xml.internal.dtm.DTMManager.
         newInstance(DTMManager.java:135)
     at com.sun.org.apache.xpath.internal.XPathContext.
-        &lt;init&gt;(XPathContext.java:100)
+        &amp;lt;init&gt;(XPathContext.java:100)
     at com.sun.org.apache.xpath.internal.jaxp.XPathExpressionImpl.
         eval(XPathExpressionImpl.java:110)
 </code></pre>
@@ -955,8 +955,8 @@ class BooksReader {
 
 <p>Unmarshalling code:</p>
 
-<pre><code>private static DocumentReader&lt;Hobbit&gt; newReader() {
-    DocumentReader&lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
+<pre><code>private static DocumentReader&amp;lt;Hobbit&gt; newReader() {
+    DocumentReader&amp;lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
         tag("name", Name.class).with(
             attributes("firstname", "surname")
         ),
@@ -988,7 +988,7 @@ class BooksReader {
 
 <pre><code>package com.sjl.dsl4xml.support;
 
-public interface Converter&lt;T&gt; {
+public interface Converter&amp;lt;T&gt; {
     public boolean canConvertTo(Class&lt;?&gt; aClass);
     public T convert(String aValue);
 }
@@ -996,9 +996,9 @@ public interface Converter&lt;T&gt; {
 
 <p>An example <code>Converter</code> for converting <code>String</code> values to primitive int's looks like this:</p>
 
-<pre><code>class PrimitiveIntConverter implements Converter&lt;Integer&gt; {
+<pre><code>class PrimitiveIntConverter implements Converter&amp;lt;Integer&gt; {
     @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
         return aClass.isAssignableFrom(Integer.TYPE);
     }
 
@@ -1014,7 +1014,7 @@ public interface Converter&lt;T&gt; {
 
 <p>You can use optimised type converters in situations where you <em>know</em> you will not be unmarshalling from multiple threads concurrently. An example is the <code>ThreadUnsafeDateConverter</code> which is used in the example above because it came from a test-case that will only ever run single-threaded. </p>
 
-<pre><code>public class ThreadUnsafeDateConverter implements Converter&lt;Date&gt; {
+<pre><code>public class ThreadUnsafeDateConverter implements Converter&amp;lt;Date&gt; {
     private DateFormat dateFormat;
 
     public ThreadUnsafeDateConverter(String aDateFormatPattern) {
@@ -1023,7 +1023,7 @@ public interface Converter&lt;T&gt; {
     }
 
     @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
         return aClass.isAssignableFrom(Date.class);
     }
 
@@ -1041,11 +1041,11 @@ public interface Converter&lt;T&gt; {
 
 <p>The alternative <code>ThreadSafeDateConverter</code> looks like this:</p>
 
-<pre><code>class ThreadSafeDateConverter implements Converter&lt;Date&gt; {
-    private ThreadLocal&lt;DateFormat&gt; dateFormat;
+<pre><code>class ThreadSafeDateConverter implements Converter&amp;lt;Date&gt; {
+    private ThreadLocal&amp;lt;DateFormat&gt; dateFormat;
 
     public ThreadSafeDateConverter(final String aDateFormatPattern) {
-        dateFormat = new ThreadLocal&lt;DateFormat&gt;() {
+        dateFormat = new ThreadLocal&amp;lt;DateFormat&gt;() {
             protected DateFormat initialValue() {
                 return new SimpleDateFormat(aDateFormatPattern);
             }
@@ -1053,7 +1053,7 @@ public interface Converter&lt;T&gt; {
     }
 
     @Override
-    public boolean canConvertTo(Class&lt;?&gt; aClass) {
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
         return aClass.isAssignableFrom(Date.class);
     }
 
