@@ -13,6 +13,162 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Android Market Comments - Severe Fail]]></title>
+        <link><![CDATA[http://steveliles.github.com/android_market_comments_severe_fail.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/android_market_comments_severe_fail.html</guid>
+        <description><![CDATA[<p>I'm so fed up with the Google Play comments and rating system. How can they have got it so wrong? Comments and user-ratings are a bad system to start with, but Google's system is broken beyond belief.</p>
+
+<h3>Comment/Rating is a broken idea</h3>
+
+<p>Commenting and rating systems are a bad idea to begin with. They pander to the extremes no matter what the subject under comment.</p>
+
+<p>Check any app - <em>any app</em> - on the market: I defy you to find <em>one</em> that is not overwhelmingly rated 1 or 5 stars. Why? Because most people between the two extremes don't care enough or can't be bothered to rate an app.</p>
+
+<p>That leaves the big fans who love the apps unquestionably but, bless 'em, unhelpfully ("&#9733;&#9733;&#9733;&#9733;&#9733; Love this app"), and the haters ("&#9733;&#9734;&#9734;&#9734;&#9734; Gross! sucks! don't download!").</p>
+
+<p>The big fans are wonderful, but not helpful, but neither are they being destructive. The haters though, they really get to me. I <em>want</em> my apps to be good. I <em>want</em> them to work for everyone. I <em>want</em> them to be liked. I feel it <em>really personally</em> when my app gets a bad rating. I shouldn't, everyone tells me, but I can't help it - I'm invested in my work.</p>
+
+<p>I've put a lot of time and effort into this thing - poured myself into it. A lot of that time I've given away free. Gratis. No charge. The "pro" version is the price of a newspaper that you'd read once and throw away.</p>
+
+<p>If you download, don't like, &#9733;&#9734;&#9734;&#9734;&#9734; and walk away, I'm stuck with a bad rating that I can do <em>nothing</em> about, and its cost you <em>nothing</em> (Google Play allows a refund within a couple of hours of the download). </p>
+
+<p>Please don't misunderstand me - I'm not railing against the people who comment and rate negatively - everyone is entitled to an opinion. The problem is the system which Google have created seems designed to make life difficult for app developers, and frustrating for users.</p>
+
+<p>Negative commenters seem to fall into a few categories:</p>
+
+<h4>The Unwittingly Unhelpful</h4>
+
+<blockquote>
+  <p>&#9733;&#9734;&#9734;&#9734;&#9734; <em>N. O'Tunreasonable</em> on April 20th, 2012 (Motorola shit-hot-superphone-II with version 2.0.1)</p>
+  
+  <p>"Doesn't work on Motorola shit-hot-superphone-II. FIX IT OR REFUND ME!".</p>
+</blockquote>
+
+<p>Dude, I'd love to fix it. No really, I would! Ask any one of the dozen or so people who've emailed or tweeted me about a problem and who got a response within hours and a fix within two days at most (best I can do on a personal project - I have a day job!).</p>
+
+<p>Unfortunately I don't have a Motorola shit-hot-superphone-II (its always Motorola, why is that? Oh, occasionally its an HTC, but nearly always Motorola. Curse them). </p>
+
+<p>It works great on my Samsung's, including the Galaxy mini that cost £50 in Tesco. No new crash reports or freezes in my developer console. How in the living hells do you expect me to FIX IT or, for that matter, to refund you? <em>I do not know who you are</em> because Google anonymise you!</p>
+
+<p>I don't blame these guys actually - they rightly expect the app to work, and equally they expect a commenting system to allow some kind of conversation. Unfortunately, the Android eco-system is fragmented to hell and back, bugs are a universal truth of software, and Play's commenting system does not allow threaded responses and does not give the developer access to the commenters identity.</p>
+
+<p>The first two I can handle - fragmentation requires more work, and bugs can be fixed, but I <em>need</em> to be able to communicate with commenters or I can't help them. I'm looking at you Google. With beetled brows.</p>
+
+<h4>The Blackmailer</h4>
+
+<p>Uses the power of a bad rating to demand whatever features he feels the app should have before benificently conferring his generous 5 stars.</p>
+
+<blockquote>
+  <p>&#9733;&#9734;&#9734;&#9734;&#9734; <em>Dick Dastardly</em> on April 16th, 2012 (HTC Wonderful with version 2.0.1)</p>
+  
+  <p>"Great app, will rate 5* when you add XYZ feature"</p>
+</blockquote>
+
+<p>Really, this has happened to me several times. Luckily so far the "requests" have been for features I was already working on, so I've managed to satsify these without having to bow to any whims. Strangely they do get all gushy afterwards.</p>
+
+<h4>The Affronted</h4>
+
+<p>Affronted that after skipping the description and reading just the name and maybe glancing at the icon of the app, it turns out not to do what they wanted - the confusion thus engendered renders the app's very existence <em>a personal insult</em>.</p>
+
+<blockquote>
+  <p>&#9733;&#9734;&#9734;&#9734;&#9734; <em>D. Idnot RTFM</em> on April 16th, 2012 (Samsung Universe XVI with version 2.0.1)</p>
+  
+  <p>"I ecspected this app to XXX but it dusnt it only YYY sooooo ridicolus OMFG I waisted nerly 30 seconds of my life on this thing and then I culdnt make it XXX but it shoud and like whatever this sux, dont waist ur life on this"</p>
+</blockquote>
+
+<p>OK, nothing much I an do about that, except try to come up with a better name / more descriptive icon / shorter and more pointed description. I guess I just have to hope that other potential downloaders do read the app description and take these kinds of comments with a pinch of salt. </p>
+
+<h4>The Cryptic Critic</h4>
+
+<blockquote>
+  <p>&#9733;&#9734;&#9734;&#9734;&#9734; on April 16th, 2012 (HTC Wonderful with version 2.0.1)</p>
+  
+  <p>"Shocking. So baaad. Even the icons suck. WTF!?"</p>
+</blockquote>
+
+<p>OK, come on guys! Shocking how? What's bad? Why do the icons suck? Give us a frigging clue here! There must have been something about the app that tempted you to download (unless I've mislabelled one of The Affronted), so presumably the issues with the app could have been worked out.</p>
+
+<p>Except Google didn't give me the chance to help you, or to improve the app for those that come after, because I have <em>no way</em> to answer the comment, publicly or privately, or to try to get any further information from the complainant.</p>
+
+<h2>Options for Developers on Google Play</h2>
+
+<h3>Build great apps</h3>
+
+<p>OK, this one sounds obvious, but its hard to build a great app on the first shot without any helpful feedback. </p>
+
+<p>As a solo developer its especially hard, actually, to see your own mistakes and evaluate the quality of something when you are so close to the work. If you have a company or a team working on an app there are lots of eyes and minds to spot mistakes, find bugs, and think of improvements.</p>
+
+<p>There are a few things we could do as developers, but I'm not sure of the efficacy of these strategies: </p>
+
+<ul>
+<li>Build diagnostics into our own apps - crash reports are very very useful, but miss a lot of vital information (Android version!? Heap size on <em>all</em> memory errors!?). We either have to wait for Google to make improvements or DIY it.</li>
+<li>Build feedback into our own apps - ask the user to submit feedback from within the app, and record and publish that feedback on the developers website. Doesn't solve the problem of comments on the Google market, but <em>might</em> make it possible to engage in a conversation with a percentage of the users you would otherwise be unable to talk to.</li>
+<li>Switch allegiance to Amazon's store. Of course, then you have to pay a fee to join, and are subject to an Apple-like review process, and I've no idea if the result is worth it - do Amazon solve any of the problems with Google's market?</li>
+<li>Build our own market that does a better job. No seriously, I'd love to do this. Of course, its a massive undertaking, and would require an incredible confluence of circumstances (or marketing budget) to really take off.</li>
+</ul>
+
+<h3>Self comment</h3>
+
+<p>On my free app I added a comment of my own, and I periodically freshen it up so it stays near the top of the stack so new commenters see it. Here's what it says:</p>
+
+<blockquote>
+  <p>&#9733;&#9733;&#9733;&#9733;&#9733; steve on March 10, 2012 (Samsung Galaxy S2 with version 1.5.4)
+  I am the developer...</p>
+  
+  <p>Hi all! Please consider contacting me before leaving a negative review - I am very keen to improve the app, will fix reported bugs quickly, and will add popularly requested features! </p>
+  
+  <p>If you only leave a comment like "forces close" I can't fix it because it doesn't give me any info to work with - that makes me sad.</p>
+</blockquote>
+
+<p>Yes, I five-starred my own app. I don't feel bad actually, because how else can I contend with Google's broken ratings/comment system?</p>
+
+<p>Unfortunately I'm not allowed to buy my own paid app, so this technique doesn't work there. I have added more or less the same information in the app description but, as we know, not everyone reads the descriptions.</p>
+
+<blockquote>
+  <p>Please please, if you have any problems at all contact us directly by email - crash reports and comments are great but Google don't give us any way to contact you back!!</p>
+</blockquote>
+
+<p>To be fair, many (paying) users have emailed me, as has one person who wanted the app but couldn't download either free or paid versions on her device (apparent Market bug! I sent her the paid app for free and contacted the device manufacturer - Samsung - as there's no clear way to contact Google).</p>
+
+<p>Sometimes when I've had negative comments from paying users I've been able to contact them by matching up the purchase record with the information in the comment. </p>
+
+<p>I can't always match them up, but when I can they are never surprised that I was able to contact them. They <em>expect</em> that commenting makes their information available to the developer. Why wouldn't it?</p>
+
+<h3>Mark as spam</h3>
+
+<p>The only tool Google give developers to deal with comments is a spam/not-spam toggle. I don't think its appropriate to mark genuine comments (and I do think all of the above are genuine comments) as spam.</p>
+
+<p>I understand this tool was added some time ago because there were big spam problems. So far I didn't get any spam comments at all.</p>
+
+<h3>Paid vs Free</h3>
+
+<p>Strangely, the users of paid apps are typically much more polite and less inclined to negatively review. They are more often inclined to email for help and delighted to get a response. </p>
+
+<p>Could be its the <a href="http://www.google.co.uk/url?sa=t&amp;rct=j&amp;q=principle%20of%20commitment&amp;source=web&amp;cd=2&amp;ved=0CDcQFjAB&amp;url=http%3A%2F%2Fsumitdhar.blogspot.com%2F2005%2F09%2Finfluence-techniques-commitment.html&amp;ei=AhNET9KDG9OJhQfjl8XnBQ&amp;usg=AFQjCNE8lIgMAPaBaWA2A1-D09qravE6Ew">Principle of Commitment</a> and maybe <a href="http://en.wikipedia.org/wiki/Post-purchase_rationalization">Post-purchase Rationalisation</a> at work? Or maybe its just the demographic of free vs paid users?</p>
+
+<p>I'm strongly considering never publishing a free app again, just for the reduced hassle.</p>
+
+<h2>What Google can do to help developers</h2>
+
+<p>I don't pretend to have all the answers, but a few small things would make my life as an Android developer much easier:</p>
+
+<ul>
+<li>Give developers access to the email address of commenters, or even a way to contact them via Google that keeps them anonymous. I imagine Google think that they are protecting users by anonymising them, but its really not helping anyone.</li>
+<li>Allow threaded comments. That would be enough - if I could respond, and the commenter was alerted to the response, an awful lot of problems and misunderstandings could be cleared up quickly. This would be massively to Google's benefit, reducing user and developer frustration!</li>
+<li>Include more device info in crash reports and comments (e.g. Android build versions and heap size for starters)</li>
+<li>Maintain a list of device specs or emulator configurations that can be used to replicate crashes or bugs reported by users - including things like the damn heap size. I can't afford to buy one of every device on the market - my developer console states "This application is available to over 1245 devices.".</li>
+</ul>
+
+<p>Please Google, please just help us to help our users. Help us to make the Android eco-system better. Help us to generate more profits for you. Everyone wins.</p>
+]]></description>
+          <category>Android Market</category>
+          <category>Google Play</category>
+          <category>Comments</category>
+          <category>Fail</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Sat, 21 Apr 2012 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Comparing methods of XML parsing in Android]]></title>
         <link><![CDATA[http://steveliles.github.com/comparing_methods_of_xml_parsing_in_android.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/comparing_methods_of_xml_parsing_in_android.html</guid>
@@ -5140,63 +5296,6 @@ Content-Length: 0
           <category>JSNI</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Wed, 12 Oct 2011 00:00:00 +0100</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[On 'Flow' and feeling productive]]></title>
-        <link><![CDATA[http://steveliles.github.com/on_flow_and_feeling_productive.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/on_flow_and_feeling_productive.html</guid>
-        <description><![CDATA[<p>I like to feel productive. Actually that's a huge understatement. If I'm not feeling productive I get quite unhappy. For me feeling productive goes hand in hand with creative output - something that produces a tangible artifact - and I find it difficult to satisfy my need for productivity with intangible things like meetings.</p>
-
-<p>Even more than that, I need to be deeply involved in the creative activity - part of the group doing the creative stuff rather than managing it from a distance.</p>
-
-<p>This post has been brewing for a while, and I finally began composing it last week. At the weekend I ran out of Kindle-fodder and bought <a href="http://twitter.com/#!/ericries">@ericries</a> 's new book <a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_il?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0670921602">The Lean Startup</a>, and was amazed and pleased to hit upon the following quote, which said it all much better than I could: </p>
-
-<table>
-<tr>
-<td>
-<a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_il?ie=UTF8&tag=stlibl-21&linkCode=as2&camp=1634&creative=19450&creativeASIN=0670921602"><img src="http://ecx.images-amazon.com/images/I/51qNUVObwFL._SL500_AA300_.jpg"></a>
-</td>
-<td>
-<blockquote>"When people are used to evaluating their productivity locally, they feel that a good day is one in which they did their job well all day.</blockquote>
-<blockquote>When I worked as a programmer, that meant eight straight hours of programming without interruption. That was a good day.</blockquote>
-<blockquote>In contrast, if I was interrupted with questions, process, or - heaven forbid - meetings, I felt bad. What did I really accomplish that day? Code and product features were tangible to me; I could see them, understand them, and show them off. Learning, by contrast, is frustratingly intangible."</blockquote>
--- Eric Ries, in The Lean Startup
-</td>
-</tr>
-</table>
-
-<p>Now I agree with almost all of that quote, except for the last sentence where I think the word "learning" is in some ways not fitting. I think Eric meant to encompass questions, process, meetings, and many other things in "learning", in which case I'd agree with him, but there certain kinds of "learning" which I find very productive. </p>
-
-<p>Recently I've been exploring some new avenues in my work - straying away from spending all day coding and venturing into developing product ideas. At first it felt very uncomfortable and I didn't feel at all productive. Lately though I'm coming around to it. </p>
-
-<p>For me part of the way through has been to find ways to turn what I'm thinking and doing into tangible artifacts that require some creative effort to produce - for example: drawing UI wireframes, writing up meetings and brainstorming sessions, and developing ideas in essay form. </p>
-
-<p>By committing &amp;ideas to disk I've started to feel productive again. Perhaps its just a safety blanket really, but it feels good, and the best bit is that with each new artifact, essay, description, and wireframe I can link to previous artifacts for reference, backup or explanation (all are available online in our basecamp account), and the conversation gets richer. </p>
-
-<p><img src="http://2.bp.blogspot.com/-zYYLyGL6IF8/Tnuwx1j5bHI/AAAAAAAAHmU/ohE6yl1bFQU/s554/Screenshot-Portable%2BDevices%2BBusiness%2BUnit%2B%253E%2BEasy%2BPublish%253A%2Bassumptions%2Band%2Buse-cases%2B-%2BGoogle%2BChrome-1.png" alt="Basecamp Messages" /> </p>
-
-<p>I've begun to wonder if some of my feeling of productivity actually comes from spending a certain amount of time each day in a state of <a href="http://en.wikipedia.org/wiki/Flow_(psychology">flow</a>), and if I don't get to spend some time each day in that state then I feel less happy and productive. </p>
-
-<p>There are a few activities - mostly creative in some way - during which I find myself zoning out and really getting immersed in what i'm doing: coding; drawing; reading (novels); and - with a bit of effort - writing. Once i'm tuned out I can go on for hours without feeling time passing. </p>
-
-<p>When I'm coding at home, with no distractions, I'll sit at the table in morning when my wife leaves for work and will hardly have moved by the time she comes home. I've noticed that I even realize, sometimes, that i'm in this state and have a "lucid flow" moment akin to lucid dreaming. Usually I get this when I hit a turning point in my work: when I've been working on a problem for a couple of hours and finally feel the complete shape of the solution in my head - I'm as deep into the problem as I'm going to get, I can start unwinding the mental stack, and from here on in progress is going to get quicker and quicker. Love that feeling. </p>
-
-<table>
-<tr>
-<td>
-<p>Coding is the creative activity that I spend most time on, so its also the activity that most often gets me into <a href="http://en.wikipedia.org/wiki/Flow_(psychology))">flow</a>, but I find the most powerful activity for flow is drawing.</p>
-<p>I suspect this has a lot to do with the difference between coding and drawing - the fact that coding requires the language centres of the brain to be active. Betty Edwards has quite a bit to say on this in Drawing on the Right Side of the Brain, which is an interesting read if you can draw reasonably well, but presumably a revelation if you've never been able to draw.</p>
-</td>
-<td>
-<a href="http://www.amazon.co.uk/gp/product/images/0007116454/ref=dp_image_0?ie=UTF8&n=266239&s=books)"><img src="http://ecx.images-amazon.com/images/I/5114QGDGH7L._SL500_AA300_.jpg"></a>
-</td>
-</tr>
-</table>
-]]></description>
-          <category>Flow</category>
-          <category>Productivity</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 22 Sep 2011 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>
