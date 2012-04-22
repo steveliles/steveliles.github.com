@@ -1406,7 +1406,7 @@ public interface Converter&amp;lt;T&gt; {
 
 <p>AsyncTask provides a simple API for doing work in the background and re-integrating the result with the main thread. Here's what it looks like:</p>
 
-<pre><code>new AsyncTask&lt;Param, Progress, Result&gt;() {
+<pre><code>new AsyncTask&amp;lt;Param, Progress, Result&gt;() {
     protected void onPreExecute() {
         // perhaps show a dialog 
         // with a progress bar
@@ -1466,7 +1466,7 @@ public interface Converter&amp;lt;T&gt; {
 
 <p>If you want a simple way to take some measure of control where possible, you can subclass AsyncTask, test for the API level at runtime, and invoke the executeOnExecutor method if it is available - something like this:</p>
 
-<pre><code>class MyAsyncTask&lt;Param, Progress, Result&gt; {
+<pre><code>class MyAsyncTask&amp;lt;Param, Progress, Result&gt; {
 
     private static final boolean API_LEVEL_11 
         = android.os.Build.VERSION.SDK_INT &gt; 11;
