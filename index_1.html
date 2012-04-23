@@ -35,6 +35,101 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="649" description="A quick intro to how to return a result from an Android Activity">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-03-03">March 03, 2012</time></span>
+              <a itemprop="url" href="returning_a_result_from_an_android_activity.html"><h1 itemprop="name" itemprop="headline">Returning a result from an Android Activity</h1></a>
+	      <span itemprop="articleBody"><p>The Android platform prescribes a number of patterns for putting together an application that plays well with the platform and feels familiar to users.</p>
+
+<p>One of those patterns is the hierarchical use of <code>Activities</code> to segregate the application, and to provide re-usable chunks of application that can service certain requirements. </p>
+
+<p>The higher design goal is to create an eco-system of separable <code>Activities</code> that fulfil <code>Intents</code> that can be re-used by other applications - for example: if my application needs an image, it can request one by invoking an Intent to use an image, and all <code>Activities</code> that can fulfil that <code>Intent</code> will be offered as a choice to the user.</p>
+
+<p>Lets see what that looks like with a code example.</p>
+
+<h3>Invoking an Activity with an Intent</h3>
+
+<p>First of all, lets look at how to invoke an activity with an Intent. Lets say we want to explicitly open the Gallery app to select an image to use in our application. Its very simple:</p>
+
+<pre><code>private static final int PICK_IMAGE_REQUEST = 1;
+
+public void selectImageFromGallery() {
+    Intent _intent = new Intent();
+    _intent.setType("image/*");
+    _intent.setAction(Intent.ACTION_GET_CONTENT);
+    startActivityForResult(
+        Intent.createChooser(_intent, "Select Picture"), 
+        PICK_IMAGE_REQUEST
+    );
+}
+</code></pre>
+
+<p>This will open the gallery app and allow the user to select an image. Notice that in the call to <code>startActivityForResult</code> we provided an int value in the form of <code>PICK_IMAGE_REQUEST</code> - this tells the system what return-code to use when the invoked <code>Activity</code> completes, so that we can respond correctly. </p>
+
+<p>Lets see how we do that ..</p>
+
+<pre><code>@Override
+protected void onActivityResult(
+    int aRequestCode, int aResultCode, Intent aData
+) {
+    switch (aRequestCode) {
+        case PICK_IMAGE_REQUEST:
+            handleUserPickedImage(aData);
+            break;
+        case SOME_OTHER_REQUEST:
+            handleSomethingElse(aData);
+            break;
+    }
+    super.onActivityResult(aRequestCode, aResultCode, aData);
+}
+</code></pre>
+
+<p>Here we're overriding a method of <code>Activity</code> to handle results being passed back from invoked activities. </p>
+
+<p>The value of <code>aRequestCode</code> is the value passed to the <code>startActivityForResult</code> method (so for us its <code>PICK_IMAGE_REQUEST</code>), and is how we distinguish which activity is returning a result.</p>
+
+<p><code>aResultCode</code> will contain the value set by the invoked <code>Activity</code>'s setResult(int), while <code>aData</code> Intent contains any data returned by the <code>Activity</code>. In our example the Intent contains the Uri of the selected image, which we can access like this:</p>
+
+<pre><code>private void handleUserPickedImage(Intent aData) {
+    if ((aData != null) &amp;&amp; (aData.getData() != null)) {
+        Uri _imageUri = aData.getData();
+        // Do something neat with the image...
+    } else {
+        // We didn't receive an image...
+    }
+}
+</code></pre>
+
+<h3>Returning values from an Activity</h3>
+
+<p>Great, we can invoke existing <code>Activity</code>'s and collect results. What does it look like from the other side? - How does the Activity return its results to us?</p>
+
+<pre><code>Uri _resultUri = .. // Some uri we want to return  
+Intent _result = new Intent();              
+_result.setData(_resultUri);
+setResult(Activity.RESULT_OK, _result);
+finish();
+</code></pre>
+
+<p>Its a simple as that: </p>
+
+<ol>
+<li>Create an Intent (the result object)</li>
+<li>Set the result data (you don't have to return a Uri - you can use the putExtra methods to set any values you want)</li>
+<li>Call <code>setResult</code> on your Activity, giving it the result Intent</li>
+<li>Call <code>finish</code> on your Activity</li>
+</ol>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Activity">Activity</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Result">Result</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="returning_a_result_from_an_android_activity.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="414" description="Some stuff I learned about using custom fonts in Android.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-02-20">February 20, 2012</time></span>
               <a itemprop="url" href="custom_fonts_in_android.html"><h1 itemprop="name" itemprop="headline">Custom fonts in Android</h1></a>
@@ -607,57 +702,6 @@ public class BitmapActivity extends Activity {
 	        <a href="creating_comic_book_style_icons_with_gimp.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="272" description="A couple of commands I've been using to create iOS-style icons with ImageMagick">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-01-27">January 27, 2012</time></span>
-              <a itemprop="url" href="creating_ios_style_icons_with_imagemagick.html"><h1 itemprop="name" itemprop="headline">Creating iOS style icons with ImageMagick</h1></a>
-	      <span itemprop="articleBody"><p>Icons for iOS apps are generally provided by the app with square corners and no "sheen". The rounded corners and glossy sheen are added by iOS.</p>
-
-<p>If you want to achieve the iOS icon look on icons used elsewhere (Android, Web, etc), you need to round the corners and apply the sheen yourself.</p>
-
-<p>What follows is my quick attempt to give the iOS treatment to this 512x512 icon:</p>
-
-<p><img src="https://lh6.googleusercontent.com/-UaUMm3U99L8/TyLi2QD6E-I/AAAAAAAAIq4/gl-21ZMoBg4/s800/in.png" alt="Original Icon" /></p>
-
-<h3>Transparent Rounded Corners</h3>
-
-<p>OK, transparent rounded corners are actually the easy part. There are several ways to get ImageMagick to do this. The easiest (read: shortest) command i've found looks like this:</p>
-
-<pre><code>convert -size 512x512 xc:none -fill white -draw \
-    'roundRectangle 0,0 512,512 50,50' in.png \
-    -compose SrcIn -composite rounded.png
-</code></pre>
-
-<p>So now we have this:</p>
-
-<p><img src="https://lh3.googleusercontent.com/-ndvucr5orZ4/TyLmOX_XYqI/AAAAAAAAIrc/gMdrV_Hvil8/s800/test.png" alt="Rounded Corners" /></p>
-
-<h3>Overlay some sheen</h3>
-
-<p>The sheen is trickier. I imagine that real ImageMagick pro's could generate the sheen mask with some deft command-line, but I'm nowhere near that proficient.</p>
-
-<p>Instead I created the following image in Gimp - exactly how is a topic for another post :). The black background is coming from the div containing the image - where you see black is actually transparent in my png, and the grey highlight at the top is semi-transparent:</p>
-
-<div style="background-color:black; width:512px;"><img src="https://lh5.googleusercontent.com/-gssBzUQ5a0c/TyLi4f6F6fI/AAAAAAAAIrE/Lc9HhdfRQN8/s800/gloss-over.png"></div>
-
-<p>To composite the rounded-corner image with the glossy overlay (gloss-over.png), I use this ImageMagick command:</p>
-
-<pre><code>convert -draw "image Screen 0,0 0,0 'gloss-over.png'" \
-    rounded.png final.png
-</code></pre>
-
-<p><img src="https://lh4.googleusercontent.com/-YaXSMS3j_Ws/TyLmvOKZLMI/AAAAAAAAIr0/h_nP4EQ8k94/s800/final.png" alt="Final iOS style image" /></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ImageMagick">ImageMagick</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=iOS">iOS</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Icon">Icon</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="creating_ios_style_icons_with_imagemagick.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -675,11 +719,11 @@ public class BitmapActivity extends Activity {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
                 <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
                 <li><a href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML parsing in Android</a><span class="date"> - Apr 10, 2012</span></li>
                 <li><a href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
                 <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
-                <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
