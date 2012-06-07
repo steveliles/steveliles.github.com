@@ -35,6 +35,102 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="579" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the union of the css classes">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
+              <a itemprop="url" href="a_multi_class_union_css_selector.html"><h1 itemprop="name" itemprop="headline">A multi-class union CSS selector</h1></a>
+	      <span itemprop="articleBody"><p><style> <br />
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent.important { font-style:italic; }
+</style>
+Several times while working on the styling of this blog I've wanted to style elements differently when the complete combination or set union of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
+
+<p>Here's the html I want to be able to write:</p>
+
+<pre><code>&lt;div class="urgent"&gt;something urgent&lt;/div&gt;
+&lt;div class="important"&gt;something important&lt;/div&gt;
+&lt;div class="urgent important"&gt;urgent &amp; important&lt;/div&gt;
+</code></pre>
+
+<p>And this is how that should look:</p>
+
+<div class="example">
+  <div class="urgent">something urgent</div>
+  <div class="important">something important</div>
+  <div class="urgent important">urgent & important</div>
+</div>
+
+<p>The urgent &amp; important text should be bold, red and italic in your browser. Notice that neither the "urgent" or the "important" are italic - that only comes when both css classes combine on the same element.</p>
+
+<p>Here are three ways you can achieve the effect. Make sure you get to option-3, even if you have to skip options 1 and 2 (hint: they both suck).</p>
+
+<h3>Option 1: specific, separate css class</h3>
+
+<pre><code>&lt;style&gt;
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .both   { font-style:italic; }
+&lt;/style&gt;
+
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Red Text&lt;/div&gt;
+&lt;div class="urgent important both"&gt;Bold Italic Red Text&lt;/div&gt;
+</code></pre>
+
+<p>This is nasty. I want to define my css classes to be as orthogonal and meaningful as possible, and while creating my html markup I do not want to be "mixing concerns" that should be kept separate.</p>
+
+<h3>Option 2: nested html tags and ancestry selectors</h3>
+
+<pre><code>&lt;style&gt;
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent .important { font-style:italic }
+&lt;/style&gt;
+
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Red Text&lt;/div&gt;
+&lt;div class="urgent"&gt;
+  &lt;div class="important"&gt;Bold Italic Red Text&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>Double nasty, take it away! Now I've had to change my html markup to nest <code>.important</code> under <code>.urgent</code>, just so I can style things as I want them. It also doesn't work if I nest them the other way around. This is really stupid and annoying: styling should be separate from markup.</p>
+
+<p>OK, so here's the right way to do it, and I just can't believe it took me so long to feel the pain hard enough to go looking for a solution...</p>
+
+<h3>Option 3: use the union selector</h3>
+
+<pre><code>&lt;style&gt;
+  .urgent { color:red; }
+  .important { font-weight:bold; }
+  .urgent.important { font-style:italic; }
+&lt;/style&gt;
+
+&lt;div class="urgent"&gt;Red Text&lt;/div&gt;
+&lt;div class="important"&gt;Bold Text&lt;/div&gt;
+&lt;div class="urgent important"&gt;Bold Italic Red Text&lt;/div&gt;
+</code></pre>
+
+<p>The difference in the css declaration between option-2 and option-3 is so small I'll point it out, just in case you missed it: </p>
+
+<ul>
+<li>the union selector uses <em>both</em> class names <em>without</em> the space separating them - like this <code>.urgent.important</code>.</li>
+<li>whereas the example in option-2 <code>.urgent .important</code> separates the two classes with a space, and matches on an element with <code>.important</code> descending from an element with <code>.urgent</code>.</li>
+</ul>
+
+<p>CSS can be a thumping great pain, but just occasionally it comes up trumps.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=css">css</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=selector">selector</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=union">union</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="a_multi_class_union_css_selector.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,218" description="Description, code and sample images from various image processing techiques aiming at producing a bitmap with a vectorised appearance">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-19">November 19, 2011</time></span>
               <a itemprop="url" href="weighted_average_smoothing_with_java2d.html"><h1 itemprop="name" itemprop="headline">Weighted Average smoothing with Java2d</h1></a>
@@ -869,306 +965,6 @@ class AnnotationReplacement extends AbstractReplacement {
 	        <a href="syntax_highlighting_with_gwt_progressive.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,076" description="Description and code samples for progressive enhancement using Google Web Toolkit and a new open source library called gwt.progressive">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-12">November 12, 2011</time></span>
-              <a itemprop="url" href="gwt_progressive.html"><h1 itemprop="name" itemprop="headline">gwt.progressive</h1></a>
-	      <span itemprop="articleBody"><h2>Easy Progressive-Enhancement with GWT</h2>
-
-<p>Progressive-enhancement is a technique for delivering a basic website suitable for search-engines and older web-browsers, then layering on polish, effects, interactivity and general goodness using javascript - the idea being to have a graceful degradation of service, not an all-or-nothing experience.</p>
-
-<p>Traditionally <code>GWT</code> works the other way around - it builds all of the <code>DOM</code> structure of your web-app in script, so search-engines (and browsers with script disabled) only see an inscrutable mass of script.</p>
-
-<p><code>GWT.Progressive</code> helps to bring your ninja <code>GWT</code> skills to bear on web-sites that need progressive enhancement.</p>
-
-<p>You can get <code>GWT.Progressive</code> from the <a href="https://github.com/steveliles/gwt-progressive">git repository</a> at github.</p>
-
-<h2>What can GWT.Progressive do for me?</h2>
-
-<ul>
-<li>Bind <code>GWT</code> widgets to html elements on static (or server-generated) html pages, using the html as a template and <code>GWT</code> magic to "enhance" the user-experience</li>
-<li>Automatically bind nested html elements to properties of widget classes (child widgets, grand-child widgets, etc)</li>
-<li>Bind repeated html elements to <code>List&lt;MyWidgetClass&gt;</code> properties of widget classes</li>
-<li>Automatically bind attributes of html elements to properties of widget classes - with automatic type coercion</li>
-<li>Make partial page-updates a breeze (replacing parts of the <code>DOM</code> with new server-generated content)</li>
-</ul>
-
-<h2>How GWT.Progressive works</h2>
-
-<h3>Element Binding</h3>
-
-<p>You can bind a <code>GWT</code> widget to any html element on your website - just by adding an annotation to the widget class:</p>
-
-<pre><code>// bind by id
-@RootBinding(id="mywidget")
-class MyWidget extends Composite {
-    //...
-}
-
-// bind by tag name
-@RootBinding(tag="h1")
-class MyWidget extends Composite {
-   //...
-}
-
-// bind by css class
-@RootBinding(cssClass="bind-me")
-class MyWidget extends Composite {
-   //...
-}
-
-// bind by tag name and css class
-@RootBinding(tag="div", cssClass="bind-me")
-class MyWidget extends Composite {
-   //...
-}
-</code></pre>
-
-<p>Bind nested html to child widgets:</p>
-
-<pre><code>// bind the first &amp;lt;h1&gt; tag we find by breadth first
-// search of the DOM within our widget's root element
-@RuntimeUiWidget(tag="h1") MyHeaderWidget header;
-
-// bind the first element we find by breadth first
-// search that has the css class "foo"
-@RuntimeUiWidget(cssClass="foo") MyFooWidget foo;
-</code></pre>
-
-<p>Bind repeated elements to a List of child widgets:</p>
-
-<pre><code>// bind all the &amp;lt;img&gt; elements we find inside our
-// widget's root element to the list of Image widgets
-@RuntimeUiWidget(tag="img") List&lt;Image&gt; images;
-</code></pre>
-
-<h3>Attribute Binding</h3>
-
-<p>Bind html attributes as properties of your widgets, with automatic type coercion:</p>
-
-<pre><code>// the following attributes will have their default values (set below)
-// overridden by the values of attributes in the html, if they exist
-@RuntimeUiAttribute("text-attr") String textAttr = "default";
-@RuntimeUiAttribute("int-attr") Integer integerAttr = 22;
-@RuntimeUiAttribute("long-attr") Long longAttr = 9L;
-@RuntimeUiAttribute("float-attr") Float floatAttr = 2.3f;
-@RuntimeUiAttribute("double-attr") Double doubleAttr = 2222222.222d;
-@RuntimeUiAttribute("boolean-attr") Boolean booleanAttr = false;
-</code></pre>
-
-<p>Bind attributes to custom types by supplying converters - given html like: <code>&lt;div coords="200x400"&gt; ... &lt;/div&gt;</code>, automatically bind the coords property of our widget as an instance of Coords, converted by CoordsAttributeConverter...</p>
-
-<p>In the <code>Widget</code> we're binding:</p>
-
-<pre><code>// automatically bind our custom Coords class 
-@RuntimeUiAttribute("coords") Coords coords;
-</code></pre>
-
-<p>The <code>Coords</code> class:</p>
-
-<pre><code>class Coords {
-    public Integer x, y;
-    public Coords(Integer anX, Integer aY) {
-        x = anX;
-        y = aY;
-    }
-}
-</code></pre>
-
-<p>The <code>AttributeConverter</code>:</p>
-
-<pre><code>@RuntimeUiAttributeConverter
-public class CoordsAttributeConverter 
-extends AttributeConverter&lt;Coords&gt; {
-    public Coords convert(String aString) {
-        String[] _parts = aString.split("x");
-        return new Coords(
-            Integer.parseInt(_parts[0]), 
-            Integer.parseInt(_parts[1])
-        );
-    }
-}
-</code></pre>
-
-<h3>Partial Page Updates</h3>
-
-<p>Replace chunks of html with new html from the server. Your server can provide this html as it pleases - for example you can call servlets, jsp's, PHP or whatever you like to get the html for the replacement. Your widgets will re-bind to the new html after adding it to the <code>DOM</code>.</p>
-
-<pre><code>// UiBinder afficionados will be familiar with this plumbing
-// which we'll use to invoke our page update...
-interface MyActivator extends ElementActivator&lt;Partial&gt;{}
-MyActivator activator = GWT.create(MyActivator.class);
-
-// here's the widget we're going to update
-@RuntimeUiWidget(tag="div") UpdateMe updateMe;
-
-    ...
-
-// call this method to trigger the update
-private void someMethod() {
-    activator.update(
-        updateMe, "/update-me.jsp", 
-        new CallMeWhenUpdated()
-    );
-}
-</code></pre>
-
-<h3>Partial Page Update callbacks</h3>
-
-<p>You can register callbacks to trigger when a partial update completes - successfully or otherwise. Here's a more complete partial update example:</p>
-
-<pre><code>@RootBinding(tag="div")
-public class Partial extends BoundRootPanel
-    // UiBinder afficionados will be familiar with this
-    interface MyActivator extends ElementActivator&lt;Partial&gt;{}
-    MyActivator activator = GWT.create(MyActivator.class);
-
-    @RuntimeUiWidget(tag="div") UpdateMe updateMe;
-
-    public Partial(Element anElement)
-    {
-        setElement(activator.activate(this, anElement));
-
-        // Update the page when we're clicked...
-        addDomHandler(new ClickHandler() {
-            public void onClick(ClickEvent aEvent) {
-                activator.update(
-                    Partial.this, "/update-me.jsp", 
-                    new CallMeWhenUpdated()
-                );
-            });
-        }            
-    }, ClickEvent.getType());
-
-    class CallMeWhenUpdated 
-    implements PageUpdateCallback&lt;Partial&gt;() {
-        public void onSuccess(Partial anUpdated) {
-            Window.alert("Updated!");
-        }
-
-        public void onError(Throwable anExc) {
-            GWT.log("oops, something bad happened", anExc);
-        }   
-    }
-}
-</code></pre>
-
-<h3>Complete example - Progressive Enhancement with GWT</h3>
-
-<p>Here's the HTML we're going to enhance:</p>
-
-<pre><code>&lt;html&gt;
-  &lt;body&gt;
-    &lt;div class="widget"&gt;
-      &lt;img class="first" src="/image-1.png"&gt;
-      &lt;img class="second" src="/image-2.png"&gt;
-    &lt;/div&gt;
-    &lt;!-- our script loads last, and progressive 
-         enhancement begins --&gt;
-    &lt;script 
-        type="text/javascript" language="javascript" 
-        src="example/example.nocache.js?cache=20111112180652"&gt;
-    &lt;/script&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>Here's the widget we're going to bind to the <code>&lt;div&gt;</code> of css-class "widget":</p>
-
-<pre><code>@RootBinding(cssClass="widget")
-class MyWidget extends BoundRootPanel {
-    interface MyActivator extends ElementActivator&lt;MyWidget&gt;{}
-    MyActivator activator = GWT.create(MyWidget.class);
-
-    @RuntimeUiWidget(cssClass="first") Image first;
-    @RuntimeUiWidget(cssClass="second") Image second;
-
-    public MyWidget(Element anElement) {
-        setElement(activator.activate(this, anElement);
-
-        // ... now we do some enhancements, e.g. add
-        // click-handlers to our image's or something
-    }
-}
-</code></pre>
-
-<p>We'll need an EntryPoint - this is still a <code>GWT</code> application:</p>
-
-<pre><code>class Example1 implements EntryPoint {
-    public void onModuleLoad() {
-        PageActivator _activator = GWT.create(PageActivator.class);
-        _activator.activate();
-    }
-}
-</code></pre>
-
-<p>... and a <code>GWT</code> module descriptor (<code>.gwt.xml</code>) of course:</p>
-
-<pre><code>&lt;module rename-to="example"&gt;
-  &lt;inherits name="com.google.gwt.user.User"/&gt;
-  &lt;inherits name="com.sjl.gwt.progressive.Progressive"/&gt;
-
-  &lt;entry-point class="com.sjl.example.client.Example" /&gt;
-
-  &lt;!-- for maximum compatibility, use the xs linker --&gt;
-  &lt;add-linker name="xs" /&gt;
-&lt;/module&gt;
-</code></pre>
-
-<h2>Rules of engagement</h2>
-
-<p><code>GWT.Progressive</code> requires that you follow a few simple rules to ensure that your widgets get "activated" correctly, integrated into the GWT/browser eventing system, etc.</p>
-
-<p>Your widgets <em>must</em>:</p>
-
-<ul>
-<li>Have a public <code>Constructor</code> that takes a <code>com.google.gwt.dom.client.Element</code> argument, OR</li>
-<li>Have a <code>public static &lt;T&gt; wrap(Element anElement)</code> method that returns an instance of your widget class (this is how native GWT widgets like Image and Label are bound by GWT.Progressive).</li>
-<li><code>GWT.create()</code> a special class that allows <code>GWT.Progressive</code>'s generator to work its magic on your widgets (either <code>com.sjl.gwt.progressive.client.ElementActivator</code> or <code>com.sjl.gwt.progressive.client.WidgetActivator</code>).</li>
-<li>Set your Widget's Element as the return value from activation (<code>setElement(activator.activate(this, anElement))</code>) or init your Composite with it (<code>initWidget(activator.activate(this, anElement))</code>).</li>
-</ul>
-
-<p>If you've ever used UiBinder, this pattern will be very familiar to you.</p>
-
-<p>Also, make sure to use the "xs" linker by specifying <code>&lt;add-linker name="xs"/&gt;</code> in your gwt module descriptor for maximum compatibility.</p>
-
-<h3>Where can I find more examples of GWT.progressive?</h3>
-
-<p>In the github repository, in the <a href="https://github.com/steveliles/gwt-progressive/tree/master/src/java/test/com/sjl/gwt/progressive">test source tree</a>.</p>
-
-<h3>Are there any examples in the wild?</h3>
-
-<p>There are two examples on this page! - The Twitter feed in the sidebar, and the code <a href="syntax_highlighting_with_gwt_progressive.html">syntax-highlighting</a> are both implemented using <code>gwt.progressive</code>.</p>
-
-<p>You can also try my mortgage/loan <a href="http://www.overpayment-calculator.com/">overpayment calculator</a> which is built with gwt.progressive.</p>
-
-<h3>Can I use this in my products?</h3>
-
-<p>Sure, its available under the Apache-2.0 license, and is a github fork away, but ... disclaimer: use at your own risk and discretion, I cannot accept responsibility for any issues that may arise from using this library.</p>
-
-<h3>Can I modify the code, fix bugs, etc?</h3>
-
-<p>Knock yourself out :) ... I'd love to hear about it if you do.</p>
-
-<h2>Final Words</h2>
-
-<p>I just want to say - props to my employer (<a href="http://www.knowledgeview.com">KnowledgeView ltd.</a>) for allowing me to release the code, some of which was developed on their dime. Mucho thanks KV :)</p>
-
-<p>You can find some more background on <code>GWT.Progressive</code> in some of my earlier blog posts: <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_1.html">part-1</a>, <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_2.html">part-2</a>, and <a href="http://steveliles.github.com/progressive_enhancement_with_gwt_part_3.html">part-3</a></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Progressive">Progressive</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Enhancement">Enhancement</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Library">Library</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Apache2">Apache2</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="gwt_progressive.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -1186,11 +982,11 @@ class MyWidget extends BoundRootPanel {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
                 <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
                 <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
                 <li><a href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML parsing in Android</a><span class="date"> - Apr 10, 2012</span></li>
                 <li><a href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
-                <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

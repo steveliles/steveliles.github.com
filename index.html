@@ -35,6 +35,109 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,291" description="My experience with MVP's since reading "The Lean Startup"">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-06-07">June 07, 2012</time></span>
+              <a itemprop="url" href="minimum_viable_products.html"><h1 itemprop="name" itemprop="headline">Minimum Viable Products</h1></a>
+	      <span itemprop="articleBody"><p>I haven't blogged in a while. I've been very busy with lots of different things, but nothing sufficiently technical and juicy to write about. Some less techy and more entrepreneurial adventures have been floating around, so I though to make some notes on those.</p>
+
+<p>Things have taken a strange turn at work, with a very ambitious new project in the pipeline that is quite a departure from our usual business. I am tasked to deliver both development-wise <em>and</em> in terms of defining the business model. </p>
+
+<p>The development alone will be a monumental task. Defining a business model is &hellip; quite some way outside my experience. The budget is almost non-existent. The time-scales are horribly short. I'm not even sure I completely buy the basic premise of the project. And yet &hellip; it is still a strangely attractive prospect, and its all Eric Ries' fault.</p>
+
+<h3>The Lean Startup</h3>
+
+<p><a style="float:left; margin:25px;" href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_tl?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=06709216020"><img src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&amp;Format=_SL160_&amp;ASIN=0670921602&amp;MarketPlace=GB&amp;ID=AsinImage&amp;WS=1&amp;tag=stlibl-21&amp;ServiceVersion=20070822"></a></p>
+
+<p>In September last year I read Eric Reis' excellent book - <a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_tl?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=06709216020">The Lean Startup</a> - and was inspired to put it into practice on my personal projects. I stopped getting hung up on the infinite details of feature-complete perfection, and started thinking in terms of Minimum Viable Product.</p>
+
+<p>It led me to release my first ever solo "for profit" work, a super-simple <a href="http://www.overpayment-calculator.com/">mortgage repayment calculator</a>. </p>
+
+<p>The development part was fun, and I got an excuse to use one of my <a href="http://steveliles.github.com/mortgage_loan_overpayment_calculator.html">open-source libraries</a>. </p>
+
+<p>What turned out to be really interesting though, was that to get it online I had to register a domain-name and figure out how to <a href="http://steveliles.github.com/pointing_a_domain_name_to_an_amazon_s3_bucket.html">point it at an Amazon S3 bucket</a>, which I had to <a href="http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html">configure to host a website</a>. Two things I'd never done before. </p>
+
+<p>I also spent some time researching keywords, used multiple landing pages on different sub-domains with different keyword content, and set up analytics to see which gets most traffic - following Eric's advice to scientifically test a theory.</p>
+
+<p>For my second project I had a bit more time - I had a week off in the run-up to Christmas to use up my 2011 vacation entitlement. My wife was working, which meant I had a guilt-free coding week (my wife is great about me coding at home, but it doesn't stop me feeling guilty).</p>
+
+<p><a style="float:right; margin:25px;" href=""><img src="https://lh5.ggpht.com/xOyfv0sgk1SUn_BYDKDUJoXb8ZkpKQrZSql4O7fFAJZsDB3MHB3AX265-9LMirlkDg=w124"></a></p>
+
+<p>I used the time to introduce myself properly to Android, and build upon a little idea that I'd had. It started out by me wanting to use comic-book style pictures of myself on my blog, to represent topics. I had spent some time working on some java code to take a bitmap and process it to resemble an SVG. </p>
+
+<p>From there it wasn't much of a leap to try to make an app that lets you build comic strips from your photos, and so <a href="https://play.google.com/store/apps/details?id=com.roundwoodstudios.comicstripit">Comic Strip It!</a> was born on Christmas Eve, 2011.</p>
+
+<p>It really was a minimum viable product. The feature set of release 1.0 was:</p>
+
+<ul>
+<li>add photos to your comic strip, in 350x350 pixel frames</li>
+<li>zoom and rotate photos to fit the frames</li>
+<li>the comic strip would be laid out automatically in blocks of 3 frames across</li>
+<li>add a caption below each frame</li>
+<li>set a title for the comic strip</li>
+<li>share the comic strip (email/twitter/facebook/etc - Android made this super-easy to do)</li>
+</ul>
+
+<p>I've added many features since, as directed by user feedback. Much of best feedback has come from people who emailed me directly with suggestions, especially in the early days, but some of the real kickers have come from disgruntled commenters. </p>
+
+<p>In the spirit of Lean Startup experimentation I launched two versions - starting with the free version as described above then, in early january, a paid version that included speech balloons.</p>
+
+<p>I've learned so much about people, product development/marketing/monetisation, and myself from having an app out there in the wild with no barrier between me and the users! My main problem now is finding a block of time to work on accelerating the growth of the user base.</p>
+
+<h3>More Experiments</h3>
+
+<p>Given the lack of a decent block of time to work on the app, I've spent a little time here and there on a couple of new, small, experiments. These aren't really MVP's as such, but they are in the spirit of Lean Startup.</p>
+
+<h4>www.tribyute.com</h4>
+
+<p><a style="float:left; margin:25px;" href="http://www.tribyute.com"><img src="https://lh5.googleusercontent.com/-w48tKzKVVgQ/T9DnorMq8eI/AAAAAAAAKQY/rI1RXv-8eXM/s200/tribyute.com.png"></a></p>
+
+<p>The first is a <a href="http://www.tribyute.com/">teaser website</a> for an idea I had about expressing admiration for people you know, in such a way that over time an online character reference builds up, and the recipient gets an occasional boost when someone praises them.</p>
+
+<p>The point here was just to test if there was any interest in the idea by asking people to leave their email to get notified later when the service goes live.</p>
+
+<p>No ideas really about how to monetise it, but that wasn't the point of this one, it was just an idle thought that expressing admiration like that would be a nice thing to be able to do.</p>
+
+<p>I registered a domain and pointed it at an app-engine web-app, thrown together with some simple html and css and a servlet. All in all just a few hours work. Its only just started to appear in google searches, so too early to say how the experiment will pan out.</p>
+
+<h4>Zazzle t-shirts</h4>
+
+<div style="float:right; text-align:center;line-height:150%"> <a href="http://www.zazzle.co.uk/sleep_tees-235809889333236460?gl=roundwood&rf=238286102792357014"> <img src="http://rlv.zcache.co.uk/sleep_tees-rf3ca96555d9547a692dee0727df16340_f0czi_325.jpg" alt="sleep tees" style="border:0;" /></a></div>
+
+<p>The second experiment is something quite different. For some work-related research I'd been reading about affiliate-marketing. </p>
+
+<p>I was aware of the Amazon affiliate system (indeed the book links on my blog are affiliate links), but I hadn't really considered that it was a common practice til now. </p>
+
+<p>Zazzle's affiliate system allows anyone to set up a "store" under the main zazzle website, and populate it with their own products. </p>
+
+<p>These products are customised versions of the products that zazzle themselves sell - ie. t-shirts, hoodies, decorated mugs, etc. You even get to set your own level of commission on each product. You can see one of my designs here :)</p>
+
+<p>Zazzle help with tools for marketing your products too, but because its so easy <em>lots</em> of people have set up stores, and there's lots of competition. For me its really just a fun experiment, and a chance to do a bit of art work, so its all good really.</p>
+
+<h3>Conclusion, sort of</h3>
+
+<p><a style="float:left; margin:25px;" href="http://www.amazon.co.uk/gp/product/0091929113/ref=as_li_ss_il?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0091929113"><img border="0" src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&amp;Format=_SL160_&amp;ASIN=0091929113&amp;MarketPlace=GB&amp;ID=AsinImage&amp;WS=1&amp;tag=stlibl-21&amp;ServiceVersion=20070822" ></a></p>
+
+<p>My main point throughout all this waffle is probably this: Stop trying to do something and do it! Create the smallest possible version of your product that can deliver value, release it, and use scientific measurement to direct your efforts for what to do next. If nothing else you will learn so much!</p>
+
+<p>If you are involved at some level in the development of products, buy <a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_tl?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=06709216020">The Lean Startup</a> - it will change how you think about product development. </p>
+
+<p>While you're there, you might want to look at <a href="http://www.amazon.co.uk/gp/product/0091929113/ref=as_li_ss_il?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0091929113">The 4-hour work week</a>, which shattered lots of my illusions about how the world works, despite the fact that I don't like a fair number of the prescribed methods.</p>
+
+<p>I'll leave you with this superb Lean Startup story of how a startup saved themselves millions of dollars with a $40 prototype:</p>
+
+<p><iframe src="http://player.vimeo.com/video/24749599" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe> <p><a href="http://vimeo.com/24749599">Ignite: Lean Startup - Paul Howe, Founder &amp; CEO of NeedFeed "How $40 Saved Us 9 Months and $2MM"</a> from <a href="http://vimeo.com/dreamsimplicity">DreamSimplicity</a> on <a href="http://vimeo.com">Vimeo</a>.</p></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVP">MVP</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=entrepreneurship">entrepreneurship</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Lean Startup">Lean Startup</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="minimum_viable_products.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="400" description="Just finished converting dsl4xml to work from either pull (fast for servers) or SAX (fast on Android). Here's the perforamnce chart...">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-23">April 23, 2012</time></span>
               <a itemprop="url" href="sax_based_dsl4xml_for_android.html"><h1 itemprop="name" itemprop="headline">SAX based dsl4xml for Android</h1></a>
@@ -1564,139 +1667,6 @@ public interface Converter&amp;lt;T&gt; {
 	        <a href="dsl_for_xml_parsing_in_android.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,503" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-03-26">March 26, 2012</time></span>
-              <a itemprop="url" href="android_s_asynctask.html"><h1 itemprop="name" itemprop="headline">Android's AsyncTask</h1></a>
-	      <span itemprop="articleBody"><p>The Android platform allows you to use all of the normal Java concurrency constructs. You should use them if you need to do any long-running operations: you must do these off the main UI thread if you want keep your users happy, and the platform even enforces this by displaying an Application Not Responding dialog if an app does not respond to user-input within 5 seconds.</p>
-
-<p>The kinds of things you will want to do off the UI thread are reading/writing data from databases, network calls fetching data from web-servcies, and any time-consuming computational work.</p>
-
-<p>The platform provides a couple of mechanisms to facilitate communication between background threads and the main application thread: <code>Handler</code>'s and <code>AsyncTask</code>s. In this article I want to concentrate on <code>AsyncTask</code>.</p>
-
-<h3>The basics of AsyncTask</h3>
-
-<p>AsyncTask provides a simple API for doing work in the background and re-integrating the result with the main thread. Here's what it looks like:</p>
-
-<pre><code>new AsyncTask&amp;lt;Param, Progress, Result&gt;() {
-    protected void onPreExecute() {
-        // perhaps show a dialog 
-        // with a progress bar
-        // to let your users know
-        // something is happening
-    }
-
-    protected Result doInBackground(Param... aParams) {
-        // do some expensive work 
-        // in the background here
-    }
-
-    protected void onPostExecute(Result aResult) {
-        // background work is finished, 
-        // we can update the UI here
-        // including removing the dialog
-    }
-}.execute();
-</code></pre>
-
-<p>The template methods <code>onPreExecute()</code> and <code>onPostExecute(Result)</code> are invoked such that you can safely update the UI from there. </p>
-
-<p>There is a fourth template method - <code>onProgressUpdate(Progress[])</code> - which you can implement if you want to update the UI to show progress is being made within the background thread. For this to actually work you will need to invoke <code>publishProgress(Progress[])</code> regularly from within <code>doInBackground(Param[])</code>.</p>
-
-<p>AsyncTask is generic, and presents three type variables:</p>
-
-<pre><code>class AsyncTask&amp;lt;Params, Progress, Result&gt;
-</code></pre>
-
-<p>They are used as follows:</p>
-
-<ol>
-<li><code>Params</code> is the argument type for the <em>varargs array</em> passed in to doInBackground.</li>
-<li><code>Progress</code> is the argument type for the <em>varargs array</em> passed in to <code>onProgressUpdate</code>, and so is also the type (of array) you must use when invoking <code>publishProgress</code>.</li>
-<li><code>Result</code> is the return type of <code>doInBackground</code>, which in turn is the argument type passed in to <code>onPostExecute</code>.</li>
-</ol>
-
-<h3>What happens when you execute()?</h3>
-
-<p>When <code>execute(Object.. params)</code> is invoked on an <code>AsyncTask</code> the task is executed in a background thread. Depending on the platform <code>AsyncTask</code>s may be executed serially (pre 1.6 and potentially again in 4+), or concurrently (1.6-3.2). </p>
-
-<p>To be sure of running serially or concurrently as you require, from API Level 11 onwards you can use the <code>executeOnExecutor(Executor executor, Object.. params)</code> method instead, and supply an executor. The platform provides two executors for convenience, accessable as <code>AsyncTask.SERIAL_EXECUTOR</code> and <code>AsyncTask.THREAD_POOL_EXECUTOR</code> respectively. (Note: If you are targeting earlier API levels <code>executeOnExecutor</code> is not available, but you have several options - see below).</p>
-
-<p>I have not tested exhaustively, but at least on tablets running HoneyComb the <code>THREAD_POOL_EXECUTOR</code> is set up with a maximum pool size of 128 and an additional queue length of 10. </p>
-
-<p>If you exhaust the pool by submitting too many <code>AsyncTask</code>'s concurrently you will receive <code>RejectedExecutionException</code>'s - a subclass of RuntimeException which, unless handled, will crash your application. </p>
-
-<p>I suspect that on a resource-constrained device it is probably quite a disaster if you actually have that many <code>AsyncTask</code>'s active concurrently - context-switching all those threads will render the cpu-cache ineffective, cost a lot in terms of CPU time, and anyway all those concurrently active threads will likely be using a good chunk of your heap and generating garbage for the GC to contend with.</p>
-
-<p>You might want to consider an alternative <code>Executor</code> configured with a lower max threads and a longer queue, or a more appropriate strategy for managing the background work: for example if you have many files to download you could enqueue a url and a callback to a download-manager instead of executing an <code>AsyncTask</code> for each one.</p>
-
-<h3>executeOnExecutor for API levels below 11</h3>
-
-<p>AsyncTask gained a nice new method at API level 11 - <code>executeOnExecutor</code> - allowing you some control of the concurrency of your <code>AsyncTask</code>'s. If you need to support older API levels you have a choice to make: do you absolutely have to have <code>executeOnExecutor</code>, or do you simply want to use it when it is available, and fall-back to <code>execute</code> otherwise?</p>
-
-<h4>The fallback approach</h4>
-
-<p>If you want a simple way to take some measure of control where possible, you can subclass AsyncTask, test for the API level at runtime, and invoke the executeOnExecutor method if it is available - something like this:</p>
-
-<pre><code>class MyAsyncTask&amp;lt;Param, Progress, Result&gt; {
-
-    private static final boolean API_LEVEL_11 
-        = android.os.Build.VERSION.SDK_INT &gt; 11;
-
-    public void execute(Executor aExecutor, Params... aParams) {     
-        if(EXECUTOR_ON_EXECUTOR_AVAILABLE)
-            executeOnExecutor(aExecutor, aParams); 
-        else
-            super.execute(aParams);
-    }
-
-}
-</code></pre>
-
-<p>I know that at first glance something appears wrong here:</p>
-
-<pre><code>private static final boolean API_LEVEL_11 
-    = android.os.Build.VERSION.SDK_INT &gt; 11;
-</code></pre>
-
-<p>This <em>looks</em> like it will be optimised out by the compiler - a static comparison of a literal integer (11) with what appears to be another static integer (android.os.Build.VERSION.SDK<em>INT), but in fact the upper-case VERSION.SDK</em>INT is slightly misleading - the values in VERSION are extracted at runtime from system properties, so the comparison is not baked in at compile-time.</p>
-
-<h4>executeOnExecutor for all API levels</h4>
-
-<p>If you insist on having executeOnExecutor available for all API levels you might try this: copy the code for AsyncTask from API level 15, rename it (and make a few small changes as described <a href="http://stackoverflow.com/questions/7211684/asynctask-executeonexecutor-before-api-level-11">here</a>), and use that everywhere in place of the SDK version.</p>
-
-<h3>AsyncTask and the Activity lifecycle</h3>
-
-<p>The <code>Activity</code> lifecycle is well defined and provides template methods which are invoked when critical events occur in the life of an <code>Activity</code>. </p>
-
-<p><code>AsyncTask</code>'s are started by an <code>Activity</code> because it needs some potentially blocking work done off the UI thread, and unless you <em>really really know what you are doing</em> they should live and die with that <code>Activity</code>.</p>
-
-<p>If your <code>AsyncTask</code> retains a reference to the <code>Activity</code>, not cancelling the task when the <code>Activity</code> dies wastes CPU resources on work that cannot update its UI, and creates a memory leak (the <code>Activity</code> and all its <code>View</code> hierarchy will be retained <em>until the task completes</em>). </p>
-
-<p>Don't forget that the Activity is destroyed and re-created even on something as simple as a device orientation change, so if a user rotates their device you will have two copies of your Activity retained until the last <code>AsyncTask</code> completes. In a memory constrained environment this can be a disaster!</p>
-
-<p>If you do not intend to update the UI after processing you <em>may</em> be using the wrong construct in some cases - consider whether using a Service would be more appropriate.</p>
-
-<p>For some useful discussion and ideas related to <code>AsyncTask</code> and lifecycle management, see <a href="http://stackoverflow.com/questions/3357477/is-asynctask-really-conceptually-flawed-or-am-i-just-missing-something">this stackoverflow post</a>.</p>
-
-<h4>AsyncTask and good Android citizenship</h4>
-
-<p><code>AsyncTask</code> is in the SDK because it fulfils a common need, but it does not enforce a usage pattern that makes your app a good Android citizen.</p>
-
-<p>In an environment where users switch contexts frequently and quickly (example: receive a phone call while in the midst of writing an email on your phone), it is probably important that your app does not hog resources whilst it is not the current focus.</p>
-
-<p>If, as described above, you've set yourself up to cancel tasks according to the Activity lifecycle methods then you're all set and should not face any issues here.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=AsyncTask">AsyncTask</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threads">Threads</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="android_s_asynctask.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -1714,11 +1684,11 @@ public interface Converter&amp;lt;T&gt; {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
                 <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
                 <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
                 <li><a href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML parsing in Android</a><span class="date"> - Apr 10, 2012</span></li>
                 <li><a href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
-                <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
