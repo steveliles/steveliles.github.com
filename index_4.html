@@ -35,6 +35,98 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="937" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-04">January 04, 2012</time></span>
+              <a itemprop="url" href="converting_eclipse_adt_android_projects_to_build_with_maven.html"><h1 itemprop="name" itemprop="headline">Converting Eclipse ADT Android projects to build with Maven</h1></a>
+	      <span itemprop="articleBody"><p>Getting Android Development Tools (ADT) for Eclipse to play nicely with Maven is quite a fiddle, involving a bunch of plugins for both Eclipse and Maven. Here's how I got it working (details after the comic-strip...). You might also be interested in two follow posts - <a href="http://steveliles.github.com/setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">setting up for team development with Android, Maven and Eclipse</a> and <a href="http://steveliles.github.com/maven_android_and_eclipse_joining_the_team.html">joining a team developing with Android, Maven and Eclipse</a>:</p>
+
+<p><a target="top" href="https://lh5.googleusercontent.com/-pjftaBy3xwo/TxsaQStUT_I/AAAAAAAAIlg/XqSu-Tb2OiQ/s1600/35.jpg"><img alt="Converting Eclipse ADT projects to build with Maven, a lego comic strip made with Comic Strip It!" src="https://lh5.googleusercontent.com/-pjftaBy3xwo/TxsaQStUT_I/AAAAAAAAIlg/XqSu-Tb2OiQ/s600/35.jpg"></a></p>
+
+<h3>Plugins, Tools and Dependencies</h3>
+
+<ol>
+<li>The Maven-Android plugin is <a href="http://maven.apache.org/">Maven-3.0.3+</a> only, so you'll need to upgrade Maven if you are running an older version. The good news for Maven-2 users is the Maven guys worked hard to make 3 backwards compatible - and so far I've had no problems on some pretty complex projects.</li>
+<li>Eclipse Helios (3.6) or Indigo (3.7)</li>
+<li>The Android Developer Tools and SDK (of course).</li>
+<li>The <a href="http://www.eclipse.org/m2e/download/">m2eclipse</a> Eclipse plugin (supposedly not required with Eclipse Indigo, but I had to install it)</li>
+</ol>
+
+<h3>Setup and Configuration</h3>
+
+<p>First, install maven 3.0.3 (or whatever newer maven is available).</p>
+
+<p>Next install the <a href="http://www.eclipse.org/m2e/download/">m2eclipse</a> plugin (you might want to check if you have it already - Indigo is supposed to come pre-supplied, but that probably depends on which Eclipse bundle you install. I usually go with Classic, and did not have m2eclipse. YMMV).</p>
+
+<p>Now update your android sdk:</p>
+
+<ul>
+<li>Using sdk manager, install all api levels you are interested in, including "google apis by google inc."</li>
+<li>note: be sure to accept the license agreement for each selected jar (the ? should change to a green tick for ALL).</li>
+<li>note: I find that the sdk manager either does not install all ticked packages in one go, or incorrectly reports the number of packages remaining to be installed - it "completes" but there are still pending installs (the "install N packages..." button re-enables with N > 0). I find it safest to restart SDK manager between each attempt so that it correctly shows what is installed.</li>
+</ul>
+
+<p>If you want to work with Android 3 you need to perform an additional step. Maven Central does not have the jars available, so you'll need to use <a href="https://github.com/mosabua/maven-android-sdk-deployer">sdk deployer</a> to push them into your repository.</p>
+
+<ul>
+<li>check out with git (git clone https://github.com/mosabua/maven-android-sdk-deployer.git)</li>
+<li>install android jars as required by running mvn from inside the sdk deployer project directory, example: <code>mvn install -P 1.6</code>, or install the whole lot with <code>mvn install</code></li>
+<li><p>if you have a shared / remote / central repository as we do, you will want to deploy the android jars there too. To do this you need to fill two fields in the android-sdk-deployer's pom.xml that the creator <a href="https://github.com/mosabua">Manfred Moser</a> helpfully separated out</p>
+
+<pre><code>&lt;repo.id&gt;kv-repository&lt;/repo.id&gt;
+&lt;repo.url&gt;scp://my-repo-host/repository&lt;/repo.url&gt;
+</code></pre></li>
+</ul>
+
+<p>OK, we're done with installing!</p>
+
+<h3>Create your pom.xml</h3>
+
+<p>There are various ways you can create a pom for your existing Android projects. I went with the simple expedient of using mvn archetype:generate ...</p>
+
+<ul>
+<li>from a directory you are happy to create projects in, execute <code>mvn archetype:generate</code></li>
+<li>you will be presented with an enormous list of archetypes - type android and hit return</li>
+<li>the list should have been filtered down to about 3 from "de.acquinet.android..."</li>
+<li>select "de.akquinet.android.archetypes:android-quickstart" - for me this was option 1</li>
+<li>follow the prompts to conclusion - this will create a simple android project, including the pom.xml for an apk project.</li>
+</ul>
+
+<p>Once you've done that you can copy the pom to your existing project(s) and modify it manually - this is what I did.</p>
+
+<p>(Note: If you are starting a fresh new project you can just run <code>mvn clean eclipse:eclipse</code> to generate the eclipse project and classpath, then "import" the project into eclipse. After importing your project will just appear as a normal java project (neither maven nor android natures will be ascribed). To remedy that, right-click your project, go to <code>configure-&gt;convert to Maven project</code>, both natures are added automatically and you're ready to rock'n'roll.)</p>
+
+<h3>Integrate Eclipse and Maven</h3>
+
+<p>OK, last part ... Getting Eclipse and Maven to play nicely.</p>
+
+<p>If you open the project in Eclipse now you'll probably find that it doesn't like your pom.xml. When you open the pom with m2eclipse installed it will open with the graphical xml editor. You'll notice that there's an error <code>plugin execution not covered by lifecycle configuration...</code>. </p>
+
+<p><img src="https://lh5.googleusercontent.com/-Aki7I_BiCLw/Tx6hX3ZXmkI/AAAAAAAAIoU/KNQvbH5sNRI/s600/plugin-execution-crop.png" alt="error when pom packaging set to apk or apklib" /></p>
+
+<p>Click the error and some details open up, including two quick fixes. Click the first quick fix ("discover new m2e connectors"). The following dialog pops up and after a short search, shows the m2e-android connector:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-YeihPZ0PxWQ/TwRWknaVQeI/AAAAAAAAIas/0NnoMugrFa4/s800/install-m2e-connectors.png" alt="discover connectors dialog" /></p>
+
+<p>Install the connector and the warnings <em>should</em> go away. Actually on one of my two machines they did not - I don't know why, but I had to take the 2nd quick-fix option of turning it off in Eclipse. For me that's just about ok, as I want the maven build to be the master anyway.</p>
+
+<p>Congrats, you should now have a happy Eclipse project, and be able to build it using maven as expected.</p>
+
+<h3>What about android library projects?</h3>
+
+<p>Well basically its the same deal. I actually started with the library projects. The main difference is <packaging> element in the pom should be set to apklib instead of apk.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ADT">ADT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="355" description="Finally, the full src code for Android is available as part of the SDK download - though sadly its only available for source-level 14 and upwards at the moment.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-12-20">December 20, 2011</time></span>
               <a itemprop="url" href="android_source_code_available.html"><h1 itemprop="name" itemprop="headline">Android Source Code available!</h1></a>
@@ -266,55 +358,6 @@ openFile
 	        <a href="google_and_rel_author_not_a_level_playing_field.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="384" description="My second foray into the chromium issue tracker in two days - this time relating to a bug with text-rendering">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-12-14">December 14, 2011</time></span>
-              <a itemprop="url" href="another_google_chrome_css_bug.html"><h1 itemprop="name" itemprop="headline">Another Google Chrome CSS bug</h1></a>
-	      <span itemprop="articleBody"><p><style>
-.legible { text-rendering:optimizelegibility; }
-.shadow { box-shadow: 0px 0px 20px black;}
-</style>
-Since I moved my blog from blogger I've noticed on many occasions that Chrome would screw up the text rendering on the first view of a page. Hit F5 to refresh and it goes away. For a long time I thought this was related to my use of web-fonts (the excellent <a href="http://www.google.com/webfonts#ChoosePlace:select">Google Web Fonts</a>, but in fact its simpler than that.</p>
-
-<p>Eventually I took the time to look into it a bit more, and narrowed it down to the fact that I am using the <code>text-rendering:optimizeLegibility</code> css directive, which does make a nice difference to the kerning of the fixed-width fonts I'm using (<code>Ubuntu Mono</code>), but also has the apparent side-effect of setting negative margins on those fixed-width texts which make them run into/over surrounding text.</p>
-
-<p>Once I'd figured out what was causing my problem a quick Google search showed I'm not alone. The chromium issue tracker has several relevant bug reports. I chose to add my tuppence to <a href="http://code.google.com/p/chromium/issues/detail?id=96936#c16">bug 96936</a></p>
-
-<h3>Examples of the bug</h3>
-
-<p>Here's what the problem looks like when <code>text-rendering:optimizeLegibility</code> is in use in Chrome 15 (and the as yet unreleased 16 beta):</p>
-
-<p><img class="shadow" title="With 'text-rendering:optimizeLegibility'" src="https://lh5.googleusercontent.com/-T5peLzltfzU/TupN9gwMcoI/AAAAAAAAH18/_CDK0F-qh2Q/s600/text-rendering.png"></p>
-
-<p>And here (and also now in the blog you are reading) is how it looks without optimizeLegibility:</p>
-
-<p><img class="shadow" title="Without 'text-rendering:optimizeLegibility'" src="https://lh6.googleusercontent.com/-sK4tre7Q8dc/TupN-4pchhI/AAAAAAAAH2E/7WYdEGb3kKk/s600/not-text-rendering.png"></p>
-
-<p>If you are reading this in Google Chrome you can check to see if the bug still exists by taking a look at the example text below, which is taken from the sample I submitted to <a href="http://code.google.com/p/chromium/issues/detail?id=96936#c16">bug 96936</a>. If you see overlapping characters below, the bug is not fixed in your version of Chrome.</p>
-
-<div class="example legible">
-  <p>Code blocks inside paragraphs like <code>this</code> don't <code>look</code> very <code>nice</code> with text-rendering set to optimizeLegibility.</p>
-</div>
-
-<p><em>Note</em>: Some interesting characteristics of the bug include:</p>
-
-<ol>
-<li>Text renders correctly if you refresh the page after the initial visit</li>
-<li>It appears much worse with certain fonts - fixed-width/monospace fonts in particular seem to suffer</li>
-<li>The width of the text appears to be calculated incorrectly, not just margins - you can see this in the first screen-shot where the date tab cuts into the end of "2011".</li>
-</ol>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=css">css</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=chrome">chrome</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=bug">bug</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=font">font</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="another_google_chrome_css_bug.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -332,11 +375,11 @@ Since I moved my blog from blogger I've noticed on many occasions that Chrome wo
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
                 <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
                 <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
                 <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
                 <li><a href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML parsing in Android</a><span class="date"> - Apr 10, 2012</span></li>
-                <li><a href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

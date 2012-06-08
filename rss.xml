@@ -13,6 +13,95 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Testing Android apps]]></title>
+        <link><![CDATA[http://steveliles.github.com/testing_android_apps.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/testing_android_apps.html</guid>
+        <description><![CDATA[<p>I've been developing an Android app as a spare-time project for 6 months now. I have access to 3 Android devices:</p>
+
+<ul>
+<li>Samsung Galaxy SII running ICS (my personal mobile)</li>
+<li>Samsung Galaxy Mini running Gingerbread (bought as a temporary dev device when my old HTC Desire gave up the ghost)</li>
+<li>Motorola Xoom II Media Edition (tablet used for day job)</li>
+</ul>
+
+<p>My app runs beautifully on all these devices. I <em>cannot</em> make it crash. It really frustrates me that I get crash reports from other devices and cannot replicate them. For a spare-time project I can't afford to buy lots of devices to test with. Enter <a href="http://www.appthwack.com/">AppThwack</a>.</p>
+
+<h2>AppThwack</h2>
+
+<p>I first heard about AppThwack after I tweeted about one of its competitors - testdroid - trying to find some testimonials from other users. I didn't find any, but I did get a reply from <a href="https://twitter.com/#!/tdpeterson">@tdpeterson</a> inviting me to AppThwack's beta.</p>
+
+<p>Some weeks later I finally found a spare few minutes to take a look, and I'm so glad I did!</p>
+
+<p>As they are currently in beta, you need a code to be able to sign up. Mine arrived a few hours after requesting it, and I immediately signed up to give it a try. The service makes it very easy to get started, which is clever, because once you're in you really are hooked - its just too good.</p>
+
+<h3>Chaos Monkeys</h3>
+
+<p>I uploaded the latest release apk I had to hand and launched the UI Exerciser Monkey tests (these are automatic and randomised tests that poke all the buttons and what-not). From sign-up to running tests took less than 2 minutes.</p>
+
+<p><img style="float:right; margin:25px;" src="https://lh3.googleusercontent.com/-C3vMO8EpKjY/T9I13xsV1VI/AAAAAAAAKQs/v83alvoNCYo/s288/tmpBxqtro.png"></p>
+
+<p>The monkeys found at least two bugs that I was not aware of on that first run. I am torn between horror and delight. The horror and delight turn to embarassment when I realise that I have uploaded an obfuscated apk, and the stack-traces are in gibberese. Lesson#1 right there.</p>
+
+<p>A test run takes a while to complete, but you can watch the results coming in in real time. When you realise what is going on behind the scenes its really impressive: your app is installed, launched, monkeyed, and then uninstalled <em>simultaneously across a whole farm of different devices</em> running different versions of Android. I'd love to see what that looks like :)</p>
+
+<p>You can view the results of your test runs in a number of different ways. I like the "issues by device" mode, which lists all the devices that experienced problems or warnings, and allows you to drill down to see what happened in the monkey log - with a full stack trace of the crash - and then down again into log-cat.</p>
+
+<p>Pause a second and let that sink in. I just ran my app on 100+ different devices and Android versions in under 5 mins and now I have instant access to the stack traces from the crashing devices and <em>the full log-cat output</em>. I even get screen-shots from some of the devices - above is from an HTC Evo 4G running 2.3.3. Holy shitcakes!</p>
+
+<p>Oh, and you can filter the log-cat output directly in the web-app. Nice.</p>
+
+<p><img style="margin-left:100px;" src="https://lh6.googleusercontent.com/-_CnnB9TOWeo/T9I7XwlEiKI/AAAAAAAAKRA/Yw3bRzhhmWU/s400/Screen%2520Shot%25202012-06-08%2520at%252018.45.54.png"></p>
+
+<h3>Programmed Tests</h3>
+
+<p>OK, now I have some crashes that I want to try to replicate which are going to involve some complex interactions. Its going to take a lot of chaos monkeys a long time to replicate those tests, but the AppThwack guys have thought of that and integrate Robotium testing too.</p>
+
+<p>Robotium was also new to me, but again its a great tool and a doddle to get started: </p>
+
+<ol>
+<li>download the robotium jar from <a href="http://code.google.com/p/robotium/downloads/list">here</a></li>
+<li>create an Android test project, set up to test "this" project (<em>not</em> the project you actually want to test)</li>
+<li>set the manifest &lt;instrumentation&gt; tag's targetPackage attribute to be the package of the app you want to test</li>
+<li>copy the basic test code from <a href="http://robotium.googlecode.com/files/TestAndroidapkfileUsingRobotium.pdf">this tutorial</a> (I confess I find it weird that the tutorial is a pdf, not a web page!)</li>
+<li>tweak the test code to test your app - its a very straight-forward API</li>
+<li>Run the app you want to test in an emulator</li>
+<li>Run your test and watch as it drives your app in the emulator - great fun</li>
+</ol>
+
+<p>Once you have a working test that you want to run over at AppThwack's device farm its really easy to get that going too:</p>
+
+<ol>
+<li>export a signed apk of the app you want to test (app-under-test)</li>
+<li>export a signed apk of the test project (sign with the same key!)</li>
+<li>upload app-under-test apk</li>
+<li>click the configure icon</li>
+<li>click "add test apk", and upload the test project apk</li>
+<li>click go</li>
+<li>marvel as the results start rolling in</li>
+</ol>
+
+<h3>Early days</h3>
+
+<p>I haven't really tried to fix my crashing bugs yet, but at least there is light at the end of the tunnel now, thanks to AppThwack and Robotium.</p>
+
+<p>I noticed a few funnies along the way, which I plan to mention to the AppThwack guys when I've had a bit more experience:</p>
+
+<ul>
+<li>Many devices crashed at the same point, but there's no way to collapse common issues together - I found myself opening the log for each device to check the stack-traces to find out the total number of different problems.</li>
+<li>Some devices timed out while installing. I'm not sure if this is a problem with my app (seems unlikely?) or some issue with the devices themselves? Its not a catastrophe if its a device problem, but then probably they should be marked as warnings rather than errors.</li>
+<li>I noticed lots of these in the monkey logs: <code>java.io.FileNotFoundException: /mnt/sdcard/scriptlog.txt (Permission denied)</code> which seem to be just noise (at least as far as I am concerned)</li>
+</ul>
+
+<p>So far so wonderful as far as I'm concerned: my thanks to Trellis Automation for AppThwack, and I really hope the beta goes well and the business is successful! </p>
+]]></description>
+          <category>Android</category>
+          <category>Testing</category>
+          <category>Robotium</category>
+          <category>AppThwack</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Fri, 08 Jun 2012 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Minimum Viable Products]]></title>
         <link><![CDATA[http://steveliles.github.com/minimum_viable_products.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/minimum_viable_products.html</guid>
@@ -34,15 +123,15 @@
 
 <p>What turned out to be really interesting though, was that to get it online I had to register a domain-name and figure out how to <a href="http://steveliles.github.com/pointing_a_domain_name_to_an_amazon_s3_bucket.html">point it at an Amazon S3 bucket</a>, which I had to <a href="http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html">configure to host a website</a>. Two things I'd never done before. </p>
 
-<p>I also spent some time researching keywords, used multiple landing pages on different sub-domains with different keyword content, and set up analytics to see which gets most traffic - following Eric's advice to scientifically test a theory.</p>
+<p>I also spent time researching keywords, used multiple landing pages on different sub-domains with different keyword content, and set up analytics to see which gets most traffic - following Eric's advice to scientifically test a theory.</p>
 
 <p>For my second project I had a bit more time - I had a week off in the run-up to Christmas to use up my 2011 vacation entitlement. My wife was working, which meant I had a guilt-free coding week (my wife is great about me coding at home, but it doesn't stop me feeling guilty).</p>
 
 <p><a style="float:right; margin:25px;" href=""><img src="https://lh5.ggpht.com/xOyfv0sgk1SUn_BYDKDUJoXb8ZkpKQrZSql4O7fFAJZsDB3MHB3AX265-9LMirlkDg=w124"></a></p>
 
-<p>I used the time to introduce myself properly to Android, and build upon a little idea that I'd had. It started out by me wanting to use comic-book style pictures of myself on my blog, to represent topics. I had spent some time working on some java code to take a bitmap and process it to resemble an SVG. </p>
+<p>I used the time to introduce myself properly to Android and build upon a little idea that I'd had. It started out by me wanting to use comic-book style pictures of myself on my blog to represent topics. </p>
 
-<p>From there it wasn't much of a leap to try to make an app that lets you build comic strips from your photos, and so <a href="https://play.google.com/store/apps/details?id=com.roundwoodstudios.comicstripit">Comic Strip It!</a> was born on Christmas Eve, 2011.</p>
+<p>I had spent time working on some java code to take a bitmap and process it to resemble an SVG. From there it wasn't much of a leap to try to make an app that lets you build comic strips from your photos, and so <a href="https://play.google.com/store/apps/details?id=com.roundwoodstudios.comicstripit">Comic Strip It!</a> was born on Christmas Eve, 2011.</p>
 
 <p>It really was a minimum viable product. The feature set of release 1.0 was:</p>
 
@@ -5277,51 +5366,6 @@ Content-Length: 0
           <category>Windows7</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Thu, 10 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Eclipse code template for GWT jsni methods]]></title>
-        <link><![CDATA[http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/eclipse_code_template_for_gwt_jsni_methods.html</guid>
-        <description><![CDATA[<p>GWT JavaScriptObject's and JavaScript Overlays are very cool. I've written about them <a href="gwt_javascriptobjects_javascript_overlays.html">before</a>. It can get a bit tiresome to write jsni methods though, especially all those fiddly slashes, braces and asterisks at the end!</p>
-
-<p>Here's a simple Eclipse code template that does the hard work for you, and lets you quickly tab-and-type through to completing your jsni method without ever having to type those fiddles again:</p>
-
-<pre><code>public final native ${return_type} ${newName}()/*-{ 
-    ${cursor} 
-}-*/;
-</code></pre>
-
-<p>To add this in Eclipse:</p>
-
-<ol>
-<li>Open the preferences dialog (Window -> Preferences)</li>
-<li>Type "templates" into the filter box (it should have focus already so you can just start typing)</li>
-<li>Select the bold entry under "Java -> Editor -> Templates"</li>
-<li>In the right hand panel you'll see all the existing templates, and some buttons ... Click "New"</li>
-<li>The "name" is also the shortcut for your new template, so enter "jsni"</li>
-<li>Paste in the template text (copy from the code block above).</li>
-<li>Click ok to return to prefs, and ok again to return to the editor and try it out ...</li>
-</ol>
-
-<p>To use your new template:</p>
-
-<ol>
-<li>Type "jsni" (without quotes) into a java editor and hit ctrl-space (or whatever your auto-complete shortcut is)</li>
-<li>The first option in the auto-complete suggestions should be your "jsni" template - hit return to use it</li>
-<li>Your template appears, and eclipse focuses the first part (the return type) for you to modify</li>
-<li>Modify each part of the template in turn and press tab to move to the next part</li>
-<li>Enjoy!</li>
-</ol>
-
-<p>Recent releases of the Google Eclipse plugin include some <a href="http://code.google.com/eclipse/docs/gwt_jsni.html">nice jsni features</a> that you definitely don't want to miss out on - including code-completion and syntax highlighting.</p>
-]]></description>
-          <category>eclipse</category>
-          <category>code</category>
-          <category>template</category>
-          <category>jsni</category>
-          <category>gwt</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 20 Oct 2011 00:00:00 +0100</pubDate>
       </item>
   </channel>
 </rss>
