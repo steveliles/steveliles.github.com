@@ -117,7 +117,7 @@
         = android.os.Build.VERSION.SDK_INT &gt; 11;
 
     public void execute(Executor aExecutor, Params... aParams) {     
-        if(EXECUTOR_ON_EXECUTOR_AVAILABLE)
+        if(API_LEVEL_11)
             executeOnExecutor(aExecutor, aParams); 
         else
             super.execute(aParams);
