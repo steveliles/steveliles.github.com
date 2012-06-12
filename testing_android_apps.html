@@ -39,7 +39,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,027" description="First impressions of Robotium and AppThwack for testing Android apps and tackling the thorny issue of fragmentation">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,067" description="First impressions of Robotium and AppThwack for testing Android apps and tackling the thorny issue of fragmentation">
               <span class="meta" itemprop="datePublished"><time datetime="2012-06-08">June 08, 2012</time></span>
               <a itemprop="url" href="testing_android_apps.html"><h1 itemprop="name" itemprop="headline">Testing Android apps</h1></a>
 	      <span itemprop="articleBody"><p>I've been developing an Android app as a spare-time project for 6 months now. I have access to 3 Android devices:</p>
@@ -72,7 +72,7 @@
 
 <p>You can view the results of your test runs in a number of different ways. I like the "issues by device" mode, which lists all the devices that experienced problems or warnings, and allows you to drill down to see what happened in the monkey log - with a full stack trace of the crash - and then down again into log-cat.</p>
 
-<p>Pause a second and let that sink in. I just ran my app on 100+ different devices and Android versions in under 5 mins and now I have instant access to the stack traces from the crashing devices and <em>the full log-cat output</em>. I even get screen-shots from some of the devices - above is from an HTC Evo 4G running 2.3.3. Holy shitcakes!</p>
+<p>Pause a second and let that sink in. I just ran my app on 43 different devices and Android versions in under 5 mins and now I have instant access to the stack traces from the crashing devices and <em>the full log-cat output</em>. I even get screen-shots from some of the devices - above is from an HTC Evo 4G running 2.3.3. Holy shitcakes!</p>
 
 <p>Oh, and you can filter the log-cat output directly in the web-app. Nice.</p>
 
@@ -113,8 +113,8 @@
 <p>I noticed a few funnies along the way, which I plan to mention to the AppThwack guys when I've had a bit more experience:</p>
 
 <ul>
-<li>Many devices crashed at the same point, but there's no way to collapse common issues together - I found myself opening the log for each device to check the stack-traces to find out the total number of different problems.</li>
-<li>Some devices timed out while installing. I'm not sure if this is a problem with my app (seems unlikely?) or some issue with the devices themselves? Its not a catastrophe if its a device problem, but then probably they should be marked as warnings rather than errors.</li>
+<li>Many devices crashed at the same point, but there's no way to collapse common issues together - I found myself opening the log for each device to check the stack-traces to find out the total number of different problems. <em>update: Pawel from AppThwack tells me a new view mode "By Failure" is in the works and will be landing in the beta very soon!)</em></li>
+<li>Some devices timed out while installing. I'm not sure if this is a problem with my app (seems unlikely?) or some issue with the devices themselves? Its not a catastrophe if its a device problem, but then probably they should be marked as warnings rather than errors. <em>update: Pawel confirmed there were timeouts within the device-farm which I'm sure they'll resolve soon</em></li>
 <li>I noticed lots of these in the monkey logs: <code>java.io.FileNotFoundException: /mnt/sdcard/scriptlog.txt (Permission denied)</code> which seem to be just noise (at least as far as I am concerned)</li>
 </ul>
 
