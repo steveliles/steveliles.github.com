@@ -1,0 +1,164 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="Android" itemprop="keywords"></meta>
+      <meta name="keywords" content="Activity Lifecycle" itemprop="keywords"></meta>
+      <meta name="keywords" content="Large Heap" itemprop="keywords"></meta>
+      <meta name="keywords" content="Fragmentation" itemprop="keywords"></meta>
+    <meta name="description" content="My Android app has been live in Google Play for 6 months, but I'm still encountering strange bugs and behaviours, making big mistakes, and learning surprising things. The latest surprise has come with a recent flush of ICS users who's devices are putting more significant demands on my handling of the Activity lifecycle."></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Android Activity Lifecycle Gotcha</title>
+  </head>
+  <body>
+    <div>
+      <div class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </div>
+      <div class="nav">
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="https://ssl.gstatic.com/images/icons/gplus-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </div>
+      <div class="content">
+        <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="635" description="My Android app has been live in Google Play for 6 months, but I'm still encountering strange bugs and behaviours, making big mistakes, and learning surprising things. The latest surprise has come with a recent flush of ICS users who's devices are putting more significant demands on my handling of the Activity lifecycle.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-06-18">June 18, 2012</time></span>
+              <a itemprop="url" href="android_activity_lifecycle_gotcha.html"><h1 itemprop="name" itemprop="headline">Android Activity Lifecycle Gotcha</h1></a>
+	      <span itemprop="articleBody"><p>My Android app has been live in Google Play for 6 months, but I'm still encountering strange bugs and behaviours, making big mistakes, and learning surprising things. The latest surprise has come with a recent flush of ICS users who's devices are putting more significant demands on my handling of the Activity lifecycle, specifically with relation to managing state.</p>
+
+<p>tl:dr; - beware when invoking <code>startActivityForResult</code> that onActivityResult is invoked <em>before</em> onResume!</p>
+
+<p>Before I get to the problems, lets have a quick look at the Activity lifecycle. I'm going to "borrow" google's lifecycle diagram:</p>
+
+<p><img src="http://developer.android.com/images/activity_lifecycle.png" alt="Android Activity Lifecycle" /></p>
+
+<p>Some important things to remember here are:</p>
+
+<ul>
+<li>Apps typically consist of <em>multiple</em> Activity's, and <em>each</em> Activity follows the above lifecycle while your app is running.</li>
+<li>When your Activity starts a <em>child</em> Activity (with <code>startActivity</code> or <code>startActivityForResult</code>), both the <code>onPause</code> and <code>onStop</code> lifecycle methods of the parent Activity <em>should</em> be called, in that order.</li>
+<li>When an Activity is invoked <em>as</em> a child Activity, its lifecycle will be completed by the time the parent Activity is fully in control again (at least <code>onCreate</code>, <code>onStart</code>, <code>onResume</code>, and <code>onPause</code> will have been invoked).</li>
+<li>Your Activity can be killed off <em>at any time</em> after its <code>onPause</code> has completed, without necessarily passing through <code>onStop</code> or <code>onDestroy</code>. It is critically important to remember that <em>this includes situations where your Activity is on the back-stack waiting for a result from a child Activity, or even when it is still visible but mostly covered by a dialog!</em></li>
+</ul>
+
+<p>With regard to the last point its worth familiarising yourself with <a href="http://developer.android.com/guide/topics/fundamentals/processes-and-threads.html">the way Android manages Processes</a>.</p>
+
+<h2>State, and the Application object</h2>
+
+<p>One simple way, you might think, to manage state without worrying too much about the <code>Activity</code> lifecycle is to use the Application object. Android allows you to specify your own class (<code>extends Application</code>), which your Activity's can access through <code>getApplication</code>.</p>
+
+<p>That's nice. It needs care though, since the process that your Application object lives in can be killed and restarted at (perhaps) unexpected junctures. Take this scenario:</p>
+
+<ol>
+<li>App A starts with Activity A1, which sets up some state in the Application object.</li>
+<li>Activity A1 starts Activity A2, which uses the state in the Application object.</li>
+<li>Activity A2 fires an <code>Intent</code> for Activity B1 of App B and expects some result (lets say we fired an <code>Intent</code> asking for an image to be captured by the camera app).</li>
+<li>App B starts, and launches Activity B1.</li>
+<li>Activity B1 is memory-heavy, so <em>the system shuts down App A (completely kills its process), even though it is on the back-stack waiting for a result</em>.</li>
+<li>Activity B1 returns, app A's Application object is created, Activity A2 is started again but Activity A1 never launched in the lifetime of this Application object so <em>does not get the opportunity to set up the state of the Application object</em>.</li>
+</ol>
+
+<p>The sequence diagram might look something like this:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-5ObK6-kJmEw/T99trhVZyCI/AAAAAAAAKRU/70rljFQPRKE/s800/sequence-diagram.png" alt="seuqence diagram" /></p>
+
+<p>Clearly, if Activity A2 relies on A1 having run first to set up the application state, there's going to be trouble as soon as A2 starts trying to access that state after resuming from B2. <em>If you're going to use the Application object to manage state, make sure that it is set up as part of the Application's own lifecycle methods</em>.</p>
+
+<p>Now, the gotcha that's been hurting me is this: I assumed that onActivityResult would be invoked <em>after</em> onResume. Turns out this is not the case, and in fact onActivityResult was getting called long before my state was re-initialised in onResume. </p>
+
+<p>On my devices I never suffered from this because my process was not being killed and the state was still present in memory at the point when onActivityResult was invoked!</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Activity Lifecycle">Activity Lifecycle</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Large Heap">Large Heap</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Fragmentation">Fragmentation</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </div>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
+                <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
+                <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
+                <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="links">
+          
+          <div class="next"><a title="next" href="testing_android_apps.html">Testing Android apps</a></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

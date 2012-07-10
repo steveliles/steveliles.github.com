@@ -35,6 +35,328 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,211" description="Following a bug report from a user, this documents my efforts to track down and fix some Bitmap related issues in Android 2.1 (eclair), including the first SIGSEGV I've fallen victim to in Android.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-02-19">February 19, 2012</time></span>
+              <a itemprop="url" href="android_2_1_trouble_with_bitmaps.html"><h1 itemprop="name" itemprop="headline">Android 2.1 - trouble with bitmaps</h1></a>
+	      <span itemprop="articleBody"><p>I got the following mail from a user of my app:</p>
+
+<blockquote>
+  <p>Hi,</p>
+  
+  <p>Comic strip is a great app and i love it very much.
+  But there are couple of problem</p>
+  
+  <ol>
+  <li>It force close when i apply FX</li>
+  <li>When i preview the strip, the pictures turn out black</li>
+  </ol>
+  
+  <p>Please fix it
+  My handphone is samsung galaxy beam andriod 2.1</p>
+</blockquote>
+
+<p>This user has paid for the "pro" version. He also added the following comment in the market:</p>
+
+<blockquote>
+  <p>(2 stars) on February 18, 2012 (Samsung Galaxy Beam with version 1.5.0)
+  It force close when i fx the pics and the pics turn out blank in the preview page..
+  Will upgrade to 5 stars when fixed</p>
+</blockquote>
+
+<p>Interesting use of both carrot ("will upgrade to 5 stars"") and stick (current rating: 2 stars). I think the rating mechanism is pretty harsh on developers, but that's a topic for another post :)</p>
+
+<h3>Black images in preview</h3>
+
+<p>I started by looking into problem (2) - the black images in preview. This one sounded unusual - I've had no other reports of this problem at all.</p>
+
+<p>I set up an Android 2.1 device in my emulator and set about trying to replicate the issue. I allowed it a 24Mb heap per app, and started to look into the black images in preview.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-YVYANUbg_aU/T0DJhhXIbJI/AAAAAAAAI4o/Ur3jwiklV4Y/s800/Screen%2520Shot%25202012-02-19%2520at%252010.02.06.png" alt="Galaxy-Beam virtual device" /></p>
+
+<p>I was pretty surprised to see that there was indeed a problem. In all my testing using other Android API levels I hadn't encountered any such issue. Every time I tried to re-load one of the images for preview I saw the following error in log-cat:</p>
+
+<pre><code>Resolve uri failed on bad Bitmap uri: ...
+</code></pre>
+
+<p>The strange thing, of course, is that the uri was perfectly fine, works great in all API levels greater than 7, was created by the system using <code>Uri.fromFile(file)</code>, and is working fine even in API level 7 when I reload the image in the scene editor activity!</p>
+
+<h3>Fix for "resolve uri failed on bad bitmap uri"</h3>
+
+<p>Given that the scene-editor was able to load the image just fine, I compared the code I was using to load images in the scene-editor with the code in the preview-activity. I had the following:</p>
+
+<pre><code>// scene-editor-activity snippet - works fine!
+Bitmap _b = BitmapFactory.decodeStream(
+    rslv.openInputStream(aScene.getBackgroundUri()), null, _opts
+);
+_img.setImageBitmap(_b);
+
+// preview-activity snippet - fails with 'bad bitmap uri'
+ImageView _image = new ImageView(ctx);  
+_image.setImageURI(aScene.getBackgroundUri());
+</code></pre>
+
+<p>It seems that ImageView in Android versions less than 2.2 (API level 8) has a problem with directly resolving perfectly valid Bitmap uri's. </p>
+
+<p>In the scene-editor I was always resolving the <code>Uri</code> to an <code>InputStream</code> using <code>ContentResolver</code> (which you can obtain from the Activity with <code>getContentResolver()</code>), whilst in my preview activity I was simply expecting ImageView to resolve the uri.</p>
+
+<p>The fix for all Android versions was to use the slightly more laborious method of loading the Bitmap via <code>ContentResolver</code> and setting the <code>Bitmap</code> to the <code>ImageView</code>, like this:</p>
+
+<pre><code>// Resolve a uri to a Bitmap
+private Bitmap getImageBitmap(Uri aUri) {
+    try {
+        BitmapFactory.Options _opts = new BitmapFactory.Options();
+        _opts.inScaled = false;
+        _opts.inSampleSize = 1;
+        _opts.inPreferredConfig = config;
+
+        return BitmapFactory.decodeStream(
+            rslv.openInputStream(aUri), null, _opts
+        );
+    } catch (Exception anExc) {
+        L.e("loading bitmap", anExc);
+        return null;
+    }
+}
+
+// set a bitmap instead of a uri...
+_image.setImageBitmap(getImageBitmap(aScene));
+</code></pre>
+
+<p>If the Uri really resolves to a missing file then I'll still get black images, but this is only likely in fairly extreme circumstances, and at least the app doesn't crash :). I suppose a better solution would be to return the app icon in such cases.</p>
+
+<p>So to the next problem...</p>
+
+<h3>Force-Close while applying FX</h3>
+
+<p>My first guess was that this was going to be a VM budget issue. I've had them before, but with the v1.5.0 release I seemed to have largely solved them (no crash reports <em>at all</em> since). Here are some of the issues:</p>
+
+<ol>
+<li>Older Android devices only allow 16Mb to each running app. The generation of devices from about 2 years ago (e.g. original Motorola Droid) often allow 24Mb per app, which is still pretty small for dealing with large images. Current generation (e.g. Samsung Galaxy Mini and S2) allow 64Mb (yay!).</li>
+<li>One of the nice things about Android devices is the way in which they integrate with Google's eco-system. For example, the "Gallery" app on most devices shows images from your Picasa Web Albums, as well as photos taken directly on the device. Of course, this means that the phone has access to potentially very large images taken with a "real" camera.</li>
+<li>Many mobiles these days have 8MP camera's built in, therefore a single photo can be very large!</li>
+<li>The nature of my app (making comic strips from your own images) means that I am dealing with potentially many images at any given time. Applying FX requires at least two such images concurrently in-memory (the source, and the target). The finished strips are rendered as rows of 350x350 images, so the size of that final bitmap depends on how many frames you add to your strip.</li>
+</ol>
+
+<p>A quick investigation revealed that I wasn't exceeding the VM budget - nowhere near in fact: the app crashed frequently with the VM size still less than 7Mb. Switching back and forth between API levels 7 and 8 showed that this was definitely only a problem at API level 7 (Android 2.1). </p>
+
+<p>In 2.2 and above I can go through all of the FX several times over with no problems. In 2.1 the app usually crashes at the application of the second effect, but sometimes goes at the first or third attempt.</p>
+
+<h3>SIGSEGV while recycling Bitmap's</h3>
+
+<p>My app allows you to apply some image effects to the photos you select for each frame, to give a more comic-book feel. For example, you can apply a half-tone print effect, or a quantised and outlined "cartoon" effect.</p>
+
+<p>To process these effects I have to juggle multiple <code>Bitmap</code>'s and <code>Canvas</code>'s, and - because of the resource-constrained environment of a mobile device - clean up the memory that these objects were using as soon as they are no longer needed.</p>
+
+<p>To make the user-experience more friendly the FX are processed in a background thread. On the UI thread I show a dialog with a spinner to let the user know something is happening. This is nothing special - I'm using the <code>AsyncTask</code> class provided by the Android framework for exactly this purpose.</p>
+
+<p>In Android - pre Honeycomb - Bitmap memory is allocated off-heap by JNI calls in the Bitmap class. It doesn't gain you extra memory to play with in your VM - the bitmap pixel data is still counted within the total memory used by your app (witness the number of StackOverflow questions pertaining to Bitmap's and VM budget!). In Honeycomb the bitmap pixel data has <a href="http://www.youtube.com/watch?v=_CruQY55HOk">moved into the VM</a></p>
+
+<p>As soon as you're done with a Bitmap, you are supposed to let the Runtime know, by invoking <code>Bitmap.recycle()</code>, then null'ing the reference to the Bitmap. Fine, my app works great on API levels above 7 - no crashes, no warnings, no memory leaks. </p>
+
+<p>At API level 7 (Android 2.1) however, this is what happens:</p>
+
+<pre><code>02-19 09:41:19.710: I/DEBUG(28): *** *** *** *** *** *** *** *** *** 
+    *** *** *** *** *** *** ***
+02-19 09:41:19.710: I/DEBUG(28): Build fingerprint: 
+    'generic/sdk/generic/:2.1-update1/ECLAIR/35983:eng/test-keys'
+02-19 09:41:19.710: I/DEBUG(28): pid: 224, tid: 234  
+    &gt;&gt;&gt; com.roundwoodstudios.comicstripitpro &lt;&lt;&lt;
+02-19 09:41:19.710: I/DEBUG(28): signal 11 (SIGSEGV), fault addr 00000028
+02-19 09:41:19.720: I/DEBUG(28):  
+    r0 00000000  r1 0012715c  r2 00000000  r3 0012715c
+02-19 09:41:19.720: I/DEBUG(28):  
+    r4 00137e18  r5 0012719c  r6 00000000  r7 00000000
+02-19 09:41:19.720: I/DEBUG(28):  
+    r8 00000001  r9 00000000  10 00000000  fp 00000000
+02-19 09:41:19.720: I/DEBUG(28):  
+    ip ff000000  sp 47285c58  lr 00000000  pc ac065288  
+    cpsr 60000010
+02-19 09:41:19.840: I/DEBUG(28):  #00  pc 00065288  /system/lib/libskia.so
+02-19 09:41:19.840: I/DEBUG(28):  #01  pc 00065dcc  /system/lib/libskia.so
+02-19 09:41:19.840: I/DEBUG(28):  #02  pc 00064148  /system/lib/libskia.so
+02-19 09:41:19.840: I/DEBUG(28):  #03  pc 00041986  
+    /system/lib/libandroid_runtime.so
+02-19 09:41:19.850: I/DEBUG(28):  #04  pc 0000f1f4  /system/lib/libdvm.so
+02-19 09:41:19.850: I/DEBUG(28):  #05  pc 00037f90  /system/lib/libdvm.so
+02-19 09:41:19.850: I/DEBUG(28):  #06  pc 00031612  /system/lib/libdvm.so
+02-19 09:41:19.860: I/DEBUG(28):  #07  pc 00013f58  /system/lib/libdvm.so
+02-19 09:41:19.860: I/DEBUG(28):  #08  pc 00019888  /system/lib/libdvm.so
+02-19 09:41:19.860: I/DEBUG(28):  #09  pc 00018d5c  /system/lib/libdvm.so
+02-19 09:41:19.880: I/DEBUG(28):  #10  pc 0004d6d0  /system/lib/libdvm.so
+02-19 09:41:19.880: I/DEBUG(28):  #11  pc 0004d702  /system/lib/libdvm.so
+02-19 09:41:19.880: I/DEBUG(28):  #12  pc 00041c78  /system/lib/libdvm.so
+02-19 09:41:19.890: I/DEBUG(28):  #13  pc 00010000  /system/lib/libc.so
+02-19 09:41:19.890: I/DEBUG(28):  #14  pc 0000fad4  /system/lib/libc.so
+02-19 09:41:19.890: I/DEBUG(28): code around pc:
+02-19 09:41:19.890: I/DEBUG(28): ac065278 e1d4e2f4 e1d472f6 e5946004 e197200e 
+02-19 09:41:19.890: I/DEBUG(28): ac065288 e5969028 e596a024 0a00002e e59db00c 
+02-19 09:41:19.900: I/DEBUG(28): ac065298 e2848028 e1a0c008 e8bb000f e8ac000f 
+02-19 09:41:19.900: I/DEBUG(28): code around lr:
+02-19 09:41:19.900: I/DEBUG(28): stack:
+02-19 09:41:19.900: I/DEBUG(28):     47285c18  4001d001  
+    /dev/ashmem/mspace/dalvik-heap/zygote/0 (deleted)
+02-19 09:41:19.900: I/DEBUG(28):     47285c1c  ad04d21d  /system/lib/libdvm.so
+02-19 09:41:19.900: I/DEBUG(28):     47285c20  00000000  
+02-19 09:41:19.910: I/DEBUG(28):     47285c24  00010002  [heap]
+02-19 09:41:19.910: I/DEBUG(28):     47285c28  00010002  [heap]
+02-19 09:41:19.910: I/DEBUG(28):     47285c2c  418ab254  
+    /dev/ashmem/dalvik-LinearAlloc (deleted)
+02-19 09:41:19.910: I/DEBUG(28):     47285c30  0012a0f8  [heap]
+02-19 09:41:19.910: I/DEBUG(28):     47285c34  ad04d6d9  /system/lib/libdvm.so
+02-19 09:41:19.910: I/DEBUG(28):     47285c38  ad07ff50  /system/lib/libdvm.so
+02-19 09:41:19.910: I/DEBUG(28):     47285c3c  42ab4edd  
+    /data/dalvik-cache/system@framework@framework.jar@classes.dex
+02-19 09:41:19.910: I/DEBUG(28):     47285c40  47285c48  
+02-19 09:41:19.910: I/DEBUG(28):     47285c44  00000001  
+02-19 09:41:19.910: I/DEBUG(28):     47285c48  00000001  
+02-19 09:41:19.910: I/DEBUG(28):     47285c4c  00000007  
+02-19 09:41:19.910: I/DEBUG(28):     47285c50  df002777  
+02-19 09:41:19.920: I/DEBUG(28):     47285c54  e3a070ad  
+02-19 09:41:19.920: I/DEBUG(28): #00 47285c58  44ebe8a0  
+    /dev/ashmem/mspace/dalvik-heap/2 (deleted)
+02-19 09:41:19.920: I/DEBUG(28):     47285c5c  0012a0f8  [heap]
+02-19 09:41:19.920: I/DEBUG(28):     47285c60  418ab254  
+    /dev/ashmem/dalvik-LinearAlloc (deleted)
+02-19 09:41:19.920: I/DEBUG(28):     47285c64  00127174  [heap]
+02-19 09:41:19.920: I/DEBUG(28):     47285c68  47285c70  
+02-19 09:41:19.920: I/DEBUG(28):     47285c6c  47285cd4  
+02-19 09:41:19.930: I/DEBUG(28):     47285c70  000000f0  
+02-19 09:41:19.930: I/DEBUG(28):     47285c74  00127128  [heap]
+02-19 09:41:19.930: I/DEBUG(28):     47285c78  000000e4  
+02-19 09:41:19.930: I/DEBUG(28):     47285c7c  0012a0f8  [heap]
+02-19 09:41:19.930: I/DEBUG(28):     47285c80  00000001  
+02-19 09:41:19.930: I/DEBUG(28):     47285c84  00000007  
+02-19 09:41:19.930: I/DEBUG(28):     47285c88  00000001  
+02-19 09:41:19.941: I/DEBUG(28):     47285c8c  ad040a89  /system/lib/libdvm.so
+02-19 09:41:19.941: I/DEBUG(28):     47285c90  00000000  
+02-19 09:41:19.941: I/DEBUG(28):     47285c94  0012a0f8  [heap]
+02-19 09:41:19.941: I/DEBUG(28):     47285c98  ad07ecc0  /system/lib/libdvm.so
+02-19 09:41:19.941: I/DEBUG(28):     47285c9c  ad03775b  /system/lib/libdvm.so
+02-19 09:41:19.941: I/DEBUG(28):     47285ca0  ad037745  /system/lib/libdvm.so
+02-19 09:41:19.941: I/DEBUG(28):     47285ca4  47285d2c  
+02-19 09:41:19.941: I/DEBUG(28):     47285ca8  47285cd0  
+02-19 09:41:19.941: I/DEBUG(28):     47285cac  00127128  [heap]
+02-19 09:41:19.941: I/DEBUG(28):     47285cb0  00000000  
+02-19 09:41:19.941: I/DEBUG(28):     47285cb4  00000001  
+02-19 09:41:19.950: I/DEBUG(28):     47285cb8  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285cbc  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285cc0  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285cc4  ac065dd0  
+    /system/lib/libskia.so
+02-19 09:41:19.950: I/DEBUG(28): #01 47285cc8  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285ccc  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285cd0  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285cd4  afe0f2c0  /system/lib/libc.so
+02-19 09:41:19.950: I/DEBUG(28):     47285cd8  47285d28  
+02-19 09:41:19.950: I/DEBUG(28):     47285cdc  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285ce0  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285ce4  00000000  
+02-19 09:41:19.950: I/DEBUG(28):     47285ce8  00127128  [heap]
+02-19 09:41:19.960: I/DEBUG(28):     47285cec  afe0f3b0  /system/lib/libc.so
+02-19 09:41:19.960: I/DEBUG(28):     47285cf0  00000000  
+02-19 09:41:19.960: I/DEBUG(28):     47285cf4  afe0f2c0  /system/lib/libc.so
+02-19 09:41:19.960: I/DEBUG(28):     47285cf8  00000003  
+02-19 09:41:19.960: I/DEBUG(28):     47285cfc  afe3b9bc  
+02-19 09:41:19.960: I/DEBUG(28):     47285d00  00137e18  [heap]
+02-19 09:41:19.960: I/DEBUG(28):     47285d04  47285d2c  
+02-19 09:41:19.960: I/DEBUG(28):     47285d08  00127128  [heap]
+02-19 09:41:19.960: I/DEBUG(28):     47285d0c  00000003  
+02-19 09:41:19.960: I/DEBUG(28):     47285d10  ffffffff  
+02-19 09:41:19.960: I/DEBUG(28):     47285d14  47285d88  
+02-19 09:41:19.960: I/DEBUG(28):     47285d18  42f0cd88  
+02-19 09:41:19.970: I/DEBUG(28):     47285d1c  42f0cd74  
+02-19 09:41:19.980: I/DEBUG(28):     47285d20  0012a0f8  [heap]
+02-19 09:41:19.980: I/DEBUG(28):     47285d24  ac06414c  /system/lib/libskia.so
+02-19 09:41:21.230: D/Zygote(30): Process 224 terminated by signal (11)
+02-19 09:41:21.230: I/WindowManager(52): WIN DEATH: 
+    Window{44d330a0 Just a sec! paused=false}
+02-19 09:41:21.240: I/ActivityManager(52): Process 
+    com.roundwoodstudios.comicstripitpro (pid 224) has died.
+02-19 09:41:21.250: I/WindowManager(52): WIN DEATH: Window{44d72738
+    com.roundwoodstudios.comicstripitpro/
+        com.roundwoodstudios.comicstripit.SceneActivity paused=false}
+02-19 09:41:21.320: I/UsageStats(52): Unexpected resume of com.android.launcher 
+    while already resumed in com.roundwoodstudios.comicstripitpro
+</code></pre>
+
+<p>Yep, that's a seg-fault of the Dalvik VM triggered in the libskia library (Android's graphics lib), so I'm pretty screwed here - there's no catch and recover strategy for that! I've tried all sorts of things to try to work around it for Eclair, but so far no joy. </p>
+
+<p>I got quite a few hits on StackOverflow for similar problems. Most seemed to be related to calling recycle, but I often hit the problem even before I recycle - I get blow-outs when creating Bitmaps (and yes, I'm still well within the VM budget, and I even tried allowing a 64Mb heap per app).</p>
+
+<p>This looks like a monstrous bug in Android-2.1 to me. If I can't work around it I'll refund my user (he's a user of the paid version), but I doubt if that will lead to recovery of my previously 4.8 star rating.</p>
+
+<p>Did I mention that I thought the rating mechanism was pretty harsh on developers? :(</p>
+
+<h3>Update - a few hours later :)</h3>
+
+<p>After some more debugging, I isolated the problem and created the simplest re-construction possible. The following code crashes reliably under API level 7, but runs to completion under API level 8 or above:</p>
+
+<pre><code>package com.roundwoodstudios.bitmaptest;
+
+import android.app.Activity;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+
+public class BitmapActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
+        for (int i=0; i&lt;100; i++) {
+            Log.i("Bitmap Test", "Iteration: " + i);
+            Canvas _c = new Canvas();
+            _c.drawColor(Color.WHITE);
+        }
+    }
+}
+</code></pre>
+
+<p>When you look at it like that its fairly clear what's wrong: the canvas isn't really initialised properly yet - it doesn't know how large it is, for example. If I set a bitmap to it <em>first</em> it runs fine even under API level 7:</p>
+
+<pre><code>package com.roundwoodstudios.bitmaptest;
+
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+
+public class BitmapActivity extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
+        for (int i=0; i&lt;100; i++) {
+            Log.i("Bitmap Test", "Iteration: " + i);
+            Canvas _c = new Canvas();
+            Bitmap _b = Bitmap.createBitmap(350, 350, Bitmap.Config.ARGB_8888);
+            _c.setBitmap(_b);
+            _c.drawColor(Color.WHITE);
+        }
+    }
+}
+</code></pre>
+
+<p>Phew, that's a relief :)</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclair">eclair</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=bitmap">bitmap</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=crash">crash</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=sigsegv">sigsegv</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="android_2_1_trouble_with_bitmaps.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="751" description="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp's paths and selections. Here are my notes.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-02-14">February 14, 2012</time></span>
               <a itemprop="url" href="paths_and_selections_in_gimp.html"><h1 itemprop="name" itemprop="headline">Paths and Selections in Gimp</h1></a>
@@ -517,33 +839,6 @@ private static void close(OutputStream anOutput) {
 	        <a href="invoking_processes_from_java.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="87" description="Couldn't resist posting my latest Comic Strip It! creation, testing the new speech balloon styles and colours, and featuring my latest lego mini-figure - the mad scientist!">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-01-25">January 25, 2012</time></span>
-              <a itemprop="url" href="another_mini_figure_another_comic_strip.html"><h1 itemprop="name" itemprop="headline">Another mini-figure, another comic strip...</h1></a>
-	      <span itemprop="articleBody"><p>Here's a quick taster of the new speech-balloon styles and colours available in Comic Strip It! v1.4.2 (and featuring my latest lego minifigure - the Mad Scientist).</p>
-
-<p><a target="top" href="https://lh5.googleusercontent.com/-ZPNFZHx_4vA/TyCF5AJcchI/AAAAAAAAIpk/qpDlLOxZLBg/s1600/20.jpg"><img alt="Joe Hazmat vs Mad Scientist, a lego comic strip made with Comic Strip It!" src="https://lh5.googleusercontent.com/-ZPNFZHx_4vA/TyCF5AJcchI/AAAAAAAAIpk/qpDlLOxZLBg/s600/20.jpg"></a></p>
-
-<table>
- <tr>
-  <td>Sorry iOS folks, <a href="https://market.android.com/details?id=com.roundwoodstudios.comicstripitpro">Comic Strip It!</a> is only available for Android at this time. Android folks can jump to the Market with this QR code.</td>
-  <td><a href="https://market.android.com/details?id=com.roundwoodstudios.comicstripitpro"><img src="images/qr_code.png"></a></td>
- </tr>
-</table>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Comic Strip It">Comic Strip It</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=App">App</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Comic Strip">Comic Strip</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Lego">Lego</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="another_mini_figure_another_comic_strip.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -561,11 +856,11 @@ private static void close(OutputStream anOutput) {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
                 <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
                 <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
                 <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
                 <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
-                <li><a href="comparing_methods_of_xml_parsing_in_android.html">Comparing methods of XML parsing in Android</a><span class="date"> - Apr 10, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
