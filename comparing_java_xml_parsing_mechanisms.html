@@ -28,7 +28,7 @@
       </div>
       <div class="nav">
         <span>
-          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="http://www.google.com/images/icons/ui/gprofile_button-16.png" width="16" height="16"></a>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="https://ssl.gstatic.com/images/icons/gplus-16.png" width="16" height="16"></a>
           <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
 	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
 	  <form action="http://www.google.com/search" method="get">
@@ -40,7 +40,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="6,194" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="6,838" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
               <a itemprop="url" href="comparing_methods_of_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">Comparing methods of XML parsing in Android</h1></a>
 	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance - especially for Android. The parsing mechanisms compared here are:</p>
@@ -246,20 +246,54 @@ private DateFormat dateFormat;
 
 public DOMXPathTweetsReader() 
 throws Exception {
-    builder = DocumentBuilderFactory.
-        newInstance().newDocumentBuilder();
+    DocumentBuilderFactory _dbf = 
+        DocumentBuilderFactory.newInstance();
+    _dbf.setNamespaceAware(true);
+    builder = _dbf.newDocumentBuilder();
     factory = XPathFactory.newInstance();
 
-    entry = factory.newXPath().compile("/feed/entry");
-    published = factory.newXPath().compile(".//published");
-    title = factory.newXPath().compile(".//title");
-    contentType = factory.newXPath().compile(".//content/@type");
-    content = factory.newXPath().compile(".//content");
-    lang = factory.newXPath().compile(".//twitter:lang");
-    authorName = factory.newXPath().compile(".//author/name");
-    authorUri = factory.newXPath().compile(".//author/uri");
+    NamespaceContext _ctx = new NamespaceContext() {
+        public String getNamespaceURI(String aPrefix) {
+            String _uri;
+            if (aPrefix.equals("atom"))
+                _uri = "http://www.w3.org/2005/Atom";
+            else if (aPrefix.equals("twitter"))
+                _uri = "http://api.twitter.com/";
+            else
+                _uri = null;
+            return _uri;
+        }
+
+        @Override
+        public String getPrefix(String aArg0) {
+            return null;
+        }
+
+        @Override
+        @SuppressWarnings("rawtypes")
+        public Iterator getPrefixes(String aArg0) {
+            return null;
+        }
+    };
+
+    entry = newXPath(factory, _ctx, "/atom:feed/atom:entry");
+    published = newXPath(factory, _ctx, ".//atom:published");
+    title = newXPath(factory, _ctx, ".//atom:title");
+    contentType = newXPath(factory, _ctx, ".//atom:content/@type");
+    content = newXPath(factory, _ctx, ".//atom:content");
+    lang = newXPath(factory, _ctx, ".//twitter:lang");
+    authorName = newXPath(factory, _ctx, ".//atom:author/atom:name");
+    authorUri = newXPath(factory, _ctx, ".//atom:author/atom:uri");
 
     dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+}
+
+private XPathExpression newXPath(
+    XPathFactory aFactory, NamespaceContext aCtx, String anXPath
+) throws Exception {
+    XPath _xp = factory.newXPath();
+    _xp.setNamespaceContext(aCtx);
+    return _xp.compile(anXPath);
 }
 
 @Override
@@ -267,18 +301,14 @@ public String getParserName() {
     return "W3C DOM/XPath";
 }
 
-
-
 @Override
 public Tweets read(InputStream anInputStream)
 throws Exception {
     Tweets _result = new Tweets();
     Document _document = builder.parse(anInputStream);
 
-    NodeList _entries = (NodeList) entry.evaluate(
-        _document, XPathConstants.NODESET
-    );
-
+    NodeList _entries = (NodeList) 
+        entry.evaluate(_document, XPathConstants.NODESET);                  
     for (int i=0; i&amp;lt;_entries.getLength(); i++) {
         Tweet _tweet = new Tweet();
         _result.addTweet(_tweet);
@@ -311,7 +341,7 @@ throws Exception {
 }
 </code></pre>
 
-<p>The code ends up being quite easy to read and nests in a way that mimics the document structure. There is a very big downside - as you'll see later - the performance is <em>atrocious</em>. </p>
+<p>The code ends up being quite easy to read and can be written to nest in a way that mimics the document structure. There is a very big downside - as you'll see later - the performance is <em>atrocious</em>. </p>
 
 <h3>SAX Parser</h3>
 
@@ -323,7 +353,7 @@ throws Exception {
 
 <p>I'm extending <code>DefaultHandler</code> because I'm not interested in many of the events (it provides a default empty implementation of those methods for me).</p>
 
-<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/SAXTweetsReader.java">actual test code</a> is in github, but here's the gist of it:</p>
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/SAXTweetsReader.java">actual test code</a> is in github, and is actually more complex in order to handle entity-refs via a <code>LexicalHandler</code>,  but here's the gist of it:</p>
 
 <pre><code>private XMLReader reader;
 private TweetsHandler handler;
@@ -420,9 +450,9 @@ private static class TweetsHandler extends DefaultHandler {
 }
 </code></pre>
 
-<p>I used to quite dislike SAX parsing back in the day - DOM felt much more comfortable. What was I thinking?</p>
-
 <p>One downside when handling more complicated documents is that the <code>ContentHandler</code> can get littered with intermediate state objects - for example here I have the <code>tweet</code>, <code>content</code>, and <code>author</code> fields.</p>
+
+<p>Another is that SAX is very low level and you have to handle pretty much everything - including that text nodes are passed to you in pieces when there are entity-references present.</p>
 
 <h3>Pull Parser</h3>
 
@@ -681,7 +711,7 @@ throws Exception {
 
 <p>Dsl4xml parsing code has a declarative style, is concise, and uses reflection to cut boiler-plate to a minimum.</p>
 
-<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/Dsl4XmlTweetsReader.java">Actual code</a> is in Github, here's what it looks like:</p>
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/Dsl4XmlPullTweetsReader.java">Actual code</a> is in Github, here's what it looks like:</p>
 
 <pre><code>private DocumentReader&amp;lt;Tweets&gt; reader;
 
@@ -758,6 +788,93 @@ public Tweets read(InputStream anInputStream) throws Exception {
 
 <p>Confirming that SAX is the way to go on Android!</p>
 
+<h4>Quick side note about iOS</h4>
+
+<p>My friend <a href="http://twitter.com/#!/prestonmr">Matt Preston</a> did a quick port of the <em>DOM</em> and <em>SAX</em> parsing tests to iOS. </p>
+
+<p>He didn't produce a chart (yet!), but the <em>DOM</em> parsing throughput on an iPhone 4S was approximately twice as good as <em>SAX</em> parsing on my Samsung. SAX Parsing on the iPhone churned through on average 150 docs/sec!</p>
+
+<p>Its interesting to note that the iPhone4S runs a 1GHz Cortex A9 CPU <em>clocked down</em> to 800Mhz, while my Samsung is running a <em>1.2GHz</em> Cortex A9.</p>
+
+<h4>Why XPath parsing sucked so bad</h4>
+
+<p>The observant will have noticed the charts do not contain figures for the XPath parsing. That's because I dropped it when I realised it was two orders of magnitude slower even than DOM parsing.</p>
+
+<p>This appalling performance seems to be because when executing <em>each</em> xpath expression a context object is created which involves looking up several files on the classpath (and all the inherent synchronisation this entails). I don't intend to waste my time digging into why this can't done once and cached :(.</p>
+
+<p>If you're interested, this is what my threads spent most of their time doing in the XPath test:</p>
+
+<pre><code>"Thread-11" prio=5 tid=7fcf544d2000 nid=0x10d6bb000 
+    waiting for monitor entry [10d6b9000]
+    java.lang.Thread.State: BLOCKED (on object monitor)
+    at java.util.zip.ZipFile.getEntry(ZipFile.java:159)
+    - locked &amp;lt;7f4514c88&gt; (a java.util.jar.JarFile)
+    at java.util.jar.JarFile.getEntry(JarFile.java:208)
+    at java.util.jar.JarFile.getJarEntry(JarFile.java:191)
+    at sun.misc.URLClassPath$JarLoader.getResource(URLClassPath.java:757)
+    at sun.misc.URLClassPath$JarLoader.findResource(URLClassPath.java:735)
+    at sun.misc.URLClassPath.findResource(URLClassPath.java:146)
+    at java.net.URLClassLoader$2.run(URLClassLoader.java:385)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at java.net.URLClassLoader.findResource(URLClassLoader.java:382)
+    at java.lang.ClassLoader.getResource(ClassLoader.java:1002)
+    at java.lang.ClassLoader.getResource(ClassLoader.java:997)
+    at java.lang.ClassLoader.getSystemResource(ClassLoader.java:1100)
+    at java.lang.ClassLoader.getSystemResourceAsStream(ClassLoader.java:1214)
+    at com.sun.org.apache.xml.internal.dtm.SecuritySupport12$6.run
+        (SecuritySupport12.java:117)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at
+    com.sun.org.apache.xml.internal.dtm.SecuritySupport12.
+        getResourceAsStream(SecuritySupport12.java:112)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        findJarServiceProviderName(ObjectFactory.java:549)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        lookUpFactoryClassName(ObjectFactory.java:373)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        lookUpFactoryClass(ObjectFactory.java:206)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        createObject(ObjectFactory.java:131)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        createObject(ObjectFactory.java:101)
+    at com.sun.org.apache.xml.internal.dtm.DTMManager.
+        newInstance(DTMManager.java:135)
+    at com.sun.org.apache.xpath.internal.XPathContext.
+        &amp;lt;init&gt;(XPathContext.java:100)
+    at com.sun.org.apache.xpath.internal.jaxp.XPathExpressionImpl.
+        eval(XPathExpressionImpl.java:110)
+</code></pre>
+
+<h2>Conclusions</h2>
+
+<h3>Readability</h3>
+
+<p>Of the mechanisms tested so far, and from the code samples above, I think that dsl4xml produces far the most readable and maintainable parsing code. Of course I am biased. </p>
+
+<p>I think SAX parsing would have worked out to be the most readable of the other mechanisms if it hadn't been for those pesky entity-refs. As it is I have to recommend Pull-parsing as the way to go for readability.</p>
+
+<h3>Desktop/laptop xml parsing performance</h3>
+
+<p>SAX parsing and the pull-parsing wrappers give comparable performance. Raw Pull-parsing beats the lot by a margin of around 15%. DOM performs relatively badly - around twice as slow as any of the others. Don't go near XPath based parsing unless you like watching paint dry.</p>
+
+<p>Recommendation: Pull Parser for max performance and relative ease of use. Dsl4xml if you want performance <em>and</em> great readability :)</p>
+
+<h3>Android xml parsing performance</h3>
+
+<p>Avoid XPath at all costs. DOM and pull-parsing appear to have similarly poor performance characteristics. SAX absolutely <em>destroys</em> all the others - roughly an order of magnitude quicker.</p>
+
+<p>Recommendation: SAX, every time. I'll get working on a SAX-based dsl4xml implementation :)</p>
+
+<p><em>Update (23rd April 2012): Just finished a SAX-based dsl4xml - here's the performance chart for my Samsung Galaxy SII again (also includes figures for SimpleXML):</em></p>
+
+<div id="update_chart_div"></div>
+
+<h3>Final words</h3>
+
+<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. </p>
+
+<p>I suspect that the performance gap between the different mechanisms widens as the document complexity increases, but as yet have no real evidence to back that up.</p>
+
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
@@ -768,6 +885,7 @@ public Tweets read(InputStream anInputStream) throws Exception {
         drawLaptopChart();
         drawMobileChart();
         drawTabletChart();
+        drawUpdateChart();
       }
 
       function drawDesktopChart() {
@@ -889,90 +1007,40 @@ data.addColumn('number', 'SJXP');
         var chart = new google.visualization.ColumnChart(document.getElementById('tablet_chart_div'));
         chart.draw(data, options);
       }
+
+      function drawUpdateChart() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml (pull)');
+data.addColumn('number', 'dsl4xml (SAX)');
+data.addColumn('number', 'SJXP');
+data.addColumn('number', 'SimpleXML');
+
+        data.addRows([
+
+['1',2.3990626431189757,43.064527743674304,3.5096192666862467,3.1076837111373043,29.861563321354247,2.4664573717826044,2.3909004146918598],
+['2',3.8097945346845243,69.65230695343173,6.033185779344725,5.719798415469687,54.390135966806106,4.19575915770385,3.927812341410011],
+['3',3.6368249512540114,71.39012835438209,5.537694525649179,4.886205168164367,58.04773944850799,3.8392278830888653,3.5690149046875117],
+['4',3.6586810559054896,78.02354281756789,5.476464455883683,4.989187889389914,60.89659425282844,4.014151778333453,3.6487355420874175]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('update_chart_div'));
+        chart.draw(data, options);
+
+      }
 </script>
-
-<h4>Quick side note about iOS</h4>
-
-<p>My friend <a href="http://twitter.com/#!/prestonmr">Matt Preston</a> did a quick port of the <em>DOM</em> and <em>SAX</em> parsing tests to iOS. </p>
-
-<p>He didn't produce a chart (yet!), but the <em>DOM</em> parsing throughput on an iPhone 4S was approximately twice as good as <em>SAX</em> parsing on my Samsung. SAX Parsing on the iPhone churned through on average 150 docs/sec!</p>
-
-<p>Its interesting to note that the iPhone4S runs a 1GHz Cortex A9 CPU <em>clocked down</em> to 800Mhz, while my Samsung is running a <em>1.2GHz</em> Cortex A9.</p>
-
-<h4>Why XPath parsing sucked so bad</h4>
-
-<p>The observant will have noticed the charts do not contain figures for the XPath parsing. That's because I dropped it when I realised it was two orders of magnitude slower even than DOM parsing.</p>
-
-<p>This appalling performance seems to be because when executing <em>each</em> xpath expression a context object is created which involves looking up several files on the classpath (and all the inherent synchronisation this entails). I don't intend to waste my time digging into why this can't done once and cached :(.</p>
-
-<p>If you're interested, this is what my threads spent most of their time doing in the XPath test:</p>
-
-<pre><code>"Thread-11" prio=5 tid=7fcf544d2000 nid=0x10d6bb000 
-    waiting for monitor entry [10d6b9000]
-    java.lang.Thread.State: BLOCKED (on object monitor)
-    at java.util.zip.ZipFile.getEntry(ZipFile.java:159)
-    - locked &amp;lt;7f4514c88&gt; (a java.util.jar.JarFile)
-    at java.util.jar.JarFile.getEntry(JarFile.java:208)
-    at java.util.jar.JarFile.getJarEntry(JarFile.java:191)
-    at sun.misc.URLClassPath$JarLoader.getResource(URLClassPath.java:757)
-    at sun.misc.URLClassPath$JarLoader.findResource(URLClassPath.java:735)
-    at sun.misc.URLClassPath.findResource(URLClassPath.java:146)
-    at java.net.URLClassLoader$2.run(URLClassLoader.java:385)
-    at java.security.AccessController.doPrivileged(Native Method)
-    at java.net.URLClassLoader.findResource(URLClassLoader.java:382)
-    at java.lang.ClassLoader.getResource(ClassLoader.java:1002)
-    at java.lang.ClassLoader.getResource(ClassLoader.java:997)
-    at java.lang.ClassLoader.getSystemResource(ClassLoader.java:1100)
-    at java.lang.ClassLoader.getSystemResourceAsStream(ClassLoader.java:1214)
-    at com.sun.org.apache.xml.internal.dtm.SecuritySupport12$6.run
-        (SecuritySupport12.java:117)
-    at java.security.AccessController.doPrivileged(Native Method)
-    at
-    com.sun.org.apache.xml.internal.dtm.SecuritySupport12.
-        getResourceAsStream(SecuritySupport12.java:112)
-    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
-        findJarServiceProviderName(ObjectFactory.java:549)
-    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
-        lookUpFactoryClassName(ObjectFactory.java:373)
-    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
-        lookUpFactoryClass(ObjectFactory.java:206)
-    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
-        createObject(ObjectFactory.java:131)
-    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
-        createObject(ObjectFactory.java:101)
-    at com.sun.org.apache.xml.internal.dtm.DTMManager.
-        newInstance(DTMManager.java:135)
-    at com.sun.org.apache.xpath.internal.XPathContext.
-        &amp;lt;init&gt;(XPathContext.java:100)
-    at com.sun.org.apache.xpath.internal.jaxp.XPathExpressionImpl.
-        eval(XPathExpressionImpl.java:110)
-</code></pre>
-
-<h2>Conclusions</h2>
-
-<h3>Readability</h3>
-
-<p>Of the mechanisms tested so far, and from the code samples above, I think that dsl4xml produces far the most readable and maintainable parsing code. Of course I am biased. </p>
-
-<p>I think SAX parsing worked out to be the most readable of the other mechanisms, though Pull-parsing is very similar and there's not really much to separate them.</p>
-
-<h3>Desktop/laptop xml parsing performance</h3>
-
-<p>SAX parsing and the pull-parsing wrappers give comparable performance. Raw Pull-parsing beats the lot by a margin of around 15%. DOM performs relatively badly - around twice as slow as any of the others. Don't go near XPath based parsing unless you like watching paint dry.</p>
-
-<p>Recommendation: Pull Parser for max performance, SAX is also a good choice. Dsl4xml if you favour readability :)</p>
-
-<h3>Android xml parsing performance</h3>
-
-<p>Avoid XPath at all costs. DOM and pull-parsing appear to have similarly poor performance characteristics. SAX absolutely <em>destroys</em> all the others - roughly an order of magnitude quicker.</p>
-
-<p>Recommendation: SAX, every time. I'll get working on a SAX-based dsl4xml implementation :)</p>
-
-<h3>Final words</h3>
-
-<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. </p>
-
-<p>I suspect that the performance gap between the different mechanisms widens as the document complexity increases, but as yet have no real evidence to back that up.</p>
 </span>
 
               <ul class="keywords">
@@ -1032,10 +1100,11 @@ data.addColumn('number', 'SJXP');
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a><span class="date"> - Apr 05, 2012</span></li>
-                <li><a href="android_s_asynctask.html">Android's AsyncTask</a><span class="date"> - Mar 26, 2012</span></li>
-                <li><a href="returning_a_result_from_an_android_activity.html">Returning a result from an Android Activity</a><span class="date"> - Mar 03, 2012</span></li>
-                <li><a href="custom_fonts_in_android.html">Custom fonts in Android</a><span class="date"> - Feb 20, 2012</span></li>
+                <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
+                <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
+                <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
+                <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
+                <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
@@ -1043,7 +1112,7 @@ data.addColumn('number', 'SJXP');
       </div>
       <div class="nav">
         <div class="links">
-          
+          <div class="prev"><a title="previous" href="android_market_comments_severe_fail.html">Android Market Comments - S...</a></div>
           <div class="next"><a title="next" href="dsl_for_xml_parsing_in_android.html">DSL for XML parsing in Android</a></div>
         </div>
       </div>
