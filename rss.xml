@@ -4045,12 +4045,16 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
         <title><![CDATA[A multi-class union CSS selector]]></title>
         <link><![CDATA[http://steveliles.github.com/a_multi_class_union_css_selector.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/a_multi_class_union_css_selector.html</guid>
-        <description><![CDATA[<p><style> <br />
+        <description><![CDATA[<p><em>Update:</em> In the original post I got my terminology all wrong, including in the title. Changing the title would move the post and lose the comments, so I've left the title unchanged. The title of this post should actually always have been:</p>
+
+<h1>A multi-class intersection CSS selector</h1>
+
+<p><style> <br />
   .urgent { color:red; }
   .important { font-weight:bold; }
   .urgent.important { font-style:italic; }
 </style>
-Several times while working on the styling of this blog I've wanted to style elements differently when the complete combination or set union of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
+Several times while working on the styling of this blog I've wanted to style elements differently when the complete combination or set intersection of css classes are used on the same element. If the css classes are applied separately the style should not apply. Until today I didn't realise that this is, in fact, both possible and easy to achieve.</p>
 
 <p>Here's the html I want to be able to write:</p>
 
@@ -4105,7 +4109,7 @@ Several times while working on the styling of this blog I've wanted to style ele
 
 <p>OK, so here's the right way to do it, and I just can't believe it took me so long to feel the pain hard enough to go looking for a solution...</p>
 
-<h3>Option 3: use the union selector</h3>
+<h3>Option 3: use the sub-set* selector</h3>
 
 <pre><code>&lt;style&gt;
   .urgent { color:red; }
@@ -4121,15 +4125,17 @@ Several times while working on the styling of this blog I've wanted to style ele
 <p>The difference in the css declaration between option-2 and option-3 is so small I'll point it out, just in case you missed it: </p>
 
 <ul>
-<li>the union selector uses <em>both</em> class names <em>without</em> the space separating them - like this <code>.urgent.important</code>.</li>
+<li>the selector uses <em>both</em> class names <em>without</em> the space separating them - like this <code>.urgent.important</code>.</li>
 <li>whereas the example in option-2 <code>.urgent .important</code> separates the two classes with a space, and matches on an element with <code>.important</code> descending from an element with <code>.urgent</code>.</li>
 </ul>
 
 <p>CSS can be a thumping great pain, but just occasionally it comes up trumps.</p>
+
+<p>* I can't find an "official" name for this type of selector. The <a href="http://www.w3.org/TR/CSS2/selector.html#class-html">section of the css spec that covers this</a> doesn't name it other than referring to matching sub-sets. "Intersection Selector" seems like a good name to me, although "Dude McManus" in the comments calls it an "Exclusion Selector".</p>
 ]]></description>
           <category>css</category>
           <category>selector</category>
-          <category>union</category>
+          <category>intersection</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
       </item>
