@@ -35,6 +35,48 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="341" description="My experiences with attempting to get multiple nested library projects to play together with Eclipse, Android and Maven.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-11">January 11, 2012</time></span>
+              <a itemprop="url" href="the_dreaded_unexpected_top_level_exception.html"><h1 itemprop="name" itemprop="headline">The dreaded UNEXPECTED TOP-LEVEL EXCEPTION</h1></a>
+	      <span itemprop="articleBody"><p><a target="top" href="https://lh6.googleusercontent.com/-9Mgj4PvbD_8/TxtFMEPOvRI/AAAAAAAAImA/1W3xJJjaJkM/s1600/44.jpg"><img alt="Library projects with Eclipse Android and Maven, a lego comic strip made with Comic Strip It!" src="https://lh6.googleusercontent.com/-9Mgj4PvbD_8/TxtFMEPOvRI/AAAAAAAAImA/1W3xJJjaJkM/s600/44.jpg"></a></p>
+
+<p>I'm working on extracting library projects to factor out common code shared between multiple projects. With everything compiling successfully I attempted to run my apk project in an emulator, and got hit with the following:</p>
+
+<pre><code>UNEXPECTED TOP-LEVEL EXCEPTION:
+java.lang.IllegalArgumentException: 
+  already added: 
+    Lcom/android/vending/licensing/Manifest$permission;
+</code></pre>
+
+<p>Now it seems there's been a lot of problems with this recently due to changes in ADT, but the added complexity of Maven in my setup throws a few more spanners into the machinery. Robert Schmid describes a project hierarchy very similar to mine <a href="http://robert-schmid.blogspot.com/2011/12/how-i-got-eclipse-to-play-nice-with.html">here</a>, and actually gave me the final clue I needed to unravel the mess.</p>
+
+<p>The difference between my situation and Robert's is that I'm using Maven for release builds and continuous integration - and so far its proving to be ... tricky ... to get the combination of Eclipse, Maven and ADT to play well together.</p>
+
+<p>I got the dreaded UNEXPECTED TOP-LEVEL EXCEPTION because somewhere in the build cycle the Maven-Eclipse plugin is injecting its apklib dependencies into my eclipse build <em>as well as</em> the referenced projects in Eclipse. Having finally worked out what was causing my problem it was pretty easy to resolve:</p>
+
+<ul>
+<li>right-click the project, select properties</li>
+<li>go to the Maven pane</li>
+<li>uncheck "Resolve dependencies from workspace projects"</li>
+<li>repeat for all of the apklib projects referenced by your apk project</li>
+</ul>
+
+<p>The down-side of this is that if I make changes in my eclipse apklib projects I have to build the jars with Maven before the changes are available to the dependent apk projects. I actually slightly prefer working this way anyway - I find that a little bit of isolation helps.</p>
+
+<p>I should probably point out that I am using Maven-3.0.3, the m2eclipse and m2e-android Eclipse plugins, and the very latest SDK at time of writing (r16). YMMV.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ADT">ADT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="the_dreaded_unexpected_top_level_exception.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,917" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-09">January 09, 2012</time></span>
               <a itemprop="url" href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html"><h1 itemprop="name" itemprop="headline">Setting up Maven, Android and SVN for team development of multiple applications</h1></a>
@@ -567,61 +609,6 @@
 	        <a href="perforated_postage_stamp_border_with_inkscape.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="255" description="Canonical currently package javahl 1.6 in the official repositories, making it difficult to run eclipse with subclipse 1.8 and subversion 1.7. Here's how I got it working.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
-              <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu</h1></a>
-	      <span itemprop="articleBody"><p>Getting Subversion 1.7 integration working with Eclipse (3.7.1) and Subclipse 1.8 isn't all that straight-forward because Canonical currently only support the older Javahl-1.6 in their repositories. </p>
-
-<p>If you don't want to switch repo's your best bet is to go with Subclipse 1.6 and the 1.6 version of javahl (and subversion) from the official Canonical Ubuntu repositories.</p>
-
-<p>If you do want to go ahead with SVN 1.7, here's how I got it working by switching to repo's provided by dominik stadler:</p>
-
-<ol>
-<li>Add dominik's repository: <code>sudo apt-add-repository ppa:dominik-stadler/subversion-1.7</code></li>
-<li>Update apt: <code>sudo apt-get update</code></li>
-<li>Install libsvn-java: <code>sudo apt-get install libsvn-java</code></li>
-<li>Install subversion 1.7: <code>sudo apt-get install subversion</code></li>
-</ol>
-
-<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
-
-<p>You need to add <code>-Djava.library.path=/usr/lib/jni</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
-
-<pre><code>-startup
-plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
---launcher.library
-plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
--showsplash
-org.eclipse.platform
---launcher.XXMaxPermSize
-256m
---launcher.defaultAction
-openFile
--vmargs
--Djava.library.path=/usr/lib/jni
--Xms40m
--Xmx600m
-</code></pre>
-
-<p>If you use Subclipse but never previously installed Javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). </p>
-
-<p><a href="https://lh3.googleusercontent.com/-KJtp8zUoqwQ/TxtOTq8hF-I/AAAAAAAAImw/fdzs2yeDUxw/s1600/53.jpg"><img alt="Eclipse, SVN and Ubuntu - Javahl, all playing nicely - a lego minifigure comic strip made with Comic Strip It!" src="https://lh3.googleusercontent.com/-KJtp8zUoqwQ/TxtOTq8hF-I/AAAAAAAAImw/fdzs2yeDUxw/s600/53.jpg"></a></p>
-
-<p>Merry Christmas!</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javahl">javahl</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subclipse">subclipse</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -639,11 +626,11 @@ openFile
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
                 <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
                 <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
                 <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
                 <li><a href="sax_based_dsl4xml_for_android.html">SAX based dsl4xml for Android</a><span class="date"> - Apr 23, 2012</span></li>
-                <li><a href="android_market_comments_severe_fail.html">Android Market Comments - Severe Fail</a><span class="date"> - Apr 21, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
