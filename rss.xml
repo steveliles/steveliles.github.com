@@ -104,6 +104,8 @@ implements InstrumentationService {
 
 <p>This is a pretty simple example of what you can do with Dynamic Proxies. Even with this simple example its clear that you could modify it to, for example, record separate timings for successful invocations vs those that throw exceptions, or to only record timings for methods with annotations (e.g. you might create an @Timed annotation), etc., etc.</p>
 
+<p>I should mention that there is a down-side to Dynamic Proxies: they use reflection to invoke the method of the proxied class, so there is a small performance penalty.</p>
+
 <p>Lately I've been having all kinds of fun with Dynamic Proxies, from instrumentation (somewhat more complex than the above example) to monitoring service health (by escalating through warning statuses based on the ratio of successful/exceptional completion). </p>
 
 <p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off that allows a whole bunch of apparently synchronous calls to be made asynchronously, and guaranteed to complete within the SLA (albeit with default or limited results if the SLA is breached). That's a blog post for another day :)</p>

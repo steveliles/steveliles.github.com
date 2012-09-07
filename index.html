@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,289" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,319" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-07">September 07, 2012</time></span>
               <a itemprop="url" href="dynamic_proxies_in_java.html"><h1 itemprop="name" itemprop="headline">Dynamic Proxies in Java</h1></a>
 	      <span itemprop="articleBody"><p>Dynamic Proxies are a fantastic tool to have in your kit, and pretty easy to get up and running with. </p>
@@ -125,6 +125,8 @@ implements InstrumentationService {
 <p>Notice that when we invoke the proxied class's method, we wrap the invocation with a try/catch that catches InvocationTargetException, and if such an exception is thrown we propagate its <em>cause</em>, not the InvocationTargetException itself. This is just unwrapping an uninteresting layer of exceptions (which we added by using reflection to invoke the method) to get to the real problem.</p>
 
 <p>This is a pretty simple example of what you can do with Dynamic Proxies. Even with this simple example its clear that you could modify it to, for example, record separate timings for successful invocations vs those that throw exceptions, or to only record timings for methods with annotations (e.g. you might create an @Timed annotation), etc., etc.</p>
+
+<p>I should mention that there is a down-side to Dynamic Proxies: they use reflection to invoke the method of the proxied class, so there is a small performance penalty.</p>
 
 <p>Lately I've been having all kinds of fun with Dynamic Proxies, from instrumentation (somewhat more complex than the above example) to monitoring service health (by escalating through warning statuses based on the ratio of successful/exceptional completion). </p>
 
