@@ -13,6 +13,109 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Dynamic Proxies in Java]]></title>
+        <link><![CDATA[http://steveliles.github.com/dynamic_proxies_in_java.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/dynamic_proxies_in_java.html</guid>
+        <description><![CDATA[<p>Dynamic Proxies are a fantastic tool to have in your kit, and pretty easy to get up and running with. </p>
+
+<p>A Dynamic Proxy is just what the name suggests: a proxy to a "normal" Java class, where the proxy is created dynamically - at runtime - and can be substituted instead of the proxied class. </p>
+
+<p>If that still doesn't make sense, hopefully the example below will clear it up.</p>
+
+<p>Lets imagine we want to be able to time the execution of <em>any</em> method on <em>any</em> implementation of <em>any</em> interface. We don't know or care what the interface is. We'll do this by passing the class that implements the interface to an "InstrumentationService", whose interface looks like this:</p>
+
+<pre><code>public interface InstrumentationService {
+    /**
+     * @param aT - the object to be instrumented for monitoring
+     * @return A polymorphically equivalent T which has been instrumented
+     */
+    public &amp;lt;T&gt; T instrument(T aT);
+}
+</code></pre>
+
+<p>We'll get to the implementation of InstrumentationService shortly, but for now it should be clear that to instrument a class is as simple as this:</p>
+
+<pre><code>private InstrumentationService instr;
+
+public void doSomeStuff() {
+    SomeInterface _si = new SomeClassThatImplementsIt();
+
+    _si.doSomething(); // won't be timed
+
+    _si = instr(_si);
+
+    _si.doSomething(); // will be timed!
+}
+</code></pre>
+
+<p>OK, so how can we implement InstrumentationService so that it can decorate arbitrary methods on as-yet-unknown interfaces? Enter Dynamic Proxies. </p>
+
+<p>There are several rules and caveats to follow which I won't go into - they are documented pretty well <a href="http://docs.oracle.com/javase/6/docs/technotes/guides/reflection/proxy.html">here</a>. For now it should suffice to say that you can only proxy interfaces (which is ok because you always <a href="http://www.artima.com/lejava/articles/designprinciples.html">program to interfaces</a> / <a href="http://en.wikipedia.org/wiki/Design_by_contract">design by contract</a> anyway, right?)</p>
+
+<p>Here's an implementation of InstrumentationService that uses Dynamic Proxying:</p>
+
+<pre><code>package com.sjl.example;
+
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+public abstract class DynamicInstrumentationService 
+implements InstrumentationService {
+
+    protected abstract void record(String anEvent, long aNanos);
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public &amp;lt;T&gt; T instrument(final T aT)
+    {
+        return (T) Proxy.newProxyInstance(
+            aT.getClass().getClassLoader(), 
+            aT.getClass().getInterfaces(), 
+            new InvocationHandler() {
+                @Override
+                public Object invoke(
+                    Object aProxy, Method aMethod, Object[] aArgs) 
+                    throws Throwable 
+                {
+                    long _start = System.nanoTime();
+                    try {
+                        return aMethod.invoke(aT, anArgs);
+                    } catch (InvocationTargetException anExc) {
+                        throw anExc.getCause();
+                    } finally {
+                        record(_t.event(), System.nanoTime()-_start);
+                    }
+                }
+            });
+    }
+}
+</code></pre>
+
+<p>So what do we have here?</p>
+
+<ol>
+<li>An abstract implementation of IntrumentationService which defers the actual recording of the timed value to a concrete subclass - you could extend and implement the <code>record</code> method to log to stdout, for example.</li>
+<li>The <code>instrument</code> method creates a new Dynamic Proxy around the given class by invoking <code>Proxy.newInstance</code>. Notice that we use the classloader of the given class, and pass <em>all</em> of the interfaces it implements as types to be proxied.</li>
+<li>The details of <em>what to do</em> when any method of the proxy is invoked are in the InvocationHandler, implemented here as an anonymous inner class. Its pretty simple - capture the clock time before the method is invoked; invoke the method; capture the clock time after the method completes; record the difference in time (after - before).</li>
+</ol>
+
+<p>Notice that when we invoke the proxied class's method, we wrap the invocation with a try/catch that catches InvocationTargetException, and if such an exception is thrown we propagate its <em>cause</em>, not the InvocationTargetException itself. This is just unwrapping an uninteresting layer of exceptions (which we added by using reflection to invoke the method) to get to the real problem.</p>
+
+<p>This is a pretty simple example of what you can do with Dynamic Proxies. Even with this simple example its clear that you could modify it to, for example, record separate timings for successful invocations vs those that throw exceptions, or to only record timings for methods with annotations (e.g. you might create an @Timed annotation), etc., etc.</p>
+
+<p>Lately I've been having all kinds of fun with Dynamic Proxies, from instrumentation (somewhat more complex than the above example) to monitoring service health (by escalating through warning statuses based on the ratio of successful/exceptional completion). </p>
+
+<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off that allows a whole bunch of apparently synchronous calls to be made asynchronously, and guaranteed to complete within the SLA (albeit with default or limited results if the SLA is breached). That's a blog post for another day :)</p>
+]]></description>
+          <category>Java</category>
+          <category>Dynamic Proxy</category>
+          <category>Instrumentation</category>
+          <category>Timing</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Fri, 07 Sep 2012 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Setting up embedded Jetty 8 and Spring MVC with Maven]]></title>
         <link><![CDATA[http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html</guid>
@@ -5779,129 +5882,6 @@ class MyWidget extends BoundRootPanel {
           <category>SEO</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 12 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Templating my Blog with FreeMarker]]></title>
-        <link><![CDATA[http://steveliles.github.com/templating_my_blog_with_freemarker.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/templating_my_blog_with_freemarker.html</guid>
-        <description><![CDATA[<p>Part of the fun of shifting my Blog from Blogger to github has been building the static-site-generator tool which reads my blog content as <a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> and spits it out as html + css.</p>
-
-<p>I'm using <a href="http://code.google.com/p/markdownj/">MarkdownJ</a> to convert the Markdown syntax to HTML, and <a href="http://freemarker.sourceforge.net/">FreeMarker</a> for templating.</p>
-
-<p>FreeMarker for templating was an easy choice for me:</p>
-
-<ul>
-<li>It is a decent templating engine that I've used recently for a dynamic website,</li>
-<li>It is very easy to set up in Java for my one-hit templating needs,</li>
-<li>I like its syntax compared to, say, Velocity</li>
-</ul>
-
-<p>Yesterday I used FreeMarker to add two new productions to my site-generator: a sitemap, and an RSS feed, and thought I'd make some quick notes...</p>
-
-<p>FreeMarker strives to be a pure templating language, and as such resists the temptation to ... shall we say, make certain things easy that you probably shouldn't do in a template. </p>
-
-<p>This can make templating a little uncomfortable sometimes - all the more so if you try to use complex domain objects directly in your templates instead of producing model's specifically for output (YMMV depending on the complexity of your domain model of course).</p>
-
-<p>For the simple needs of my Blog FreeMarker has been great, allowing me to whiz up the sitemap template in a couple of minutes, and not much longer for the RSS-2.0 template.</p>
-
-<p>Setting up FreeMarker in Java is very very simple indeed. I chose to abstract FreeMarker away behind my own interface (<code>TemplateProcessor</code>), in case I want to use something different later:</p>
-
-<pre><code>import java.io.*;
-import freemarker.template.*;
-
-public class FreemarkerTemplateProcessor implements TemplateProcessor
-{
-    private Configuration cfg;
-
-    public FreemarkerTemplateProcessor(File aTemplateDir) 
-    throws IOException
-    {
-        cfg = new Configuration();
-        cfg.setDirectoryForTemplateLoading(aTemplateDir);
-        cfg.setObjectWrapper(new DefaultObjectWrapper());
-    }
-
-    @Override
-    public void process(Object aModel, String aTemplate, Writer aWriter) 
-    throws IOException, TemplateException
-    {
-        Template _tpl = cfg.getTemplate(aTemplate);
-        _tpl.process(aModel, aWriter);
-    }
-}
-</code></pre>
-
-<p>The templating language is quite neat, and very easy to write - as I mentioned before, it helps if your model is a good fit for the view you are trying to render so you don't need to squeeze to many conditionals into the template. </p>
-
-<h2>Freemarker template for sitemap.xml</h2>
-
-<p>There are only 3 lines of FreeMarker markup in my sitemap template:</p>
-
-<ul>
-<li><code>&lt;#list posts as post&gt;</code> which iterates over an <code>Iterable</code> containing <code>Post</code> objects,</li>
-<li>the closing <code>&lt;/#list&gt;</code>, and</li>
-<li>the line that reads the post's link <code>&lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;</code></li>
-</ul>
-
-<p>Here's the template in full:</p>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt; 
-&lt;urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation=
-        "http://www.sitemaps.org/schemas/sitemap/0.9 
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt; 
-
-  &lt;url&gt;
-    &lt;loc&gt;${blog.url}/index.html&lt;/loc&gt;
-    &lt;changefreq&gt;daily&lt;/changefreq&gt;
-    &lt;priority&gt;1.0&lt;/priority&gt;
-  &lt;/url&gt;
-  &lt;url&gt;
-    &lt;loc&gt;${blog.url}/about_me.html&lt;/loc&gt;
-    &lt;changefreq&gt;daily&lt;/changefreq&gt;
-    &lt;priority&gt;0.9&lt;/priority&gt;
-  &lt;/url&gt;
-
-  &lt;#list posts as post&gt;
-    &lt;url&gt; 
-      &lt;loc&gt;${blog.url}/${post.link}&lt;/loc&gt;
-      &lt;changefreq&gt;hourly&lt;/changefreq&gt;
-    &lt;/url&gt;
-  &lt;/#list&gt;
-
-&lt;/urlset&gt;
-</code></pre>
-
-<h2>Freemarker template for RSS 2.0</h2>
-
-<p>The RSS template is very similar to the sitemap template, as it deals with exactly the same model. Skipping the pre-amble, here's the part that actually involves any freemarker markup:</p>
-
-<pre><code>&lt;#list posts as post&gt;
-  &lt;item&gt;
-    &lt;title&gt;&lt;![CDATA[${post.title}]]&gt;&lt;/title&gt;
-    &lt;link&gt;&lt;![CDATA[http://${blog.url}/${post.link}]]&gt;&lt;/link&gt;
-    &lt;guid isPermaLink="true"&gt;${blog.url}/${post.link}&lt;/guid&gt;
-    &lt;description&gt;&lt;![CDATA[${post.body}]]&gt;&lt;/description&gt;
-    &lt;#list post.keywords as keyword&gt;
-      &lt;category&gt;${keyword}&lt;/category&gt;
-    &lt;/#list&gt;
-    &lt;dc:creator&gt;&lt;![CDATA[ Steve Liles ]]&gt;&lt;/dc:creator&gt;
-    &lt;pubDate&gt;${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}&lt;/pubDate&gt;
-  &lt;/item&gt;
-&lt;/#list&gt;
-</code></pre>
-
-<p>I like the date built-in here: <code>${post.date?string("EEE, dd MMM yyyy HH:mm:ss Z")}</code> which keeps the date format in the template where it belongs. </p>
-
-<p>Of course, here I've just written it directly into this template because I only use this format once in my whole site - if I were using it more I could define a re-usable FreeMarker macro instead to avoid repetition.</p>
-]]></description>
-          <category>FreeMarker</category>
-          <category>Template</category>
-          <category>Sitemap</category>
-          <category>RSS</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Fri, 11 Nov 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>
