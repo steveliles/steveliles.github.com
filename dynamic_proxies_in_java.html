@@ -39,7 +39,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,319" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,293" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-07">September 07, 2012</time></span>
               <a itemprop="url" href="dynamic_proxies_in_java.html"><h1 itemprop="name" itemprop="headline">Dynamic Proxies in Java</h1></a>
 	      <span itemprop="articleBody"><p>Dynamic Proxies are a fantastic tool to have in your kit, and pretty easy to get up and running with. </p>
@@ -134,7 +134,7 @@ implements InstrumentationService {
 
 <p>Lately I've been having all kinds of fun with Dynamic Proxies, from instrumentation (somewhat more complex than the above example) to monitoring service health (by escalating through warning statuses based on the ratio of successful/exceptional completion). </p>
 
-<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off that allows a whole bunch of apparently synchronous calls to be made asynchronously, and guaranteed to complete within the SLA (albeit with default or limited results if the SLA is breached). That's a blog post for another day :)</p>
+<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off . . . yeah anyways, that's a blog post for another day :)</p>
 </span>
 
               <ul class="keywords">

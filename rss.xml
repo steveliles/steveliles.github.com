@@ -108,7 +108,7 @@ implements InstrumentationService {
 
 <p>Lately I've been having all kinds of fun with Dynamic Proxies, from instrumentation (somewhat more complex than the above example) to monitoring service health (by escalating through warning statuses based on the ratio of successful/exceptional completion). </p>
 
-<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off that allows a whole bunch of apparently synchronous calls to be made asynchronously, and guaranteed to complete within the SLA (albeit with default or limited results if the SLA is breached). That's a blog post for another day :)</p>
+<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off . . . yeah anyways, that's a blog post for another day :)</p>
 ]]></description>
           <category>Java</category>
           <category>Dynamic Proxy</category>
