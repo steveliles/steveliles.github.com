@@ -38,11 +38,11 @@
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,001" description="Making asynchronous Java programming easier with Implicit Futures.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-09">September 09, 2012</time></span>
               <a itemprop="url" href="implicit_future_s_aka_promises.html"><h1 itemprop="name" itemprop="headline">Implicit Future's, aka Promises</h1></a>
-	      <span itemprop="articleBody"><p>java.lang.concurrent.Future&lt;T> is an example of an <em>explicit</em> future, where client code is well aware that the object it is handling is not a direct reference to the value of interest, and must invoke a method to obtain the value (<code>Future.get()</code> in the case of <code>java.lang.concurrent.Future</code>).</p>
+	      <span itemprop="articleBody"><p><code>java.lang.concurrent.Future&amp;lt;T&gt;</code> is an example of an <em>explicit</em> future, where client code is well aware that the object it is handling is not a direct reference to the value of interest, and must invoke a method to obtain the value (<code>Future.get()</code> in the case of <code>java.lang.concurrent.Future</code>).</p>
 
 <p>That's all very well, but if you have collaborators that expect to deal with the value <code>T</code> you have limited options: </p>
 
-<p>You could invoke <code>get()</code> on your future, wait for it to be realised, then pass the realised value to the collaborators. This defeats the purpose of Future's, since what you really want is to do as much other work as possible before future.get() is called.</p>
+<p>You could invoke <code>get()</code> on your future, wait for it to be realised, then pass the realised value to the collaborators. This defeats the purpose of Future's, since what you really want is to do as much other work as possible before <code>future.get()</code> is called.</p>
 
 <p>Alternatively, you could modify the collaborators to know that they are dealing with a Future. But you don't really want to do that either - its an implementation detail that they should not be concerned with.</p>
 
@@ -142,7 +142,7 @@ class AsynchronousComputer implements Computer {
 }
 </code></pre>
 
-<p>This time we didn't need to create the implicit future implementation, cutting a whole lot of boiler-plate, and the async implementation got a fair bit simpler too. We marked the expensive method with an annotation so that the AsyncificationService knew to work its magic on that method.</p>
+<p>This time we didn't need to create the implicit future implementation, cutting a whole lot of boiler-plate, and the async implementation got a fair bit simpler too. We marked the expensive method with an annotation so that the <code>AsyncificationService</code> knew to work its magic on that method.</p>
 
 <p>There's a lot more useful stuff we can do when we have the machinery for converting synchronous methods to asynchronous methods that return implicit futures. For example we can transparently handle exceptions and return default values, or we can impose timeouts and return default values if we don't get a result in time, etc., etc.</p>
 
