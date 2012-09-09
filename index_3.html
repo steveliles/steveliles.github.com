@@ -35,6 +35,133 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,389" description="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp to create Comic-book style graphics. Here's a couple of tricks I picked upÉ">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-02-12">February 12, 2012</time></span>
+              <a itemprop="url" href="creating_comic_book_style_icons_with_gimp.html"><h1 itemprop="name" itemprop="headline">Creating comic-book style icons with Gimp</h1></a>
+	      <span itemprop="articleBody"><p>I've long had a love-hate relationship with Gimp. I <em>hate</em> the MDI interface - all those windows really grate on my nerves. I <em>love</em> that its a really great and full-featured graphics package, and free. </p>
+
+<p>In the past I've fired it up to do all kinds of little jobs, but never really tried to use it to compose artwork of any complexity from scratch. That changed recently when I needed to create some nice icons for my Android app <a href="https://market.android.com/details?id=com.roundwoodstudios.comicstripitpro">Comic Strip It!</a>.</p>
+
+<p>Finally, and almost by accident, I've learned how to use paths, masks, and layers, as well as a few of the filters, and managed to turn out some icons that I'm not too embarrassed by! Here's some examples:</p>
+
+<p><img src="https://lh6.googleusercontent.com/-ZOZmYN_bszw/TzgptOjJ1bI/AAAAAAAAIzE/emf1ce6lnmc/s144/ic_pick.png" alt="pick from gallery icon" />
+<img src="https://lh4.googleusercontent.com/-VNKQco0IpEQ/TzgpsWgymEI/AAAAAAAAIy0/Oit-b0pWdZw/s144/ic_next.png" alt="next arrow icon" />
+<img src="https://lh5.googleusercontent.com/-ujoySEPeK0A/Tzgpl7iVAkI/AAAAAAAAIxU/37zF9BjWRx8/s144/ic_accept.png" alt="accept icon" />
+<img src="https://lh5.googleusercontent.com/-Of1oDouIR9I/Tzgpt8pNT-I/AAAAAAAAIzI/eztu4X6JMi8/s144/ic_preview.png" alt="magnifier preview icon" />
+<img src="https://lh3.googleusercontent.com/-J5MhVusK6fo/Tzgpmf9lF0I/AAAAAAAAIxY/wUCI4F6mJQ4/s144/ic_camera.png" alt="camera icon" />
+<img src="https://lh5.googleusercontent.com/-y-53iL_XMes/TzgpvXzrHbI/AAAAAAAAIzc/TpgXHLEEqQ4/s144/ic_save.png" alt="piggy-bank save icon" />
+<img src="https://lh6.googleusercontent.com/-ixZwd4Yj6iI/Tzgpvuf_MWI/AAAAAAAAIzk/6wt6dUYwJNw/s144/ic_share.png" alt="double-arrow share icon" />
+<img src="https://lh4.googleusercontent.com/-F0tC5dE6g4k/TzgpoiXN8uI/AAAAAAAAIx0/nOQun526Okg/s144/ic_font_size.png" alt="text-size icon" />
+<img src="https://lh3.googleusercontent.com/-1TdNH4i5rxY/TzgppsCAugI/AAAAAAAAIyQ/_A6cDO7vWZY/s144/ic_help.png" alt="help icon" />
+<img src="https://lh4.googleusercontent.com/-0DTcVRMkfnc/TzgpweaWEzI/AAAAAAAAI0E/I_asX4AQbWE/s144/ic_speech.png" alt="speech bubble icon" />
+<img src="https://lh5.googleusercontent.com/-fXTBnJIYg5U/TzgppohC8nI/AAAAAAAAIyI/UOYY65oDbL4/s144/ic_image_effects.png" alt="special effects / fx icon" />
+<img src="https://lh4.googleusercontent.com/-zK2LU5sVZ1g/TzgprvV1rlI/AAAAAAAAIyk/EUfWgvTnmJc/s144/ic_new_strip.png" alt="new strip icon" /></p>
+
+<p>Since the app is all about creating comic strips I wanted icons that really fit with that idea, so I spent some time looking at comics and comic graphics. </p>
+
+<p>The half-tone effect - coloured dots printed in rows at different sizes and angles to create the illusion of different shades of colour - figures heavily in print comic-books, and has a such a recognisable stylistic effect that I settled on using that as much as possible. My attempts at re-creating it aren't "real" half-tones, but I think the effect works.</p>
+
+<h2>A few working practices</h2>
+
+<p>I drew all my icons at 512x512 pixels, then re-scaled for use. Android wants 4 different sizes to cater for four different screen densities (low - 32x32, medium - 48x48, high - 72x72, extra-high - 96x96). </p>
+
+<p>Drawing at the much larger size of 512x512 just makes it much easier to work, covers minor errors once you scale down, <em>and</em> means that you usually end up with a decent quality scaled image.</p>
+
+<p>I save all the original icons using Gimp's native XCF file format, which retains the layers and masks and so on - this means I can always go back later and make small changes if I need to (and I did, many times).</p>
+
+<p>Because my laptop runs Ubuntu I saved my icons in a folder shared by Ubuntu One (cloud backup and replication), but this didn't always work out well - connectivity issues on a few evenings meant that I got conflicting versions between my laptop and my desktop, and it wasn't too easy to sort out. </p>
+
+<p>In future I will use <a href="http://git-scm.com/">git</a>, as that puts control of when you update in your hands, and provides explicit versioning and access to old versions. I've upgraded to a paid <a href="http://www.github.com">github</a> account now that my app is live in the Android Market, and all my source-code lives there now.</p>
+
+<p>So, to the icons...</p>
+
+<h2>Creating a halftone background</h2>
+
+<p>Almost all of my icons use a circular splash of half-tone colour as a background. It took me a good long time to figure out how to do this properly, but once you know how its done its actually very quick to re-create.</p>
+
+<h4>Step 1: The background gradient</h4>
+
+<p>First, create a new 512x512 file, and paint a linear gradient filling the entire image. To paint a gradient:</p>
+
+<ol>
+<li>select the "blend" tool, and make sure its send to "linear blend"</li>
+<li>select foreground and background colours as the start and end colours for your gradient</li>
+<li>hold down the left mouse-button in one corner of your image, move to the diagonally opposite corner and release the button to paint the gradient</li>
+</ol>
+
+<p>I picked a deep orange foreground colour, a paler orange-yellow background colour, and drew the gradient from bottom-left to top-right, resulting in the following image:</p>
+
+<p><img src="https://lh6.googleusercontent.com/-RFRY_hGNiNs/Tzg2wBkpxyI/AAAAAAAAI1I/SiObSnce6wM/s800/halftone-background-step1.png" alt="step 1 - the background gradient" /></p>
+
+<h4>Step 2: The half-tone mask</h4>
+
+<p>To create the half-tone dot effect we're going to use one of Gimp's built in filters - "News-print". We want the dots to cluster heavily in the middle, then space further apart and get smaller the further they are from the centre of the image. Here's how we do that:</p>
+
+<ol>
+<li>Create a new layer, above the existing colour gradient. I like to do that directly in the "Layers" palette by right-clicking and choosing "New Layer", making sure to select "Transparency" as the layer fill type, and give it a name (I usually call this layer "bg_halftone").</li>
+<li>Make sure the layer is above your colour gradient in the layer palette. If it isn't, click and drag and drop it above the background layer.</li>
+<li>Select the "blend" tool again, and choose full black as the foreground colour, and full white as the background colour. This time we want to do a "radial blend".</li>
+<li>Move the mouse to the centre of your image, hold down the left button, and drag towards the right-hand edge. When you release the mouse you'll get a disc with a black centre, graduating through grey on a white background, as shown below.</li>
+</ol>
+
+<p><img src="https://lh5.googleusercontent.com/-DVjmNBG53fw/Tzg56PUUREI/AAAAAAAAI1g/AousTkX7ozY/s800/halftone-background-step2.png" alt="black-to-white gradient disc" /></p>
+
+<p>Now we're going to convert the smooth black-to-white gradient of our disc to a half-tone effect. We'll do that using the News-print filter:</p>
+
+<ol>
+<li>From Gimp's "Filters" menu, choose "Distorts -> Newsprint"</li>
+<li>Increase the cell-size to something reasonably large - 25 to 30 works well if you're going to scale the final image down as I did. If you won't be scaling the image down, stick to something less than 10.</li>
+<li>Visit the three colour channel tabs (red/green/blue) and set the same angle in all of them. I'm using 15 in this example.</li>
+<li>Finally, set the anti-aliasing oversample to 15, and apply the filter.</li>
+</ol>
+
+<p><img src="https://lh3.googleusercontent.com/-jJ3x3SwAO10/Tzg7UDPi7RI/AAAAAAAAI14/gZLsPkiYrbo/s800/halftone-background-step3.png" alt="newsprint effect" /></p>
+
+<h4>Step 3: Allowing the colour to shine through the mask</h4>
+
+<p>Almost done! We just need to let the colour shine through from the background layer. I tried various ways of doing this. Masks worked well, and "Select->By Color" isn't bad (but does'nt capture anti-aliased areas perfectly). Eventually I got into the habit of a much simpler way:</p>
+
+<ol>
+<li>From Gimp's "Colors" menu choose "Color to Alpha"</li>
+<li>Click the colour-box (from:) and select full black</li>
+<li>Click OK and you'll see your background gradient shine through the dots</li>
+</ol>
+
+<p><em>Note: If you noticed that the dots don't quite match up between the following image and the others on this page, its because I added this image after I originally posted, and had to re-create it because I had already deleted the .xcf file I originally used while writing this post. Oops.</em></p>
+
+<p><img src="https://lh6.googleusercontent.com/-W8yUnXLKhWY/TzjVIugjWwI/AAAAAAAAI2o/BZIgOGNtrD8/s800/halftone-background-step4a.png" alt="" /></p>
+
+<p>For completeness, here's the "Select->By Color" method, which I don't use any more because it involves more steps and leaves the dots with slightly jagged edges:</p>
+
+<ol>
+<li>From Gimp's "Select" menu, choose "By Color", and then select the white background of the image.</li>
+<li>Invert the selection (ctrl-i) so that the black dots are now selected. (We could have selected the black dots initially, but I find that if you do this you end up with black artefacts after the next step)</li>
+<li>From the "Edit" menu choose "Clear", or hit the delete key, if you have one (my laptop doesn't). You should now see the gradient colour from your background layer shining through the holes you just made in the top-most layer.</li>
+<li>De-select (ctrl-a) and merge the two layers (right-click in the layers palette and choose "merge visible..")</li>
+</ol>
+
+<p><img src="https://lh4.googleusercontent.com/-Kvxw_pqsjV0/Tzg-D_dIzXI/AAAAAAAAI2Q/egDujGmzQfg/s800/halftone-background-step4.png" alt="finished half-tone background" /></p>
+
+<p>Notice that the edges of the dots in this version of the image are decidedly jagged, compared to the version created by using the colour-to-alpha technique. This is to do with the select-by-colour method not including anti-aliasing pixels that are closer to white than black in the selection.</p>
+
+<h4>Step 4: Optional - de-focus for use as a background</h4>
+
+<p>I used this technique to create the backgrounds for my icons, adding one more step: gaussian blur to de-focus the background and make the foreground icon stand out nice and sharp.</p>
+
+<p>I used the same technique to pattern-fill the icon detail by using paths and selections. I'll save the details of that for another post.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Gimp">Gimp</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Icon">Icon</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Comic-Book">Comic-Book</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Half-tone">Half-tone</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="creating_comic_book_style_icons_with_gimp.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="272" description="A couple of commands I've been using to create iOS-style icons with ImageMagick">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-27">January 27, 2012</time></span>
               <a itemprop="url" href="creating_ios_style_icons_with_imagemagick.html"><h1 itemprop="name" itemprop="headline">Creating iOS style icons with ImageMagick</h1></a>
@@ -413,114 +540,6 @@ private static void close(OutputStream anOutput) {
 	        <a href="maven_android_and_eclipse_joining_the_team.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="790" description="While automating production of customised applications I needed to automatically create a set of icons matching the colour scheme selected by the customer. This is how I tried (and failed) to do it with Image Magick.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-01-18">January 18, 2012</time></span>
-              <a itemprop="url" href="creating_colourised_icon_theme_sets_with_image_magick.html"><h1 itemprop="name" itemprop="headline">Creating colourised icon theme-sets with Image-Magick</h1></a>
-	      <span itemprop="articleBody"><p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments (details follow the strip...).</p>
-
-<p><a target="top" href="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s1600/48.jpg"><img alt="ImageMagick comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s600/48.jpg"></a></p>
-
-<p>My aim was to find a way to take a target colour and re-create the entire icon set matched as closely as possible to that input colour, using a single command-line.</p>
-
-<p>Lets start with a quick look at a sample icon - this was created by our UX designer and used in building the proto-typical instance of the application. It is part of a set of around 30:</p>
-
-<p><img src="https://lh4.googleusercontent.com/-e4m6fYN49O8/Txb9kVwIcjI/AAAAAAAAIg0/QqAZfCYW31I/s800/informations_contactus_icon.png" alt="Original icon" /></p>
-
-<p>Given that I want to be able to apply a colour selected by a customer, I need to start from a neutral state, so my first step is to <em>de-colourise</em> the original icon, producing this grey-scale version:</p>
-
-<p><img src="https://lh6.googleusercontent.com/--8FToJl9oYs/Txb5ePoLJ6I/AAAAAAAAIgc/nCX1EfMY96Y/s800/informations_contactus_icon.png" alt="Example icon to be coloured" /></p>
-
-<p>Note that the icons all have transparency, but otherwise are largely made from shades of a single colour (a gradient) with white highlights.</p>
-
-<p>I started by looking at the simple built-in image-magick commands. Given that I'm converting a large batch of icons I'm using <code>mogrify</code> instead of <code>convert</code>, which also requires that the command-line is re-ordered slightly, for example:</p>
-
-<pre><code>convert in.png -brightness-contrast 20x20 out.png
-</code></pre>
-
-<p>becomes:</p>
-
-<pre><code>mogrify -brightness-contrast 20x20 *
-</code></pre>
-
-<p>My first attempts used the Image-Magick commands <code>tint</code>, <code>colorize</code>, and <code>+level-colors</code> individually, as I was hoping for a very simple solution to present itself. Let's look at what each of those commands produces if we try to create icons with the following base colour:</p>
-
-<div style="background-color:#0000cc; width:400px; height:60px; margin:auto; padding-left:40px;"><span style="color:white; font-family:'ubuntu mono'; font-size:20px; line-height:60px;">The background here is our base colour</span></div>
-
-<pre><code>mogrify -fill "#0000cc" -tint 100 *
-</code></pre>
-
-<p><img src="https://lh6.googleusercontent.com/-cYoe5UrvgsY/TxgphOBN5iI/AAAAAAAAIhM/LVinN-HnqFs/s800/informations_contactus_icon.png" alt="imagemagick tint" /></p>
-
-<pre><code>mogrify -colorize 100,0,0 *
-</code></pre>
-
-<p><img src="https://lh6.googleusercontent.com/-52WdHbWDsLc/TxgrS6jOpLI/AAAAAAAAIho/VhS1NSr2RNM/s800/informations_contactus_icon.png" alt="imagemagick colorize" /></p>
-
-<pre><code>mogrify +level-colors "#000066","#0000cc" *
-</code></pre>
-
-<p><img src="https://lh6.googleusercontent.com/-djRiYF9xQ_s/TxgslWJEmII/AAAAAAAAIiA/-JRBtifNU_U/s800/informations_contactus_icon.png" alt="imagemagick +level-colors" /></p>
-
-<p>As you can see from those examples, <code>tint</code> does the best job of retaining the fidelity of the icon, but doesn't really get close to the target colour. </p>
-
-<p><code>Colorize</code> has also kept most of the fidelity, but the white foreground has tended towards the target blue colour along with the grey background parts, though neither has really got very close to our intended colour.</p>
-
-<p><code>+level-colors</code> has got us closer to our target colour, but we've almost completely lost the white and the fidelity of the icon is, as a result, pretty much destroyed.</p>
-
-<h2>Reduce and re-compose</h2>
-
-<p>OK, so we can't get there with a simple one-liner. What about if we strip out different aspects of the image, perform different operations on each composite part, and then re-combine them later?</p>
-
-<p>This is ultimately what I ended up doing:</p>
-
-<ol>
-<li>Extract the white part only</li>
-<li>Brighten the grey part (helps the later stages to get closer to the target colour)</li>
-<li>Adjust the grey (background) part towards our target colour</li>
-<li>Composite the white foreground back over the re-coloured background</li>
-</ol>
-
-<p>Here's the commands to achieve that (note: I switched to using <code>convert</code> instead of <code>mogrify</code> because it was easier to test incremental changes this way):</p>
-
-<pre><code># extract the white parts
-convert -fuzz 60% -transparent black in.png 2.png
-
-# lighten the original image
-convert in.png -brightness-contrast 20x0 3.png
-
-# level colours ...
-convert +level-colors "#000066","#0000cc" 3.png
-
-# composite together ...
-convert 3.png 2.png in.png -composite out.png
-</code></pre>
-
-<p>It shouldn't be too difficult to follow that. </p>
-
-<p>The first command extracts the white-ish parts of the image (foreground) by making shades of grey - from black through 60% grey - transparent. The fuzz factor is what determines the cut-off point. We produce this white-foreground as a separate image (2.png) because we still need the original for later steps.</p>
-
-<p>Next we create a 3rd image (background) as a lightened version of the original (3.png) then colourise it using the <code>+level-colors</code> command we used earlier.</p>
-
-<p>Finally we composite together the background image as the base, the foreground image on top, and use the original image as a mask so that we don't lose the transparency. The final result looks like this:</p>
-
-<p><img src="https://lh5.googleusercontent.com/-V6IAdSmaJDY/TxhCqKLAarI/AAAAAAAAIig/syTquI4Dtr8/s800/informations_contactus_icon.png" alt="final" /></p>
-
-<p>This is the best I've managed so far with my rudimentary knowledge of ImageMagick. </p>
-
-<p>Since I'm invoking this conversion from a Java process I think I'll try something a little more low-level in Java next. I want the fidelity of the "tint" operation, with the precise colour targeting of the composite approach, I just don't know how to get there with ImageMagick.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=colour">colour</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=icon">icon</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image Magick">Image Magick</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=automation">automation</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="creating_colourised_icon_theme_sets_with_image_magick.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -538,11 +557,11 @@ convert 3.png 2.png in.png -composite out.png
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
                 <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
                 <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
                 <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
-                <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

@@ -35,6 +35,114 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="790" description="While automating production of customised applications I needed to automatically create a set of icons matching the colour scheme selected by the customer. This is how I tried (and failed) to do it with Image Magick.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-18">January 18, 2012</time></span>
+              <a itemprop="url" href="creating_colourised_icon_theme_sets_with_image_magick.html"><h1 itemprop="name" itemprop="headline">Creating colourised icon theme-sets with Image-Magick</h1></a>
+	      <span itemprop="articleBody"><p>While automating production of customised applications I needed to automatically create a set of icons that match the colour scheme selected by the customer. This article describes some of my experiments (details follow the strip...).</p>
+
+<p><a target="top" href="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s1600/48.jpg"><img alt="ImageMagick comic strip made with @ComicStripIt" src="https://lh6.googleusercontent.com/--oSeeAaXsA4/TxtID4kzrMI/AAAAAAAAImI/24-smIOigfU/s600/48.jpg"></a></p>
+
+<p>My aim was to find a way to take a target colour and re-create the entire icon set matched as closely as possible to that input colour, using a single command-line.</p>
+
+<p>Lets start with a quick look at a sample icon - this was created by our UX designer and used in building the proto-typical instance of the application. It is part of a set of around 30:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-e4m6fYN49O8/Txb9kVwIcjI/AAAAAAAAIg0/QqAZfCYW31I/s800/informations_contactus_icon.png" alt="Original icon" /></p>
+
+<p>Given that I want to be able to apply a colour selected by a customer, I need to start from a neutral state, so my first step is to <em>de-colourise</em> the original icon, producing this grey-scale version:</p>
+
+<p><img src="https://lh6.googleusercontent.com/--8FToJl9oYs/Txb5ePoLJ6I/AAAAAAAAIgc/nCX1EfMY96Y/s800/informations_contactus_icon.png" alt="Example icon to be coloured" /></p>
+
+<p>Note that the icons all have transparency, but otherwise are largely made from shades of a single colour (a gradient) with white highlights.</p>
+
+<p>I started by looking at the simple built-in image-magick commands. Given that I'm converting a large batch of icons I'm using <code>mogrify</code> instead of <code>convert</code>, which also requires that the command-line is re-ordered slightly, for example:</p>
+
+<pre><code>convert in.png -brightness-contrast 20x20 out.png
+</code></pre>
+
+<p>becomes:</p>
+
+<pre><code>mogrify -brightness-contrast 20x20 *
+</code></pre>
+
+<p>My first attempts used the Image-Magick commands <code>tint</code>, <code>colorize</code>, and <code>+level-colors</code> individually, as I was hoping for a very simple solution to present itself. Let's look at what each of those commands produces if we try to create icons with the following base colour:</p>
+
+<div style="background-color:#0000cc; width:400px; height:60px; margin:auto; padding-left:40px;"><span style="color:white; font-family:'ubuntu mono'; font-size:20px; line-height:60px;">The background here is our base colour</span></div>
+
+<pre><code>mogrify -fill "#0000cc" -tint 100 *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-cYoe5UrvgsY/TxgphOBN5iI/AAAAAAAAIhM/LVinN-HnqFs/s800/informations_contactus_icon.png" alt="imagemagick tint" /></p>
+
+<pre><code>mogrify -colorize 100,0,0 *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-52WdHbWDsLc/TxgrS6jOpLI/AAAAAAAAIho/VhS1NSr2RNM/s800/informations_contactus_icon.png" alt="imagemagick colorize" /></p>
+
+<pre><code>mogrify +level-colors "#000066","#0000cc" *
+</code></pre>
+
+<p><img src="https://lh6.googleusercontent.com/-djRiYF9xQ_s/TxgslWJEmII/AAAAAAAAIiA/-JRBtifNU_U/s800/informations_contactus_icon.png" alt="imagemagick +level-colors" /></p>
+
+<p>As you can see from those examples, <code>tint</code> does the best job of retaining the fidelity of the icon, but doesn't really get close to the target colour. </p>
+
+<p><code>Colorize</code> has also kept most of the fidelity, but the white foreground has tended towards the target blue colour along with the grey background parts, though neither has really got very close to our intended colour.</p>
+
+<p><code>+level-colors</code> has got us closer to our target colour, but we've almost completely lost the white and the fidelity of the icon is, as a result, pretty much destroyed.</p>
+
+<h2>Reduce and re-compose</h2>
+
+<p>OK, so we can't get there with a simple one-liner. What about if we strip out different aspects of the image, perform different operations on each composite part, and then re-combine them later?</p>
+
+<p>This is ultimately what I ended up doing:</p>
+
+<ol>
+<li>Extract the white part only</li>
+<li>Brighten the grey part (helps the later stages to get closer to the target colour)</li>
+<li>Adjust the grey (background) part towards our target colour</li>
+<li>Composite the white foreground back over the re-coloured background</li>
+</ol>
+
+<p>Here's the commands to achieve that (note: I switched to using <code>convert</code> instead of <code>mogrify</code> because it was easier to test incremental changes this way):</p>
+
+<pre><code># extract the white parts
+convert -fuzz 60% -transparent black in.png 2.png
+
+# lighten the original image
+convert in.png -brightness-contrast 20x0 3.png
+
+# level colours ...
+convert +level-colors "#000066","#0000cc" 3.png
+
+# composite together ...
+convert 3.png 2.png in.png -composite out.png
+</code></pre>
+
+<p>It shouldn't be too difficult to follow that. </p>
+
+<p>The first command extracts the white-ish parts of the image (foreground) by making shades of grey - from black through 60% grey - transparent. The fuzz factor is what determines the cut-off point. We produce this white-foreground as a separate image (2.png) because we still need the original for later steps.</p>
+
+<p>Next we create a 3rd image (background) as a lightened version of the original (3.png) then colourise it using the <code>+level-colors</code> command we used earlier.</p>
+
+<p>Finally we composite together the background image as the base, the foreground image on top, and use the original image as a mask so that we don't lose the transparency. The final result looks like this:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-V6IAdSmaJDY/TxhCqKLAarI/AAAAAAAAIig/syTquI4Dtr8/s800/informations_contactus_icon.png" alt="final" /></p>
+
+<p>This is the best I've managed so far with my rudimentary knowledge of ImageMagick. </p>
+
+<p>Since I'm invoking this conversion from a Java process I think I'll try something a little more low-level in Java next. I want the fidelity of the "tint" operation, with the precise colour targeting of the composite approach, I just don't know how to get there with ImageMagick.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=colour">colour</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=icon">icon</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Image Magick">Image Magick</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=automation">automation</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="creating_colourised_icon_theme_sets_with_image_magick.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="210" description="Quick description of how to take screenshots of apps running in the Android Emulator">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-12">January 12, 2012</time></span>
               <a itemprop="url" href="capture_screenshots_from_the_android_emulator_or_mobile_device.html"><h1 itemprop="name" itemprop="headline">Capture screenshots from the Android Emulator or Mobile Device</h1></a>
@@ -538,49 +646,6 @@ java.lang.IllegalArgumentException:
 	        <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="355" description="Finally, the full src code for Android is available as part of the SDK download - though sadly its only available for source-level 14 and upwards at the moment.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-12-20">December 20, 2011</time></span>
-              <a itemprop="url" href="android_source_code_available.html"><h1 itemprop="name" itemprop="headline">Android Source Code available!</h1></a>
-	      <span itemprop="articleBody"><p><a href="https://lh5.googleusercontent.com/-CGAW8UFmRoQ/TxtLqQXEqVI/AAAAAAAAImY/PA_H2G-8N-8/s1600/50.jpg"><img alt="Android Source Code released, a lego minifigure comic strip made with Comic Strip It!" src="https://lh5.googleusercontent.com/-CGAW8UFmRoQ/TxtLqQXEqVI/AAAAAAAAImY/PA_H2G-8N-8/s600/50.jpg"></a></p>
-
-<p>I'm quite surprised it took this long, but as of 13th December 2011 the source-code for Android is finally available as part of the SDK downloads, and can be grabbed with the SDK Manager.</p>
-
-<p>There's no jar file available yet, just a folder containing the source for API level 14 and upwards only. The Android dev who announced this stated that it is "extremely unlikely" that the source for earlier API levels would ever be made available as part of the SDK.</p>
-
-<p>Android Developer Tools (Eclipse plugin) doesn't automatically link to this folder either, so you need to set it up manually.</p>
-
-<p>First, get the source:</p>
-
-<ol>
-<li>Fire up the SDK Manager - from Eclipse's "Window" menu, select "Android SDK Manager".</li>
-<li>Check the boxes next to "Sources for Android SDK" (at time of writing this is available for both API level 14 and 15).</li>
-<li>Click the "Install X packages..." button (bottom right corner), and wait while your new goodies download and install.</li>
-</ol>
-
-<p>Once you're done downloading, head back to Eclipse and configure your Android project to use the source directory:</p>
-
-<ol>
-<li>In the package-explorer, locate the Android jar file (you may have to turn on "Show referenced libraries" from the little down-arrow icon in the top-right corner of the Package Explorer toolbar before it will show up in the list).</li>
-<li>Right-click the jar and choose "Properties" - a dialog pops up.</li>
-<li>Select "Java Source Attachment", then click "External Folder..."</li>
-<li>Navigate to the source directory, which will be located inside your Android SDK install directory (mine is at /home/steve/dev/sdks/android-sdk-linux/sources/android-14. Select OK to leave the file-chooser dialog, and OK again to leave the jar Properties dialog.</li>
-<li>Hover any Android class and ctrl-click (or place the caret on the class name and hit F3) to enjoy the source code for that class :)</li>
-</ol>
-
-<p>For the full source-code saga check out the <a href="http://code.google.com/p/android/issues/detail?id=979">issue-tracker entry</a> requesting the source to be made available (be prepared for a long read!)</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Source">Source</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Code">Code</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SDK">SDK</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="android_source_code_available.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -598,11 +663,11 @@ java.lang.IllegalArgumentException:
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
                 <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
                 <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
                 <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
-                <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

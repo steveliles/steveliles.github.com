@@ -39,7 +39,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,293" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,297" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-07">September 07, 2012</time></span>
               <a itemprop="url" href="dynamic_proxies_in_java.html"><h1 itemprop="name" itemprop="headline">Dynamic Proxies in Java</h1></a>
 	      <span itemprop="articleBody"><p>Dynamic Proxies are a fantastic tool to have in your kit, and pretty easy to get up and running with. </p>
@@ -134,7 +134,7 @@ implements InstrumentationService {
 
 <p>Lately I've been having all kinds of fun with Dynamic Proxies, from instrumentation (somewhat more complex than the above example) to monitoring service health (by escalating through warning statuses based on the ratio of successful/exceptional completion). </p>
 
-<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off . . . yeah anyways, that's a blog post for another day :)</p>
+<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised/implicit <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off . . . yeah anyways, that's a blog post for another day :) (update 09-09-2012: see <a href="https://github.com/steveliles/implicit-futures">Implicit-Futures</a>)</p>
 </span>
 
               <ul class="keywords">
@@ -193,10 +193,10 @@ implements InstrumentationService {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
                 <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
                 <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
-                <li><a href="minimum_viable_products.html">Minimum Viable Products</a><span class="date"> - Jun 07, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
@@ -204,7 +204,7 @@ implements InstrumentationService {
       </div>
       <div class="nav">
         <div class="links">
-          
+          <div class="prev"><a title="previous" href="implicit_future_s_aka_promises.html">Implicit Future's, aka Prom...</a></div>
           <div class="next"><a title="next" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8...</a></div>
         </div>
       </div>
