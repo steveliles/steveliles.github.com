@@ -40,7 +40,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,001" description="Making asynchronous Java programming easier with Implicit Futures.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,000" description="Making asynchronous Java programming easier with Implicit Futures.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-09">September 09, 2012</time></span>
               <a itemprop="url" href="implicit_future_s_aka_promises.html"><h1 itemprop="name" itemprop="headline">Implicit Future's, aka Promises</h1></a>
 	      <span itemprop="articleBody"><p><code>java.lang.concurrent.Future&amp;lt;T&gt;</code> is an example of an <em>explicit</em> future, where client code is well aware that the object it is handling is not a direct reference to the value of interest, and must invoke a method to obtain the value (<code>Future.get()</code> in the case of <code>java.lang.concurrent.Future</code>).</p>
@@ -105,7 +105,7 @@ class AsynchronousComputer implements Computer {
 }
 </code></pre>
 
-<p>Pretty straight-forward, although there's quite a bit of boiler-plate, and i've passed the buck on exception handling. </p>
+<p>Pretty straight-forward, although there's quite a bit of boiler-plate, and i've passed the buck on exception handling.</p>
 
 <p>This example is very simple, but things can get more involved if, for example, you want to use Future's overloaded <code>get(long timeout, TimeUnit units)</code> and handle timeouts appropriately (say, by returning a default value).</p>
 
@@ -211,10 +211,10 @@ class AsynchronousComputer implements Computer {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
                 <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
                 <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
-                <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
@@ -222,7 +222,7 @@ class AsynchronousComputer implements Computer {
       </div>
       <div class="nav">
         <div class="links">
-          
+          <div class="prev"><a title="previous" href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameter...</a></div>
           <div class="next"><a title="next" href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a></div>
         </div>
       </div>

@@ -35,6 +35,99 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,067" description="First impressions of Robotium and AppThwack for testing Android apps and tackling the thorny issue of fragmentation">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-06-08">June 08, 2012</time></span>
+              <a itemprop="url" href="testing_android_apps.html"><h1 itemprop="name" itemprop="headline">Testing Android apps</h1></a>
+	      <span itemprop="articleBody"><p>I've been developing an Android app as a spare-time project for 6 months now. I have access to 3 Android devices:</p>
+
+<ul>
+<li>Samsung Galaxy SII running ICS (my personal mobile)</li>
+<li>Samsung Galaxy Mini running Gingerbread (bought as a temporary dev device when my old HTC Desire gave up the ghost)</li>
+<li>Motorola Xoom II Media Edition (tablet used for day job)</li>
+</ul>
+
+<p>My app runs beautifully on all these devices. I <em>cannot</em> make it crash. It really frustrates me that I get crash reports from other devices and cannot replicate them. For a spare-time project I can't afford to buy lots of devices to test with. Enter <a href="http://www.appthwack.com/">AppThwack</a>.</p>
+
+<h2>AppThwack</h2>
+
+<p>I first heard about AppThwack after I tweeted about one of its competitors - testdroid - trying to find some testimonials from other users. I didn't find any, but I did get a reply from <a href="https://twitter.com/#!/tdpeterson">@tdpeterson</a> inviting me to AppThwack's beta.</p>
+
+<p>Some weeks later I finally found a spare few minutes to take a look, and I'm so glad I did!</p>
+
+<p>As they are currently in beta, you need a code to be able to sign up. Mine arrived a few hours after requesting it, and I immediately signed up to give it a try. The service makes it very easy to get started, which is clever, because once you're in you really are hooked - its just too good.</p>
+
+<h3>Chaos Monkeys</h3>
+
+<p>I uploaded the latest release apk I had to hand and launched the UI Exerciser Monkey tests (these are automatic and randomised tests that poke all the buttons and what-not). From sign-up to running tests took less than 2 minutes.</p>
+
+<p><img style="float:right; margin:25px;" src="https://lh3.googleusercontent.com/-C3vMO8EpKjY/T9I13xsV1VI/AAAAAAAAKQs/v83alvoNCYo/s288/tmpBxqtro.png"></p>
+
+<p>The monkeys found at least two bugs that I was not aware of on that first run. I am torn between horror and delight. The horror and delight turn to embarassment when I realise that I have uploaded an obfuscated apk, and the stack-traces are in gibberese. Lesson#1 right there.</p>
+
+<p>A test run takes a while to complete, but you can watch the results coming in in real time. When you realise what is going on behind the scenes its really impressive: your app is installed, launched, monkeyed, and then uninstalled <em>simultaneously across a whole farm of different devices</em> running different versions of Android. I'd love to see what that looks like :)</p>
+
+<p>You can view the results of your test runs in a number of different ways. I like the "issues by device" mode, which lists all the devices that experienced problems or warnings, and allows you to drill down to see what happened in the monkey log - with a full stack trace of the crash - and then down again into log-cat.</p>
+
+<p>Pause a second and let that sink in. I just ran my app on 43 different devices and Android versions in under 5 mins and now I have instant access to the stack traces from the crashing devices and <em>the full log-cat output</em>. I even get screen-shots from some of the devices - above is from an HTC Evo 4G running 2.3.3. Holy shitcakes!</p>
+
+<p>Oh, and you can filter the log-cat output directly in the web-app. Nice.</p>
+
+<p><img style="margin-left:100px;" src="https://lh6.googleusercontent.com/-_CnnB9TOWeo/T9I7XwlEiKI/AAAAAAAAKRA/Yw3bRzhhmWU/s400/Screen%2520Shot%25202012-06-08%2520at%252018.45.54.png"></p>
+
+<h3>Programmed Tests</h3>
+
+<p>OK, now I have some crashes that I want to try to replicate which are going to involve some complex interactions. Its going to take a lot of chaos monkeys a long time to replicate those tests, but the AppThwack guys have thought of that and integrate Robotium testing too.</p>
+
+<p>Robotium was also new to me, but again its a great tool and a doddle to get started: </p>
+
+<ol>
+<li>download the robotium jar from <a href="http://code.google.com/p/robotium/downloads/list">here</a></li>
+<li>create an Android test project, set up to test "this" project (<em>not</em> the project you actually want to test)</li>
+<li>set the manifest &lt;instrumentation&gt; tag's targetPackage attribute to be the package of the app you want to test</li>
+<li>copy the basic test code from <a href="http://robotium.googlecode.com/files/TestAndroidapkfileUsingRobotium.pdf">this tutorial</a> (I confess I find it weird that the tutorial is a pdf, not a web page!)</li>
+<li>tweak the test code to test your app - its a very straight-forward API</li>
+<li>Run the app you want to test in an emulator</li>
+<li>Run your test and watch as it drives your app in the emulator - great fun</li>
+</ol>
+
+<p>Once you have a working test that you want to run over at AppThwack's device farm its really easy to get that going too:</p>
+
+<ol>
+<li>export a signed apk of the app you want to test (app-under-test)</li>
+<li>export a signed apk of the test project (sign with the same key!)</li>
+<li>upload app-under-test apk</li>
+<li>click the configure icon</li>
+<li>click "add test apk", and upload the test project apk</li>
+<li>click go</li>
+<li>marvel as the results start rolling in</li>
+</ol>
+
+<h3>Early days</h3>
+
+<p>I haven't really tried to fix my crashing bugs yet, but at least there is light at the end of the tunnel now, thanks to AppThwack and Robotium.</p>
+
+<p>I noticed a few funnies along the way, which I plan to mention to the AppThwack guys when I've had a bit more experience:</p>
+
+<ul>
+<li>Many devices crashed at the same point, but there's no way to collapse common issues together - I found myself opening the log for each device to check the stack-traces to find out the total number of different problems. <em>update: Pawel from AppThwack tells me a new view mode "By Failure" is in the works and will be landing in the beta very soon!)</em></li>
+<li>Some devices timed out while installing. I'm not sure if this is a problem with my app (seems unlikely?) or some issue with the devices themselves? Its not a catastrophe if its a device problem, but then probably they should be marked as warnings rather than errors. <em>update: Pawel confirmed there were timeouts within the device-farm which I'm sure they'll resolve soon</em></li>
+<li>I noticed lots of these in the monkey logs: <code>java.io.FileNotFoundException: /mnt/sdcard/scriptlog.txt (Permission denied)</code> which seem to be just noise (at least as far as I am concerned)</li>
+</ul>
+
+<p>So far so wonderful as far as I'm concerned: my thanks to Trellis Automation for AppThwack, and I really hope the beta goes well and the business is successful! </p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Testing">Testing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Robotium">Robotium</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=AppThwack">AppThwack</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="testing_android_apps.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,289" description="My experience with MVP's since reading "The Lean Startup"">
               <span class="meta" itemprop="datePublished"><time datetime="2012-06-07">June 07, 2012</time></span>
               <a itemprop="url" href="minimum_viable_products.html"><h1 itemprop="name" itemprop="headline">Minimum Viable Products</h1></a>
@@ -1382,291 +1475,6 @@ data.addColumn('number', 'SimpleXML');
 	        <a href="comparing_methods_of_xml_parsing_in_android.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,266" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
-              <a itemprop="url" href="dsl_for_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">DSL for XML parsing in Android</h1></a>
-	      <span itemprop="articleBody"><p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_methods_of_xml_parsing_in_android.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
-
-<p><em>The short story:</em> Always use SAX in Android (<a href="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png">here's why</a>).</p>
-
-<p>SAX and Pull-parsing are fast, but don't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
-
-<pre><code>&lt;books&gt;
-  &lt;book&gt;
-    &lt;title&gt;The Hobbit&lt;/title&gt;
-    &lt;synopsis&gt;
-        A little guy goes on an adventure, 
-        finds ring, comes back.
-    &lt;/synopsis&gt;
-  &lt;/book&gt;
-  &lt;book&gt;
-    &lt;title&gt;The Lord of the Rings&lt;/title&gt;
-    &lt;synopsis&gt;
-        A couple of little guys go on an adventure, 
-        lose ring, come back.
-    &lt;/synopsis&gt;
-  &lt;/book&gt;
-&lt;/books&gt;
-</code></pre>
-
-<p>Can be unmarshalled to simple POJO's with this:</p>
-
-<pre><code>import static com.sjl.dsl4xml.DocumentReader.*;
-
-class BooksReader {
-    private DocumentReader&amp;lt;Books&gt; reader;
-
-    public BooksReader() {
-        reader = mappingOf(Books.class).to(
-           tag("book", Book.class).with(
-               tag("title"),
-               tag("synopsis")
-           )
-        );
-    }
-
-    public Books reader(Reader aReader) {
-        return reader.read(aReader);
-    }
-}
-</code></pre>
-
-<p><em>The long story:</em></p>
-
-<p>I recently had occasion to work on an Android app that was suffering horrible performance problems on startup (approx 7-12 seconds before displaying content).</p>
-
-<p>A look at the code showed up several possible contenders for the source of the problem:</p>
-
-<ol>
-<li>Many concurrent http requests to fetch XML content from web</li>
-<li>Parsing the returned XML documents concurrently</li>
-<li>Parsing documents using DOM (and some XPath)</li>
-</ol>
-
-<p>A quick run through with the excellent profiler built in to DDMS immediately showed lots of time spent in DOM methods, and masses of heap being consumed by sparsely populated <code>java.util.List</code> objects (used to represent the DOM in memory).</p>
-
-<p>Since the app was subsequently discarding the parsed Document object, the large heap consumption was contributing a huge garbage-collection load as a side-effect.</p>
-
-<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM traversal with XPath; constant thread context-switching; massive heap consumption; and huge object churn.</p>
-
-<p>The network requests - even over 3G - were comparatively insignificant in the grand scheme.</p>
-
-<h2>Reducing thread context switching</h2>
-
-<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. </p>
-
-<p>I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
-
-<h2>More efficient parsing</h2>
-
-<p>XPath is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
-
-<p>I decided to try an experiment with an alternative parsing method, to see if a worthwhile performance gain could be achieved on one of the smaller documents that could then be applied to others.</p>
-
-<p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM and XPath.</p>
-
-<p>The result was quite pleasing: 5x faster on a simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
-
-<p>However, I had one major concern that put me off: the code for parsing even a simple document was already quite long and had a nasty whiff of conditional-overkill (think: lots of if statements). I wasn't too happy about trading code readability for performance.</p>
-
-<p>I pondered a few alternatives like <a href="http://xstream.codehaus.org/">XStream</a> which I've used a lot for converting from Java to XML but not much the other way around, and <a href="http://simple.sourceforge.net/">SimpleXML</a> which I have used previously and can be nice, but pollutes your model objects with annotations and in some situations can be a real pain to get working.</p>
-
-<h2>An Internal DSL for mapping XML to POJO's</h2>
-
-<p>In the end I decided to spend just a few hours turning the problem over in code to see if I could come up with something more readable for working with the pull-parser directly. </p>
-
-<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small Internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
-
-<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would have been much less irritating :)</p>
-
-<p>As it was the boiler plate irked me - too much <em>stuff</em> getting in the way of reading what was really important. I thought about it a bit in my spare time, and had another shot at it. My aims were:</p>
-
-<ol>
-<li>To make readable, maintainable, declarative code that unmarshalls XML documents to Java objects.</li>
-<li>To make unmarshalling XML documents to Java objects very fast (sax/pull-parsing speeds).</li>
-<li>To avoid polluting model classes with metadata about xml parsing (no annotations).</li>
-<li>To avoid additional build-time steps or "untouchable" code (code generators, etc).</li>
-<li>To produce a very small jar with no large dependencies.</li>
-</ol>
-
-<p>The result is starting to take shape in github as <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>. It removes all of the boiler plate in exchange for a small performance penalty due to use of reflection. I don't have comparative performance figures yet, but will post some when I get time.</p>
-
-<h3>Another example</h3>
-
-<p>XML:</p>
-
-<pre><code>&lt;hobbit&gt;
-  &lt;name firstname="Frodo" surname="Baggins"/&gt;
-  &lt;dob&gt;11400930&lt;/dob&gt;
-  &lt;address&gt;
-    &lt;house&gt;
-      &lt;name&gt;Bag End&lt;/name&gt;
-      &lt;number&gt;&lt;/number&gt;
-    &lt;/house&gt;
-    &lt;street&gt;Bagshot Row&lt;/street&gt;
-    &lt;town&gt;Hobbiton&lt;/town&gt;
-    &lt;country&gt;The Shire&lt;/country&gt;
-  &lt;/address&gt;
-&lt;/hobbit&gt;
-</code></pre>
-
-<p>POJO's: <a href="https://github.com/steveliles/dsl4xml/commit/ad2141df218a776ebd68a75072feab16a5221fd5#diff-4">See the source-code of the test-case</a></p>
-
-<p>Unmarshalling code:</p>
-
-<pre><code>private static DocumentReader&amp;lt;Hobbit&gt; newReader() {
-    DocumentReader&amp;lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
-        tag("name", Name.class).with(
-            attributes("firstname", "surname")
-        ),
-        tag("dob"),
-        tag("address", Address.class).with(
-            tag("house", Address.House.class).with(
-                tag("name"),
-                tag("number")
-            ),
-            tag("street"),
-            tag("town"),
-            tag("country")
-        )
-    );
-
-    _reader.registerConverters(new ThreadUnsafeDateConverter("yyyyMMdd"));
-
-    return _reader;
-}
-</code></pre>
-
-<p>A <code>DocumentReader</code>, once constructed, is intended to be re-used repeatedly. The <code>DocumentReader</code> itself is <em>completely thread-safe</em> as unmarshalling does not modify any of its internal state. To ensure thread-safety you must use only thread-safe type converters (see type conversion section below).</p>
-
-<p>A minimum of garbage is generated because we're using a pull parser to skip over parts of the document we don't care about, and the only state maintained along the way (in a single-use context object for thread safety) is the domain objects we're creating.</p>
-
-<h3>Type conversion</h3>
-
-<p>You can create and register your own type converters. They are used only to map the lowest level xml data to your Java objects - attribute values and CData <code>String</code>s. The <code>Converter</code> interface looks like this:</p>
-
-<pre><code>package com.sjl.dsl4xml.support;
-
-public interface Converter&amp;lt;T&gt; {
-    public boolean canConvertTo(Class&lt;?&gt; aClass);
-    public T convert(String aValue);
-}
-</code></pre>
-
-<p>An example <code>Converter</code> for converting <code>String</code> values to primitive int's looks like this:</p>
-
-<pre><code>class PrimitiveIntConverter implements Converter&amp;lt;Integer&gt; {
-    @Override
-    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
-        return aClass.isAssignableFrom(Integer.TYPE);
-    }
-
-    @Override
-    public Integer convert(String aValue) {
-        return ((aValue == null) || ("".equals(aValue))) ? 
-            0 : new Integer(aValue);
-    }
-}
-</code></pre>
-
-<p>Most converters can be thread-safe, but some may require concurrency control for multi-threaded use (example: when converting dates using SimpleDateFormat). </p>
-
-<p>You can use optimised type converters in situations where you <em>know</em> you will not be unmarshalling from multiple threads concurrently. An example is the <code>ThreadUnsafeDateConverter</code> which is used in the example above because it came from a test-case that will only ever run single-threaded. </p>
-
-<pre><code>public class ThreadUnsafeDateConverter implements Converter&amp;lt;Date&gt; {
-    private DateFormat dateFormat;
-
-    public ThreadUnsafeDateConverter(String aDateFormatPattern) {
-        // SimpleDateFormat is NOT thread-safe
-        dateFormat = new SimpleDateFormat(aDateFormatPattern);
-    }
-
-    @Override
-    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
-        return aClass.isAssignableFrom(Date.class);
-    }
-
-    @Override
-    public Date convert(String aValue) {
-        try {
-            return ((aValue == null) || ("".equals(aValue))) ? 
-                null : dateFormat.parse(aValue);
-        } catch (ParseException anExc) {
-            throw new XmlMarshallingException(anExc);
-        }
-    }
-}
-</code></pre>
-
-<p>The alternative <code>ThreadSafeDateConverter</code> looks like this:</p>
-
-<pre><code>class ThreadSafeDateConverter implements Converter&amp;lt;Date&gt; {
-    private ThreadLocal&amp;lt;DateFormat&gt; dateFormat;
-
-    public ThreadSafeDateConverter(final String aDateFormatPattern) {
-        dateFormat = new ThreadLocal&amp;lt;DateFormat&gt;() {
-            protected DateFormat initialValue() {
-                return new SimpleDateFormat(aDateFormatPattern);
-            }
-        };
-    }
-
-    @Override
-    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
-        return aClass.isAssignableFrom(Date.class);
-    }
-
-    @Override
-    public Date convert(String aValue) {
-        try {
-            return ((aValue == null) || ("".equals(aValue))) ? 
-                null : dateFormat.get().parse(aValue);
-        } catch (ParseException anExc) {
-            throw new XmlMarshallingException(anExc);
-        }
-    }
-}
-</code></pre>
-
-<h3>Missing features</h3>
-
-<p>This is still a very new project, and in an experimental stage. There's loads still to do:</p>
-
-<ul>
-<li>Experiment with more documents to drive improvements to the DSL</li>
-<li>More converters for the obvious types (e.g., BigDecimal, BigInteger, File, URI, etc.)</li>
-<li>Support for namespaced documents</li>
-<li>Support for CDATA (so far only tested with PCDATA)</li>
-<li>Performance comparisons with DOM, SAX and non-DSL'd Pull parsing</li>
-<li>Support for explicit (non-reflective) marshalling of properties</li>
-<li>Support for SAX parsing instead of Pull-Parsing (see notes below)</li>
-<li>Performance tests</li>
-<li>Performance optimisations</li>
-</ul>
-
-<h3>Notes</h3>
-
-<p>I came across some interesting comments by <a href="https://plus.google.com/105051985738280261832/posts">Diane Hackborn</a> (Android platform developer) in <a href="http://groups.google.com/group/android-developers/browse_thread/thread/3f9c5fc7402ecdf">this thread</a>. </p>
-
-<p>Diane points out that SAX parsing is faster than Pull Parsing (at least on Android). I had been under the impression it was the other way around, hence I went with Pull parsing. </p>
-
-<p>Later perf tests show SAX to be <em>much</em> faster on Android, so I will probably refactor to use SAX.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="android parser performance" /></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=unmarshall">unmarshall</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pull-parsing">pull-parsing</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dsl">dsl</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="dsl_for_xml_parsing_in_android.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -1684,11 +1492,11 @@ public interface Converter&amp;lt;T&gt; {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
                 <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
                 <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
                 <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
-                <li><a href="testing_android_apps.html">Testing Android apps</a><span class="date"> - Jun 08, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
