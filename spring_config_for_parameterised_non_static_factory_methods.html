@@ -37,7 +37,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="337" description="A useful mechanism for instantiating beans in spring configuration using other beans defined in that configuration as factories.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="669" description="A useful mechanism for instantiating beans in spring configuration using other beans defined in that configuration as factories.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-14">September 14, 2012</time></span>
               <a itemprop="url" href="spring_config_for_parameterised_non_static_factory_methods.html"><h1 itemprop="name" itemprop="headline">Spring config for parameterised, non-static factory methods</h1></a>
 	      <span itemprop="articleBody"><p>I recently discovered a nice way of using beans defined in your spring config as factories in the definition of other beans. </p>
@@ -80,6 +80,52 @@ class Factory {
 <p>So what we have here is an <em>instance</em> of <code>Factory</code>, created with a dependency (depA), on which we invoke a non-static method <em>with arguments</em> to create our <code>ResultType</code>.</p>
 
 <p>The bit that surprised me was the use of <code>&lt;constructor-arg&gt;</code> elements to define the parameters to pass to the factory method.</p>
+
+<h2>Instrumentation</h2>
+
+<p>If you followed any of my recent posts you'll know that I've been playing with dynamic proxies to create services that automagically decorate objects with instrumented versions. </p>
+
+<p>As an example, in <a href="http://steveliles.github.com/dynamic_proxies_in_java.html">this post</a> I showed an <code>InstumentationService</code> which adds timing around method invocations.</p>
+
+<p>I wanted to instrument several (about 8 actually) of my beans via a service that adds health monitoring, where the healthiness of a service is measured as a ratio of successful method invocations to unsuccessful ones (that throw exceptions).</p>
+
+<p>The interface for instrumenting objects for health-monitoring looks like this:</p>
+
+<pre><code>interface HealthServiceInstrumenter {
+    public &lt;T&gt; T instrument(T aT);
+}
+</code></pre>
+
+<p>So what I needed from Spring is: </p>
+
+<ol>
+<li>to create the instance of my <code>HealthServiceInstrumenter</code>,</li>
+<li>to create the instances of various different <code>T</code> to pass through the <code>HealthServiceInstrumenter</code>, and</li>
+<li>the tricky part - to get spring to create the instrumented bean of type <code>T</code> by passing the original bean through the instrumenter.</li>
+</ol>
+
+<p>Here's what the spring wiring looks like for that:</p>
+
+<pre><code>&lt;bean id="health-instrumenter" class="com.sjl.HealthInstrumentationService"/&gt;
+
+&lt;bean id="uninstrumented-bean-A" class="com.sjl.BeanA" 
+        autowire-candidate="false"/&gt;
+
+&lt;bean id="bean-A" class="com.sjl.BeanA"
+       factory-bean="health-instrumenter" 
+       factory-method="instrument"&gt;
+   &lt;constructor-arg ref="uninstrumented-bean-A"/&gt;
+&lt;/bean&gt;
+
+&lt;bean id="uninstrumented-bean-B" class="com.sjl.BeanB" 
+        autowire-candidate="false"/&gt;
+
+&lt;bean id="bean-B" class="com.sjl.BeanB"
+       factory-bean="health-instrumenter" 
+       factory-method="instrument"&gt;
+   &lt;constructor-arg ref="uninstrumented-bean-B"/&gt;
+&lt;/bean&gt;
+</code></pre>
 </span>
 
               <ul class="keywords">
