@@ -35,6 +35,1021 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="6,838" description="Example code and performance comparisons for parsing Twitter Atom feeds with various Java XML parsing tools.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-04-10">April 10, 2012</time></span>
+              <a itemprop="url" href="comparing_methods_of_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">Comparing methods of XML parsing in Android</h1></a>
+	      <span itemprop="articleBody"><p>This post details my experiments parsing the same document with the usual-suspects - DOM, SAX, and Pull parsing - and comparing the results for readability and performance - especially for Android. The parsing mechanisms compared here are:</p>
+
+<ol>
+<li>W3C DOM parsing</li>
+<li>W3C DOM and XPath</li>
+<li>SAX Parsing</li>
+<li>Pull Parsing</li>
+<li><a href="https://github.com/steveliles/dsl4xml">dsl4xml</a> (dsl around Pull-parser)</li>
+<li><a href="http://www.thebuzzmedia.com/software/simple-java-xml-parser-sjxp/">SJXP</a> (thin Pull-parser wrapper using xpath-like expressions)</li>
+</ol>
+
+<p>I hope to add more later - some contenders include: <a href="http://www.oracle.com/technetwork/articles/javase/index-140168.html">jaxb</a>; <a href="http://xstream.codehaus.org/">xstream</a>; and <a href="http://simple.sourceforge.net/">Simple</a>.</p>
+
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf">code for the entire project</a> is in github. You will need to Maven install the <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a> library if you want to run the tests yourself, as I'm afraid I don't have a public repo for it yet.</p>
+
+<p><em>Important Note</em>: This experiment was inspired by some work I did to optimise a slow Android app, where the original authors had used mostly DOM parsing with a sprinkling of XPath. </p>
+
+<p>My ultimate aim was to run these perf tests on one or more real Android devices and show how they compare there.</p>
+
+<p>For this reason if you look at the project in github, you'll see that I've imported the Android 4 jar and used only the parser implementations that are available without additional imports in Android. (OK, the two pull-parser wrappers require very small standalone jars, sorry).</p>
+
+<p>The Android project and Activity for running the tests on a device is in a separate project <a href="https://github.com/steveliles/dsl4xml-perf-android">here</a>.</p>
+
+<h2>The XML</h2>
+
+<p>The XML file being parsed is a Twitter search result (Atom feed). You can see the actual file <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/model/twitter-atom.xml">here</a>, but this is a snippet of the parts I'm interested in parsing for these tests (the 15 <code>&lt;entry&gt;</code>'s in the document):</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;feed .. &gt;
+  ..
+  &lt;entry&gt;
+    ..
+    &lt;published&gt;2012-04-09T10:10:24Z&lt;/published&gt;
+    &lt;title&gt;Tweet title&lt;/title&gt;
+    &lt;content type="html"&gt;Full tweet content&lt;/content&gt;
+    ..
+    &lt;twitter:lang&gt;en&lt;/twitter:lang&gt;
+    &lt;author&gt;
+        &lt;name&gt;steveliles (Steve Liles)&lt;/name&gt;
+        &lt;uri&gt;http://twitter.com/steveliles&lt;/uri&gt;
+    &lt;/author&gt;
+  &lt;/entry&gt;
+  ..
+&lt;/feed&gt;
+</code></pre>
+
+<h2>The POJO's</h2>
+
+<p>The Java objects we're unmarshalling to are very simple and don't need any explanation. You can see them in Github <a href="https://github.com/steveliles/dsl4xml-perf/tree/master/src/main/java/com/sjl/dsl4xml/performance/model">here</a>.</p>
+
+<h2>Parsing the Twitter/Atom feed</h2>
+
+<p>First, just a few notes on what I'm trying to do. I basically want to compare two things:</p>
+
+<ol>
+<li>Readability/maintainability of <em>typical</em> parsing code.</li>
+<li>Parsing performance with said <em>typical</em> parsing code, incl. under concurrent load.</li>
+</ol>
+
+<p>With that in mind, I've tried to keep the parsing code small, tight, and (AFAIK) typical for each mechanism, but without layering any further libraries or helper methods on top. </p>
+
+<p>In working with each parsing mechanism I have tried to choose more performant approaches where the readability trade-off is not high.</p>
+
+<p>Without further ado, lets see what parsing this document and marshalling to Java objects is like using the various libraries.</p>
+
+<h3>W3C DOM</h3>
+
+<p>DOM (Document Object Model) parsing builds an in-memory object representation of the entire XML document. You can then rummage around in the DOM, going and back and forth between elements and reading data from them in whatever order you like.</p>
+
+<p>Because the entire document is read into memory, there is an upper limit on the size of document you can read (constrained by the size of your Java heap). </p>
+
+<p>Memory is not used particularly efficiently either - a DOM may consist of very many sparsely populated <code>List</code> objects (backed by mostly empty arrays). A side effect of all these objects in memory is that when you're finished with them there's a lot for the Garbage Collector to clean up.</p>
+
+<p>On the plus side, DOM parsing is straight-forward to work with, particularly if you don't care much about speed and use <code>getElementsByTagName()</code> wherever possible.</p>
+
+<p>The actual code I used for the performance test is <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/DOMTweetsReader.java">here</a>, but this is roughly what it ended up looking like:</p>
+
+<pre><code>private DocumentBuilder builder;
+private DateFormat dateFormat;
+
+public DOMTweetsReader() 
+throws Exception {
+    DocumentBuilderFactory factory = 
+        DocumentBuilderFactory.newInstance();
+    builder = factory.newDocumentBuilder();
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+}
+
+@Override
+public String getParserName() {
+    return "W3C DOM";
+}
+
+public Tweets read(InputStream anInputStream) 
+throws Exception {
+    Document _d = builder.parse(anInputStream, "utf-8");
+    Tweets _result = new Tweets();
+    unmarshall(_d, _result);
+    return _result;
+}
+
+public void unmarshall(Document aDoc, Tweets aTo) 
+throws Exception {
+    NodeList _nodes = aDoc.getChildNodes().item(0).getChildNodes();
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
+        Node _n = _nodes.item(i);
+        if ((_n.getNodeType() == Node.ELEMENT_NODE) &amp;&amp; 
+            ("entry".equals(_n.getNodeName())
+         ){
+            Tweet _tweet = new Tweet();
+            aTo.addTweet(_tweet);
+            unmarshallEntry((Element)_n, _tweet);
+        }
+    }
+}
+
+private void unmarshallEntry(Element aTweetEl, Tweet aTo)
+throws Exception {
+    NodeList _nodes = aTweetEl.getChildNodes();
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
+        Node _n = _nodes.item(i);
+        if (_n.getNodeType() == Node.ELEMENT_NODE) {                    
+            if ("published".equals(_n.getNodeName())) {                         
+                aTo.setPublished(dateFormat.parse(getPCData(_n)));
+            } else if ("title".equals(_n.getNodeName())) {
+                aTo.setTitle(getPCData(_n));
+            } else if ("content".equals(_n.getNodeName())) {
+                Content _content = new Content();
+                aTo.setContent(_content);
+                unmarshallContent((Element)_n, _content);
+            } else if ("lang".equals(_n.getNodeName())) {
+                aTo.setLanguage(getPCData(_n));
+            } else if ("author".equals(_n.getNodeName())) {
+                Author _author = new Author();
+                aTo.setAuthor(_author);
+                unmarshallAuthor((Element)_n, _author);
+            }
+        }
+    }
+}
+
+private void unmarshallContent(Element aContentEl, Content aTo) {
+    aTo.setType(aContentEl.getAttribute("type"));
+    aTo.setValue(aContentEl.getNodeValue());
+}
+
+private void unmarshallAuthor(Element anAuthorEl, Author aTo) {
+    NodeList _nodes = anAuthorEl.getChildNodes();
+    for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
+        Node _n = _nodes.item(i);
+        if ("name".equals(_n.getNodeName())) {
+            aTo.setName(getPCData(_n));
+        } else if ("uri".equals(_n.getNodeName())) {
+            aTo.setUri(getPCData(_n));
+        }
+    }
+}
+
+private String getPCData(Node aNode) {
+    StringBuilder _sb = new StringBuilder();
+    if (Node.ELEMENT_NODE == aNode.getNodeType()) {
+        NodeList _nodes = aNode.getChildNodes();
+        for (int i=0; i&amp;lt;_nodes.getLength(); i++) {
+            Node _n = _nodes.item(i);
+            if (Node.ELEMENT_NODE == _n.getNodeType()) {
+                _sb.append(getPCData(_n));
+            } else if (Node.TEXT_NODE == _n.getNodeType()) {
+                _sb.append(_n.getNodeValue());
+            }
+        }
+    }
+    return _sb.toString();
+}
+</code></pre>
+
+<p>Its worth noting that I would normally extract some useful utility classes/methods - for example <code>getPCData(Node)</code> - but here I'm trying to keep the sample self-contained.</p>
+
+<p>Note that this code is not thread-safe because of the unsynchronized use of <code>SimpleDateFormat</code>. I am using separate instances of the Reader classes in each thread for my threaded tests.</p>
+
+<h3>W3C DOM and XPath</h3>
+
+<p>XPath is a language for describing locations within an XML document as paths from a starting location (which can be the root of the document (/), the current location (.//) or anywhere (//)).</p>
+
+<p>I've used XPath on and off for years, mostly in XSLT stylesheets, but also occasionally to pluck bits of information out of documents in code. It is very straight-forward to use.</p>
+
+<p>Here's a sample for parsing our Twitter Atom feed. The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/DOMXPathTweetsReader.java">actual test code</a> is in github.</p>
+
+<pre><code>private DocumentBuilder builder;
+private XPathFactory factory;
+
+private XPathExpression entry;
+private XPathExpression published;
+private XPathExpression title;
+private XPathExpression contentType;
+private XPathExpression content;
+private XPathExpression lang;
+private XPathExpression authorName;
+private XPathExpression authorUri;
+
+private DateFormat dateFormat;
+
+public DOMXPathTweetsReader() 
+throws Exception {
+    DocumentBuilderFactory _dbf = 
+        DocumentBuilderFactory.newInstance();
+    _dbf.setNamespaceAware(true);
+    builder = _dbf.newDocumentBuilder();
+    factory = XPathFactory.newInstance();
+
+    NamespaceContext _ctx = new NamespaceContext() {
+        public String getNamespaceURI(String aPrefix) {
+            String _uri;
+            if (aPrefix.equals("atom"))
+                _uri = "http://www.w3.org/2005/Atom";
+            else if (aPrefix.equals("twitter"))
+                _uri = "http://api.twitter.com/";
+            else
+                _uri = null;
+            return _uri;
+        }
+
+        @Override
+        public String getPrefix(String aArg0) {
+            return null;
+        }
+
+        @Override
+        @SuppressWarnings("rawtypes")
+        public Iterator getPrefixes(String aArg0) {
+            return null;
+        }
+    };
+
+    entry = newXPath(factory, _ctx, "/atom:feed/atom:entry");
+    published = newXPath(factory, _ctx, ".//atom:published");
+    title = newXPath(factory, _ctx, ".//atom:title");
+    contentType = newXPath(factory, _ctx, ".//atom:content/@type");
+    content = newXPath(factory, _ctx, ".//atom:content");
+    lang = newXPath(factory, _ctx, ".//twitter:lang");
+    authorName = newXPath(factory, _ctx, ".//atom:author/atom:name");
+    authorUri = newXPath(factory, _ctx, ".//atom:author/atom:uri");
+
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+}
+
+private XPathExpression newXPath(
+    XPathFactory aFactory, NamespaceContext aCtx, String anXPath
+) throws Exception {
+    XPath _xp = factory.newXPath();
+    _xp.setNamespaceContext(aCtx);
+    return _xp.compile(anXPath);
+}
+
+@Override
+public String getParserName() {
+    return "W3C DOM/XPath";
+}
+
+@Override
+public Tweets read(InputStream anInputStream)
+throws Exception {
+    Tweets _result = new Tweets();
+    Document _document = builder.parse(anInputStream);
+
+    NodeList _entries = (NodeList) 
+        entry.evaluate(_document, XPathConstants.NODESET);                  
+    for (int i=0; i&amp;lt;_entries.getLength(); i++) {
+        Tweet _tweet = new Tweet();
+        _result.addTweet(_tweet);
+
+        Node _entryNode = _entries.item(i);
+
+        _tweet.setPublished(getPublishedDate(_entryNode));
+        _tweet.setTitle(title.evaluate(_entryNode));
+        _tweet.setLanguage(lang.evaluate(_entryNode));
+
+        Content _c = new Content();
+        _tweet.setContent(_c);
+
+        _c.setType(contentType.evaluate(_entryNode));
+        _c.setValue(content.evaluate(_entryNode));
+
+        Author _a = new Author();
+        _tweet.setAuthor(_a);
+
+        _a.setName(authorName.evaluate(_entryNode));
+        _a.setUri(authorUri.evaluate(_entryNode));
+    }
+
+    return _result;
+}
+
+private Date getPublishedDate(Node aNode) 
+throws Exception {
+    return dateFormat.parse(published.evaluate(aNode));
+}
+</code></pre>
+
+<p>The code ends up being quite easy to read and can be written to nest in a way that mimics the document structure. There is a very big downside - as you'll see later - the performance is <em>atrocious</em>. </p>
+
+<h3>SAX Parser</h3>
+
+<p>SAX stands for Simple API for XML. It uses a "push" approach: whereas with DOM you can dig around in the document in whatever order you like, SAX parsing is event-driven which means you have to handle the data as it is given to you.</p>
+
+<p>SAX parsers fire events when they encounter the various components that make up an XML file. You register a <code>ContentHandler</code> whose methods are called-back when these events occur (for example when the parser finds a new start element, it invokes the startElement method of your <code>ContentHandler</code>).</p>
+
+<p>The API assumes that the consumer (<code>ContentHandler</code>) is going to maintain some awareness of its state (e.g. where it currently is within the document). I sometimes use a <code>java.util.Stack</code> to push/pop/peek at which element I'm currently working in, but here I can get away with just recording the name of the current element.</p>
+
+<p>I'm extending <code>DefaultHandler</code> because I'm not interested in many of the events (it provides a default empty implementation of those methods for me).</p>
+
+<p>The <a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/SAXTweetsReader.java">actual test code</a> is in github, and is actually more complex in order to handle entity-refs via a <code>LexicalHandler</code>,  but here's the gist of it:</p>
+
+<pre><code>private XMLReader reader;
+private TweetsHandler handler;
+
+public SAXTweetsReader() 
+throws Exception {
+    SAXParserFactory _f = SAXParserFactory.newInstance();
+    SAXParser _p = _f.newSAXParser();
+    reader = _p.getXMLReader();
+    handler = new TweetsHandler();
+    reader.setContentHandler(handler);
+}
+
+@Override
+public String getParserName() {
+    return "SAX";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) 
+throws Exception {
+    reader.parse(new InputSource(anInputStream));
+    return handler.getResult();
+}
+
+private static class TweetsHandler extends DefaultHandler {
+
+    private DateFormat dateFormat = 
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private Tweets tweets;
+    private Tweet tweet;
+    private Content content;
+    private Author author;
+    private String currentElement;
+
+    public Tweets getResult() {
+        return tweets;
+    }
+
+    @Override
+    public void startDocument() throws SAXException {
+        tweets = new Tweets();
+    }
+
+    @Override
+    public void startElement(
+        String aUri, String aLocalName, 
+        String aQName, Attributes aAttributes
+    ) throws SAXException {
+        currentElement = aQName;
+        if ("entry".equals(aQName)) {
+            tweets.addTweet(tweet = new Tweet());
+        } else if ("content".equals(aQName)) {
+            tweet.setContent(content = new Content());
+            content.setType(aAttributes.getValue("type"));
+        } else if ("author".equals(aQName)) {
+            tweet.setAuthor(author = new Author());
+        }
+    }
+
+    @Override
+    public void endElement(
+        String aUri, String aLocalName, String aQName
+    ) throws SAXException {
+        currentElement = null;
+    }
+
+    @Override
+    public void characters(char[] aCh, int aStart, int aLength)
+    throws SAXException {
+        if ("published".equals(currentElement)) {
+            try {
+                tweet.setPublished(dateFormat.parse(
+                    new String(aCh, aStart, aLength))
+                );
+            } catch (ParseException anExc) {
+                throw new SAXException(anExc);
+            }
+        } else if (
+            ("title".equals(currentElement)) &amp;&amp;
+            (tweet != null)
+        ) {
+            tweet.setTitle(new String(aCh, aStart, aLength));
+        } else if ("content".equals(currentElement)) {
+            content.setValue(new String(aCh, aStart, aLength));
+        } else if ("lang".equals(currentElement)) {
+            tweet.setLanguage(new String(aCh, aStart, aLength));
+        } else if ("name".equals(currentElement)) {
+            author.setName(new String(aCh, aStart, aLength));
+        } else if ("uri".equals(currentElement)) {
+            author.setUri(new String(aCh, aStart, aLength));
+        }
+    }
+}
+</code></pre>
+
+<p>One downside when handling more complicated documents is that the <code>ContentHandler</code> can get littered with intermediate state objects - for example here I have the <code>tweet</code>, <code>content</code>, and <code>author</code> fields.</p>
+
+<p>Another is that SAX is very low level and you have to handle pretty much everything - including that text nodes are passed to you in pieces when there are entity-references present.</p>
+
+<h3>Pull Parser</h3>
+
+<p>Pull-parsing is the "pull" to SAX parsing's "push". SAX pushes content at you by firing events as it encounters constructs within the xml document. Pull-parsing lets you ask for (pull) the next significant construct you are interested in.</p>
+
+<p>You still have to take the data in the order it appears in the document - you can't go back and forth through the document like you can with DOM - but you can skip over bits you aren't interested in.</p>
+
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/PullParserTweetsReader.java">Test code</a> is in github, this is roughly what it looks like:</p>
+
+<pre><code>private DateFormat dateFormat;
+private XmlPullParserFactory f;
+private Tweets tweets;
+private Tweet currentTweet;
+private Author currentAuthor;
+
+public PullParserTweetsReader() 
+throws Exception {
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    f = XmlPullParserFactory.newInstance();
+    f.setNamespaceAware(true);
+}
+
+@Override
+public String getParserName() {
+    return "Pull-Parser";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) throws Exception {
+    XmlPullParser _p = f.newPullParser();
+    _p.setInput(anInputStream, "utf-8");
+    return parse(_p);
+}
+
+private Tweets parse(XmlPullParser aParser) 
+throws Exception {
+    tweets = new Tweets();
+
+    int _e = aParser.next();
+    while (_e != XmlPullParser.END_DOCUMENT) {
+        if (_e == XmlPullParser.START_TAG) {
+            startTag(aParser.getPrefix(), aParser.getName(), aParser);
+        }
+        _e = aParser.next();
+    }
+
+    return tweets;
+}
+
+private void startTag(String aPrefix, String aName, XmlPullParser aParser)
+throws Exception {
+    if ("entry".equals(aName)) {
+        tweets.addTweet(currentTweet = new Tweet());
+    } else if ("published".equals(aName)) {
+        aParser.next();
+        currentTweet.setPublished(dateFormat.parse(aParser.getText()));
+    } else if (("title".equals(aName)) &amp;&amp; (currentTweet != null)) {
+        aParser.next();
+        currentTweet.setTitle(aParser.getText());
+    } else if ("content".equals(aName)) {
+        Content _c = new Content();
+        _c.setType(aParser.getAttributeValue(null, "type"));
+        aParser.next();
+        _c.setValue(aParser.getText());
+        currentTweet.setContent(_c);
+    } else if ("lang".equals(aName)) {
+        aParser.next();
+        currentTweet.setLanguage(aParser.getText());
+    } else if ("author".equals(aName)) {
+        currentTweet.setAuthor(currentAuthor = new Author());
+    } else if ("name".equals(aName)) {
+        aParser.next();
+        currentAuthor.setName(aParser.getText());
+    } else if ("uri".equals(aName)) {
+        aParser.next();
+        currentAuthor.setUri(aParser.getText());
+    }
+}
+</code></pre>
+
+<h3>SJXP (Pull-Parser wrapper)</h3>
+
+<p>The first of the pull-parser <em>wrappers</em> under test, I stumbled upon <a href="http://www.thebuzzmedia.com/software/simple-java-xml-parser-sjxp/">this one</a> yesterday. I liked the idea behind it so decided to give it a try. </p>
+
+<p>I'm a big fan of callbacks generally, and having spent quite some time working with XPath in the past the idea of using XPath-like syntax to request callbacks from the pull-parser seems tempting.</p>
+
+<p>There was one problem I couldn't work around which seems like either a gap in my knowledge (and the documentation) or an irritating bug - when declaring the paths you have to use the full namespace uri <em>even on elements in the default namespace</em>. </p>
+
+<p>This means that my path declarations even on this shallow document are enormous and I had to split them onto three lines to fit the width of my blog.</p>
+
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/SJXPTweetsReader.java">Code is in github</a>, this is the gist of it:</p>
+
+<pre><code>private Tweet currentTweet;
+private DateFormat dateFormat;
+private XMLParser&amp;lt;Tweets&gt; parser; 
+
+private IRule&amp;lt;Tweets&gt; tweet = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry"
+) {
+    public void handleTag(
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject) {
+        if (aIsStartTag)
+            aUserObject.addTweet(currentTweet = new Tweet());
+    }   
+};
+
+private IRule&amp;lt;Tweets&gt; published = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]published"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        try {                   
+            currentTweet.setPublished(dateFormat.parse(aText));
+        } catch (ParseException anExc) {
+            throw new XMLParserException("date-parsing problem", anExc);
+        }
+    }           
+}; 
+
+private IRule&amp;lt;Tweets&gt; title = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]title"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.setTitle(aText);
+    }           
+};
+
+IRule&amp;lt;Tweets&gt; content = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]content" +
+) {
+    public void handleTag(
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
+    ) {
+        if (aIsStartTag)
+            currentTweet.setContent(new Content());
+        super.handleTag(aParser, aIsStartTag, aUserObject);
+    }
+};
+
+private IRule&amp;lt;Tweets&gt; contentType = new DefaultRule&amp;lt;Tweets&gt;(Type.ATTRIBUTE, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]content", "type"
+) {
+    public void handleParsedAttribute(
+        XMLParser&amp;lt;Tweets&gt; aParser, int aIndex, String aValue, Tweets aUserObject
+    ) {                 
+        currentTweet.getContent().setType(aValue);
+    }
+};
+
+private IRule&amp;lt;Tweets&gt; contentText = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]content"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {                 
+        currentTweet.getContent().setValue(aText);
+    }
+};
+
+private IRule&amp;lt;Tweets&gt; lang = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://api.twitter.com/]lang"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.setLanguage(aText);
+    }
+};
+
+private IRule&amp;lt;Tweets&gt; author = new DefaultRule&amp;lt;Tweets&gt;(Type.TAG, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]author"
+) {
+    public void handleTag(
+        XMLParser&amp;lt;Tweets&gt; aParser, boolean aIsStartTag, Tweets aUserObject
+    ) {
+        if (aIsStartTag)
+            currentTweet.setAuthor(new Author());
+        super.handleTag(aParser, aIsStartTag, aUserObject);
+    }
+};
+
+private IRule&amp;lt;Tweets&gt; authorName = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed"
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]author" +
+    "/[http://www.w3.org/2005/Atom]name"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.getAuthor().setName(aText);
+    }
+};
+
+private IRule&amp;lt;Tweets&gt; authorUri = new DefaultRule&amp;lt;Tweets&gt;(Type.CHARACTER, 
+    "/[http://www.w3.org/2005/Atom]feed" +
+    "/[http://www.w3.org/2005/Atom]entry" +
+    "/[http://www.w3.org/2005/Atom]author" +
+    "/[http://www.w3.org/2005/Atom]uri"
+) {
+    public void handleParsedCharacters(
+        XMLParser&amp;lt;Tweets&gt; aParser, String aText, Tweets aUserObject
+    ) {
+        currentTweet.getAuthor().setUri(aText);
+    }
+};
+
+@SuppressWarnings("all")
+public SJXPTweetsReader() {
+    dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    parser = parser = new XMLParser&amp;lt;Tweets&gt;(
+        tweet, published, title, content, contentType, 
+        contentText, lang, author, authorName, authorUri
+    );
+}
+
+@Override
+public String getParserName() {
+    return "SJXP (pull)";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) 
+throws Exception {
+    Tweets _result = new Tweets();  
+    parser.parse(anInputStream, "utf-8", _result);
+    return _result;
+}
+</code></pre>
+
+<p>I like the idea of SXJP and I think that - particularly on more complex documents - it will lead to code that is easier to understand and maintain because you can consider each part entirely separately. It bulks up with boiler-plate though, especially with that namespace issue I mentioned.</p>
+
+<p>Like SAX and "straight" Pull parsing it also suffers the problem of having to manage intermediate state (in my sample its <code>currentTweet</code>). It does allow a state/context object to be pushed into the callback methods, so I could have passed a customised context class to manage my state in instead of passing <code>Tweets</code>.</p>
+
+<h3>dsl4xml (Pull-parser wrapper)</h3>
+
+<p>This is my own small wrapper around XMLPullParser. The goals and reasons for it are stated at length <a href="https://github.com/steveliles/dsl4xml">else</a>-<a href="http://steveliles.github.com/xml_parsing_in_android.html">where</a>, but suffice to say that readability without sacrificing speed was my main aim.</p>
+
+<p>Dsl4xml parsing code has a declarative style, is concise, and uses reflection to cut boiler-plate to a minimum.</p>
+
+<p><a href="https://github.com/steveliles/dsl4xml-perf/blob/master/src/main/java/com/sjl/dsl4xml/performance/parsers/Dsl4XmlPullTweetsReader.java">Actual code</a> is in Github, here's what it looks like:</p>
+
+<pre><code>private DocumentReader&amp;lt;Tweets&gt; reader;
+
+public Dsl4XmlTweetsReader() {
+    reader = mappingOf(Tweets.class).to(
+        tag("entry", Tweet.class).with(
+            tag("published"),
+            tag("title"),
+            tag("content", Content.class).with(
+                attribute("type"),
+                pcdataMappedTo("value")
+            ),
+            tag("twitter", "lang").
+                withPCDataMappedTo("language"),
+            tag("author", Author.class).with(
+                tag("name"),
+                tag("uri")
+            )
+        )
+    );
+
+    reader.registerConverters(
+        new ThreadUnsafeDateConverter("yyyy-MM-dd'T'HH:mm:ss")
+    );
+}
+
+@Override
+public String getParserName() {
+    return "DSL4XML (pull)";
+}
+
+@Override
+public Tweets read(InputStream anInputStream) throws Exception {
+    return reader.read(anInputStream, "utf-8");
+}
+</code></pre>
+
+<p>There are two things I want to point out, which I guess you will have noticed already:</p>
+
+<ol>
+<li>This is by far the shortest and simplest code of all the samples shown.</li>
+<li>The code is slightly unusual in its style because it uses an <a href="http://martinfowler.com/bliki/DomainSpecificLanguage.html">Internal Domain Specific Language</a>. The nice thing (IMHO) is that it is very readable, and even mimics the structure of the XML itself.</li>
+</ol>
+
+<p>Its still early days for dsl4xml, so the DSL may evolve a bit with time. I'm also looking into ways to keep the same tight syntax without resorting to reflection - the aim being to narrow the performance gap between the raw underlying parser (currently a Pull parser) and dsl4xml.</p>
+
+<h2>Performance Comparison</h2>
+
+<p>I built some performance tests using the mechanisms described above to parse the same document repeatedly. </p>
+
+<p>The tests are run repeatedly with increasing numbers of threads, from 1 to 8, parsing 1000 documents in each thread. The xml document is read into a byte array in memory before the test starts to eliminate disk IO from consideration.</p>
+
+<p>When the statistics for each method have been collected, the test generates a html document that uses Google charts to render the results.</p>
+
+<p>Each parsing method is tested several times and the results averaged to smooth out some of the wilder outliers (still far from perfect, partly due to garbage collection). I ran the tests on my Linux Desktop, Macbook Air, Samsung Galaxy S2 and Morotola Xoom2 Media Edition. </p>
+
+<p>Here is the chart for the desktop (Core i7 (quad) 1.8GHz, 4GB RAM, Ubuntu 11.10, Sun JDK 1.6.0-26). There is a noticeable hump at 4 threads, presumably because its a quad core. Performance keeps rising up to 8 threads, this presumably because the cpu has hyperthreading. After 8 threads the performance slowly drops off as the context-switching overhead builds up (not shown here):</p>
+
+<div id="desktop_chart_div"></div>
+
+<p>And here's the chart from my MacBook Air (Core i5 (dual) 1.7GHz, 4GB RAM, OSX Lion, Apple JDK 1.6.0-31):</p>
+
+<div id="laptop_chart_div"></div>
+
+<p>The difference running under Android is, to put it mildly, astonishing. Here's the chart from my Samsung Galaxy S2 running Android 2.3.4, 64Mb heap. I reduced the max concurrency to 4 and the number of documents parsed per thread to 10, otherwise my phone would be obsolete before the results came back :)</p>
+
+<div id="mobile_chart_div"></div>
+
+<p>Yep, SAX kicking ass right there.</p>
+
+<p>Here's how it looks on a Motorola Xoom 2 Media edition running Android 3.2.2 (with 48Mb heap):</p>
+
+<div id="tablet_chart_div"></div>
+
+<p>Confirming that SAX is the way to go on Android!</p>
+
+<h4>Quick side note about iOS</h4>
+
+<p>My friend <a href="http://twitter.com/#!/prestonmr">Matt Preston</a> did a quick port of the <em>DOM</em> and <em>SAX</em> parsing tests to iOS. </p>
+
+<p>He didn't produce a chart (yet!), but the <em>DOM</em> parsing throughput on an iPhone 4S was approximately twice as good as <em>SAX</em> parsing on my Samsung. SAX Parsing on the iPhone churned through on average 150 docs/sec!</p>
+
+<p>Its interesting to note that the iPhone4S runs a 1GHz Cortex A9 CPU <em>clocked down</em> to 800Mhz, while my Samsung is running a <em>1.2GHz</em> Cortex A9.</p>
+
+<h4>Why XPath parsing sucked so bad</h4>
+
+<p>The observant will have noticed the charts do not contain figures for the XPath parsing. That's because I dropped it when I realised it was two orders of magnitude slower even than DOM parsing.</p>
+
+<p>This appalling performance seems to be because when executing <em>each</em> xpath expression a context object is created which involves looking up several files on the classpath (and all the inherent synchronisation this entails). I don't intend to waste my time digging into why this can't done once and cached :(.</p>
+
+<p>If you're interested, this is what my threads spent most of their time doing in the XPath test:</p>
+
+<pre><code>"Thread-11" prio=5 tid=7fcf544d2000 nid=0x10d6bb000 
+    waiting for monitor entry [10d6b9000]
+    java.lang.Thread.State: BLOCKED (on object monitor)
+    at java.util.zip.ZipFile.getEntry(ZipFile.java:159)
+    - locked &amp;lt;7f4514c88&gt; (a java.util.jar.JarFile)
+    at java.util.jar.JarFile.getEntry(JarFile.java:208)
+    at java.util.jar.JarFile.getJarEntry(JarFile.java:191)
+    at sun.misc.URLClassPath$JarLoader.getResource(URLClassPath.java:757)
+    at sun.misc.URLClassPath$JarLoader.findResource(URLClassPath.java:735)
+    at sun.misc.URLClassPath.findResource(URLClassPath.java:146)
+    at java.net.URLClassLoader$2.run(URLClassLoader.java:385)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at java.net.URLClassLoader.findResource(URLClassLoader.java:382)
+    at java.lang.ClassLoader.getResource(ClassLoader.java:1002)
+    at java.lang.ClassLoader.getResource(ClassLoader.java:997)
+    at java.lang.ClassLoader.getSystemResource(ClassLoader.java:1100)
+    at java.lang.ClassLoader.getSystemResourceAsStream(ClassLoader.java:1214)
+    at com.sun.org.apache.xml.internal.dtm.SecuritySupport12$6.run
+        (SecuritySupport12.java:117)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at
+    com.sun.org.apache.xml.internal.dtm.SecuritySupport12.
+        getResourceAsStream(SecuritySupport12.java:112)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        findJarServiceProviderName(ObjectFactory.java:549)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        lookUpFactoryClassName(ObjectFactory.java:373)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        lookUpFactoryClass(ObjectFactory.java:206)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        createObject(ObjectFactory.java:131)
+    at com.sun.org.apache.xml.internal.dtm.ObjectFactory.
+        createObject(ObjectFactory.java:101)
+    at com.sun.org.apache.xml.internal.dtm.DTMManager.
+        newInstance(DTMManager.java:135)
+    at com.sun.org.apache.xpath.internal.XPathContext.
+        &amp;lt;init&gt;(XPathContext.java:100)
+    at com.sun.org.apache.xpath.internal.jaxp.XPathExpressionImpl.
+        eval(XPathExpressionImpl.java:110)
+</code></pre>
+
+<h2>Conclusions</h2>
+
+<h3>Readability</h3>
+
+<p>Of the mechanisms tested so far, and from the code samples above, I think that dsl4xml produces far the most readable and maintainable parsing code. Of course I am biased. </p>
+
+<p>I think SAX parsing would have worked out to be the most readable of the other mechanisms if it hadn't been for those pesky entity-refs. As it is I have to recommend Pull-parsing as the way to go for readability.</p>
+
+<h3>Desktop/laptop xml parsing performance</h3>
+
+<p>SAX parsing and the pull-parsing wrappers give comparable performance. Raw Pull-parsing beats the lot by a margin of around 15%. DOM performs relatively badly - around twice as slow as any of the others. Don't go near XPath based parsing unless you like watching paint dry.</p>
+
+<p>Recommendation: Pull Parser for max performance and relative ease of use. Dsl4xml if you want performance <em>and</em> great readability :)</p>
+
+<h3>Android xml parsing performance</h3>
+
+<p>Avoid XPath at all costs. DOM and pull-parsing appear to have similarly poor performance characteristics. SAX absolutely <em>destroys</em> all the others - roughly an order of magnitude quicker.</p>
+
+<p>Recommendation: SAX, every time. I'll get working on a SAX-based dsl4xml implementation :)</p>
+
+<p><em>Update (23rd April 2012): Just finished a SAX-based dsl4xml - here's the performance chart for my Samsung Galaxy SII again (also includes figures for SimpleXML):</em></p>
+
+<div id="update_chart_div"></div>
+
+<h3>Final words</h3>
+
+<p>The Twitter Atom feed is not particularly complicated - tags are not deeply nested, not too many attributes, no nested tags of the same name, no mixed content (tags and text-nodes as siblings), etc. </p>
+
+<p>I suspect that the performance gap between the different mechanisms widens as the document complexity increases, but as yet have no real evidence to back that up.</p>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawCharts);
+
+      function drawCharts() {
+        drawDesktopChart();
+        drawLaptopChart();
+        drawMobileChart();
+        drawTabletChart();
+        drawUpdateChart();
+      }
+
+      function drawDesktopChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 1832.602735709364, 3047.309539315194, 3173.0422460858813, 3107.05642523978, 3135.5741046887833],
+['2', 3582.1149494513074, 5472.478667789554, 7353.287244493242, 5612.2292748296813, 5523.7554631906182],
+['3', 4677.6970491022244, 6051.68803044958, 8035.124424148545, 7802.535738870123, 6631.802574047084],
+['4', 5359.016501380009, 9074.944239050174, 13088.8170146974735, 10659.357606318107, 9064.701562460433],
+['5', 5840.4790247755773, 8386.967417466271, 11803.470921843835, 9494.022503516175, 9404.295333931408],
+['6', 7090.0232840469225, 10439.749336350581, 12337.1859987374073, 11472.185791651998, 10465.21753387524],
+['7', 7686.6631274700644, 10403.344206920294, 14162.5448904135455, 11761.212554175974, 11103.283101461672],
+['8', 7968.051665388115, 10980.660778139436, 14713.042602646617, 12341.624527230158, 12035.611975742948]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('desktop_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawLaptopChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 1832.602735709364, 2647.309539315194, 3473.0422460858813, 2387.05642523978, 2535.5741046887833],
+['2', 2182.1149494513074, 3972.478667789554, 5253.287244493242, 4012.2292748296813, 3823.7554631906182],
+['3', 2977.6970491022244, 4951.68803044958, 6035.124424148545, 4802.535738870123, 4631.802574047084],
+['4', 3559.016501380009, 5074.944239050174, 6388.8170146974735, 5659.357606318107, 5064.701562460433],
+['5', 3440.4790247755773, 5386.967417466271, 6103.470921843835, 5494.022503516175, 5404.295333931408],
+['6', 3690.0232840469225, 5439.749336350581, 6137.1859987374073, 5472.185791651998, 5465.21753387524],
+['7', 3686.6631274700644, 5403.344206920294, 5462.5448904135455, 5761.212554175974, 5503.283101461672],
+['8', 3568.051665388115, 5580.660778139436, 6713.042602646617, 5541.624527230158, 5535.611975742948]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('laptop_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawMobileChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 2.541707357944222, 39.240257662110984, 3.5759414102545857, 3.1541200188086482, 2.5026521752567215],
+['2', 4.330846368265108, 61.60437643946365, 6.456946359247942, 5.686983737649393, 4.732176431626203],
+['3', 4.351606992043577, 61.514316431090535, 6.307925946534443, 5.685825899522886, 4.586118360054465],
+['4', 4.459386705412041, 61.89969059133254, 6.448053162500682, 5.741419718006399, 4.58759932615774]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('mobile_chart_div'));
+        chart.draw(data, options);
+      }
+
+    function drawTabletChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml');
+data.addColumn('number', 'SJXP');
+
+        data.addRows([
+
+['1', 2.808355131127302, 41.19998995148725, 5.265999845098719, 4.471127605806691, 3.2549656900511446],
+['2', 3.7760722761427994, 56.689099096842824, 9.289035040035463, 7.928630708496687, 5.984694902484068],
+['3', 3.7462729340199994, 59.54930941243503, 9.301339793390131, 7.970383487927541, 5.957854290081462],
+['4', 3.6944918608450323, 58.9957330285963, 9.50247436158096, 8.08040954423548, 6.088092287251627]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('tablet_chart_div'));
+        chart.draw(data, options);
+      }
+
+      function drawUpdateChart() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml (pull)');
+data.addColumn('number', 'dsl4xml (SAX)');
+data.addColumn('number', 'SJXP');
+data.addColumn('number', 'SimpleXML');
+
+        data.addRows([
+
+['1',2.3990626431189757,43.064527743674304,3.5096192666862467,3.1076837111373043,29.861563321354247,2.4664573717826044,2.3909004146918598],
+['2',3.8097945346845243,69.65230695343173,6.033185779344725,5.719798415469687,54.390135966806106,4.19575915770385,3.927812341410011],
+['3',3.6368249512540114,71.39012835438209,5.537694525649179,4.886205168164367,58.04773944850799,3.8392278830888653,3.5690149046875117],
+['4',3.6586810559054896,78.02354281756789,5.476464455883683,4.989187889389914,60.89659425282844,4.014151778333453,3.6487355420874175]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('update_chart_div'));
+        chart.draw(data, options);
+
+      }
+</script>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=parse">parse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=unmarshall">unmarshall</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=comparison">comparison</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="comparing_methods_of_xml_parsing_in_android.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,266" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
               <a itemprop="url" href="dsl_for_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">DSL for XML parsing in Android</h1></a>
@@ -601,328 +1616,6 @@ Utils.setFontForAllTextViewsInHierarchy(vg, font);
 	        <a href="custom_fonts_in_android.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,211" description="Following a bug report from a user, this documents my efforts to track down and fix some Bitmap related issues in Android 2.1 (eclair), including the first SIGSEGV I've fallen victim to in Android.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-02-19">February 19, 2012</time></span>
-              <a itemprop="url" href="android_2_1_trouble_with_bitmaps.html"><h1 itemprop="name" itemprop="headline">Android 2.1 - trouble with bitmaps</h1></a>
-	      <span itemprop="articleBody"><p>I got the following mail from a user of my app:</p>
-
-<blockquote>
-  <p>Hi,</p>
-  
-  <p>Comic strip is a great app and i love it very much.
-  But there are couple of problem</p>
-  
-  <ol>
-  <li>It force close when i apply FX</li>
-  <li>When i preview the strip, the pictures turn out black</li>
-  </ol>
-  
-  <p>Please fix it
-  My handphone is samsung galaxy beam andriod 2.1</p>
-</blockquote>
-
-<p>This user has paid for the "pro" version. He also added the following comment in the market:</p>
-
-<blockquote>
-  <p>(2 stars) on February 18, 2012 (Samsung Galaxy Beam with version 1.5.0)
-  It force close when i fx the pics and the pics turn out blank in the preview page..
-  Will upgrade to 5 stars when fixed</p>
-</blockquote>
-
-<p>Interesting use of both carrot ("will upgrade to 5 stars"") and stick (current rating: 2 stars). I think the rating mechanism is pretty harsh on developers, but that's a topic for another post :)</p>
-
-<h3>Black images in preview</h3>
-
-<p>I started by looking into problem (2) - the black images in preview. This one sounded unusual - I've had no other reports of this problem at all.</p>
-
-<p>I set up an Android 2.1 device in my emulator and set about trying to replicate the issue. I allowed it a 24Mb heap per app, and started to look into the black images in preview.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-YVYANUbg_aU/T0DJhhXIbJI/AAAAAAAAI4o/Ur3jwiklV4Y/s800/Screen%2520Shot%25202012-02-19%2520at%252010.02.06.png" alt="Galaxy-Beam virtual device" /></p>
-
-<p>I was pretty surprised to see that there was indeed a problem. In all my testing using other Android API levels I hadn't encountered any such issue. Every time I tried to re-load one of the images for preview I saw the following error in log-cat:</p>
-
-<pre><code>Resolve uri failed on bad Bitmap uri: ...
-</code></pre>
-
-<p>The strange thing, of course, is that the uri was perfectly fine, works great in all API levels greater than 7, was created by the system using <code>Uri.fromFile(file)</code>, and is working fine even in API level 7 when I reload the image in the scene editor activity!</p>
-
-<h3>Fix for "resolve uri failed on bad bitmap uri"</h3>
-
-<p>Given that the scene-editor was able to load the image just fine, I compared the code I was using to load images in the scene-editor with the code in the preview-activity. I had the following:</p>
-
-<pre><code>// scene-editor-activity snippet - works fine!
-Bitmap _b = BitmapFactory.decodeStream(
-    rslv.openInputStream(aScene.getBackgroundUri()), null, _opts
-);
-_img.setImageBitmap(_b);
-
-// preview-activity snippet - fails with 'bad bitmap uri'
-ImageView _image = new ImageView(ctx);  
-_image.setImageURI(aScene.getBackgroundUri());
-</code></pre>
-
-<p>It seems that ImageView in Android versions less than 2.2 (API level 8) has a problem with directly resolving perfectly valid Bitmap uri's. </p>
-
-<p>In the scene-editor I was always resolving the <code>Uri</code> to an <code>InputStream</code> using <code>ContentResolver</code> (which you can obtain from the Activity with <code>getContentResolver()</code>), whilst in my preview activity I was simply expecting ImageView to resolve the uri.</p>
-
-<p>The fix for all Android versions was to use the slightly more laborious method of loading the Bitmap via <code>ContentResolver</code> and setting the <code>Bitmap</code> to the <code>ImageView</code>, like this:</p>
-
-<pre><code>// Resolve a uri to a Bitmap
-private Bitmap getImageBitmap(Uri aUri) {
-    try {
-        BitmapFactory.Options _opts = new BitmapFactory.Options();
-        _opts.inScaled = false;
-        _opts.inSampleSize = 1;
-        _opts.inPreferredConfig = config;
-
-        return BitmapFactory.decodeStream(
-            rslv.openInputStream(aUri), null, _opts
-        );
-    } catch (Exception anExc) {
-        L.e("loading bitmap", anExc);
-        return null;
-    }
-}
-
-// set a bitmap instead of a uri...
-_image.setImageBitmap(getImageBitmap(aScene));
-</code></pre>
-
-<p>If the Uri really resolves to a missing file then I'll still get black images, but this is only likely in fairly extreme circumstances, and at least the app doesn't crash :). I suppose a better solution would be to return the app icon in such cases.</p>
-
-<p>So to the next problem...</p>
-
-<h3>Force-Close while applying FX</h3>
-
-<p>My first guess was that this was going to be a VM budget issue. I've had them before, but with the v1.5.0 release I seemed to have largely solved them (no crash reports <em>at all</em> since). Here are some of the issues:</p>
-
-<ol>
-<li>Older Android devices only allow 16Mb to each running app. The generation of devices from about 2 years ago (e.g. original Motorola Droid) often allow 24Mb per app, which is still pretty small for dealing with large images. Current generation (e.g. Samsung Galaxy Mini and S2) allow 64Mb (yay!).</li>
-<li>One of the nice things about Android devices is the way in which they integrate with Google's eco-system. For example, the "Gallery" app on most devices shows images from your Picasa Web Albums, as well as photos taken directly on the device. Of course, this means that the phone has access to potentially very large images taken with a "real" camera.</li>
-<li>Many mobiles these days have 8MP camera's built in, therefore a single photo can be very large!</li>
-<li>The nature of my app (making comic strips from your own images) means that I am dealing with potentially many images at any given time. Applying FX requires at least two such images concurrently in-memory (the source, and the target). The finished strips are rendered as rows of 350x350 images, so the size of that final bitmap depends on how many frames you add to your strip.</li>
-</ol>
-
-<p>A quick investigation revealed that I wasn't exceeding the VM budget - nowhere near in fact: the app crashed frequently with the VM size still less than 7Mb. Switching back and forth between API levels 7 and 8 showed that this was definitely only a problem at API level 7 (Android 2.1). </p>
-
-<p>In 2.2 and above I can go through all of the FX several times over with no problems. In 2.1 the app usually crashes at the application of the second effect, but sometimes goes at the first or third attempt.</p>
-
-<h3>SIGSEGV while recycling Bitmap's</h3>
-
-<p>My app allows you to apply some image effects to the photos you select for each frame, to give a more comic-book feel. For example, you can apply a half-tone print effect, or a quantised and outlined "cartoon" effect.</p>
-
-<p>To process these effects I have to juggle multiple <code>Bitmap</code>'s and <code>Canvas</code>'s, and - because of the resource-constrained environment of a mobile device - clean up the memory that these objects were using as soon as they are no longer needed.</p>
-
-<p>To make the user-experience more friendly the FX are processed in a background thread. On the UI thread I show a dialog with a spinner to let the user know something is happening. This is nothing special - I'm using the <code>AsyncTask</code> class provided by the Android framework for exactly this purpose.</p>
-
-<p>In Android - pre Honeycomb - Bitmap memory is allocated off-heap by JNI calls in the Bitmap class. It doesn't gain you extra memory to play with in your VM - the bitmap pixel data is still counted within the total memory used by your app (witness the number of StackOverflow questions pertaining to Bitmap's and VM budget!). In Honeycomb the bitmap pixel data has <a href="http://www.youtube.com/watch?v=_CruQY55HOk">moved into the VM</a></p>
-
-<p>As soon as you're done with a Bitmap, you are supposed to let the Runtime know, by invoking <code>Bitmap.recycle()</code>, then null'ing the reference to the Bitmap. Fine, my app works great on API levels above 7 - no crashes, no warnings, no memory leaks. </p>
-
-<p>At API level 7 (Android 2.1) however, this is what happens:</p>
-
-<pre><code>02-19 09:41:19.710: I/DEBUG(28): *** *** *** *** *** *** *** *** *** 
-    *** *** *** *** *** *** ***
-02-19 09:41:19.710: I/DEBUG(28): Build fingerprint: 
-    'generic/sdk/generic/:2.1-update1/ECLAIR/35983:eng/test-keys'
-02-19 09:41:19.710: I/DEBUG(28): pid: 224, tid: 234  
-    &gt;&gt;&gt; com.roundwoodstudios.comicstripitpro &lt;&lt;&lt;
-02-19 09:41:19.710: I/DEBUG(28): signal 11 (SIGSEGV), fault addr 00000028
-02-19 09:41:19.720: I/DEBUG(28):  
-    r0 00000000  r1 0012715c  r2 00000000  r3 0012715c
-02-19 09:41:19.720: I/DEBUG(28):  
-    r4 00137e18  r5 0012719c  r6 00000000  r7 00000000
-02-19 09:41:19.720: I/DEBUG(28):  
-    r8 00000001  r9 00000000  10 00000000  fp 00000000
-02-19 09:41:19.720: I/DEBUG(28):  
-    ip ff000000  sp 47285c58  lr 00000000  pc ac065288  
-    cpsr 60000010
-02-19 09:41:19.840: I/DEBUG(28):  #00  pc 00065288  /system/lib/libskia.so
-02-19 09:41:19.840: I/DEBUG(28):  #01  pc 00065dcc  /system/lib/libskia.so
-02-19 09:41:19.840: I/DEBUG(28):  #02  pc 00064148  /system/lib/libskia.so
-02-19 09:41:19.840: I/DEBUG(28):  #03  pc 00041986  
-    /system/lib/libandroid_runtime.so
-02-19 09:41:19.850: I/DEBUG(28):  #04  pc 0000f1f4  /system/lib/libdvm.so
-02-19 09:41:19.850: I/DEBUG(28):  #05  pc 00037f90  /system/lib/libdvm.so
-02-19 09:41:19.850: I/DEBUG(28):  #06  pc 00031612  /system/lib/libdvm.so
-02-19 09:41:19.860: I/DEBUG(28):  #07  pc 00013f58  /system/lib/libdvm.so
-02-19 09:41:19.860: I/DEBUG(28):  #08  pc 00019888  /system/lib/libdvm.so
-02-19 09:41:19.860: I/DEBUG(28):  #09  pc 00018d5c  /system/lib/libdvm.so
-02-19 09:41:19.880: I/DEBUG(28):  #10  pc 0004d6d0  /system/lib/libdvm.so
-02-19 09:41:19.880: I/DEBUG(28):  #11  pc 0004d702  /system/lib/libdvm.so
-02-19 09:41:19.880: I/DEBUG(28):  #12  pc 00041c78  /system/lib/libdvm.so
-02-19 09:41:19.890: I/DEBUG(28):  #13  pc 00010000  /system/lib/libc.so
-02-19 09:41:19.890: I/DEBUG(28):  #14  pc 0000fad4  /system/lib/libc.so
-02-19 09:41:19.890: I/DEBUG(28): code around pc:
-02-19 09:41:19.890: I/DEBUG(28): ac065278 e1d4e2f4 e1d472f6 e5946004 e197200e 
-02-19 09:41:19.890: I/DEBUG(28): ac065288 e5969028 e596a024 0a00002e e59db00c 
-02-19 09:41:19.900: I/DEBUG(28): ac065298 e2848028 e1a0c008 e8bb000f e8ac000f 
-02-19 09:41:19.900: I/DEBUG(28): code around lr:
-02-19 09:41:19.900: I/DEBUG(28): stack:
-02-19 09:41:19.900: I/DEBUG(28):     47285c18  4001d001  
-    /dev/ashmem/mspace/dalvik-heap/zygote/0 (deleted)
-02-19 09:41:19.900: I/DEBUG(28):     47285c1c  ad04d21d  /system/lib/libdvm.so
-02-19 09:41:19.900: I/DEBUG(28):     47285c20  00000000  
-02-19 09:41:19.910: I/DEBUG(28):     47285c24  00010002  [heap]
-02-19 09:41:19.910: I/DEBUG(28):     47285c28  00010002  [heap]
-02-19 09:41:19.910: I/DEBUG(28):     47285c2c  418ab254  
-    /dev/ashmem/dalvik-LinearAlloc (deleted)
-02-19 09:41:19.910: I/DEBUG(28):     47285c30  0012a0f8  [heap]
-02-19 09:41:19.910: I/DEBUG(28):     47285c34  ad04d6d9  /system/lib/libdvm.so
-02-19 09:41:19.910: I/DEBUG(28):     47285c38  ad07ff50  /system/lib/libdvm.so
-02-19 09:41:19.910: I/DEBUG(28):     47285c3c  42ab4edd  
-    /data/dalvik-cache/system@framework@framework.jar@classes.dex
-02-19 09:41:19.910: I/DEBUG(28):     47285c40  47285c48  
-02-19 09:41:19.910: I/DEBUG(28):     47285c44  00000001  
-02-19 09:41:19.910: I/DEBUG(28):     47285c48  00000001  
-02-19 09:41:19.910: I/DEBUG(28):     47285c4c  00000007  
-02-19 09:41:19.910: I/DEBUG(28):     47285c50  df002777  
-02-19 09:41:19.920: I/DEBUG(28):     47285c54  e3a070ad  
-02-19 09:41:19.920: I/DEBUG(28): #00 47285c58  44ebe8a0  
-    /dev/ashmem/mspace/dalvik-heap/2 (deleted)
-02-19 09:41:19.920: I/DEBUG(28):     47285c5c  0012a0f8  [heap]
-02-19 09:41:19.920: I/DEBUG(28):     47285c60  418ab254  
-    /dev/ashmem/dalvik-LinearAlloc (deleted)
-02-19 09:41:19.920: I/DEBUG(28):     47285c64  00127174  [heap]
-02-19 09:41:19.920: I/DEBUG(28):     47285c68  47285c70  
-02-19 09:41:19.920: I/DEBUG(28):     47285c6c  47285cd4  
-02-19 09:41:19.930: I/DEBUG(28):     47285c70  000000f0  
-02-19 09:41:19.930: I/DEBUG(28):     47285c74  00127128  [heap]
-02-19 09:41:19.930: I/DEBUG(28):     47285c78  000000e4  
-02-19 09:41:19.930: I/DEBUG(28):     47285c7c  0012a0f8  [heap]
-02-19 09:41:19.930: I/DEBUG(28):     47285c80  00000001  
-02-19 09:41:19.930: I/DEBUG(28):     47285c84  00000007  
-02-19 09:41:19.930: I/DEBUG(28):     47285c88  00000001  
-02-19 09:41:19.941: I/DEBUG(28):     47285c8c  ad040a89  /system/lib/libdvm.so
-02-19 09:41:19.941: I/DEBUG(28):     47285c90  00000000  
-02-19 09:41:19.941: I/DEBUG(28):     47285c94  0012a0f8  [heap]
-02-19 09:41:19.941: I/DEBUG(28):     47285c98  ad07ecc0  /system/lib/libdvm.so
-02-19 09:41:19.941: I/DEBUG(28):     47285c9c  ad03775b  /system/lib/libdvm.so
-02-19 09:41:19.941: I/DEBUG(28):     47285ca0  ad037745  /system/lib/libdvm.so
-02-19 09:41:19.941: I/DEBUG(28):     47285ca4  47285d2c  
-02-19 09:41:19.941: I/DEBUG(28):     47285ca8  47285cd0  
-02-19 09:41:19.941: I/DEBUG(28):     47285cac  00127128  [heap]
-02-19 09:41:19.941: I/DEBUG(28):     47285cb0  00000000  
-02-19 09:41:19.941: I/DEBUG(28):     47285cb4  00000001  
-02-19 09:41:19.950: I/DEBUG(28):     47285cb8  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285cbc  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285cc0  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285cc4  ac065dd0  
-    /system/lib/libskia.so
-02-19 09:41:19.950: I/DEBUG(28): #01 47285cc8  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285ccc  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285cd0  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285cd4  afe0f2c0  /system/lib/libc.so
-02-19 09:41:19.950: I/DEBUG(28):     47285cd8  47285d28  
-02-19 09:41:19.950: I/DEBUG(28):     47285cdc  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285ce0  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285ce4  00000000  
-02-19 09:41:19.950: I/DEBUG(28):     47285ce8  00127128  [heap]
-02-19 09:41:19.960: I/DEBUG(28):     47285cec  afe0f3b0  /system/lib/libc.so
-02-19 09:41:19.960: I/DEBUG(28):     47285cf0  00000000  
-02-19 09:41:19.960: I/DEBUG(28):     47285cf4  afe0f2c0  /system/lib/libc.so
-02-19 09:41:19.960: I/DEBUG(28):     47285cf8  00000003  
-02-19 09:41:19.960: I/DEBUG(28):     47285cfc  afe3b9bc  
-02-19 09:41:19.960: I/DEBUG(28):     47285d00  00137e18  [heap]
-02-19 09:41:19.960: I/DEBUG(28):     47285d04  47285d2c  
-02-19 09:41:19.960: I/DEBUG(28):     47285d08  00127128  [heap]
-02-19 09:41:19.960: I/DEBUG(28):     47285d0c  00000003  
-02-19 09:41:19.960: I/DEBUG(28):     47285d10  ffffffff  
-02-19 09:41:19.960: I/DEBUG(28):     47285d14  47285d88  
-02-19 09:41:19.960: I/DEBUG(28):     47285d18  42f0cd88  
-02-19 09:41:19.970: I/DEBUG(28):     47285d1c  42f0cd74  
-02-19 09:41:19.980: I/DEBUG(28):     47285d20  0012a0f8  [heap]
-02-19 09:41:19.980: I/DEBUG(28):     47285d24  ac06414c  /system/lib/libskia.so
-02-19 09:41:21.230: D/Zygote(30): Process 224 terminated by signal (11)
-02-19 09:41:21.230: I/WindowManager(52): WIN DEATH: 
-    Window{44d330a0 Just a sec! paused=false}
-02-19 09:41:21.240: I/ActivityManager(52): Process 
-    com.roundwoodstudios.comicstripitpro (pid 224) has died.
-02-19 09:41:21.250: I/WindowManager(52): WIN DEATH: Window{44d72738
-    com.roundwoodstudios.comicstripitpro/
-        com.roundwoodstudios.comicstripit.SceneActivity paused=false}
-02-19 09:41:21.320: I/UsageStats(52): Unexpected resume of com.android.launcher 
-    while already resumed in com.roundwoodstudios.comicstripitpro
-</code></pre>
-
-<p>Yep, that's a seg-fault of the Dalvik VM triggered in the libskia library (Android's graphics lib), so I'm pretty screwed here - there's no catch and recover strategy for that! I've tried all sorts of things to try to work around it for Eclair, but so far no joy. </p>
-
-<p>I got quite a few hits on StackOverflow for similar problems. Most seemed to be related to calling recycle, but I often hit the problem even before I recycle - I get blow-outs when creating Bitmaps (and yes, I'm still well within the VM budget, and I even tried allowing a 64Mb heap per app).</p>
-
-<p>This looks like a monstrous bug in Android-2.1 to me. If I can't work around it I'll refund my user (he's a user of the paid version), but I doubt if that will lead to recovery of my previously 4.8 star rating.</p>
-
-<p>Did I mention that I thought the rating mechanism was pretty harsh on developers? :(</p>
-
-<h3>Update - a few hours later :)</h3>
-
-<p>After some more debugging, I isolated the problem and created the simplest re-construction possible. The following code crashes reliably under API level 7, but runs to completion under API level 8 or above:</p>
-
-<pre><code>package com.roundwoodstudios.bitmaptest;
-
-import android.app.Activity;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-
-public class BitmapActivity extends Activity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-
-        for (int i=0; i&lt;100; i++) {
-            Log.i("Bitmap Test", "Iteration: " + i);
-            Canvas _c = new Canvas();
-            _c.drawColor(Color.WHITE);
-        }
-    }
-}
-</code></pre>
-
-<p>When you look at it like that its fairly clear what's wrong: the canvas isn't really initialised properly yet - it doesn't know how large it is, for example. If I set a bitmap to it <em>first</em> it runs fine even under API level 7:</p>
-
-<pre><code>package com.roundwoodstudios.bitmaptest;
-
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-
-public class BitmapActivity extends Activity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-
-        for (int i=0; i&lt;100; i++) {
-            Log.i("Bitmap Test", "Iteration: " + i);
-            Canvas _c = new Canvas();
-            Bitmap _b = Bitmap.createBitmap(350, 350, Bitmap.Config.ARGB_8888);
-            _c.setBitmap(_b);
-            _c.drawColor(Color.WHITE);
-        }
-    }
-}
-</code></pre>
-
-<p>Phew, that's a relief :)</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclair">eclair</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=bitmap">bitmap</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=crash">crash</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=sigsegv">sigsegv</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="android_2_1_trouble_with_bitmaps.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -940,11 +1633,11 @@ public class BitmapActivity extends Activity {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
                 <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
                 <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
                 <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
-                <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

@@ -35,6 +35,136 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="806" description="A very quick how-to for setting up data-binding formatters in Spring ()3.1.x) MVC">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-10-01">October 01, 2012</time></span>
+              <a itemprop="url" href="configuring_global_data_binding_formatters_in_spring_mvc.html"><h1 itemprop="name" itemprop="headline">Configuring global data-binding formatters in Spring MVC</h1></a>
+	      <span itemprop="articleBody"><p>Here's a very quick how-to for configuring Spring-MVC (Spring 3.1.x) to use a global set of formatters for converting (data-binding) web-request and form parameters for use in Controllers, rather than having to have an <code>@InitBinder</code> annotated method in all your <code>@Controller</code>'s.</p>
+
+<p>In your spring-web configuration:</p>
+
+<pre><code>&lt;mvc:annotation-driven conversion-service="conversionService"/&gt;
+
+&lt;!-- just to show that we can wire other beans into our registrar --&gt;
+&lt;bean id="serviceA" class="com.sjl.myproject.ServiceA"/&gt;
+&lt;bean id="serviceB" class="com.sjl.myproject.ServiceB"/&gt;
+
+&lt;!-- Binding --&gt;    
+&lt;bean 
+  id="customFormatterRegistrar" 
+  class="com.sjl.myproject.web.config.CustomFormatterRegistrar"&gt;
+  &lt;constructor-arg ref="serviceA"/&gt;        
+  &lt;constructor-arg ref="serviceB"/&gt;
+&lt;/bean&gt;
+
+&lt;bean 
+  id="conversionService"
+  class="
+    org.springframework.format.support.FormattingConversionServiceFactoryBean"&gt;
+  &lt;property name="formatterRegistrars"&gt;
+    &lt;set&gt;
+      &lt;ref local="customFormatterRegistrar"/&gt;
+    &lt;/set&gt;
+  &lt;/property&gt;
+&lt;/bean&gt;
+</code></pre>
+
+<p>Be sure to add the "conversion-service" attribute (pointing at your conversionService bean) to the &lt;mvc:annotation-driven> element, otherwise it won't work!</p>
+
+<p>The CustomFormatterRegistrar class:</p>
+
+<pre><code>package com.sjl.myproject.web.config;
+
+import org.springframework.format.*;
+import com.sjl.myproject.*;
+
+public class CustomFormatterRegistrar implements FormatterRegistrar {
+    private ServiceA serviceA;
+    private ServiceB serviceB;      
+
+    // construct the registrar with other spring-beans as constructor args
+    public CustomFormatterRegistrar(
+        ServiceA aServiceA,
+        ServiceB aServiceB) {
+        serviceA = aServiceA;
+        serviceB = aServiceB;
+    }
+
+    @Override
+    public void registerFormatters(FormatterRegistry aRegistry) {
+        aRegistry.addFormatter(new SomeTypeFormatter(serviceA));
+        aRegistry.addFormatter(new OtherTypeFormatter(serviceB))
+    }
+}
+</code></pre>
+
+<p>An example formatter:</p>
+
+<pre><code>package com.sjl.myproject.web.config;
+
+import java.text.*;
+import java.util.*;
+
+import org.springframework.format.Formatter;
+
+import com.sjl.myproject.*;
+
+public class SomeTypeFormatter implements Formatter&amp;lt;SomeType&gt; {
+    private ServiceA serviceA;
+
+    public SomeTypeFormatter(ServiceA aServiceA) {
+        serviceA = aServiceA;
+    }
+
+    @Override
+    public String print(SomeType aSomeType, Locale aLocale) {
+        return aSomeType..; // produce some string-based identifier
+    }
+
+    @Override
+    public SomeType parse(String aText, Locale aLocale) throws ParseException {
+        return serviceA.lookupByNameOrIdOrSomething(aText);
+    }
+}
+</code></pre>
+
+<p>And a Controller that benefits from it:</p>
+
+<pre><code>package com.sjl.myproject.web.controllers;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.sjl.myproject.*;
+
+@Controller
+public class SomeController {
+    public static final String URL = "path/with/{param1}/and/{param2}";
+
+    @RequestMapping(SomeController.URL)
+    public String blah(
+        @PathVariable SomeType param1, 
+        @PathVariable OtherType param2) {
+
+        // .. do stuff with our typed params
+
+        return "view-name";
+    }
+}
+</code></pre>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=data-binding">data-binding</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=convert">convert</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=format">format</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="669" description="A useful mechanism for instantiating beans in spring configuration using other beans defined in that configuration as factories.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-14">September 14, 2012</time></span>
               <a itemprop="url" href="spring_config_for_parameterised_non_static_factory_methods.html"><h1 itemprop="name" itemprop="headline">Spring config for parameterised, non-static factory methods</h1></a>
@@ -901,65 +1031,6 @@ public class Home {
 	        <a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="635" description="My Android app has been live in Google Play for 6 months, but I'm still encountering strange bugs and behaviours, making big mistakes, and learning surprising things. The latest surprise has come with a recent flush of ICS users who's devices are putting more significant demands on my handling of the Activity lifecycle.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-06-18">June 18, 2012</time></span>
-              <a itemprop="url" href="android_activity_lifecycle_gotcha.html"><h1 itemprop="name" itemprop="headline">Android Activity Lifecycle Gotcha</h1></a>
-	      <span itemprop="articleBody"><p>My Android app has been live in Google Play for 6 months, but I'm still encountering strange bugs and behaviours, making big mistakes, and learning surprising things. The latest surprise has come with a recent flush of ICS users who's devices are putting more significant demands on my handling of the Activity lifecycle, specifically with relation to managing state.</p>
-
-<p>tl:dr; - beware when invoking <code>startActivityForResult</code> that onActivityResult is invoked <em>before</em> onResume!</p>
-
-<p>Before I get to the problems, lets have a quick look at the Activity lifecycle. I'm going to "borrow" google's lifecycle diagram:</p>
-
-<p><img src="http://developer.android.com/images/activity_lifecycle.png" alt="Android Activity Lifecycle" /></p>
-
-<p>Some important things to remember here are:</p>
-
-<ul>
-<li>Apps typically consist of <em>multiple</em> Activity's, and <em>each</em> Activity follows the above lifecycle while your app is running.</li>
-<li>When your Activity starts a <em>child</em> Activity (with <code>startActivity</code> or <code>startActivityForResult</code>), both the <code>onPause</code> and <code>onStop</code> lifecycle methods of the parent Activity <em>should</em> be called, in that order.</li>
-<li>When an Activity is invoked <em>as</em> a child Activity, its lifecycle will be completed by the time the parent Activity is fully in control again (at least <code>onCreate</code>, <code>onStart</code>, <code>onResume</code>, and <code>onPause</code> will have been invoked).</li>
-<li>Your Activity can be killed off <em>at any time</em> after its <code>onPause</code> has completed, without necessarily passing through <code>onStop</code> or <code>onDestroy</code>. It is critically important to remember that <em>this includes situations where your Activity is on the back-stack waiting for a result from a child Activity, or even when it is still visible but mostly covered by a dialog!</em></li>
-</ul>
-
-<p>With regard to the last point its worth familiarising yourself with <a href="http://developer.android.com/guide/topics/fundamentals/processes-and-threads.html">the way Android manages Processes</a>.</p>
-
-<h2>State, and the Application object</h2>
-
-<p>One simple way, you might think, to manage state without worrying too much about the <code>Activity</code> lifecycle is to use the Application object. Android allows you to specify your own class (<code>extends Application</code>), which your Activity's can access through <code>getApplication</code>.</p>
-
-<p>That's nice. It needs care though, since the process that your Application object lives in can be killed and restarted at (perhaps) unexpected junctures. Take this scenario:</p>
-
-<ol>
-<li>App A starts with Activity A1, which sets up some state in the Application object.</li>
-<li>Activity A1 starts Activity A2, which uses the state in the Application object.</li>
-<li>Activity A2 fires an <code>Intent</code> for Activity B1 of App B and expects some result (lets say we fired an <code>Intent</code> asking for an image to be captured by the camera app).</li>
-<li>App B starts, and launches Activity B1.</li>
-<li>Activity B1 is memory-heavy, so <em>the system shuts down App A (completely kills its process), even though it is on the back-stack waiting for a result</em>.</li>
-<li>Activity B1 returns, app A's Application object is created, Activity A2 is started again but Activity A1 never launched in the lifetime of this Application object so <em>does not get the opportunity to set up the state of the Application object</em>.</li>
-</ol>
-
-<p>The sequence diagram might look something like this:</p>
-
-<p><img src="https://lh3.googleusercontent.com/-5ObK6-kJmEw/T99trhVZyCI/AAAAAAAAKRU/70rljFQPRKE/s800/sequence-diagram.png" alt="seuqence diagram" /></p>
-
-<p>Clearly, if Activity A2 relies on A1 having run first to set up the application state, there's going to be trouble as soon as A2 starts trying to access that state after resuming from B2. <em>If you're going to use the Application object to manage state, make sure that it is set up as part of the Application's own lifecycle methods</em>.</p>
-
-<p>Now, the gotcha that's been hurting me is this: I assumed that onActivityResult would be invoked <em>after</em> onResume. Turns out this is not the case, and in fact onActivityResult was getting called long before my state was re-initialised in onResume. </p>
-
-<p>On my devices I never suffered from this because my process was not being killed and the state was still present in memory at the point when onActivityResult was invoked!</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Activity Lifecycle">Activity Lifecycle</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Large Heap">Large Heap</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Fragmentation">Fragmentation</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="android_activity_lifecycle_gotcha.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -977,11 +1048,11 @@ public class Home {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
                 <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
                 <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
                 <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
-                <li><a href="android_activity_lifecycle_gotcha.html">Android Activity Lifecycle Gotcha</a><span class="date"> - Jun 18, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
