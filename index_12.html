@@ -35,6 +35,131 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,771" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - Part 1">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-01-30">January 30, 2011</time></span>
+              <a itemprop="url" href="progressive_enhancement_with_gwt_part_1.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 1</h1></a>
+	      <span itemprop="articleBody"><p>This is the first part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a> and <a href="progressive_enhancement_with_gwt_part_3.html">part 3</a>.</p>
+
+<p>GWT Is a superb framework for developing complex, componentized html &amp; javascript widgets.  You can have your cake and eat it:</p>
+
+<ul>
+<li>Drop down into native javascript as and when you feel the need</li>
+<li>Integrate easily with native js components and libraries</li>
+<li>Use GWT components relatively easily from native javascript</li>
+<li>Create super-condensed, fast, platform-specific code, easily</li>
+<li>All the benefits of Java's static type-system, packages, and tooling to manage and refactor your code</li>
+<li>It is very tempting to go for an all-out GWT user-interface, which is great if what you want is a super-snazzy Rich-Internet-Application which packs down into very small and extremely cacheable js bundles that fetch data asynchronously from the server, and you don't mind re-compiling your user-interface to make even a very small change.</li>
+</ul>
+
+<p>It isn't so great when:</p>
+
+<ul>
+<li>You need to expose the content of your site for search-engines to index (The SEO Problem).</li>
+<li>You want to leverage the html and css skills of your UI designers, and to be able to generate more flexible layouts without requiring a re-compile (The Design Problem).</li>
+</ul>
+
+<h2>The SEO Problem</h2>
+
+<p>To a search engine, GWT apps just look like a big fat lump of dense javascript. Nothing to see here, move along. Its a similar problem for any web-app that uses ajax to collect data from the server, but the problem is magnified with GWT due to the fact that the entire application tends to present as a large lump of dense javascript, whereas many other ajax technologies typically involve some amount of server-side content rendering that can make the site at least partially visible to crawlers.</p>
+
+<p>Google have a recommendation for how to get around the problems of SEO for ajax applications, which entails a special url form and the creation of "html snapshots" - effectively a parallel, ajax-disabled site that the crawler can index. This seems to me to be a workable but irritating solution that involves doing a lot of extra work just to allow a search engine to crawl the site. Its effectively just a Google-approved cloaking method. Also it isn't clear to me whether any other search engines than Google support this approach.</p>
+
+<h2>The Design Problem</h2>
+
+<p>Don't get me wrong, its not as bad as all that. You can, of course, leverage your UI/UX designer's talents when building GWT apps. They can produce designs that the GWT developers base their components on, and with UIBinder the html fragments produced by a designer can be used in large chunks, but there is always some disconnect between what the designers produce and what is actually output by the application - usually because there is a developer translating the designer's work into GWT components.</p>
+
+<p>In retrospect, having built a number of "monolithic" GWT applications, it seems to me that what we're missing is a way to step back just a little from the "GWT does everything" mind-set, and instead to leverage GWT where it is best suited, and something a little more flexible where GWT can be too restrictive - for example when laying out high level components on a page it would be advantageous to be able to escape from the restrictions of having to compile that page layout into js, and instead work at the level of straight-forward declarative markup.</p>
+
+<h2>Introducing "GWT-Activated Pages"</h2>
+
+<p>How can we solve these two issues? One idea I've been toying with, is to use GWT for progressive enhancement of simple html + css, and goes as follows:</p>
+
+<p>Rather than try to build two almost parallel versions of your application (one for SEO, one for real users), why not build one with a layered approach that allows graceful degradation for browsers with javascript disabled (of which search-engines could be considered a sub-set).</p>
+
+<p>The base-layer that non-javascript browsers would render, and which search-engines would see, would be generated  by some typical server-side technology - php, jsp, struts, jfaces, ... take your pick. This would build a "wireframe" of your page, giving it a basic shape and layout, and filling in some starter content. The markup would ideally be meaningful, in the sense that headings would appear in <code>&lt;h1&gt;</code> tags to indicate that they are headings, rather than to give them any particular styling.</p>
+
+<p>This base layer would be something that designers could work on directly, including any and all css styling.</p>
+
+<p>The second layer would be a set of GWT widgets that "activate" or progressively enhance the page, by scanning the DOM for certain signs that denote activateable sections of markup. When the base page loads, GWT widgets search for elements to bind themselves to. When a widget finds such an element it binds to it and "activates" it. Activation could mean anything from completely changing the html markup, to binding event-listeners, to handling interaction with ajax data loading from the server.</p>
+
+<p>Here's a simple example "base" layer:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Page Header&lt;/h1&gt;
+    &lt;ol class="gwt-navigation-widget"&gt;
+      &lt;!-- the listitems are generated server side --&gt;
+      &lt;li&gt;&lt;a href=".."&gt;Home&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=".."&gt;News&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=".."&gt;Videos&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=".."&gt;Photos&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=".."&gt;About&lt;/a&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+    &lt;ol class="gwt-news-ticker-widget"&gt;
+      &lt;!-- the listitems are generated server side --&gt;
+      &lt;li&gt;News story 1&lt;/li&gt;
+      &lt;li&gt;News story 2&lt;/li&gt;
+      ...
+      &lt;!-- this last listitem gives a link that 
+               a search engine can follow to get more data --&gt;
+      &lt;li&gt;&lt;a href=".."&gt;older stories&lt;/a&gt;&lt;/li&gt;
+    &lt;/ol&gt;
+
+
+    &lt;script type="text/javascript" language="javascript" 
+                src="widgets/navigation-widget.js"&gt;&lt;/script&gt;
+    &lt;script type="text/javascript" language="javascript" 
+                src="widgets/news-ticker-widget.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>Notice the elements with css class-names prefixed with "gwt-". These are the signs that our gwt widgets will be looking for in order to know which elements they should activate.</p>
+
+<p>As you probably guessed, the navigation widget would detect any elements with a class-name matching "gwt-navigation-widget", while the news-ticker will search for "gwt-news-ticker-widget".</p>
+
+<p>OK, so what do we get for our troubles? Well, several things potentially:</p>
+
+<ul>
+<li>One request to the server to get our initial page full of data (rather than multiple widgets requesting async loading of little chunks of data)</li>
+<li>A page that contains the data and is search-engine friendly, allowing pages deep within your app to indexed by search-engines</li>
+<li>A very clear separation of widgets and page layout, allowing you more flexibility to change the page layout without GWT re-compile</li>
+<li>Flexibility in dividing work between designers and developers:
+<ul><li>designers can focus on the design-heavy html and css work, and the overall page layout</li>
+<li>developers can focus on interaction with the server, complex widget behaviour, etc.</li></ul></li>
+<li>Upon finding an element to bind to, the widget would:
+<ul><li>Examine the content of the element - this will very likely be the source of its initial configuration and/or data-set, and also might include some information about how to load more content, as in the news-ticker example whose last <li> is a link to "older stories". I'm sure it would be a good idea to make this even more explicit, but like I said this is supposed to be a simple example :)</li>
+<li>Replace or modify the content of the element - perhaps the widget displays a very complicated UI, so it removes the html and replaces it with something nifty that it generates, or maybe it just adds some decoration in the form of small visible changes, or perhaps it binds a bunch of event handlers to do neat tricks like adding gesture handling for touch-screen users. It seems that it would be perfectly possible to bind widgets inside widgets in this way, although at some point you would probably want to control the binding order such that an outer widget binds before an inner one. One way to do this might be to have a page-activator that seeks elements that want to be activated, and which all widgets are registered with. This could be described nicely as a Pattern.</li></ul></li>
+</ul>
+
+<p>In my simple example I showed the scripts being loaded separately, just for clarity, but I'm sure you wouldn't want to load each widget as a separate script - that would lose a good chunk of GWT's advantage. Rather, the whole widget-set could be loaded as one script, cached forever, and used all over.</p>
+
+<p>Now, if you want to see an example of GWT-activated pages at work, just take a look at my older post on <a href="3d_graphics_using_the_html5_canvas.html">rendering 3D Rubiks Cubes with GWT and HTML5 Canvas</a>, where the rubik's cubes are rendered by a gwt widget that "activates" a <code>&lt;div&gt;</code> element containing the configuration for the cube.</p>
+
+<p>OK, but what are the down-sides? Here's a few...</p>
+
+<ul>
+<li>Compiler no longer has visibility across the whole UI.</li>
+<li>Messaging between components becomes more difficult (but not impossible). This has its advantages too - it forces low coupling. Messaging via OpenAjax Hub or similar would be worth considering.</li>
+<li>It's more work - in some naive ways - than a straight-out GWT UI, and many would argue why bother to use GWT at all if you need SEO (depends on your skill-set and the complexity of the components you're building in my view).</li>
+<li>I'm sure that there are others which I'm currently blind to ... I need to try to build some more complex and interesting examples to find these out.</li>
+</ul>
+
+<p>tl;dr ?</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=seo">seo</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="progressive_enhancement_with_gwt_part_1.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="114" description="Some interesting tech books relating to scalability, domain specific languages, semantic web, REST, and continuous delivery.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-01-17">January 17, 2011</time></span>
               <a itemprop="url" href="reading_list_17_01_2011.html"><h1 itemprop="name" itemprop="headline">Reading List, 17-01-2011</h1></a>
@@ -219,34 +344,6 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
 	        <a href="amazing_trilobyte_fossils.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="252" description="some of my colour pencil sketches">
-              <span class="meta" itemprop="datePublished"><time datetime="2010-12-10">December 10, 2010</time></span>
-              <a itemprop="url" href="more_old_sketches.html"><h1 itemprop="name" itemprop="headline">More old sketches</h1></a>
-	      <span itemprop="articleBody"><p>Dug out a couple more old sketches.</p>
-
-<p>I remember sitting at the kitchen table at my old house when I started this first one, which means it pre-dates March 2007 when I moved. Its drawn from a photo I took on a holiday with friends in Scotland in 2004 I think. Contrary to an earlier post my pencils aren't Derwent Studio's (oops), I checked and they are in fact Faber Castell Polychromos, which have a lovely soft feel, on 220gsm A2 (594mm x 420mm) Windsor &amp; Newton heavyweight cartwridge paper.</p>
-
-<p>The whole back-end of the squirrel is missing - can't squeeze enough into my A4 scanner (A4 is 1/4 the size of A2). I attempted to stitch a second scan onto this one to complete the squirrel, but the join is very clear to see, and i just can't summon the energy to wrestle The Gimp into blending the two images together nicely.</p>
-
-<p><img src="http://3.bp.blogspot.com/_hG-kje6-TJM/TQOhuCbs6YI/AAAAAAAAAIk/sx5qWNJqn2w/s640/squirrel-face.jpg" alt="Red squirrel, colour pencil on A2, drawn from photo I took in Scotland in 2004." /></p>
-
-<p>The next one pre-date's the squirrel, but again was drawn at my old house, after my holiday in Mexico (where I took the picture its drawn from). That dates it somewhere between September 2002 and March 2007. My guess is 2004. Again its Faber-Castell colour-pencil on Windsor &amp; Newton A2, scanned by my A4 scanner so the legs (to the right of this section) and the tail (above this section) are cut off here.</p>
-
-<p><img src="http://3.bp.blogspot.com/_hG-kje6-TJM/TQOSoyEnndI/AAAAAAAAAIY/-HnE5NI3vn0/s600/jaguar.jpg" alt="Jaguar, colour pencil sketch" /></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=sketch">sketch</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=jaguar">jaguar</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=red squirrel">red squirrel</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pencil">pencil</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Faber Castell Polychromos">Faber Castell Polychromos</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="more_old_sketches.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -264,11 +361,11 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
                 <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
                 <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
                 <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
-                <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Setting up embedded Jetty 8 and Spring MVC with Maven</a><span class="date"> - Aug 25, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

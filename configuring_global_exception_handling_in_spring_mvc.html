@@ -1,0 +1,235 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="Spring" itemprop="keywords"></meta>
+      <meta name="keywords" content="MVC" itemprop="keywords"></meta>
+      <meta name="keywords" content="@RequestMapping" itemprop="keywords"></meta>
+      <meta name="keywords" content="data-binding" itemprop="keywords"></meta>
+      <meta name="keywords" content="exception handling" itemprop="keywords"></meta>
+    <meta name="description" content="A quick how-to for exception handling alternatives in Spring (3.1.x) MVC"></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Configuring global exception-handling in Spring MVC</title>
+  </head>
+  <body>
+    <div>
+      <div class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </div>
+      <div class="nav">
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="https://ssl.gstatic.com/images/icons/gplus-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </div>
+      <div class="content">
+        <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,033" description="A quick how-to for exception handling alternatives in Spring (3.1.x) MVC">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-10-05">October 05, 2012</time></span>
+              <a itemprop="url" href="configuring_global_exception_handling_in_spring_mvc.html"><h1 itemprop="name" itemprop="headline">Configuring global exception-handling in Spring MVC</h1></a>
+	      <span itemprop="articleBody"><p>It took a couple of hours to figure this out - the mighty Google and <em>even</em> StackOverflow let me down - in the end I had to actually read Spring's DispatcherServlet code! (I know, right!?)</p>
+
+<p>Here's the problem I was having - I'm using Spring MVC's data-binding tricks to inject objects into my <code>@Controller</code>'s methods like this: </p>
+
+<pre><code>@Controller
+@RequestMapping("things/{thing}.html")
+class MyController {
+    public ModelAndView thing(@PathVariable Thing aThing) {
+        // Thing should be magically mapped from 
+        // the {thing} part of the url
+
+        return new ModelAndView(..blah..);
+    }
+}
+</code></pre>
+
+<p>I have global <code>Formatter</code>'s configured as described in <a href="http://steveliles.github.com/configuring_global_data_binding_formatters_in_spring_mvc.html">my previous post</a>, and I want my method parameters to be automatically conjured from <code>@PathVariable</code>'s and so on. </p>
+
+<p>So far so good .. until I make a screw-up and parameter binding fails for any reason, at which point Spring's exception-handling kicks in. When that happens, Spring eats the exception and dumps me on the worlds shittiest error page saying:</p>
+
+<pre><code>HTTP ERROR 400
+Problem accessing /your/url/whatever.html. Reason:
+    Bad Request
+</code></pre>
+
+<p>Wow, thanks Spring!</p>
+
+<p>To blame here are Spring's default set of <code>HandlerExceptionResolver</code>'s, which are specified in <code>DispatcherServlet.properties</code> in the spring-webmvc jar. In 3.1.2 it says:</p>
+
+<pre><code>org.springframework.web.servlet.HandlerExceptionResolver=
+    org.springfr..AnnotationMethodHandlerExceptionResolver,
+    org.springfr..ResponseStatusExceptionResolver,
+    org.springfr..DefaultHandlerExceptionResolver
+</code></pre>
+
+<p>(I've shortened the package-names to keep things readable)</p>
+
+<p>Beats me why the default is to eat the exception without even logging it when Spring is normally so chatty about everything it does, but there you go. OK, so we need to configure some custom exception-handling so we can find out what's actually going wrong. There are two ways (that I know of) to do that:</p>
+
+<ol>
+<li>Use <code>@ExceptionHandler</code> annotated methods in our <code>@Controller</code>'s to handle exceptions on a per-controller basis (or across more than one <code>@Controller</code> if you have a hierarchy and implement the <code>@ExceptionHandler</code> method high-up in the hierarchy).</li>
+<li>Register a <code>HandlerExceptionResolver</code> implementation to deal with exceptions globally (ie. across all <code>@Controller</code>'s, regardless of hierarchy).</li>
+</ol>
+
+<h3>@ExceptionHandler</h3>
+
+<p>These bad-boys are straight-forward to use - just add a method in your <code>@Controller</code> and annotate it with <code>@ExceptionHandler(SomeException.class)</code> - something like this:</p>
+
+<pre><code>@Controller
+class MyExceptionalController {
+    @ExceptionHandler(Exception.class) 
+    public void handleExceptions(Exception anExc) {
+        anExc.printStackTrace(); // do something better than this ;)
+    }
+
+    @RequestMapping("/my/favourite/{thing}")
+    public void showThing(@PathVariable Thing aThing) {
+        throw new Exception("boom");
+    }
+}
+</code></pre>
+
+<p>That exception-handler method will now be triggered for any exceptions that occur while processing this controller - including any exceptions that occur while trying to format the Thing parameter.</p>
+
+<p>There's a bit more to it, for example you can parameterise the annotation with an array of exception-types. Shrug.</p>
+
+<p>Just for completeness its worth mentioning that when formatting/conversion fails the exception presented to the <code>@ExceptionHandler</code> will be a <code>TypeMismatchException</code>, possibly wrapping a <code>ConversionFailedException</code> which in turn would wrap any exception thrown by your <code>Formatter</code> classes.</p>
+
+<h3>Custom HandlerExceptionResolver</h3>
+
+<p>This is the better approach, IMHO: Set up a HandlerExceptionResolver to deal with exceptions across all <code>@Controller</code>'s and override with <code>@ExceptionHandler</code>'s if you have specific cases that need special handling.</p>
+
+<p>A deadly simple <code>HandlerExceptionResolver</code> might look like this:</p>
+
+<pre><code>package com.sjl.web;
+
+import org.springframework.core.*;
+import org.springframework.web.servlet.*
+
+public class LoggingHandlerExceptionResolver 
+implements HandlerExceptionResolver, Ordered {
+    public int getOrder() {
+        return Integer.MIN_VALUE; // we're first in line, yay!
+    }
+
+    public ModelAndView resolveException(
+        HttpServletRequest aReq, HttpServletResponse aRes,
+        Object aHandler, Exception anExc
+    ) {
+        anExc.printStackTrace(); // again, you can do better than this ;)
+        return null; // trigger other HandlerExceptionResolver's
+    }
+}
+</code></pre>
+
+<p>Two things worth pointing out here:</p>
+
+<ol>
+<li>We are implementing <code>Ordered</code> and returning <code>Integer.MIN_VALUE</code> - this puts us at the front of the queue for resolving exceptions (and ahead of the default). If we don't implement <code>Ordered</code> we won't see the exception before one of the default handlers grabs and handles it. The default handlers appear to be registered with orders of <code>Integer.MAX_VALUE</code>, so any int below that will do.</li>
+<li>We are returning <code>null</code> from the <code>resolveException</code> method - doing this means that the other handlers in the chain get a chance to deal with the exception. Alternatively we can return a <code>ModelAndView</code> if we want to (and if we know how to deal with this particular kind of exception), which will prevent handlers further down the chain from seeing the exception.</li>
+</ol>
+
+<p>There are some classes in Spring's <code>HandlerExceptionResolver</code> hierarchy that you might want to look at sub-classing - <code>AbstractHandlerMethodExceptionResolver</code> and <code>SimpleMappingExceptionResolver</code> are good ones to check first.</p>
+
+<p>Of course we need to make Spring's <code>DispatcherServlet</code> aware of our custom <code>HandlerExceptionResolver</code>. The only configuration we need is:</p>
+
+<pre><code>&lt;bean class="com.sjl.web.LoggingHandlerExceptionResolver"/&gt;
+</code></pre>
+
+<p>No really, that's it. </p>
+
+<p>There's an unusually high level of magic surrounding the <code>DispatcherServlet</code>, so although you must define your resolver as a bean in your spring config <em>you do not need to inject it into any other spring beans</em>. The <code>DispatcherServlet</code> will search for beans implementing the interface and automagically use them.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=@RequestMapping">@RequestMapping</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=data-binding">data-binding</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=exception handling">exception handling</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </div>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
+                <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
+                <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
+                <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="links">
+          
+          <div class="next"><a title="next" href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-bin...</a></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

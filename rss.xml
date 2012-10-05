@@ -13,6 +13,131 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Configuring global exception-handling in Spring MVC]]></title>
+        <link><![CDATA[http://steveliles.github.com/configuring_global_exception_handling_in_spring_mvc.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/configuring_global_exception_handling_in_spring_mvc.html</guid>
+        <description><![CDATA[<p>It took a couple of hours to figure this out - the mighty Google and <em>even</em> StackOverflow let me down - in the end I had to actually read Spring's DispatcherServlet code! (I know, right!?)</p>
+
+<p>Here's the problem I was having - I'm using Spring MVC's data-binding tricks to inject objects into my <code>@Controller</code>'s methods like this: </p>
+
+<pre><code>@Controller
+@RequestMapping("things/{thing}.html")
+class MyController {
+    public ModelAndView thing(@PathVariable Thing aThing) {
+        // Thing should be magically mapped from 
+        // the {thing} part of the url
+
+        return new ModelAndView(..blah..);
+    }
+}
+</code></pre>
+
+<p>I have global <code>Formatter</code>'s configured as described in <a href="http://steveliles.github.com/configuring_global_data_binding_formatters_in_spring_mvc.html">my previous post</a>, and I want my method parameters to be automatically conjured from <code>@PathVariable</code>'s and so on. </p>
+
+<p>So far so good .. until I make a screw-up and parameter binding fails for any reason, at which point Spring's exception-handling kicks in. When that happens, Spring eats the exception and dumps me on the worlds shittiest error page saying:</p>
+
+<pre><code>HTTP ERROR 400
+Problem accessing /your/url/whatever.html. Reason:
+    Bad Request
+</code></pre>
+
+<p>Wow, thanks Spring!</p>
+
+<p>To blame here are Spring's default set of <code>HandlerExceptionResolver</code>'s, which are specified in <code>DispatcherServlet.properties</code> in the spring-webmvc jar. In 3.1.2 it says:</p>
+
+<pre><code>org.springframework.web.servlet.HandlerExceptionResolver=
+    org.springfr..AnnotationMethodHandlerExceptionResolver,
+    org.springfr..ResponseStatusExceptionResolver,
+    org.springfr..DefaultHandlerExceptionResolver
+</code></pre>
+
+<p>(I've shortened the package-names to keep things readable)</p>
+
+<p>Beats me why the default is to eat the exception without even logging it when Spring is normally so chatty about everything it does, but there you go. OK, so we need to configure some custom exception-handling so we can find out what's actually going wrong. There are two ways (that I know of) to do that:</p>
+
+<ol>
+<li>Use <code>@ExceptionHandler</code> annotated methods in our <code>@Controller</code>'s to handle exceptions on a per-controller basis (or across more than one <code>@Controller</code> if you have a hierarchy and implement the <code>@ExceptionHandler</code> method high-up in the hierarchy).</li>
+<li>Register a <code>HandlerExceptionResolver</code> implementation to deal with exceptions globally (ie. across all <code>@Controller</code>'s, regardless of hierarchy).</li>
+</ol>
+
+<h3>@ExceptionHandler</h3>
+
+<p>These bad-boys are straight-forward to use - just add a method in your <code>@Controller</code> and annotate it with <code>@ExceptionHandler(SomeException.class)</code> - something like this:</p>
+
+<pre><code>@Controller
+class MyExceptionalController {
+    @ExceptionHandler(Exception.class) 
+    public void handleExceptions(Exception anExc) {
+        anExc.printStackTrace(); // do something better than this ;)
+    }
+
+    @RequestMapping("/my/favourite/{thing}")
+    public void showThing(@PathVariable Thing aThing) {
+        throw new Exception("boom");
+    }
+}
+</code></pre>
+
+<p>That exception-handler method will now be triggered for any exceptions that occur while processing this controller - including any exceptions that occur while trying to format the Thing parameter.</p>
+
+<p>There's a bit more to it, for example you can parameterise the annotation with an array of exception-types. Shrug.</p>
+
+<p>Just for completeness its worth mentioning that when formatting/conversion fails the exception presented to the <code>@ExceptionHandler</code> will be a <code>TypeMismatchException</code>, possibly wrapping a <code>ConversionFailedException</code> which in turn would wrap any exception thrown by your <code>Formatter</code> classes.</p>
+
+<h3>Custom HandlerExceptionResolver</h3>
+
+<p>This is the better approach, IMHO: Set up a HandlerExceptionResolver to deal with exceptions across all <code>@Controller</code>'s and override with <code>@ExceptionHandler</code>'s if you have specific cases that need special handling.</p>
+
+<p>A deadly simple <code>HandlerExceptionResolver</code> might look like this:</p>
+
+<pre><code>package com.sjl.web;
+
+import org.springframework.core.*;
+import org.springframework.web.servlet.*
+
+public class LoggingHandlerExceptionResolver 
+implements HandlerExceptionResolver, Ordered {
+    public int getOrder() {
+        return Integer.MIN_VALUE; // we're first in line, yay!
+    }
+
+    public ModelAndView resolveException(
+        HttpServletRequest aReq, HttpServletResponse aRes,
+        Object aHandler, Exception anExc
+    ) {
+        anExc.printStackTrace(); // again, you can do better than this ;)
+        return null; // trigger other HandlerExceptionResolver's
+    }
+}
+</code></pre>
+
+<p>Two things worth pointing out here:</p>
+
+<ol>
+<li>We are implementing <code>Ordered</code> and returning <code>Integer.MIN_VALUE</code> - this puts us at the front of the queue for resolving exceptions (and ahead of the default). If we don't implement <code>Ordered</code> we won't see the exception before one of the default handlers grabs and handles it. The default handlers appear to be registered with orders of <code>Integer.MAX_VALUE</code>, so any int below that will do.</li>
+<li>We are returning <code>null</code> from the <code>resolveException</code> method - doing this means that the other handlers in the chain get a chance to deal with the exception. Alternatively we can return a <code>ModelAndView</code> if we want to (and if we know how to deal with this particular kind of exception), which will prevent handlers further down the chain from seeing the exception.</li>
+</ol>
+
+<p>There are some classes in Spring's <code>HandlerExceptionResolver</code> hierarchy that you might want to look at sub-classing - <code>AbstractHandlerMethodExceptionResolver</code> and <code>SimpleMappingExceptionResolver</code> are good ones to check first.</p>
+
+<p>Of course we need to make Spring's <code>DispatcherServlet</code> aware of our custom <code>HandlerExceptionResolver</code>. The only configuration we need is:</p>
+
+<pre><code>&lt;bean class="com.sjl.web.LoggingHandlerExceptionResolver"/&gt;
+</code></pre>
+
+<p>No really, that's it. </p>
+
+<p>There's an unusually high level of magic surrounding the <code>DispatcherServlet</code>, so although you must define your resolver as a bean in your spring config <em>you do not need to inject it into any other spring beans</em>. The <code>DispatcherServlet</code> will search for beans implementing the interface and automagically use them.</p>
+]]></description>
+          <category>Spring</category>
+          <category>MVC</category>
+          <category>@RequestMapping</category>
+          <category>data-binding</category>
+          <category>exception handling</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Fri, 05 Oct 2012 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Configuring global data-binding formatters in Spring MVC]]></title>
         <link><![CDATA[http://steveliles.github.com/configuring_global_data_binding_formatters_in_spring_mvc.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/configuring_global_data_binding_formatters_in_spring_mvc.html</guid>
@@ -1330,7 +1455,7 @@ data.addColumn('number', 'SimpleXML');
 
 <p>Unfortunately I don't have a Motorola shit-hot-superphone-II (its always Motorola, why is that? Oh, occasionally its an HTC, but nearly always Motorola. Curse them). </p>
 
-<p>It works great on my Samsung's, including the Galaxy mini that cost £50 in Tesco. No new crash reports or freezes in my developer console. How in the living hells do you expect me to FIX IT or, for that matter, to refund you? <em>I do not know who you are</em> because Google anonymise you!</p>
+<p>It works great on my Samsung's, including the Galaxy mini that cost Â£50 in Tesco. No new crash reports or freezes in my developer console. How in the living hells do you expect me to FIX IT or, for that matter, to refund you? <em>I do not know who you are</em> because Google anonymise you!</p>
 
 <p>I don't blame these guys actually - they rightly expect the app to work, and equally they expect a commenting system to allow some kind of conversation. Unfortunately, the Android eco-system is fragmented to hell and back, bugs are a universal truth of software, and Play's commenting system does not allow threaded responses and does not give the developer access to the commenters identity.</p>
 
@@ -5254,68 +5379,6 @@ private int count(int anOffset, int[] aSurrounding) {
           <category>Vectorize</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 19 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Mortgage/Loan Overpayment Calculator]]></title>
-        <link><![CDATA[http://steveliles.github.com/mortgage_loan_overpayment_calculator.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/mortgage_loan_overpayment_calculator.html</guid>
-        <description><![CDATA[<p>A few weeks back I was talking with someone who was looking into over-paying a loan. The premise is that, provided your lender allows overpayments, by over-paying you can save a fortune in interest payments.</p>
-
-<p>The amount you can save isn't all that straight-forward to work out, due to the miracle that is compound interest. I knocked up a quick <a href="http://www.overpayment-calculator.com/">overpayment calculator</a> using <code>gwt.progressive</code>, which I'm <a href="hosting_a_static_website_in_amazon_s3.html">hosting at Amazon S3</a> with a <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">registered domain name</a>.</p>
-
-<p>Here's one of the classes that's being bound - or "activated" if you like - by gwt.progressive:</p>
-
-<pre><code>public class OverpaymentSummary extends Composite {
-    interface MyActivator extends WidgetActivator&amp;lt;OverpaymentSummary&gt;{}
-    MyActivator activator = GWT.create(MyActivator.class);
-
-    @RuntimeUiWidget(id="saving") InlineLabel saving;
-    @RuntimeUiWidget(id="years") InlineLabel years;
-    @RuntimeUiWidget(id="months") InlineLabel months;
-
-    public OverpaymentSummary(Element anElement) {
-        initWidget(activator.activate(this, anElement));
-    }
-
-    public void setResults(
-        Money aStandardTotal, int aStandardMonths, 
-        Money anOverpaidTotal, int anOverMonths) {
-        saving.setText(aStandardTotal.minus(anOverpaidTotal).toString());
-
-        int _monthsSaved = aStandardMonths - anOverMonths;
-        setYears(_monthsSaved/12);
-        setMonths(_monthsSaved - ((_monthsSaved/12)*12));
-
-        removeStyleName("hidden");
-    }
-
-    private void setYears(int aYears) {
-        years.setText(""+aYears);
-    }
-
-    private void setMonths(int aMonths) {
-        months.setText(""+aMonths);
-    }
-}
-</code></pre>
-
-<p>Which is bound onto html that looks like this:</p>
-
-<pre><code>&amp;lt;div class="summary hidden"&gt;By overpaying you could save
-&amp;lt;span id="saving"&gt;???&amp;lt;/span&gt;, and reduce your mortgage 
-term by &amp;lt;span id="years"&gt;?&amp;lt;/span&gt; years and 
-&amp;lt;span id="months"&gt;?&amp;lt;/span&gt; months!&amp;lt;/div&gt;
-</code></pre>
-
-<p>Notice the <code>&amp;lt;span&gt;</code> elements with the id's "saving", "years", and "months" - these are bound automatically to the three <code>InlineLabel</code>'s annotated with <code>@RuntimeUiWidget</code>.</p>
-]]></description>
-          <category>Mortgage</category>
-          <category>Loan</category>
-          <category>Overpayment</category>
-          <category>Calculator</category>
-          <category>GWT</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 17 Nov 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>
