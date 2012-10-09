@@ -100,7 +100,7 @@ class MyExceptionalController {
 
     @RequestMapping("/my/favourite/{thing}")
     public void showThing(@PathVariable Thing aThing) {
-        throw new Exception("boom");
+        throw new RuntimeException("boom");
     }
 }
 </code></pre>
