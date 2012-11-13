@@ -6,14 +6,15 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-      <meta name="keywords" content="java" itemprop="keywords"></meta>
-      <meta name="keywords" content="xml" itemprop="keywords"></meta>
-      <meta name="keywords" content="parse" itemprop="keywords"></meta>
-      <meta name="keywords" content="dsl" itemprop="keywords"></meta>
-      <meta name="keywords" content="perforamnce" itemprop="keywords"></meta>
-    <meta name="description" content="Just finished converting dsl4xml to work from either pull (fast for servers) or SAX (fast on Android). Here's the perforamnce chart..."></meta>
+      <meta name="keywords" content="ubuntu" itemprop="keywords"></meta>
+      <meta name="keywords" content="eclipse" itemprop="keywords"></meta>
+      <meta name="keywords" content="subversion" itemprop="keywords"></meta>
+      <meta name="keywords" content="javahl" itemprop="keywords"></meta>
+      <meta name="keywords" content="subclipse" itemprop="keywords"></meta>
+      <meta name="keywords" content="quantal" itemprop="keywords"></meta>
+    <meta name="description" content="Getting javahl subversion integration working with Eclipse, Subclipse and Ubuntu 12.10"></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>SAX based dsl4xml for Android</title>
+    <title>Subversion 1.7 Eclipse integration in Ubuntu 12</title>
   </head>
   <body>
     <div>
@@ -40,67 +41,49 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="400" description="Just finished converting dsl4xml to work from either pull (fast for servers) or SAX (fast on Android). Here's the perforamnce chart...">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-04-23">April 23, 2012</time></span>
-              <a itemprop="url" href="sax_based_dsl4xml_for_android.html"><h1 itemprop="name" itemprop="headline">SAX based dsl4xml for Android</h1></a>
-	      <span itemprop="articleBody"><p>I just checked in a <a href="https://github.com/steveliles/dsl4xml/blob/master/src/main/java/com/sjl/dsl4xml/SAXDocumentReader.java">SAX parser based version of dsl4xml</a> to github, and finally got a chance to run the perf tests on an Android device. This is how it looks:</p>
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="237" description="Getting javahl subversion integration working with Eclipse, Subclipse and Ubuntu 12.10">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
+              <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu_12.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu 12</h1></a>
+	      <span itemprop="articleBody"><p>Almost a year ago I <a href="http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html">posted</a> about getting Subclipse/Subversion/Eclipse/Javahl to play nicely together in Ubuntu 11.10. </p>
 
-<div style="width:590px; height:300px;" id="sax_dsl4xml_chart_div"></div>
+<p>Things have changed a little with Quantal Quetzal (notably that canonical have updated their repo's to support SVN 1.7.7 and that the libsvn-java installation has moved), so here's an updated note for getting Subversion 1.7.x integration working with Eclipse (3.7.x) and Subclipse 1.8.x on Ubuntu 12.10.</p>
 
-<p>Notice that while it loses about 15% on raw SAX parsing, it still provides approximately an order of magnitude greater throughpout than the next best (raw pull parsing). And of course, its damn easy to write <em>readable</em> unmarshalling code with :)</p>
+<p>I'm assuming you already have Eclipse and Subclipse installed (with all the optional extras). </p>
 
-<p>I also added SimpleXML parsing to my performance tests - it ties for last place (performance-wise) with W3C DOM parsing. Arguably it is more readable and requires less code than the others, though personally I'm not a huge fan.</p>
+<p>To use the native svn integration you will of course need subversion installed, so install Subversion from canonical's repo's - <code>sudo apt-get install subversion</code>.</p>
 
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawCharts);
+<p>You'll also need libsvn-java, to allow subclipse to talk to svn - <code>sudo apt-get install libsvn-java</code>.</p>
 
-      function drawCharts() {
-        drawSAXdsl4xmlChart();
-      }
+<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
 
-      function drawSAXdsl4xmlChart() {
+<p>You need to add <code>-Djava.library.path=/usr/lib/x86_64-linux-gnu/jni/</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
 
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Concurrency (threads)');
+<pre><code>-startup
+plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
+--launcher.library
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
+-showsplash
+org.eclipse.platform
+--launcher.XXMaxPermSize
+256m
+--launcher.defaultAction
+openFile
+-vmargs
+-Djava.library.path=/usr/lib/x86_64-linux-gnu/jni/
+-Xms40m
+-Xmx600m
+</code></pre>
 
-
-data.addColumn('number', 'W3C DOM');
-data.addColumn('number', 'SAX');
-data.addColumn('number', 'Pull');
-data.addColumn('number', 'dsl4xml (pull)');
-data.addColumn('number', 'dsl4xml (SAX)');
-data.addColumn('number', 'SJXP');
-data.addColumn('number', 'SimpleXML');
-
-        data.addRows([
-
-['1',2.3990626431189757,43.064527743674304,3.5096192666862467,3.1076837111373043,29.861563321354247,2.4664573717826044,2.3909004146918598],
-['2',3.8097945346845243,69.65230695343173,6.033185779344725,5.719798415469687,54.390135966806106,4.19575915770385,3.927812341410011],
-['3',3.6368249512540114,71.39012835438209,5.537694525649179,4.886205168164367,58.04773944850799,3.8392278830888653,3.5690149046875117],
-['4',3.6586810559054896,78.02354281756789,5.476464455883683,4.989187889389914,60.89659425282844,4.014151778333453,3.6487355420874175]
-        ]);
-
-        var options = {
-          title: 'Parsing Throughput (higher is better)',
-          hAxis: { title: 'Concurrency (threads)' },
-          vAxis: { title: 'Throughput (docs/sec)' }
-        };
-
-        var chart = new google.visualization.ColumnChart(document.getElementById('sax_dsl4xml_chart_div'));
-        chart.draw(data, options);
-
-      }
-</script>
+<p>If you use Subclipse but never previously installed Javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :).</p>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=parse">parse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dsl">dsl</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=perforamnce">perforamnce</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javahl">javahl</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subclipse">subclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=quantal">quantal</a></li>
               </ul>
               <div style="clear:both"></div>
 
@@ -152,7 +135,6 @@ data.addColumn('number', 'SimpleXML');
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
@@ -164,8 +146,8 @@ data.addColumn('number', 'SimpleXML');
       </div>
       <div class="nav">
         <div class="links">
-          <div class="prev"><a title="previous" href="minimum_viable_products.html">Minimum Viable Products</a></div>
-          <div class="next"><a title="next" href="android_market_comments_severe_fail.html">Android Market Comments - S...</a></div>
+          
+          <div class="next"><a title="next" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8...</a></div>
         </div>
       </div>
     </div>

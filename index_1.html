@@ -35,6 +35,132 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,000" description="Making asynchronous Java programming easier with Implicit Futures.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-09-09">September 09, 2012</time></span>
+              <a itemprop="url" href="implicit_future_s_aka_promises.html"><h1 itemprop="name" itemprop="headline">Implicit Future's, aka Promises</h1></a>
+	      <span itemprop="articleBody"><p><code>java.lang.concurrent.Future&amp;lt;T&gt;</code> is an example of an <em>explicit</em> future, where client code is well aware that the object it is handling is not a direct reference to the value of interest, and must invoke a method to obtain the value (<code>Future.get()</code> in the case of <code>java.lang.concurrent.Future</code>).</p>
+
+<p>That's all very well, but if you have collaborators that expect to deal with the value <code>T</code> you have limited options: </p>
+
+<p>You could invoke <code>get()</code> on your future, wait for it to be realised, then pass the realised value to the collaborators. This defeats the purpose of Future's, since what you really want is to do as much other work as possible before <code>future.get()</code> is called.</p>
+
+<p>Alternatively, you could modify the collaborators to know that they are dealing with a Future. But you don't really want to do that either - its an implementation detail that they should not be concerned with.</p>
+
+<p>What you really want is to pass around <em>implicit</em> futures that hide the fact that the object is anything other than a pojo. </p>
+
+<p>You can create implicit futures by wrapping an explicit <code>future&lt;T&gt;</code> in an implementation of interface <code>T</code> and delegating all of the methods to <code>future.get().xxx()</code>. Here's what that might look like:</p>
+
+<pre><code>// the type expected by client code
+interface ExpensiveToCompute {
+    public BigDecimal getValue1() throws Exception;
+    public BigInteger getValue2() throws Exception;
+}
+
+interface Computer {
+    public ExpensiveToCompute compute() throws Exception;
+}
+
+class SynchronousComputer {
+    public ExpensiveToCompute compute() throws Exception {
+        // ..
+    }
+}
+
+// the implicit future, delegating to an explicit future
+class ImplicitFutureExpensiveToCompute implements ExpensiveToCompute {
+    private Future&amp;lt;ExpensiveToCompute&gt; delegate;
+
+    public ImplicitFutureExpensiveToCompute(
+        Future&amp;lt;ExpensiveToCompute&gt; aDelegate) {
+        delegate = aDelegate;
+    }
+
+    public BigDecimal getValue1() throws Exception {
+        delegate.get().getValue1();
+    }
+
+    public BigInteger getValue2() throws Exception {
+        delegate.get().getValue2();
+    }
+}
+
+// the async version that returns implicit futures
+class AsynchronousComputer implements Computer {
+    private ExecutorService executor = ..;
+    private SynchronousComputer sync = ..;
+
+    public ExpensiveToCompute compute() throws Exception {
+        return new ImplicitFutureExpensiveToCompute(
+            executor.submit(new Callable&amp;lt;ExpensiveToCompute&gt;() {
+                public ExpensiveToCompute call() {
+                    return sync.compute();
+                }
+            }));
+    }
+}
+</code></pre>
+
+<p>Pretty straight-forward, although there's quite a bit of boiler-plate, and i've passed the buck on exception handling.</p>
+
+<p>This example is very simple, but things can get more involved if, for example, you want to use Future's overloaded <code>get(long timeout, TimeUnit units)</code> and handle timeouts appropriately (say, by returning a default value).</p>
+
+<p>What if, instead of all this, you could pass your current synchronous implementation through some machinery that converted appropriately annotated methods to run asynchronously and return implicit futures, without the chore of having to create those classes yourself?</p>
+
+<p>It might look like this:</p>
+
+<pre><code>// the type expected by client code
+interface ExpensiveToCompute {
+    public BigDecimal getValue1() throws Exception;
+    public BigInteger getValue2() throws Exception;
+}
+
+interface Computer {
+    @ComputationallyExpensive
+    public ExpensiveToCompute compute() throws Exception;
+}
+
+
+// the synchronous implementation - exact same as before
+class SynchronousComputer implements Computer{
+    public ExpensiveToCompute compute() throws Exception {
+        // ..
+    }
+}
+
+// the async version, returning implicit futures
+class AsynchronousComputer implements Computer {
+    private Computer async;
+
+    public AsynchronousComputer(
+        AsyncificationService anAsyncifier, Computer aDelegate) {
+        async = anAsyncifier.makeAsync(aDelegate);
+    }
+
+    public ExpensiveToCompute doSomething() {
+        return async.doSomething();
+    }
+}
+</code></pre>
+
+<p>This time we didn't need to create the implicit future implementation, cutting a whole lot of boiler-plate, and the async implementation got a fair bit simpler too. We marked the expensive method with an annotation so that the <code>AsyncificationService</code> knew to work its magic on that method.</p>
+
+<p>There's a lot more useful stuff we can do when we have the machinery for converting synchronous methods to asynchronous methods that return implicit futures. For example we can transparently handle exceptions and return default values, or we can impose timeouts and return default values if we don't get a result in time, etc., etc.</p>
+
+<p>If you want to see how we might implement such machinery, or want to try using it, fork the code for <a href="https://github.com/steveliles/implicit-futures">Implicit-Futures</a> from github.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threads">Threads</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Concurrency">Concurrency</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Future">Future</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Promise">Promise</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="implicit_future_s_aka_promises.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,297" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-09-07">September 07, 2012</time></span>
               <a itemprop="url" href="dynamic_proxies_in_java.html"><h1 itemprop="name" itemprop="headline">Dynamic Proxies in Java</h1></a>
@@ -399,73 +525,6 @@ implements InstrumentationService {
 	        <a href="minimum_viable_products.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="400" description="Just finished converting dsl4xml to work from either pull (fast for servers) or SAX (fast on Android). Here's the perforamnce chart...">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-04-23">April 23, 2012</time></span>
-              <a itemprop="url" href="sax_based_dsl4xml_for_android.html"><h1 itemprop="name" itemprop="headline">SAX based dsl4xml for Android</h1></a>
-	      <span itemprop="articleBody"><p>I just checked in a <a href="https://github.com/steveliles/dsl4xml/blob/master/src/main/java/com/sjl/dsl4xml/SAXDocumentReader.java">SAX parser based version of dsl4xml</a> to github, and finally got a chance to run the perf tests on an Android device. This is how it looks:</p>
-
-<div style="width:590px; height:300px;" id="sax_dsl4xml_chart_div"></div>
-
-<p>Notice that while it loses about 15% on raw SAX parsing, it still provides approximately an order of magnitude greater throughpout than the next best (raw pull parsing). And of course, its damn easy to write <em>readable</em> unmarshalling code with :)</p>
-
-<p>I also added SimpleXML parsing to my performance tests - it ties for last place (performance-wise) with W3C DOM parsing. Arguably it is more readable and requires less code than the others, though personally I'm not a huge fan.</p>
-
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript">
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawCharts);
-
-      function drawCharts() {
-        drawSAXdsl4xmlChart();
-      }
-
-      function drawSAXdsl4xmlChart() {
-
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Concurrency (threads)');
-
-
-data.addColumn('number', 'W3C DOM');
-data.addColumn('number', 'SAX');
-data.addColumn('number', 'Pull');
-data.addColumn('number', 'dsl4xml (pull)');
-data.addColumn('number', 'dsl4xml (SAX)');
-data.addColumn('number', 'SJXP');
-data.addColumn('number', 'SimpleXML');
-
-        data.addRows([
-
-['1',2.3990626431189757,43.064527743674304,3.5096192666862467,3.1076837111373043,29.861563321354247,2.4664573717826044,2.3909004146918598],
-['2',3.8097945346845243,69.65230695343173,6.033185779344725,5.719798415469687,54.390135966806106,4.19575915770385,3.927812341410011],
-['3',3.6368249512540114,71.39012835438209,5.537694525649179,4.886205168164367,58.04773944850799,3.8392278830888653,3.5690149046875117],
-['4',3.6586810559054896,78.02354281756789,5.476464455883683,4.989187889389914,60.89659425282844,4.014151778333453,3.6487355420874175]
-        ]);
-
-        var options = {
-          title: 'Parsing Throughput (higher is better)',
-          hAxis: { title: 'Concurrency (threads)' },
-          vAxis: { title: 'Throughput (docs/sec)' }
-        };
-
-        var chart = new google.visualization.ColumnChart(document.getElementById('sax_dsl4xml_chart_div'));
-        chart.draw(data, options);
-
-      }
-</script>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=parse">parse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dsl">dsl</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=perforamnce">perforamnce</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="sax_based_dsl4xml_for_android.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -483,11 +542,11 @@ data.addColumn('number', 'SimpleXML');
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
                 <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
-                <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

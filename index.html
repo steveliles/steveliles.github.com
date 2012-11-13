@@ -35,6 +35,55 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="237" description="Getting javahl subversion integration working with Eclipse, Subclipse and Ubuntu 12.10">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
+              <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu_12.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu 12</h1></a>
+	      <span itemprop="articleBody"><p>Almost a year ago I <a href="http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html">posted</a> about getting Subclipse/Subversion/Eclipse/Javahl to play nicely together in Ubuntu 11.10. </p>
+
+<p>Things have changed a little with Quantal Quetzal (notably that canonical have updated their repo's to support SVN 1.7.7 and that the libsvn-java installation has moved), so here's an updated note for getting Subversion 1.7.x integration working with Eclipse (3.7.x) and Subclipse 1.8.x on Ubuntu 12.10.</p>
+
+<p>I'm assuming you already have Eclipse and Subclipse installed (with all the optional extras). </p>
+
+<p>To use the native svn integration you will of course need subversion installed, so install Subversion from canonical's repo's - <code>sudo apt-get install subversion</code>.</p>
+
+<p>You'll also need libsvn-java, to allow subclipse to talk to svn - <code>sudo apt-get install libsvn-java</code>.</p>
+
+<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
+
+<p>You need to add <code>-Djava.library.path=/usr/lib/x86_64-linux-gnu/jni/</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
+
+<pre><code>-startup
+plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
+--launcher.library
+plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
+-showsplash
+org.eclipse.platform
+--launcher.XXMaxPermSize
+256m
+--launcher.defaultAction
+openFile
+-vmargs
+-Djava.library.path=/usr/lib/x86_64-linux-gnu/jni/
+-Xms40m
+-Xmx600m
+</code></pre>
+
+<p>If you use Subclipse but never previously installed Javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :).</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javahl">javahl</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subclipse">subclipse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=quantal">quantal</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="967" description="Setting up embedded Jetty with Spring-MVC and xml configuration is straight-forward. Setting up the same configuration with zero xml proved to be much more tricky!">
               <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
               <a itemprop="url" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html"><h1 itemprop="name" itemprop="headline">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</h1></a>
@@ -536,132 +585,6 @@ class Factory {
 	        <a href="spring_config_for_parameterised_non_static_factory_methods.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,000" description="Making asynchronous Java programming easier with Implicit Futures.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-09-09">September 09, 2012</time></span>
-              <a itemprop="url" href="implicit_future_s_aka_promises.html"><h1 itemprop="name" itemprop="headline">Implicit Future's, aka Promises</h1></a>
-	      <span itemprop="articleBody"><p><code>java.lang.concurrent.Future&amp;lt;T&gt;</code> is an example of an <em>explicit</em> future, where client code is well aware that the object it is handling is not a direct reference to the value of interest, and must invoke a method to obtain the value (<code>Future.get()</code> in the case of <code>java.lang.concurrent.Future</code>).</p>
-
-<p>That's all very well, but if you have collaborators that expect to deal with the value <code>T</code> you have limited options: </p>
-
-<p>You could invoke <code>get()</code> on your future, wait for it to be realised, then pass the realised value to the collaborators. This defeats the purpose of Future's, since what you really want is to do as much other work as possible before <code>future.get()</code> is called.</p>
-
-<p>Alternatively, you could modify the collaborators to know that they are dealing with a Future. But you don't really want to do that either - its an implementation detail that they should not be concerned with.</p>
-
-<p>What you really want is to pass around <em>implicit</em> futures that hide the fact that the object is anything other than a pojo. </p>
-
-<p>You can create implicit futures by wrapping an explicit <code>future&lt;T&gt;</code> in an implementation of interface <code>T</code> and delegating all of the methods to <code>future.get().xxx()</code>. Here's what that might look like:</p>
-
-<pre><code>// the type expected by client code
-interface ExpensiveToCompute {
-    public BigDecimal getValue1() throws Exception;
-    public BigInteger getValue2() throws Exception;
-}
-
-interface Computer {
-    public ExpensiveToCompute compute() throws Exception;
-}
-
-class SynchronousComputer {
-    public ExpensiveToCompute compute() throws Exception {
-        // ..
-    }
-}
-
-// the implicit future, delegating to an explicit future
-class ImplicitFutureExpensiveToCompute implements ExpensiveToCompute {
-    private Future&amp;lt;ExpensiveToCompute&gt; delegate;
-
-    public ImplicitFutureExpensiveToCompute(
-        Future&amp;lt;ExpensiveToCompute&gt; aDelegate) {
-        delegate = aDelegate;
-    }
-
-    public BigDecimal getValue1() throws Exception {
-        delegate.get().getValue1();
-    }
-
-    public BigInteger getValue2() throws Exception {
-        delegate.get().getValue2();
-    }
-}
-
-// the async version that returns implicit futures
-class AsynchronousComputer implements Computer {
-    private ExecutorService executor = ..;
-    private SynchronousComputer sync = ..;
-
-    public ExpensiveToCompute compute() throws Exception {
-        return new ImplicitFutureExpensiveToCompute(
-            executor.submit(new Callable&amp;lt;ExpensiveToCompute&gt;() {
-                public ExpensiveToCompute call() {
-                    return sync.compute();
-                }
-            }));
-    }
-}
-</code></pre>
-
-<p>Pretty straight-forward, although there's quite a bit of boiler-plate, and i've passed the buck on exception handling.</p>
-
-<p>This example is very simple, but things can get more involved if, for example, you want to use Future's overloaded <code>get(long timeout, TimeUnit units)</code> and handle timeouts appropriately (say, by returning a default value).</p>
-
-<p>What if, instead of all this, you could pass your current synchronous implementation through some machinery that converted appropriately annotated methods to run asynchronously and return implicit futures, without the chore of having to create those classes yourself?</p>
-
-<p>It might look like this:</p>
-
-<pre><code>// the type expected by client code
-interface ExpensiveToCompute {
-    public BigDecimal getValue1() throws Exception;
-    public BigInteger getValue2() throws Exception;
-}
-
-interface Computer {
-    @ComputationallyExpensive
-    public ExpensiveToCompute compute() throws Exception;
-}
-
-
-// the synchronous implementation - exact same as before
-class SynchronousComputer implements Computer{
-    public ExpensiveToCompute compute() throws Exception {
-        // ..
-    }
-}
-
-// the async version, returning implicit futures
-class AsynchronousComputer implements Computer {
-    private Computer async;
-
-    public AsynchronousComputer(
-        AsyncificationService anAsyncifier, Computer aDelegate) {
-        async = anAsyncifier.makeAsync(aDelegate);
-    }
-
-    public ExpensiveToCompute doSomething() {
-        return async.doSomething();
-    }
-}
-</code></pre>
-
-<p>This time we didn't need to create the implicit future implementation, cutting a whole lot of boiler-plate, and the async implementation got a fair bit simpler too. We marked the expensive method with an annotation so that the <code>AsyncificationService</code> knew to work its magic on that method.</p>
-
-<p>There's a lot more useful stuff we can do when we have the machinery for converting synchronous methods to asynchronous methods that return implicit futures. For example we can transparently handle exceptions and return default values, or we can impose timeouts and return default values if we don't get a result in time, etc., etc.</p>
-
-<p>If you want to see how we might implement such machinery, or want to try using it, fork the code for <a href="https://github.com/steveliles/implicit-futures">Implicit-Futures</a> from github.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threads">Threads</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Concurrency">Concurrency</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Future">Future</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Promise">Promise</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="implicit_future_s_aka_promises.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -679,11 +602,11 @@ class AsynchronousComputer implements Computer {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
                 <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
-                <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
