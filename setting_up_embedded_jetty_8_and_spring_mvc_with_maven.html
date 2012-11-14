@@ -40,12 +40,12 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,847" description="Jetty embedded with Spring MVC is a great combination for building self-hosting web-apps of all kinds which are easy to maintain and deploy. Setting up is also easy (particularly if you use Maven), as you'll see in this post.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,991" description="Jetty embedded with Spring MVC is a great combination for building self-hosting web-apps of all kinds which are easy to maintain and deploy. Setting up is also easy (particularly if you use Maven), as you'll see in this post.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-08-25">August 25, 2012</time></span>
               <a itemprop="url" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html"><h1 itemprop="name" itemprop="headline">Setting up embedded Jetty 8 and Spring MVC with Maven</h1></a>
-	      <span itemprop="articleBody"><p>This is intended to be the first post in a series on building straight-forward web-apps with Spring-MVC and embedded Jetty.</p>
+	      <span itemprop="articleBody"><p>This is intended to be the first post in a series on building straight-forward web-apps with Spring-MVC and embedded Jetty. You can check out the complete source of this simple project from <a href="https://github.com/steveliles/jetty-embedded-spring-mvc">github</a>.</p>
 
-<p>You can check out the complete source of this simple project from <a href="https://github.com/steveliles/jetty-embedded-spring-mvc">github</a>.</p>
+<p>This post describes configuring your Jetty and Spring MVC with XML-based configuration. If you want to use annotations/java-config take a look at <a href="http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">this post</a>.</p>
 
 <p>Its been a while since I last posted. I've been busy starting up two big projects at work, one using Google App Engine (and Spring MVC ;)), the other using Jetty 8 (embedded), Spring MVC, MongoDB and ElasticSearch.</p>
 
@@ -59,115 +59,115 @@
 
 <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;project 
-   xsi:schemaLocation="
-     http://maven.apache.org/POM/4.0.0 
-     http://maven.apache.org/xsd/maven-4.0.0.xsd" 
-     xmlns="http://maven.apache.org/POM/4.0.0" 
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
-  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+ xsi:schemaLocation="
+ http://maven.apache.org/POM/4.0.0 
+ http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+ xmlns="http://maven.apache.org/POM/4.0.0" 
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
 
-  &lt;groupId&gt;com.sjl&lt;/groupId&gt;
-  &lt;artifactId&gt;webapp&lt;/artifactId&gt;
-  &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-  &lt;name&gt;WebApp&lt;/name&gt;
-  &lt;description&gt;&lt;/description&gt;
+&lt;groupId&gt;com.sjl&lt;/groupId&gt;
+&lt;artifactId&gt;webapp&lt;/artifactId&gt;
+&lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+&lt;name&gt;WebApp&lt;/name&gt;
+&lt;description&gt;&lt;/description&gt;
 
-  &lt;repositories&gt;
-    &lt;repository&gt;
-      &lt;id&gt;springsource-repo&lt;/id&gt;
-      &lt;name&gt;SpringSource Repository&lt;/name&gt;
-      &lt;url&gt;http://repo.springsource.org/release&lt;/url&gt;
-    &lt;/repository&gt;
-  &lt;/repositories&gt;
+&lt;repositories&gt;
+  &lt;repository&gt;
+    &lt;id&gt;springsource-repo&lt;/id&gt;
+    &lt;name&gt;SpringSource Repository&lt;/name&gt;
+    &lt;url&gt;http://repo.springsource.org/release&lt;/url&gt;
+  &lt;/repository&gt;
+&lt;/repositories&gt;
 
-  &lt;properties&gt;
-    &lt;jetty.version&gt;8.1.5.v20120716&lt;/jetty.version&gt;
-    &lt;jetty.jsp.version&gt;8.1.4.v20120524&lt;/jetty.jsp.version&gt;
-    &lt;spring.version&gt;3.1.2.RELEASE&lt;/spring.version&gt;
-  &lt;/properties&gt;
+&lt;properties&gt;
+  &lt;jetty.version&gt;8.1.5.v20120716&lt;/jetty.version&gt;
+  &lt;jetty.jsp.version&gt;8.1.4.v20120524&lt;/jetty.jsp.version&gt;
+  &lt;spring.version&gt;3.1.2.RELEASE&lt;/spring.version&gt;
+&lt;/properties&gt;
 
-  &lt;build&gt;
-    &lt;plugins&gt;
-      &lt;plugin&gt;
-        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-        &lt;artifactId&gt;maven-source-plugin&lt;/artifactId&gt;
-        &lt;version&gt;2.1.2&lt;/version&gt;
-        &lt;executions&gt;
-          &lt;execution&gt;
-            &lt;id&gt;attach-sources&lt;/id&gt;
-            &lt;phase&gt;verify&lt;/phase&gt;
-            &lt;goals&gt;
-              &lt;goal&gt;jar-no-fork&lt;/goal&gt;
-            &lt;/goals&gt;
-          &lt;/execution&gt;
-        &lt;/executions&gt;
-      &lt;/plugin&gt;
-      &lt;plugin&gt;
-         &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
-         &lt;version&gt;2.3.2&lt;/version&gt;
-         &lt;configuration&gt;
-           &lt;source&gt;1.6&lt;/source&gt;
-           &lt;target&gt;1.6&lt;/target&gt;
-         &lt;/configuration&gt;
-      &lt;/plugin&gt;
-      &lt;plugin&gt; 
-        &lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt; 
-        &lt;configuration&gt; 
-          &lt;downloadSources&gt;true&lt;/downloadSources&gt;
-        &lt;/configuration&gt; 
-      &lt;/plugin&gt; 
-    &lt;/plugins&gt;    
-  &lt;/build&gt;
+&lt;build&gt;
+  &lt;plugins&gt;
+    &lt;plugin&gt;
+      &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+      &lt;artifactId&gt;maven-source-plugin&lt;/artifactId&gt;
+      &lt;version&gt;2.1.2&lt;/version&gt;
+      &lt;executions&gt;
+        &lt;execution&gt;
+          &lt;id&gt;attach-sources&lt;/id&gt;
+          &lt;phase&gt;verify&lt;/phase&gt;
+          &lt;goals&gt;
+            &lt;goal&gt;jar-no-fork&lt;/goal&gt;
+          &lt;/goals&gt;
+        &lt;/execution&gt;
+      &lt;/executions&gt;
+    &lt;/plugin&gt;
+    &lt;plugin&gt;
+      &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+      &lt;version&gt;2.3.2&lt;/version&gt;
+      &lt;configuration&gt;
+        &lt;source&gt;1.6&lt;/source&gt;
+        &lt;target&gt;1.6&lt;/target&gt;
+      &lt;/configuration&gt;
+    &lt;/plugin&gt;
+    &lt;plugin&gt; 
+      &lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt; 
+      &lt;configuration&gt; 
+        &lt;downloadSources&gt;true&lt;/downloadSources&gt;
+      &lt;/configuration&gt; 
+    &lt;/plugin&gt; 
+  &lt;/plugins&gt;    
+&lt;/build&gt;
 
-  &lt;dependencies&gt;
+&lt;dependencies&gt;
 
-    &lt;!-- SPRING DEPENDENCIES --&gt;
-    &lt;dependency&gt;
-      &lt;groupId&gt;org.springframework&lt;/groupId&gt;
-      &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
-      &lt;version&gt;${spring.version}&lt;/version&gt;
-    &lt;/dependency&gt; 
-    &lt;dependency&gt;
-      &lt;groupId&gt;org.springframework&lt;/groupId&gt;
-      &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;
-      &lt;version&gt;${spring.version}&lt;/version&gt;
-    &lt;/dependency&gt;
+  &lt;!-- SPRING DEPENDENCIES --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+    &lt;version&gt;${spring.version}&lt;/version&gt;
+  &lt;/dependency&gt; 
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;
+    &lt;version&gt;${spring.version}&lt;/version&gt;
+  &lt;/dependency&gt;
 
-    &lt;!-- JETTY DEPENDENCIES --&gt;
-    &lt;dependency&gt;
-      &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-      &lt;artifactId&gt;jetty-server&lt;/artifactId&gt;
-      &lt;version&gt;${jetty.version}&lt;/version&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-      &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-      &lt;artifactId&gt;jetty-servlet&lt;/artifactId&gt;
-      &lt;version&gt;${jetty.version}&lt;/version&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-      &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-      &lt;artifactId&gt;jetty-webapp&lt;/artifactId&gt;
-      &lt;version&gt;${jetty.version}&lt;/version&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-      &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-      &lt;artifactId&gt;jetty-servlets&lt;/artifactId&gt;
-      &lt;version&gt;${jetty.version}&lt;/version&gt;
-    &lt;/dependency&gt;
+  &lt;!-- JETTY DEPENDENCIES --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-server&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-servlet&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-webapp&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-servlets&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
 
-    &lt;!-- JSP and JSTL SUPPORT --&gt;
-    &lt;dependency&gt;
-      &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-      &lt;artifactId&gt;jetty-jsp&lt;/artifactId&gt;
-      &lt;version&gt;${jetty.jsp.version}&lt;/version&gt;
-    &lt;/dependency&gt;    
-    &lt;dependency&gt;
-      &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
-      &lt;artifactId&gt;jstl&lt;/artifactId&gt;
-      &lt;version&gt;1.2&lt;/version&gt;
-      &lt;scope&gt;provided&lt;/scope&gt;
-    &lt;/dependency&gt;
-  &lt;/dependencies&gt;
+  &lt;!-- JSP and JSTL SUPPORT --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-jsp&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.jsp.version}&lt;/version&gt;
+  &lt;/dependency&gt;    
+  &lt;dependency&gt;
+    &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
+    &lt;artifactId&gt;jstl&lt;/artifactId&gt;
+    &lt;version&gt;1.2&lt;/version&gt;
+    &lt;scope&gt;provided&lt;/scope&gt;
+  &lt;/dependency&gt;
+&lt;/dependencies&gt;
 
 &lt;/project&gt;
 </code></pre>
@@ -180,57 +180,56 @@
 <li>I'm attaching sources for all dependencies that make them available, so that you can drill down into the source while debugging</li>
 <li>I'm setting the source and target jdk compliance to 6</li>
 <li>I'm using Jetty-jsp 8.1.4 - many other jstl implementations I tried have bugs, including a nasty one where recursive calls in tag-files would not compile.</li>
+<li>I've never really bothered with things like maven archetypes, which is probably lazy-stupid of me. I tend to start from a pom that i've created previously then modify it to suit my needs.</li>
 </ul>
 
-<p>I've never really bothered with things like maven archetypes, which is probably lazy-stupid of me. I tend to start from a pom that i've created previously then modify it to suit my needs.</p>
+<p>After creating the pom in my project directory I create the <code>src/main/java</code> and <code>src/test/java</code> directories and then run <code>mvn eclipse:eclipse</code> to fetch the dependencies and create the eclipse .project and .classpath files. Having done that I import the project to Eclipse.</p>
 
-<p>After creating the pom in my project directory I create the <code>src/main/java</code> and <code>src/test/java</code> directories and then run <code>mvn eclipse:eclipse</code> to fetch the dependencies and create the eclipse <code>.project</code> and <code>.classpath</code> files. Having done that I import the project to Eclipse.</p>
+<p>Once I have the project in Eclipse I create a few more directories - specifically the <code>META-INF/webapp/WEB-INF</code> directory to host my web.xml and spring context files (amongst other things).</p>
 
-<p>Once I have the project in Eclipse I create a few more directories - specifically the <code>META-INF/webapp/WEB-INF</code> directory to host my <code>web.xml</code> and spring context files (amongst other things).</p>
-
-<p>I typically start with a spring application context <em>and</em> a spring web context, so I can specify beans at a larger scope than the web-application. Here's some simple example web and spring configs, all of which I place in WEB-INF:</p>
+<p>I typically start with a spring application context and a spring web context, so I can specify beans at a larger scope than the web-application. Here's some simple example web and spring configs, all of which I place in WEB-INF:</p>
 
 <h3>web.xml</h3>
 
 <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns="http://java.sun.com/xml/ns/javaee" 
-    xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-    xsi:schemaLocation="
-      http://java.sun.com/xml/ns/javaee 
-      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-    id="WebApp_ID" version="3.0"&gt;
+xmlns="http://java.sun.com/xml/ns/javaee" 
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="
+  http://java.sun.com/xml/ns/javaee 
+  http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+id="WebApp_ID" version="3.0"&gt;
 
-    &lt;listener&gt;
-      &lt;listener-class&gt;
-        org.springframework.web.context.ContextLoaderListener
-      &lt;/listener-class&gt;
-    &lt;/listener&gt;
+&lt;listener&gt;
+  &lt;listener-class&gt;
+    org.springframework.web.context.ContextLoaderListener
+  &lt;/listener-class&gt;
+&lt;/listener&gt;
 
-    &lt;context-param&gt;
+&lt;context-param&gt;
+    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+    &lt;param-value&gt;
+        /WEB-INF/application-context.xml
+    &lt;/param-value&gt;
+&lt;/context-param&gt;
+
+&lt;!-- Handles all requests into the application --&gt;
+&lt;servlet&gt;
+    &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;
+      org.springframework.web.servlet.DispatcherServlet
+    &lt;/servlet-class&gt;
+    &lt;init-param&gt;
         &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-        &lt;param-value&gt;
-            /WEB-INF/application-context.xml
-        &lt;/param-value&gt;
-    &lt;/context-param&gt;
+        &lt;param-value&gt;/WEB-INF/web-context.xml&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;  
 
-    &lt;!-- Handles all requests into the application --&gt;
-    &lt;servlet&gt;
-        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-        &lt;servlet-class&gt;
-          org.springframework.web.servlet.DispatcherServlet
-        &lt;/servlet-class&gt;
-        &lt;init-param&gt;
-            &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-            &lt;param-value&gt;/WEB-INF/web-context.xml&lt;/param-value&gt;
-        &lt;/init-param&gt;
-        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-    &lt;/servlet&gt;  
-
-    &lt;servlet-mapping&gt;
-        &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-        &lt;url-pattern&gt;/&lt;/url-pattern&gt;
-    &lt;/servlet-mapping&gt;      
+&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;      
 
 &lt;/web-app&gt;
 </code></pre>
@@ -242,17 +241,17 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:context="http://www.springframework.org/schema/context"
   xsi:schemaLocation="
-    http://www.springframework.org/schema/beans 
-    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-    http://www.springframework.org/schema/context 
-    http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
 
-  &lt;!-- Define your application beans here. They will be available to the
-       beans defined in your web-context because it is a sub-context.
+&lt;!-- Define your application beans here. They will be available to the
+   beans defined in your web-context because it is a sub-context.
 
-       Beans defined in the web-context will not be available in the 
-       application context.
-   --&gt;
+   Beans defined in the web-context will not be available in the 
+   application context.
+--&gt;
 
 &lt;/beans&gt;
 </code></pre>
@@ -265,43 +264,43 @@
   xmlns:context="http://www.springframework.org/schema/context"
   xmlns:mvc="http://www.springframework.org/schema/mvc"
   xsi:schemaLocation="
-    http://www.springframework.org/schema/mvc 
-    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-    http://www.springframework.org/schema/beans 
-    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-    http://www.springframework.org/schema/context 
-    http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
+http://www.springframework.org/schema/mvc 
+http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
 
-    &lt;!-- Configures the @Controller programming model --&gt;
-    &lt;mvc:annotation-driven/&gt;
+&lt;!-- Configures the @Controller programming model --&gt;
+&lt;mvc:annotation-driven/&gt;
 
-    &lt;!-- Forwards requests to the "/" resource to the "home" view --&gt;
-    &lt;mvc:view-controller path="/" view-name="index"/&gt;    
+&lt;!-- Forwards requests to the "/" resource to the "home" view --&gt;
+&lt;mvc:view-controller path="/" view-name="index"/&gt;    
 
-    &lt;mvc:resources mapping="/i/**" location="WEB-INF/images/" /&gt;
-    &lt;mvc:resources mapping="/c/**" location="WEB-INF/css/" /&gt;
-    &lt;mvc:resources mapping="/s/**" location="WEB-INF/scripts/" /&gt;
-    &lt;mvc:resources mapping="/favicon.ico" 
-      location="WEB-INF/images/favicon.ico" /&gt;
+&lt;mvc:resources mapping="/i/**" location="WEB-INF/images/" /&gt;
+&lt;mvc:resources mapping="/c/**" location="WEB-INF/css/" /&gt;
+&lt;mvc:resources mapping="/s/**" location="WEB-INF/scripts/" /&gt;
+&lt;mvc:resources mapping="/favicon.ico" 
+  location="WEB-INF/images/favicon.ico" /&gt;
 
-    &lt;!-- Resolve jsp's --&gt;
-    &lt;bean id="viewResolver" 
-      class="org.springframework.web.servlet.view.UrlBasedViewResolver"&gt;
-        &lt;property name="viewClass" 
-          value="org.springframework.web.servlet.view.JstlView"/&gt;
-        &lt;property name="prefix" value="/WEB-INF/views/"/&gt;
-        &lt;property name="suffix" value=".jsp"/&gt;
-    &lt;/bean&gt;
+&lt;!-- Resolve jsp's --&gt;
+&lt;bean id="viewResolver" 
+  class="org.springframework.web.servlet.view.UrlBasedViewResolver"&gt;
+    &lt;property name="viewClass" 
+      value="org.springframework.web.servlet.view.JstlView"/&gt;
+    &lt;property name="prefix" value="/WEB-INF/views/"/&gt;
+    &lt;property name="suffix" value=".jsp"/&gt;
+&lt;/bean&gt;
 
-    &lt;!-- i18n message source --&gt;
-    &lt;bean id="messageSource" 
-      class="
-        org.springframework.context.support.
-          ReloadableResourceBundleMessageSource"&gt;
-        &lt;property name="basename" value="/WEB-INF/i18n/messages" /&gt;
-        &lt;property name="defaultEncoding" value="UTF-8"/&gt;
-        &lt;property name="cacheSeconds" value="30" /&gt;
-    &lt;/bean&gt;
+&lt;!-- i18n message source --&gt;
+&lt;bean id="messageSource" 
+  class="
+    org.springframework.context.support.
+      ReloadableResourceBundleMessageSource"&gt;
+    &lt;property name="basename" value="/WEB-INF/i18n/messages" /&gt;
+    &lt;property name="defaultEncoding" value="UTF-8"/&gt;
+    &lt;property name="cacheSeconds" value="30" /&gt;
+&lt;/bean&gt;
 
 &lt;/beans&gt;
 </code></pre>
@@ -311,7 +310,7 @@
 <ul>
 <li>We're using the annotation model for spring Controllers, hence there aren't any Controller beans specified in this xml</li>
 <li>We're mapping static resources to be served efficiently by the Spring dispatcher servlet</li>
-<li>We've set up a view resolver to look for jsp's in /WEB-INF/views. Note that when specifying a view in Controller code you drop the <code>.jsp</code> suffix.</li>
+<li>We've set up a view resolver to look for jsp's in /WEB-INF/views. Note that when specifying a view in Controller code you drop the .jsp suffix.</li>
 <li>We're configuring an internationalization message source, just so we can demonstrate use of a spring taglib a bit later...</li>
 </ul>
 
@@ -355,7 +354,6 @@ public class WebServer
         public File getWarPath();
         public String getContextPath();
     }
-
 
     private Server server;
     private int port;
@@ -407,7 +405,7 @@ public class WebServer
     private SelectChannelConnector createConnector()
     {
         SelectChannelConnector _connector = 
-          new SelectChannelConnector();
+            new SelectChannelConnector();
         _connector.setPort(port);
         _connector.setHost(bindInterface);
         return _connector;
@@ -427,7 +425,7 @@ public class WebServer
             _ctx.setWar(PROJECT_RELATIVE_PATH_TO_WEBAPP);
         }
 
-        List&amp;gt;Handler&gt; _handlers = new ArrayList&amp;gt;Handler&gt;();
+        List&amp;lt;Handler&gt; _handlers = new ArrayList&amp;lt;Handler&gt;();
 
         _handlers.add(_ctx);
 
@@ -475,7 +473,7 @@ public class WebServer
     private URL getResource(String aResource)
     {
         return Thread.currentThread().
-          getContextClassLoader().getResource(aResource); 
+            getContextClassLoader().getResource(aResource); 
     }
 
     private String getShadedWarUrl()
@@ -487,7 +485,11 @@ public class WebServer
 }
 </code></pre>
 
-<p>Notice that here we try to load a class that will only ever be available if we're running in test mode (e.g. directly from Eclipse). If the class is found we assume we're running in exploded form, otherwise we assume we're running in a shaded jar - this is so that we can use the correct path to locate the web resources. If you're trying this out <em>you must make sure that the com.sjl.IDE class exists in your test source tree!</em>.</p>
+<p>Notice that here we try to load a class that will only ever be available if we're running in test mode (e.g. directly from Eclipse). </p>
+
+<p>If the class is found we assume we're running in exploded form, otherwise we assume we're running in a shaded jar - this is so that we can use the correct path to locate the web resources. </p>
+
+<p>If you're trying this out you must make sure that the com.sjl.IDE class exists in your test source tree!.</p>
 
 <h3>Spring MVC Controller</h3>
 
@@ -530,31 +532,28 @@ public class Home {
 
 <p>Your project directory structure should end up looking something like this:</p>
 
-<pre>
-
-   |_src
-   |___main
-   |_____java
-   |_______META-INF
-   |_________webapp
-   |___________WEB-INF
-   |_____________[web.xml and spring context configs here]
-   |_____________css
-   |_____________i18n
-   |_____________images
-   |_____________scripts
-   |_____________views
-   |_______________[jsp files here]
-   |_______com
-   |_________sjl
-   |___________web
-   |_____________[Spring MVC Controllers here]
-   |___test
-   |_____java
-   |_______com
-   |_________sjl
-
-</pre>
+<pre><code>|_src
+|___main
+|_____java
+|_______META-INF
+|_________webapp
+|___________WEB-INF
+|_____________[web.xml and spring context configs here]
+|_____________css
+|_____________i18n
+|_____________images
+|_____________scripts
+|_____________views
+|_______________[jsp files here]
+|_______com
+|_________sjl
+|___________web
+|_____________[Spring MVC Controllers here]
+|___test
+|_____java
+|_______com
+|_________sjl
+</code></pre>
 
 <p>Check out the <a href="https://github.com/steveliles/jetty-embedded-spring-mvc">github project</a> for the complete working example.</p>
 </span>
@@ -616,11 +615,11 @@ public class Home {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
+                <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
                 <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
-                <li><a href="implicit_future_s_aka_promises.html">Implicit Future's, aka Promises</a><span class="date"> - Sep 09, 2012</span></li>
-                <li><a href="dynamic_proxies_in_java.html">Dynamic Proxies in Java</a><span class="date"> - Sep 07, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

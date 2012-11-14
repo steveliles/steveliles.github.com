@@ -270,6 +270,536 @@ implements InstrumentationService {
 	        <a href="dynamic_proxies_in_java.html">Comment on this post</a>
 
             </div>
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,991" description="Jetty embedded with Spring MVC is a great combination for building self-hosting web-apps of all kinds which are easy to maintain and deploy. Setting up is also easy (particularly if you use Maven), as you'll see in this post.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-08-25">August 25, 2012</time></span>
+              <a itemprop="url" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html"><h1 itemprop="name" itemprop="headline">Setting up embedded Jetty 8 and Spring MVC with Maven</h1></a>
+	      <span itemprop="articleBody"><p>This is intended to be the first post in a series on building straight-forward web-apps with Spring-MVC and embedded Jetty. You can check out the complete source of this simple project from <a href="https://github.com/steveliles/jetty-embedded-spring-mvc">github</a>.</p>
+
+<p>This post describes configuring your Jetty and Spring MVC with XML-based configuration. If you want to use annotations/java-config take a look at <a href="http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">this post</a>.</p>
+
+<p>Its been a while since I last posted. I've been busy starting up two big projects at work, one using Google App Engine (and Spring MVC ;)), the other using Jetty 8 (embedded), Spring MVC, MongoDB and ElasticSearch.</p>
+
+<p>The Jetty/Spring combination is one which I've used before - several times since Jetty-5/Spring-1.2 - and I really like. You just can't beat it for quick debug cycles, complete control of the environment, minimal configuration, single-jar deployment, etc., etc.</p>
+
+<p>On this most recent project I'm using jsp as the view technology - this is probably the easiest way to go since most things "just work" out of the box. Other view technologies can be used too - for example last year we used this same combination with FreeMarker - its just a little more effort to get things wired up right.</p>
+
+<p>Here's how I set my projects up:</p>
+
+<h3>Maven POM</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project 
+ xsi:schemaLocation="
+ http://maven.apache.org/POM/4.0.0 
+ http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+ xmlns="http://maven.apache.org/POM/4.0.0" 
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+&lt;groupId&gt;com.sjl&lt;/groupId&gt;
+&lt;artifactId&gt;webapp&lt;/artifactId&gt;
+&lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+&lt;name&gt;WebApp&lt;/name&gt;
+&lt;description&gt;&lt;/description&gt;
+
+&lt;repositories&gt;
+  &lt;repository&gt;
+    &lt;id&gt;springsource-repo&lt;/id&gt;
+    &lt;name&gt;SpringSource Repository&lt;/name&gt;
+    &lt;url&gt;http://repo.springsource.org/release&lt;/url&gt;
+  &lt;/repository&gt;
+&lt;/repositories&gt;
+
+&lt;properties&gt;
+  &lt;jetty.version&gt;8.1.5.v20120716&lt;/jetty.version&gt;
+  &lt;jetty.jsp.version&gt;8.1.4.v20120524&lt;/jetty.jsp.version&gt;
+  &lt;spring.version&gt;3.1.2.RELEASE&lt;/spring.version&gt;
+&lt;/properties&gt;
+
+&lt;build&gt;
+  &lt;plugins&gt;
+    &lt;plugin&gt;
+      &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+      &lt;artifactId&gt;maven-source-plugin&lt;/artifactId&gt;
+      &lt;version&gt;2.1.2&lt;/version&gt;
+      &lt;executions&gt;
+        &lt;execution&gt;
+          &lt;id&gt;attach-sources&lt;/id&gt;
+          &lt;phase&gt;verify&lt;/phase&gt;
+          &lt;goals&gt;
+            &lt;goal&gt;jar-no-fork&lt;/goal&gt;
+          &lt;/goals&gt;
+        &lt;/execution&gt;
+      &lt;/executions&gt;
+    &lt;/plugin&gt;
+    &lt;plugin&gt;
+      &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+      &lt;version&gt;2.3.2&lt;/version&gt;
+      &lt;configuration&gt;
+        &lt;source&gt;1.6&lt;/source&gt;
+        &lt;target&gt;1.6&lt;/target&gt;
+      &lt;/configuration&gt;
+    &lt;/plugin&gt;
+    &lt;plugin&gt; 
+      &lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt; 
+      &lt;configuration&gt; 
+        &lt;downloadSources&gt;true&lt;/downloadSources&gt;
+      &lt;/configuration&gt; 
+    &lt;/plugin&gt; 
+  &lt;/plugins&gt;    
+&lt;/build&gt;
+
+&lt;dependencies&gt;
+
+  &lt;!-- SPRING DEPENDENCIES --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+    &lt;version&gt;${spring.version}&lt;/version&gt;
+  &lt;/dependency&gt; 
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;
+    &lt;version&gt;${spring.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- JETTY DEPENDENCIES --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-server&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-servlet&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-webapp&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-servlets&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.version}&lt;/version&gt;
+  &lt;/dependency&gt;
+
+  &lt;!-- JSP and JSTL SUPPORT --&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
+    &lt;artifactId&gt;jetty-jsp&lt;/artifactId&gt;
+    &lt;version&gt;${jetty.jsp.version}&lt;/version&gt;
+  &lt;/dependency&gt;    
+  &lt;dependency&gt;
+    &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
+    &lt;artifactId&gt;jstl&lt;/artifactId&gt;
+    &lt;version&gt;1.2&lt;/version&gt;
+    &lt;scope&gt;provided&lt;/scope&gt;
+  &lt;/dependency&gt;
+&lt;/dependencies&gt;
+
+&lt;/project&gt;
+</code></pre>
+
+<p>A couple of things worth pointing out:</p>
+
+<ul>
+<li>I've added the spring-source maven repo in order to get the spring dependencies</li>
+<li>I'm using Jetty 8 from eclipse, who have taken over from codehaus (who took over from mortbay)</li>
+<li>I'm attaching sources for all dependencies that make them available, so that you can drill down into the source while debugging</li>
+<li>I'm setting the source and target jdk compliance to 6</li>
+<li>I'm using Jetty-jsp 8.1.4 - many other jstl implementations I tried have bugs, including a nasty one where recursive calls in tag-files would not compile.</li>
+<li>I've never really bothered with things like maven archetypes, which is probably lazy-stupid of me. I tend to start from a pom that i've created previously then modify it to suit my needs.</li>
+</ul>
+
+<p>After creating the pom in my project directory I create the <code>src/main/java</code> and <code>src/test/java</code> directories and then run <code>mvn eclipse:eclipse</code> to fetch the dependencies and create the eclipse .project and .classpath files. Having done that I import the project to Eclipse.</p>
+
+<p>Once I have the project in Eclipse I create a few more directories - specifically the <code>META-INF/webapp/WEB-INF</code> directory to host my web.xml and spring context files (amongst other things).</p>
+
+<p>I typically start with a spring application context and a spring web context, so I can specify beans at a larger scope than the web-application. Here's some simple example web and spring configs, all of which I place in WEB-INF:</p>
+
+<h3>web.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee" 
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="
+  http://java.sun.com/xml/ns/javaee 
+  http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+id="WebApp_ID" version="3.0"&gt;
+
+&lt;listener&gt;
+  &lt;listener-class&gt;
+    org.springframework.web.context.ContextLoaderListener
+  &lt;/listener-class&gt;
+&lt;/listener&gt;
+
+&lt;context-param&gt;
+    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+    &lt;param-value&gt;
+        /WEB-INF/application-context.xml
+    &lt;/param-value&gt;
+&lt;/context-param&gt;
+
+&lt;!-- Handles all requests into the application --&gt;
+&lt;servlet&gt;
+    &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+    &lt;servlet-class&gt;
+      org.springframework.web.servlet.DispatcherServlet
+    &lt;/servlet-class&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;/WEB-INF/web-context.xml&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;  
+
+&lt;servlet-mapping&gt;
+    &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
+    &lt;url-pattern&gt;/&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;      
+
+&lt;/web-app&gt;
+</code></pre>
+
+<h3>application-context.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
+
+&lt;!-- Define your application beans here. They will be available to the
+   beans defined in your web-context because it is a sub-context.
+
+   Beans defined in the web-context will not be available in the 
+   application context.
+--&gt;
+
+&lt;/beans&gt;
+</code></pre>
+
+<h3>web-context.xml</h3>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:mvc="http://www.springframework.org/schema/mvc"
+  xsi:schemaLocation="
+http://www.springframework.org/schema/mvc 
+http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
+
+&lt;!-- Configures the @Controller programming model --&gt;
+&lt;mvc:annotation-driven/&gt;
+
+&lt;!-- Forwards requests to the "/" resource to the "home" view --&gt;
+&lt;mvc:view-controller path="/" view-name="index"/&gt;    
+
+&lt;mvc:resources mapping="/i/**" location="WEB-INF/images/" /&gt;
+&lt;mvc:resources mapping="/c/**" location="WEB-INF/css/" /&gt;
+&lt;mvc:resources mapping="/s/**" location="WEB-INF/scripts/" /&gt;
+&lt;mvc:resources mapping="/favicon.ico" 
+  location="WEB-INF/images/favicon.ico" /&gt;
+
+&lt;!-- Resolve jsp's --&gt;
+&lt;bean id="viewResolver" 
+  class="org.springframework.web.servlet.view.UrlBasedViewResolver"&gt;
+    &lt;property name="viewClass" 
+      value="org.springframework.web.servlet.view.JstlView"/&gt;
+    &lt;property name="prefix" value="/WEB-INF/views/"/&gt;
+    &lt;property name="suffix" value=".jsp"/&gt;
+&lt;/bean&gt;
+
+&lt;!-- i18n message source --&gt;
+&lt;bean id="messageSource" 
+  class="
+    org.springframework.context.support.
+      ReloadableResourceBundleMessageSource"&gt;
+    &lt;property name="basename" value="/WEB-INF/i18n/messages" /&gt;
+    &lt;property name="defaultEncoding" value="UTF-8"/&gt;
+    &lt;property name="cacheSeconds" value="30" /&gt;
+&lt;/bean&gt;
+
+&lt;/beans&gt;
+</code></pre>
+
+<p>Some important things to note in this file are:</p>
+
+<ul>
+<li>We're using the annotation model for spring Controllers, hence there aren't any Controller beans specified in this xml</li>
+<li>We're mapping static resources to be served efficiently by the Spring dispatcher servlet</li>
+<li>We've set up a view resolver to look for jsp's in /WEB-INF/views. Note that when specifying a view in Controller code you drop the .jsp suffix.</li>
+<li>We're configuring an internationalization message source, just so we can demonstrate use of a spring taglib a bit later...</li>
+</ul>
+
+<p>Now we need to create a class to set up the embedded Jetty.</p>
+
+<h3>Embedded Jetty</h3>
+
+<pre><code>package com.sjl;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.*;
+import org.eclipse.jetty.server.nio.*;
+import org.eclipse.jetty.util.thread.*;
+import org.eclipse.jetty.webapp.*;
+
+/**
+ * Example WebServer class which sets up an embedded Jetty 
+ * appropriately whether running in an IDE or in "production" 
+ * mode in a shaded jar.
+ */
+public class WebServer
+{
+    // TODO: You should configure this appropriately for 
+    // your environment
+    private static final String LOG_PATH = 
+      "./var/logs/access/yyyy_mm_dd.request.log";
+
+    private static final String WEB_XML = 
+      "META-INF/webapp/WEB-INF/web.xml";
+    private static final String CLASS_ONLY_AVAILABLE_IN_IDE = 
+      "com.sjl.IDE";
+    private static final String PROJECT_RELATIVE_PATH_TO_WEBAPP = 
+      "src/main/java/META-INF/webapp";
+
+    public static interface WebContext
+    {
+        public File getWarPath();
+        public String getContextPath();
+    }
+
+    private Server server;
+    private int port;
+    private String bindInterface;
+
+    public WebServer(int aPort)
+    {
+        this(aPort, null);
+    }
+
+    public WebServer(int aPort, String aBindInterface)
+    {        
+        port = aPort;
+        bindInterface = aBindInterface;
+    }
+
+    public void start() throws Exception
+    {
+        server = new Server();
+
+        server.setThreadPool(createThreadPool());
+        server.addConnector(createConnector());
+        server.setHandler(createHandlers());        
+        server.setStopAtShutdown(true);
+
+        server.start();       
+    }
+
+    public void join() throws InterruptedException
+    {
+        server.join();
+    }
+
+    public void stop() throws Exception
+    {        
+        server.stop();
+    }
+
+    private ThreadPool createThreadPool()
+    {
+        // TODO: You should configure these appropriately
+        // for your environment - this is an example only
+        QueuedThreadPool _threadPool = new QueuedThreadPool();
+        _threadPool.setMinThreads(10);
+        _threadPool.setMaxThreads(100);
+        return _threadPool;
+    }
+
+    private SelectChannelConnector createConnector()
+    {
+        SelectChannelConnector _connector = 
+            new SelectChannelConnector();
+        _connector.setPort(port);
+        _connector.setHost(bindInterface);
+        return _connector;
+    }
+
+    private HandlerCollection createHandlers()
+    {                
+        WebAppContext _ctx = new WebAppContext();
+        _ctx.setContextPath("/");
+
+        if(isRunningInShadedJar())
+        {          
+            _ctx.setWar(getShadedWarUrl());
+        }
+        else
+        {            
+            _ctx.setWar(PROJECT_RELATIVE_PATH_TO_WEBAPP);
+        }
+
+        List&amp;lt;Handler&gt; _handlers = new ArrayList&amp;lt;Handler&gt;();
+
+        _handlers.add(_ctx);
+
+        HandlerList _contexts = new HandlerList();
+        _contexts.setHandlers(_handlers.toArray(new Handler[0]));
+
+        RequestLogHandler _log = new RequestLogHandler();
+        _log.setRequestLog(createRequestLog());
+
+        HandlerCollection _result = new HandlerCollection();
+        _result.setHandlers(new Handler[] {_contexts, _log});
+
+        return _result;
+    }
+
+    private RequestLog createRequestLog()
+    {
+        NCSARequestLog _log = new NCSARequestLog();
+
+        File _logPath = new File(LOG_PATH);
+        _logPath.getParentFile().mkdirs();
+
+        _log.setFilename(_logPath.getPath());
+        _log.setRetainDays(90);
+        _log.setExtended(false);
+        _log.setAppend(true);
+        _log.setLogTimeZone("GMT");
+        _log.setLogLatency(true);
+        return _log;
+    }  
+
+    private boolean isRunningInShadedJar()
+    {
+        try
+        {
+            Class.forName(CLASS_ONLY_AVAILABLE_IN_IDE);
+            return false;
+        }
+        catch(ClassNotFoundException anExc)
+        {
+            return true;
+        }
+    }
+
+    private URL getResource(String aResource)
+    {
+        return Thread.currentThread().
+            getContextClassLoader().getResource(aResource); 
+    }
+
+    private String getShadedWarUrl()
+    {
+        String _urlStr = getResource(WEB_XML).toString();
+        // Strip off "WEB-INF/web.xml"
+        return _urlStr.substring(0, _urlStr.length() - 15);
+    }
+}
+</code></pre>
+
+<p>Notice that here we try to load a class that will only ever be available if we're running in test mode (e.g. directly from Eclipse). </p>
+
+<p>If the class is found we assume we're running in exploded form, otherwise we assume we're running in a shaded jar - this is so that we can use the correct path to locate the web resources. </p>
+
+<p>If you're trying this out you must make sure that the com.sjl.IDE class exists in your test source tree!.</p>
+
+<h3>Spring MVC Controller</h3>
+
+<pre><code>package com.sjl.web;
+
+import org.springframework.stereotype.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.*;
+
+@Controller
+public class Home {
+    @RequestMapping("/")
+    public ModelAndView home()
+    {
+        return new ModelAndView("index");
+    }
+}
+</code></pre>
+
+<p>A very simple Controller that simply tells Spring to render the index.jsp view when a request is made for the root of the web-app.</p>
+
+<h3>index.jsp</h3>
+
+<pre><code>&lt;%@taglib prefix="spring" uri="http://www.springframework.org/tags"%&gt;
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;&lt;spring:message code="hello"/&gt;&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h3>messages.properties</h3>
+
+<pre><code>hello=Hi
+</code></pre>
+
+<p>That's almost everything. You will need a couple of other little pieces, for example a main class to instantiate the WebServer.</p>
+
+<h3>Project directory structure</h3>
+
+<p>Your project directory structure should end up looking something like this:</p>
+
+<pre><code>|_src
+|___main
+|_____java
+|_______META-INF
+|_________webapp
+|___________WEB-INF
+|_____________[web.xml and spring context configs here]
+|_____________css
+|_____________i18n
+|_____________images
+|_____________scripts
+|_____________views
+|_______________[jsp files here]
+|_______com
+|_________sjl
+|___________web
+|_____________[Spring MVC Controllers here]
+|___test
+|_____java
+|_______com
+|_________sjl
+</code></pre>
+
+<p>Check out the <a href="https://github.com/steveliles/jetty-embedded-spring-mvc">github project</a> for the complete working example.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Jetty">Jetty</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Embedded">Embedded</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Maven">Maven</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="635" description="My Android app has been live in Google Play for 6 months, but I'm still encountering strange bugs and behaviours, making big mistakes, and learning surprising things. The latest surprise has come with a recent flush of ICS users who's devices are putting more significant demands on my handling of the Activity lifecycle.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-06-18">June 18, 2012</time></span>
               <a itemprop="url" href="android_activity_lifecycle_gotcha.html"><h1 itemprop="name" itemprop="headline">Android Activity Lifecycle Gotcha</h1></a>
@@ -420,109 +950,6 @@ implements InstrumentationService {
               <div style="clear:both"></div>
 
 	        <a href="testing_android_apps.html">Comment on this post</a>
-
-            </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,289" description="My experience with MVP's since reading "The Lean Startup"">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-06-07">June 07, 2012</time></span>
-              <a itemprop="url" href="minimum_viable_products.html"><h1 itemprop="name" itemprop="headline">Minimum Viable Products</h1></a>
-	      <span itemprop="articleBody"><p>I haven't blogged in a while. I've been very busy with lots of different things, but nothing sufficiently technical and juicy to write about. Some less techy and more entrepreneurial adventures have been floating around, so I though to make some notes on those.</p>
-
-<p>Things have taken a strange turn at work, with a very ambitious new project in the pipeline that is quite a departure from our usual business. I am tasked to deliver both development-wise <em>and</em> in terms of defining the business model. </p>
-
-<p>The development alone will be a monumental task. Defining a business model is &hellip; quite some way outside my experience. The budget is almost non-existent. The time-scales are horribly short. I'm not even sure I completely buy the basic premise of the project. And yet &hellip; it is still a strangely attractive prospect, and its all Eric Ries' fault.</p>
-
-<h3>The Lean Startup</h3>
-
-<p><a style="float:left; margin:25px;" href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_tl?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=06709216020"><img src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&amp;Format=_SL160_&amp;ASIN=0670921602&amp;MarketPlace=GB&amp;ID=AsinImage&amp;WS=1&amp;tag=stlibl-21&amp;ServiceVersion=20070822"></a></p>
-
-<p>In September last year I read Eric Reis' excellent book - <a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_tl?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=06709216020">The Lean Startup</a> - and was inspired to put it into practice on my personal projects. I stopped getting hung up on the infinite details of feature-complete perfection, and started thinking in terms of Minimum Viable Product.</p>
-
-<p>It led me to release my first ever solo "for profit" work, a super-simple <a href="http://www.overpayment-calculator.com/">mortgage repayment calculator</a>. </p>
-
-<p>The development part was fun, and I got an excuse to use one of my <a href="http://steveliles.github.com/mortgage_loan_overpayment_calculator.html">open-source libraries</a>. </p>
-
-<p>What turned out to be really interesting though, was that to get it online I had to register a domain-name and figure out how to <a href="http://steveliles.github.com/pointing_a_domain_name_to_an_amazon_s3_bucket.html">point it at an Amazon S3 bucket</a>, which I had to <a href="http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html">configure to host a website</a>. Two things I'd never done before. </p>
-
-<p>I also spent time researching keywords, used multiple landing pages on different sub-domains with different keyword content, and set up analytics to see which gets most traffic - following Eric's advice to scientifically test a theory.</p>
-
-<p>For my second project I had a bit more time - I had a week off in the run-up to Christmas to use up my 2011 vacation entitlement. My wife was working, which meant I had a guilt-free coding week (my wife is great about me coding at home, but it doesn't stop me feeling guilty).</p>
-
-<p><a style="float:right; margin:25px;" href=""><img src="https://lh5.ggpht.com/xOyfv0sgk1SUn_BYDKDUJoXb8ZkpKQrZSql4O7fFAJZsDB3MHB3AX265-9LMirlkDg=w124"></a></p>
-
-<p>I used the time to introduce myself properly to Android and build upon a little idea that I'd had. It started out by me wanting to use comic-book style pictures of myself on my blog to represent topics. </p>
-
-<p>I had spent time working on some java code to take a bitmap and process it to resemble an SVG. From there it wasn't much of a leap to try to make an app that lets you build comic strips from your photos, and so <a href="https://play.google.com/store/apps/details?id=com.roundwoodstudios.comicstripit">Comic Strip It!</a> was born on Christmas Eve, 2011.</p>
-
-<p>It really was a minimum viable product. The feature set of release 1.0 was:</p>
-
-<ul>
-<li>add photos to your comic strip, in 350x350 pixel frames</li>
-<li>zoom and rotate photos to fit the frames</li>
-<li>the comic strip would be laid out automatically in blocks of 3 frames across</li>
-<li>add a caption below each frame</li>
-<li>set a title for the comic strip</li>
-<li>share the comic strip (email/twitter/facebook/etc - Android made this super-easy to do)</li>
-</ul>
-
-<p>I've added many features since, as directed by user feedback. Much of best feedback has come from people who emailed me directly with suggestions, especially in the early days, but some of the real kickers have come from disgruntled commenters. </p>
-
-<p>In the spirit of Lean Startup experimentation I launched two versions - starting with the free version as described above then, in early january, a paid version that included speech balloons.</p>
-
-<p>I've learned so much about people, product development/marketing/monetisation, and myself from having an app out there in the wild with no barrier between me and the users! My main problem now is finding a block of time to work on accelerating the growth of the user base.</p>
-
-<h3>More Experiments</h3>
-
-<p>Given the lack of a decent block of time to work on the app, I've spent a little time here and there on a couple of new, small, experiments. These aren't really MVP's as such, but they are in the spirit of Lean Startup.</p>
-
-<h4>www.tribyute.com</h4>
-
-<p><a style="float:left; margin:25px;" href="http://www.tribyute.com"><img src="https://lh5.googleusercontent.com/-w48tKzKVVgQ/T9DnorMq8eI/AAAAAAAAKQY/rI1RXv-8eXM/s200/tribyute.com.png"></a></p>
-
-<p>The first is a <a href="http://www.tribyute.com/">teaser website</a> for an idea I had about expressing admiration for people you know, in such a way that over time an online character reference builds up, and the recipient gets an occasional boost when someone praises them.</p>
-
-<p>The point here was just to test if there was any interest in the idea by asking people to leave their email to get notified later when the service goes live.</p>
-
-<p>No ideas really about how to monetise it, but that wasn't the point of this one, it was just an idle thought that expressing admiration like that would be a nice thing to be able to do.</p>
-
-<p>I registered a domain and pointed it at an app-engine web-app, thrown together with some simple html and css and a servlet. All in all just a few hours work. Its only just started to appear in google searches, so too early to say how the experiment will pan out.</p>
-
-<h4>Zazzle t-shirts</h4>
-
-<div style="float:right; text-align:center;line-height:150%"> <a href="http://www.zazzle.co.uk/sleep_tees-235809889333236460?gl=roundwood&rf=238286102792357014"> <img src="http://rlv.zcache.co.uk/sleep_tees-rf3ca96555d9547a692dee0727df16340_f0czi_325.jpg" alt="sleep tees" style="border:0;" /></a></div>
-
-<p>The second experiment is something quite different. For some work-related research I'd been reading about affiliate-marketing. </p>
-
-<p>I was aware of the Amazon affiliate system (indeed the book links on my blog are affiliate links), but I hadn't really considered that it was a common practice til now. </p>
-
-<p>Zazzle's affiliate system allows anyone to set up a "store" under the main zazzle website, and populate it with their own products. </p>
-
-<p>These products are customised versions of the products that zazzle themselves sell - ie. t-shirts, hoodies, decorated mugs, etc. You even get to set your own level of commission on each product. You can see one of my designs here :)</p>
-
-<p>Zazzle help with tools for marketing your products too, but because its so easy <em>lots</em> of people have set up stores, and there's lots of competition. For me its really just a fun experiment, and a chance to do a bit of art work, so its all good really.</p>
-
-<h3>Conclusion, sort of</h3>
-
-<p><a style="float:left; margin:25px;" href="http://www.amazon.co.uk/gp/product/0091929113/ref=as_li_ss_il?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0091929113"><img border="0" src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&amp;Format=_SL160_&amp;ASIN=0091929113&amp;MarketPlace=GB&amp;ID=AsinImage&amp;WS=1&amp;tag=stlibl-21&amp;ServiceVersion=20070822" ></a></p>
-
-<p>My main point throughout all this waffle is probably this: Stop trying to do something and do it! Create the smallest possible version of your product that can deliver value, release it, and use scientific measurement to direct your efforts for what to do next. If nothing else you will learn so much!</p>
-
-<p>If you are involved at some level in the development of products, buy <a href="http://www.amazon.co.uk/gp/product/0670921602/ref=as_li_ss_tl?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=06709216020">The Lean Startup</a> - it will change how you think about product development. </p>
-
-<p>While you're there, you might want to look at <a href="http://www.amazon.co.uk/gp/product/0091929113/ref=as_li_ss_il?ie=UTF8&amp;tag=stlibl-21&amp;linkCode=as2&amp;camp=1634&amp;creative=19450&amp;creativeASIN=0091929113">The 4-hour work week</a>, which shattered lots of my illusions about how the world works, despite the fact that I don't like a fair number of the prescribed methods.</p>
-
-<p>I'll leave you with this superb Lean Startup story of how a startup saved themselves millions of dollars with a $40 prototype:</p>
-
-<p><iframe src="http://player.vimeo.com/video/24749599" width="500" height="281" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe> <p><a href="http://vimeo.com/24749599">Ignite: Lean Startup - Paul Howe, Founder &amp; CEO of NeedFeed "How $40 Saved Us 9 Months and $2MM"</a> from <a href="http://vimeo.com/dreamsimplicity">DreamSimplicity</a> on <a href="http://vimeo.com">Vimeo</a>.</p></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVP">MVP</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=entrepreneurship">entrepreneurship</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Lean Startup">Lean Startup</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="minimum_viable_products.html">Comment on this post</a>
 
             </div>
         </div>

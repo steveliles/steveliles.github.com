@@ -35,6 +35,139 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,503" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-03-26">March 26, 2012</time></span>
+              <a itemprop="url" href="android_s_asynctask.html"><h1 itemprop="name" itemprop="headline">Android's AsyncTask</h1></a>
+	      <span itemprop="articleBody"><p>The Android platform allows you to use all of the normal Java concurrency constructs. You should use them if you need to do any long-running operations: you must do these off the main UI thread if you want keep your users happy, and the platform even enforces this by displaying an Application Not Responding dialog if an app does not respond to user-input within 5 seconds.</p>
+
+<p>The kinds of things you will want to do off the UI thread are reading/writing data from databases, network calls fetching data from web-servcies, and any time-consuming computational work.</p>
+
+<p>The platform provides a couple of mechanisms to facilitate communication between background threads and the main application thread: <code>Handler</code>'s and <code>AsyncTask</code>s. In this article I want to concentrate on <code>AsyncTask</code>.</p>
+
+<h3>The basics of AsyncTask</h3>
+
+<p>AsyncTask provides a simple API for doing work in the background and re-integrating the result with the main thread. Here's what it looks like:</p>
+
+<pre><code>new AsyncTask&amp;lt;Param, Progress, Result&gt;() {
+    protected void onPreExecute() {
+        // perhaps show a dialog 
+        // with a progress bar
+        // to let your users know
+        // something is happening
+    }
+
+    protected Result doInBackground(Param... aParams) {
+        // do some expensive work 
+        // in the background here
+    }
+
+    protected void onPostExecute(Result aResult) {
+        // background work is finished, 
+        // we can update the UI here
+        // including removing the dialog
+    }
+}.execute();
+</code></pre>
+
+<p>The template methods <code>onPreExecute()</code> and <code>onPostExecute(Result)</code> are invoked such that you can safely update the UI from there. </p>
+
+<p>There is a fourth template method - <code>onProgressUpdate(Progress[])</code> - which you can implement if you want to update the UI to show progress is being made within the background thread. For this to actually work you will need to invoke <code>publishProgress(Progress[])</code> regularly from within <code>doInBackground(Param[])</code>.</p>
+
+<p>AsyncTask is generic, and presents three type variables:</p>
+
+<pre><code>class AsyncTask&amp;lt;Params, Progress, Result&gt;
+</code></pre>
+
+<p>They are used as follows:</p>
+
+<ol>
+<li><code>Params</code> is the argument type for the <em>varargs array</em> passed in to doInBackground.</li>
+<li><code>Progress</code> is the argument type for the <em>varargs array</em> passed in to <code>onProgressUpdate</code>, and so is also the type (of array) you must use when invoking <code>publishProgress</code>.</li>
+<li><code>Result</code> is the return type of <code>doInBackground</code>, which in turn is the argument type passed in to <code>onPostExecute</code>.</li>
+</ol>
+
+<h3>What happens when you execute()?</h3>
+
+<p>When <code>execute(Object.. params)</code> is invoked on an <code>AsyncTask</code> the task is executed in a background thread. Depending on the platform <code>AsyncTask</code>s may be executed serially (pre 1.6 and potentially again in 4+), or concurrently (1.6-3.2). </p>
+
+<p>To be sure of running serially or concurrently as you require, from API Level 11 onwards you can use the <code>executeOnExecutor(Executor executor, Object.. params)</code> method instead, and supply an executor. The platform provides two executors for convenience, accessable as <code>AsyncTask.SERIAL_EXECUTOR</code> and <code>AsyncTask.THREAD_POOL_EXECUTOR</code> respectively. (Note: If you are targeting earlier API levels <code>executeOnExecutor</code> is not available, but you have several options - see below).</p>
+
+<p>I have not tested exhaustively, but at least on tablets running HoneyComb the <code>THREAD_POOL_EXECUTOR</code> is set up with a maximum pool size of 128 and an additional queue length of 10. </p>
+
+<p>If you exhaust the pool by submitting too many <code>AsyncTask</code>'s concurrently you will receive <code>RejectedExecutionException</code>'s - a subclass of RuntimeException which, unless handled, will crash your application. </p>
+
+<p>I suspect that on a resource-constrained device it is probably quite a disaster if you actually have that many <code>AsyncTask</code>'s active concurrently - context-switching all those threads will render the cpu-cache ineffective, cost a lot in terms of CPU time, and anyway all those concurrently active threads will likely be using a good chunk of your heap and generating garbage for the GC to contend with.</p>
+
+<p>You might want to consider an alternative <code>Executor</code> configured with a lower max threads and a longer queue, or a more appropriate strategy for managing the background work: for example if you have many files to download you could enqueue a url and a callback to a download-manager instead of executing an <code>AsyncTask</code> for each one.</p>
+
+<h3>executeOnExecutor for API levels below 11</h3>
+
+<p>AsyncTask gained a nice new method at API level 11 - <code>executeOnExecutor</code> - allowing you some control of the concurrency of your <code>AsyncTask</code>'s. If you need to support older API levels you have a choice to make: do you absolutely have to have <code>executeOnExecutor</code>, or do you simply want to use it when it is available, and fall-back to <code>execute</code> otherwise?</p>
+
+<h4>The fallback approach</h4>
+
+<p>If you want a simple way to take some measure of control where possible, you can subclass AsyncTask, test for the API level at runtime, and invoke the executeOnExecutor method if it is available - something like this:</p>
+
+<pre><code>class MyAsyncTask&amp;lt;Param, Progress, Result&gt; {
+
+    private static final boolean API_LEVEL_11 
+        = android.os.Build.VERSION.SDK_INT &gt; 11;
+
+    public void execute(Executor aExecutor, Params... aParams) {     
+        if(API_LEVEL_11)
+            executeOnExecutor(aExecutor, aParams); 
+        else
+            super.execute(aParams);
+    }
+
+}
+</code></pre>
+
+<p>I know that at first glance something appears wrong here:</p>
+
+<pre><code>private static final boolean API_LEVEL_11 
+    = android.os.Build.VERSION.SDK_INT &gt; 11;
+</code></pre>
+
+<p>This <em>looks</em> like it will be optimised out by the compiler - a static comparison of a literal integer (11) with what appears to be another static integer (android.os.Build.VERSION.SDK<em>INT), but in fact the upper-case VERSION.SDK</em>INT is slightly misleading - the values in VERSION are extracted at runtime from system properties, so the comparison is not baked in at compile-time.</p>
+
+<h4>executeOnExecutor for all API levels</h4>
+
+<p>If you insist on having executeOnExecutor available for all API levels you might try this: copy the code for AsyncTask from API level 15, rename it (and make a few small changes as described <a href="http://stackoverflow.com/questions/7211684/asynctask-executeonexecutor-before-api-level-11">here</a>), and use that everywhere in place of the SDK version.</p>
+
+<h3>AsyncTask and the Activity lifecycle</h3>
+
+<p>The <code>Activity</code> lifecycle is well defined and provides template methods which are invoked when critical events occur in the life of an <code>Activity</code>. </p>
+
+<p><code>AsyncTask</code>'s are started by an <code>Activity</code> because it needs some potentially blocking work done off the UI thread, and unless you <em>really really know what you are doing</em> they should live and die with that <code>Activity</code>.</p>
+
+<p>If your <code>AsyncTask</code> retains a reference to the <code>Activity</code>, not cancelling the task when the <code>Activity</code> dies wastes CPU resources on work that cannot update its UI, and creates a memory leak (the <code>Activity</code> and all its <code>View</code> hierarchy will be retained <em>until the task completes</em>). </p>
+
+<p>Don't forget that the Activity is destroyed and re-created even on something as simple as a device orientation change, so if a user rotates their device you will have two copies of your Activity retained until the last <code>AsyncTask</code> completes. In a memory constrained environment this can be a disaster!</p>
+
+<p>If you do not intend to update the UI after processing you <em>may</em> be using the wrong construct in some cases - consider whether using a Service would be more appropriate.</p>
+
+<p>For some useful discussion and ideas related to <code>AsyncTask</code> and lifecycle management, see <a href="http://stackoverflow.com/questions/3357477/is-asynctask-really-conceptually-flawed-or-am-i-just-missing-something">this stackoverflow post</a>.</p>
+
+<h4>AsyncTask and good Android citizenship</h4>
+
+<p><code>AsyncTask</code> is in the SDK because it fulfils a common need, but it does not enforce a usage pattern that makes your app a good Android citizen.</p>
+
+<p>In an environment where users switch contexts frequently and quickly (example: receive a phone call while in the midst of writing an email on your phone), it is probably important that your app does not hog resources whilst it is not the current focus.</p>
+
+<p>If, as described above, you've set yourself up to cancel tasks according to the Activity lifecycle methods then you're all set and should not face any issues here.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=AsyncTask">AsyncTask</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Threads">Threads</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="android_s_asynctask.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="649" description="A quick intro to how to return a result from an Android Activity">
               <span class="meta" itemprop="datePublished"><time datetime="2012-03-03">March 03, 2012</time></span>
               <a itemprop="url" href="returning_a_result_from_an_android_activity.html"><h1 itemprop="name" itemprop="headline">Returning a result from an Android Activity</h1></a>
@@ -573,133 +706,6 @@ public class BitmapActivity extends Activity {
               <div style="clear:both"></div>
 
 	        <a href="paths_and_selections_in_gimp.html">Comment on this post</a>
-
-            </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,389" description="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp to create Comic-book style graphics. Here's a couple of tricks I picked up…">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-02-12">February 12, 2012</time></span>
-              <a itemprop="url" href="creating_comic_book_style_icons_with_gimp.html"><h1 itemprop="name" itemprop="headline">Creating comic-book style icons with Gimp</h1></a>
-	      <span itemprop="articleBody"><p>I've long had a love-hate relationship with Gimp. I <em>hate</em> the MDI interface - all those windows really grate on my nerves. I <em>love</em> that its a really great and full-featured graphics package, and free. </p>
-
-<p>In the past I've fired it up to do all kinds of little jobs, but never really tried to use it to compose artwork of any complexity from scratch. That changed recently when I needed to create some nice icons for my Android app <a href="https://market.android.com/details?id=com.roundwoodstudios.comicstripitpro">Comic Strip It!</a>.</p>
-
-<p>Finally, and almost by accident, I've learned how to use paths, masks, and layers, as well as a few of the filters, and managed to turn out some icons that I'm not too embarrassed by! Here's some examples:</p>
-
-<p><img src="https://lh6.googleusercontent.com/-ZOZmYN_bszw/TzgptOjJ1bI/AAAAAAAAIzE/emf1ce6lnmc/s144/ic_pick.png" alt="pick from gallery icon" />
-<img src="https://lh4.googleusercontent.com/-VNKQco0IpEQ/TzgpsWgymEI/AAAAAAAAIy0/Oit-b0pWdZw/s144/ic_next.png" alt="next arrow icon" />
-<img src="https://lh5.googleusercontent.com/-ujoySEPeK0A/Tzgpl7iVAkI/AAAAAAAAIxU/37zF9BjWRx8/s144/ic_accept.png" alt="accept icon" />
-<img src="https://lh5.googleusercontent.com/-Of1oDouIR9I/Tzgpt8pNT-I/AAAAAAAAIzI/eztu4X6JMi8/s144/ic_preview.png" alt="magnifier preview icon" />
-<img src="https://lh3.googleusercontent.com/-J5MhVusK6fo/Tzgpmf9lF0I/AAAAAAAAIxY/wUCI4F6mJQ4/s144/ic_camera.png" alt="camera icon" />
-<img src="https://lh5.googleusercontent.com/-y-53iL_XMes/TzgpvXzrHbI/AAAAAAAAIzc/TpgXHLEEqQ4/s144/ic_save.png" alt="piggy-bank save icon" />
-<img src="https://lh6.googleusercontent.com/-ixZwd4Yj6iI/Tzgpvuf_MWI/AAAAAAAAIzk/6wt6dUYwJNw/s144/ic_share.png" alt="double-arrow share icon" />
-<img src="https://lh4.googleusercontent.com/-F0tC5dE6g4k/TzgpoiXN8uI/AAAAAAAAIx0/nOQun526Okg/s144/ic_font_size.png" alt="text-size icon" />
-<img src="https://lh3.googleusercontent.com/-1TdNH4i5rxY/TzgppsCAugI/AAAAAAAAIyQ/_A6cDO7vWZY/s144/ic_help.png" alt="help icon" />
-<img src="https://lh4.googleusercontent.com/-0DTcVRMkfnc/TzgpweaWEzI/AAAAAAAAI0E/I_asX4AQbWE/s144/ic_speech.png" alt="speech bubble icon" />
-<img src="https://lh5.googleusercontent.com/-fXTBnJIYg5U/TzgppohC8nI/AAAAAAAAIyI/UOYY65oDbL4/s144/ic_image_effects.png" alt="special effects / fx icon" />
-<img src="https://lh4.googleusercontent.com/-zK2LU5sVZ1g/TzgprvV1rlI/AAAAAAAAIyk/EUfWgvTnmJc/s144/ic_new_strip.png" alt="new strip icon" /></p>
-
-<p>Since the app is all about creating comic strips I wanted icons that really fit with that idea, so I spent some time looking at comics and comic graphics. </p>
-
-<p>The half-tone effect - coloured dots printed in rows at different sizes and angles to create the illusion of different shades of colour - figures heavily in print comic-books, and has a such a recognisable stylistic effect that I settled on using that as much as possible. My attempts at re-creating it aren't "real" half-tones, but I think the effect works.</p>
-
-<h2>A few working practices</h2>
-
-<p>I drew all my icons at 512x512 pixels, then re-scaled for use. Android wants 4 different sizes to cater for four different screen densities (low - 32x32, medium - 48x48, high - 72x72, extra-high - 96x96). </p>
-
-<p>Drawing at the much larger size of 512x512 just makes it much easier to work, covers minor errors once you scale down, <em>and</em> means that you usually end up with a decent quality scaled image.</p>
-
-<p>I save all the original icons using Gimp's native XCF file format, which retains the layers and masks and so on - this means I can always go back later and make small changes if I need to (and I did, many times).</p>
-
-<p>Because my laptop runs Ubuntu I saved my icons in a folder shared by Ubuntu One (cloud backup and replication), but this didn't always work out well - connectivity issues on a few evenings meant that I got conflicting versions between my laptop and my desktop, and it wasn't too easy to sort out. </p>
-
-<p>In future I will use <a href="http://git-scm.com/">git</a>, as that puts control of when you update in your hands, and provides explicit versioning and access to old versions. I've upgraded to a paid <a href="http://www.github.com">github</a> account now that my app is live in the Android Market, and all my source-code lives there now.</p>
-
-<p>So, to the icons...</p>
-
-<h2>Creating a halftone background</h2>
-
-<p>Almost all of my icons use a circular splash of half-tone colour as a background. It took me a good long time to figure out how to do this properly, but once you know how its done its actually very quick to re-create.</p>
-
-<h4>Step 1: The background gradient</h4>
-
-<p>First, create a new 512x512 file, and paint a linear gradient filling the entire image. To paint a gradient:</p>
-
-<ol>
-<li>select the "blend" tool, and make sure its send to "linear blend"</li>
-<li>select foreground and background colours as the start and end colours for your gradient</li>
-<li>hold down the left mouse-button in one corner of your image, move to the diagonally opposite corner and release the button to paint the gradient</li>
-</ol>
-
-<p>I picked a deep orange foreground colour, a paler orange-yellow background colour, and drew the gradient from bottom-left to top-right, resulting in the following image:</p>
-
-<p><img src="https://lh6.googleusercontent.com/-RFRY_hGNiNs/Tzg2wBkpxyI/AAAAAAAAI1I/SiObSnce6wM/s800/halftone-background-step1.png" alt="step 1 - the background gradient" /></p>
-
-<h4>Step 2: The half-tone mask</h4>
-
-<p>To create the half-tone dot effect we're going to use one of Gimp's built in filters - "News-print". We want the dots to cluster heavily in the middle, then space further apart and get smaller the further they are from the centre of the image. Here's how we do that:</p>
-
-<ol>
-<li>Create a new layer, above the existing colour gradient. I like to do that directly in the "Layers" palette by right-clicking and choosing "New Layer", making sure to select "Transparency" as the layer fill type, and give it a name (I usually call this layer "bg_halftone").</li>
-<li>Make sure the layer is above your colour gradient in the layer palette. If it isn't, click and drag and drop it above the background layer.</li>
-<li>Select the "blend" tool again, and choose full black as the foreground colour, and full white as the background colour. This time we want to do a "radial blend".</li>
-<li>Move the mouse to the centre of your image, hold down the left button, and drag towards the right-hand edge. When you release the mouse you'll get a disc with a black centre, graduating through grey on a white background, as shown below.</li>
-</ol>
-
-<p><img src="https://lh5.googleusercontent.com/-DVjmNBG53fw/Tzg56PUUREI/AAAAAAAAI1g/AousTkX7ozY/s800/halftone-background-step2.png" alt="black-to-white gradient disc" /></p>
-
-<p>Now we're going to convert the smooth black-to-white gradient of our disc to a half-tone effect. We'll do that using the News-print filter:</p>
-
-<ol>
-<li>From Gimp's "Filters" menu, choose "Distorts -> Newsprint"</li>
-<li>Increase the cell-size to something reasonably large - 25 to 30 works well if you're going to scale the final image down as I did. If you won't be scaling the image down, stick to something less than 10.</li>
-<li>Visit the three colour channel tabs (red/green/blue) and set the same angle in all of them. I'm using 15 in this example.</li>
-<li>Finally, set the anti-aliasing oversample to 15, and apply the filter.</li>
-</ol>
-
-<p><img src="https://lh3.googleusercontent.com/-jJ3x3SwAO10/Tzg7UDPi7RI/AAAAAAAAI14/gZLsPkiYrbo/s800/halftone-background-step3.png" alt="newsprint effect" /></p>
-
-<h4>Step 3: Allowing the colour to shine through the mask</h4>
-
-<p>Almost done! We just need to let the colour shine through from the background layer. I tried various ways of doing this. Masks worked well, and "Select->By Color" isn't bad (but does'nt capture anti-aliased areas perfectly). Eventually I got into the habit of a much simpler way:</p>
-
-<ol>
-<li>From Gimp's "Colors" menu choose "Color to Alpha"</li>
-<li>Click the colour-box (from:) and select full black</li>
-<li>Click OK and you'll see your background gradient shine through the dots</li>
-</ol>
-
-<p><em>Note: If you noticed that the dots don't quite match up between the following image and the others on this page, its because I added this image after I originally posted, and had to re-create it because I had already deleted the .xcf file I originally used while writing this post. Oops.</em></p>
-
-<p><img src="https://lh6.googleusercontent.com/-W8yUnXLKhWY/TzjVIugjWwI/AAAAAAAAI2o/BZIgOGNtrD8/s800/halftone-background-step4a.png" alt="" /></p>
-
-<p>For completeness, here's the "Select->By Color" method, which I don't use any more because it involves more steps and leaves the dots with slightly jagged edges:</p>
-
-<ol>
-<li>From Gimp's "Select" menu, choose "By Color", and then select the white background of the image.</li>
-<li>Invert the selection (ctrl-i) so that the black dots are now selected. (We could have selected the black dots initially, but I find that if you do this you end up with black artefacts after the next step)</li>
-<li>From the "Edit" menu choose "Clear", or hit the delete key, if you have one (my laptop doesn't). You should now see the gradient colour from your background layer shining through the holes you just made in the top-most layer.</li>
-<li>De-select (ctrl-a) and merge the two layers (right-click in the layers palette and choose "merge visible..")</li>
-</ol>
-
-<p><img src="https://lh4.googleusercontent.com/-Kvxw_pqsjV0/Tzg-D_dIzXI/AAAAAAAAI2Q/egDujGmzQfg/s800/halftone-background-step4.png" alt="finished half-tone background" /></p>
-
-<p>Notice that the edges of the dots in this version of the image are decidedly jagged, compared to the version created by using the colour-to-alpha technique. This is to do with the select-by-colour method not including anti-aliasing pixels that are closer to white than black in the selection.</p>
-
-<h4>Step 4: Optional - de-focus for use as a background</h4>
-
-<p>I used this technique to create the backgrounds for my icons, adding one more step: gaussian blur to de-focus the background and make the foreground icon stand out nice and sharp.</p>
-
-<p>I used the same technique to pattern-fill the icon detail by using paths and selections. I'll save the details of that for another post.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Gimp">Gimp</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Icon">Icon</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Comic-Book">Comic-Book</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Half-tone">Half-tone</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="creating_comic_book_style_icons_with_gimp.html">Comment on this post</a>
 
             </div>
         </div>
