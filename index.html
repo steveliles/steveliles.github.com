@@ -84,7 +84,7 @@ openFile
 	        <a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="980" description="Setting up embedded Jetty with Spring-MVC and xml configuration is straight-forward. Setting up the same configuration with zero xml proved to be much more tricky!">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="996" description="Setting up embedded Jetty with Spring-MVC and xml configuration is straight-forward. Setting up the same configuration with zero xml proved to be much more tricky!">
               <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
               <a itemprop="url" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html"><h1 itemprop="name" itemprop="headline">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</h1></a>
 	      <span itemprop="articleBody"><p>You can check out the complete source of this simple project from <a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml">github</a>. If you want to set up <em>with</em> XML configuration, check my <a href="http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">earlier post</a>.</p>
@@ -198,7 +198,7 @@ public class WebModule extends WebMvcConfigurerAdapter
 }
 </code></pre>
 
-<p>I'm extending Spring's WebMvcConfigurerAdapter which provides a host of conveniences. Note that this <code>WebModule</code> sets the annotations @EnableWebMvc and @ComponentScane which are equivalent to the xml configuration you're probably familiar with:</p>
+<p>I'm extending Spring's WebMvcConfigurerAdapter which provides a host of conveniences. Note that this <code>WebModule</code> sets the annotations @EnableWebMvc and @ComponentScan which are equivalent to the xml configuration you're probably familiar with:</p>
 
 <pre><code>&lt;mvc:annotation-driven/&gt;   
 &lt;context:component-scan base-package="com.sjl" /&gt;
@@ -208,9 +208,9 @@ public class WebModule extends WebMvcConfigurerAdapter
 
 <p>What remains is to instantiate Jetty and have it find its configuration from the classpath. I won't list that here as its quite long, and the full working example is in <a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml">github</a>. </p>
 
-<p>An important thing to point out is that there is a <a href="http://stackoverflow.com/questions/13222071/spring-3-1-webapplicationinitializer-embedded-jetty-8-annotationconfiguration">problem with current versions of Jetty (8.1.7)</a> where Jetty won't find your <code>WebApplicationInitializer</code> classes unless if they aren't inside a Jar (for example, when running from Eclipse). </p>
+<p>An important thing to point out is that there is a <a href="http://stackoverflow.com/questions/13222071/spring-3-1-webapplicationinitializer-embedded-jetty-8-annotationconfiguration">problem with current versions of Jetty (8.1.7)</a> where Jetty won't find your <code>WebApplicationInitializer</code> classes unless they are either inside a Jar or in the WEB-INF/classes. When running embedded from your IDE neither of these will be true. </p>
 
-<p>This results in log output like "No Spring WebApplicationInitializer types detected on classpath" and is why, in my WebServer class, I set a subclass of <code>AnnotationConfiguration</code> which overrides the default Jetty behaviour to also search for non-jar'd classes on the classpath.</p>
+<p>This results in log output like "No Spring WebApplicationInitializer types detected on classpath" and is why, in my WebServer class, I set a subclass of <code>AnnotationConfiguration</code> which overrides the default Jetty behaviour to also search for non-jar'd classes on the classpath (<a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml/blob/master/src/main/java/com/sjl/WebServer.java">see the code</a>from around line 75).</p>
 </span>
 
               <ul class="keywords">
