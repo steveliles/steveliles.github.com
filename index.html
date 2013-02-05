@@ -35,6 +35,168 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,216" description="Communication between frames/windows in javascript is fine until some of your frames are served from different domains. Communication between frames in different domains is still possible, but you have to work in a very different way...">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-01-11">January 11, 2013</time></span>
+              <a itemprop="url" href="cross_domain_inter_frame_communication_in_javascript.html"><h1 itemprop="name" itemprop="headline">Cross-domain inter-frame communication in javascript</h1></a>
+	      <span itemprop="articleBody"><p><em>Requirement:</em> Web-page A from domain A' loads web-page B from domain B' into an iframe. Web-page B wants to be able to render some content into the DOM of web-page A (outside of the view-port described by B's iframe). The content which B renders into A needs to be able to HTTP GET and POST data back to the domain B', handle the responses, and update the rendered content in web-page A.</p>
+
+<p><em>Problems:</em></p>
+
+<ul>
+<li>Scripts loaded into pages from different domains cannot interact so, for example, page B's scripts cannot <em>simply</em>* render content into the parent frame (page A)</li>
+<li>Page A cannot <em>simply</em>* use XMLHTTPRequest to GET/POST/PUT/DELETE to host B</li>
+</ul>
+
+<p>[*] I say "simply" because you can't just expect it to work like it would in a same-domain environment, but it is possible!</p>
+
+<h3>Escaping from an iframe</h3>
+
+<p>Lets start with rendering content into a parent frame. To get concrete, lets say that domain A is www.domain.com, while domain B is sub.domain.com. </p>
+
+<p>Yes, they are sub-domains of a common root. No, B is <em>not</em> allowed to modify the DOM of A, or communicate with scripts in A, because web-browsers won't allow that unless the ports, protocols, <em>and</em> domains match <em>exactly</em>.</p>
+
+<p>The only way for B to escape from the iframe is to have co-operation from A. That co-operation can come in one of two forms: </p>
+
+<ol>
+<li>Both pages must explicitly set the <code>document.domain</code> property to the same value (e.g. domain.com). Even if one of the pages is served directly from "domain.com", the act of explicitly setting the domain is required for this technique to work - it signals to the browser that the two pages want to collaborate.</li>
+<li>Have host A serve an iframe-buster page (more below)</li>
+</ol>
+
+<h4>Iframe Buster</h4>
+
+<p>Host A can serve a page which loads scripts on behalf of B, sometimes known as an <a href="http://www.adopstools.net/?section=miscellaneous&amp;page=iframes">iframe-buster</a>. </p>
+
+<p>This is a common technique in the ad-delivery world to allow complex ads like page take-over's to escape from the iframe they are loaded into. Note that this is not an exploit as such, since it requires host A to be complicit.</p>
+
+<p>To illustrate how it works, here's a very simple iframe-buster:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;p&gt;TODO: oops looks like I forgot to come back and fill this in!&lt;/p&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>The host-page A will initially load a page from host B. That page B will load the iframe-buster with some parameters which tell the iframe-buster what scripts to load. The initial page B might look something like this:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;p&gt;TODO: oops looks like I forgot to come back and fill this in!&lt;/p&gt;      
+&lt;/html&gt;
+</code></pre>
+
+<p>&hellip;</p>
+
+<h4>Rendering into the parent DOM</h4>
+
+<p>Now that we have assistance from the host-page domain, our iframe can communicate directly with the DOM and scripts in the parent frame, using the <code>window.parent</code> handle.</p>
+
+<pre><code>var _ctx = window.parent.document;
+var _div = _ctx.createElement("div");
+_div.innerHTML = '&amp;#60;h1&gt;Hooray!&amp;#60;/h1&gt;';
+_ctx.body.appendChild(_div);
+</code></pre>
+
+<p>Great!</p>
+
+<h3>Making HTTP requests</h3>
+
+<p>Now we want to fetch some JSON data from host B by HTTP GET, and render it in the parent frame. For GET requests we might be OK - we just need the host API to support JSONP. If it doesn't we need one of the other techniques as for making POST requests …</p>
+
+<p>What if we want to POST some data to host B? We can't use XMLHTTPRequest to POST from A to B, as the browser security policies won't allow it. So, what are our options?</p>
+
+<ol>
+<li>HTML Form POST</li>
+<li>CORS (Cross Origin Resource Sharing)</li>
+<li>Pipelined communication through another frame</li>
+</ol>
+
+<h4>HTML Form POST</h4>
+
+<p>We could use a form POST, which <em>is</em> allowed to POST to another domain (mostly because the HTML Form POST spec pre-dates the tightened security policies), and will receive the response. </p>
+
+<p>You'll need to do a bit of scripting to wrap things up so that you can register callbacks and have things behave <em>similarly</em> to an XMLHTTPRequest.</p>
+
+<p>This method has the advantage of broad browser compatibility, but the implementation is by necessity less clean, and you lose some of the advantages of XMLHTTPRequest (e.g. the ability to check the response status code). </p>
+
+<p>If you're dealing with a pure RESTful API you'll struggle without the ability to check status codes. </p>
+
+<p>If you have help from the server-side you can probably engineer your way around most of the problems, and even tunnel non-POST API calls by using hidden FORM params and a server-side intercept (e.g. Servlet Filter) to translate the request for you before it hits the API handlers. </p>
+
+<p>That said, if you have control of (or co-operation from) the server-side you'll probably want to look at one of the other methods below.</p>
+
+<p>Advantages:</p>
+
+<ol>
+<li>Good browser compatibility</li>
+<li>Easily understood</li>
+</ol>
+
+<p>Disadvantages:</p>
+
+<ol>
+<li>Poor handling of pure RESTful APIs</li>
+</ol>
+
+<h4>CORS (Cross Origin Resource Sharing)</h4>
+
+<p>We could use <a href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a>, which involves the web-server B checking and sending additional HTTP headers. </p>
+
+<p>This requires a relatively modern browser and some server-side work to check and set additional HTTP headers. CORS is nice because it allows us to conveniently use XMLHTTPRequest for all of our requests (and no need for JSONP).</p>
+
+<p>CORS might put a little extra demand on your servers, as browsers "pre-flight" requests as part of the CORS protocol.</p>
+
+<p>Advantages:</p>
+
+<ol>
+<li>Just like working in a same-domain environment (good for RESTful API handling)</li>
+<li>CORS is an emerging standard, so you don't necessarily need to own/operate the host for this method to be a realistic possibility</li>
+</ol>
+
+<p>Disadvantages:</p>
+
+<ol>
+<li>Requires modern browser</li>
+<li>Requires that the host supports CORS</li>
+<li>Some HTTP request overhead (pre-flight)</li>
+</ol>
+
+<h4>Pipeline communication through another iframe</h4>
+
+<p>A third option is to pipeline your HTTP calls through another iframe - loaded from the domain of the host you want to make calls to.</p>
+
+<p>In newer browsers we can use <code>window.postMessage</code> to send text between frames loaded from different domains. </p>
+
+<p>Since this text can be JSON, and you can register event-handlers for the "message" event, you can set up a communication-frame per host that you need to talk to, and from inside that frame you can use straight-forward XMLHTTPRequest calls, same-domain style.</p>
+
+<p>There are some neat libraries that use a variety of fallback methods (message-passing via window.name; flash) to make this work in older browsers. The most popular one seems to be <a href="http://easyxdm.net/wp/">EasyXDM</a>.</p>
+
+<p>Advantages:
+1. Good browser compatibility (use libraries like EasyXDM)
+2. Good for RESTful API handling</p>
+
+<p>Disadvantages:</p>
+
+<ol>
+<li>More complex set-up</li>
+<li>You need control of the host</li>
+<li>There's some small overhead in piping everything as strings through nested iframe's</li>
+</ol>
+
+<h3>Summary</h3>
+
+<p>As with everything, there is no one-size-fits-all solution, and some flexibility and compromise is likely to be necessary. For the project I'm working on currently I'm using iframe busters, a little CORS, and a lot of pipelining through another frame, but YMMV.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javascript">javascript</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=iframe">iframe</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=window">window</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=cross-domain">cross-domain</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=postMessage">postMessage</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="cross_domain_inter_frame_communication_in_javascript.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="237" description="Getting javahl subversion integration working with Eclipse, Subclipse and Ubuntu 12.10">
               <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
               <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu_12.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu 12</h1></a>
@@ -485,106 +647,6 @@ public class SomeController {
 	        <a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="669" description="A useful mechanism for instantiating beans in spring configuration using other beans defined in that configuration as factories.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-09-14">September 14, 2012</time></span>
-              <a itemprop="url" href="spring_config_for_parameterised_non_static_factory_methods.html"><h1 itemprop="name" itemprop="headline">Spring config for parameterised, non-static factory methods</h1></a>
-	      <span itemprop="articleBody"><p>I recently discovered a nice way of using beans defined in your spring config as factories in the definition of other beans. </p>
-
-<p>Its great, for example, when you want a factory that has non-static factory methods, or that relies on a bunch of other dependencies, or you want to instrument beans via some service which is itself a bean (this is what I was doing when I made this discovery). Here's how it looks..</p>
-
-<p>A factory class whose factory-method is non-static and requires parameters:</p>
-
-<pre><code>package com.sjl;
-
-class Factory {
-    private DependencyA depA;
-
-    public Factory(DependencyA aDepA) {
-        depA = aDepA;
-    }
-
-    public ResultType newInstance(DependencyB aDepB) {
-        ResultType _result = ..; // use the deps to cook up result
-        return _result;
-    }
-}
-</code></pre>
-
-<p>.. and a Spring XML config:</p>
-
-<pre><code>&lt;bean id="depA" class="com.sjl.DependencyA"/&gt;
-&lt;bean id="depB" class="com.sjl.DependencyB"/&gt;
-
-&lt;bean id="factory" class="com.sjl.Factory"&gt;
-  &lt;constructor-arg ref="depA"/&gt;
-&lt;/bean&gt;
-
-&lt;bean id="result" class="com.sjl.ResultType"
-       factory-bean="factory" factory-method="newInstance"&gt;
-   &lt;constructor-arg ref="depB"/&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>So what we have here is an <em>instance</em> of <code>Factory</code>, created with a dependency (depA), on which we invoke a non-static method <em>with arguments</em> to create our <code>ResultType</code>.</p>
-
-<p>The bit that surprised me was the use of <code>&lt;constructor-arg&gt;</code> elements to define the parameters to pass to the factory method.</p>
-
-<h2>Instrumentation</h2>
-
-<p>If you followed any of my recent posts you'll know that I've been playing with dynamic proxies to create services that automagically decorate objects with instrumented versions. </p>
-
-<p>As an example, in <a href="http://steveliles.github.com/dynamic_proxies_in_java.html">this post</a> I showed an <code>InstumentationService</code> which adds timing around method invocations.</p>
-
-<p>I wanted to instrument several (about 8 actually) of my beans via a service that adds health monitoring, where the healthiness of a service is measured as a ratio of successful method invocations to unsuccessful ones (that throw exceptions).</p>
-
-<p>The interface for instrumenting objects for health-monitoring looks like this:</p>
-
-<pre><code>interface HealthServiceInstrumenter {
-    public &lt;T&gt; T instrument(T aT);
-}
-</code></pre>
-
-<p>So what I needed from Spring is: </p>
-
-<ol>
-<li>to create the instance of my <code>HealthServiceInstrumenter</code>,</li>
-<li>to create the instances of various different <code>T</code> to pass through the <code>HealthServiceInstrumenter</code>, and</li>
-<li>the tricky part - to get spring to create the instrumented bean of type <code>T</code> by passing the original bean through the instrumenter.</li>
-</ol>
-
-<p>Here's what the spring wiring looks like for that:</p>
-
-<pre><code>&lt;bean id="health-instrumenter" class="com.sjl.HealthInstrumentationService"/&gt;
-
-&lt;bean id="uninstrumented-bean-A" class="com.sjl.BeanA" 
-        autowire-candidate="false"/&gt;
-
-&lt;bean id="bean-A" class="com.sjl.BeanA"
-       factory-bean="health-instrumenter" 
-       factory-method="instrument"&gt;
-   &lt;constructor-arg ref="uninstrumented-bean-A"/&gt;
-&lt;/bean&gt;
-
-&lt;bean id="uninstrumented-bean-B" class="com.sjl.BeanB" 
-        autowire-candidate="false"/&gt;
-
-&lt;bean id="bean-B" class="com.sjl.BeanB"
-       factory-bean="health-instrumenter" 
-       factory-method="instrument"&gt;
-   &lt;constructor-arg ref="uninstrumented-bean-B"/&gt;
-&lt;/bean&gt;
-</code></pre>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Factory">Factory</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="spring_config_for_parameterised_non_static_factory_methods.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -602,11 +664,11 @@ class Factory {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Jan 11, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
-                <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

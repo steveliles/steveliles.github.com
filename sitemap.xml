@@ -84,7 +84,17 @@
       <changefreq>daily</changefreq>
       <priority>0.5</priority>
     </url>
+    <url>
+      <loc>http://steveliles.github.com/index_15.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.5</priority>
+    </url>
 
+    <url> 
+      <loc>http://steveliles.github.com/cross_domain_inter_frame_communication_in_javascript.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
     <url> 
       <loc>http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu_12.html</loc>
       <changefreq>daily</changefreq>

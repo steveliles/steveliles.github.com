@@ -35,6 +35,160 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,532" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 3">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-02-15">February 15, 2011</time></span>
+              <a itemprop="url" href="progressive_enhancement_with_gwt_part_3.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 3</h1></a>
+	      <span itemprop="articleBody"><p>UPDATE: Since writing this series I have published the source of <a href="http://steveliles.github.com/gwt_progressive.html"><code>gwt.progressive</code> at github</a>.</p>
+
+<p>This is the third part in a series, following my thoughts on using GWT in SEO'able web applications. The other parts in the series are <a href="progressive_enhancement_with_gwt_part_1.html">part 1</a> and <a href="progressive_enhancement_with_gwt_part_2.html">part 2</a>.</p>
+
+<p>In my previous posts I described an idea for progressive enhancement using GWT -  "activating" server-generated html, to combine GWT goodness with an SEO friendly server-generated website, and my findings after some initial trials. </p>
+
+<p>One of the problems I described in that second post was that it would be very difficult to work with these widgets if nested widgets could not be automatically (or at least easily) bound to fields within this widget.</p>
+
+<p>After a little playing around and learning about GWT Generators I now have what seems like a nice solution, using a Generator to do almost all of the donkey work. Think of it like UiBinder, but with the templates provided at runtime (courtesy of the server). Here's an example class that automatically binds sub-widgets - an Image in this case - to a field of that class:</p>
+
+<pre><code>public class MyWidget extends Widget {
+
+    interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}
+    private static MyActivator activator = GWT.create(MyActivator.class);
+
+    @RuntimeUiField(tag="img", cssClass="small") Image small;
+
+    public MyWidget(Element anElement) {
+        // this will set our element and bind our image field.
+        setElement(activator.activate(this, anElement));
+
+        // now we can play with our fields.
+        small.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent aEvent) {
+                Window.alert("clicked!");
+            }
+        });
+    }
+}
+</code></pre>
+
+<p>This class will bind onto any html that has an image tag somewhere in its inner-html, for example:</p>
+
+<pre><code>&lt;div&gt; &lt;!-- Say our MyWidget is bound here --&gt;
+  &lt;div&gt;
+    &lt;span&gt;
+          &lt;!-- will be bound to our Image widget --&gt;
+      &lt;img class="small" src="/images/image.jpg"&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>Anyone familiar with UiBinder will recognize the pattern I've used for the "activator":</p>
+
+<ul>
+<li>Extend an interface with no methods
+<code>interface MyActivator extends ElementActivator&lt;MyWidget&gt; {}</code></li>
+<li>GWT.create() an instance of that interface
+<code>private static MyActivator activator = GWT.create(MyActivator.class);</code></li>
+<li>Then use it to initialize your widget
+<code>setElement(activator.activate(this, anElement));</code></li>
+</ul>
+
+<p>The nice thing about this is we can automatically bind as many widgets as we like onto various sites within the inner-html of our current widget's element. It doesn't mess with the structure (unless you explicitly do so after the binding is done for you), and you can have as much other html within the elements as you like - it will just be left alone, which gives your designers the flexibility to change the layout quite a lot without necessarily needing to re-compile your GWT code. </p>
+
+<p>Currently I have my generator set up to allow your widgets to bind to a choice of tag-name or css-class or both, for example:</p>
+
+<pre><code>// bind to the first &amp;lt;div&gt; found by breadth-first 
+// search of child elements
+@RuntimeUiField(tag="div") Label label;
+
+// bind to first element with class="my-widget" 
+// found by breadth-first search
+@RuntimeUiField(cssClass="my-widget") Label label;
+
+// bind to first &amp;lt;div&gt; with class="my-widget" 
+// found by breadth-first search
+@RuntimeUiField(tag="div", cssClass="my-widget") Label label;
+</code></pre>
+
+<p>Notice in my examples so far I'm binding standard GWT widgets onto the nested elements. This works for the elements I've used in these examples because they all have a <code>public static Type wrap(Element anElement)</code> method which allows those widgets to be bound onto elements that are already attached to the DOM.</p>
+
+<p>It is also possible to bind widgets of your own making in one of two ways:</p>
+
+<ol>
+<li>Create a wrap method like 
+<code>public static MyWidget wrap(Element anElement)</code></li>
+<li>Create a single-argument public Constructor that accepts an <code>Element</code> as its argument.</li>
+</ol>
+
+<p>Activate-able widgets can be nested within other such widgets - with no limits that I am aware of so far - and it is also possible to assign nested widgets to a List field in the enclosing widget, like this:</p>
+
+<pre><code>@RuntimeUiField(tag="img") List&lt;Image&gt; images;
+</code></pre>
+
+<p>This will search recursively for any <code>&lt;img&gt;</code> tags inside the enclosing widget's element and bind them all to Image widget's that will be added to the List. The current limitations here are that the List must be declared either as List or ArrayList, and parameterized with a concrete type that meets the criteria defined above (i.e. has a static <code>wrap(Element)</code> method, or a single-arg constructor that takes an <code>Element</code> as the argument).</p>
+
+<p>A remaining question is how to bind the outer-most Widget. Currently I'm doing that using the DOM scanning code I wrote during earlier experiments and which I'm also using in the automatic scanning process set up by the Generator. For example to find the outer-most widgets and kick off the binding process I have something like this in my EntryPoint:</p>
+
+<pre><code>public void onModuleLoad() {
+    List&lt;MyWidget&gt; _myWidgets = new ArrayList&lt;mywidget&gt;();
+    for (Element _e : Elements.getByCssClass("outer-most-widget")) {
+        new MyWidget(_e);
+    }
+    // do stuff with our widgets ...
+}
+</code></pre>
+
+<p>I think of this as very similar to the RootPanel situation - "normal" GWT apps kick off by getting a RootPanel(body tag) or RootPanel's (looked up by id), to which everything else is added. It would be nice to hide away some of that scanning code inside a "top-level" widget - much like RootPanel does for the normal case. I can imagine this might look something like:</p>
+
+<pre><code>public void onModuleLoad() {
+    Page _page = Page.activate();
+    _page.doStuffWithWidgets();
+    // ...
+}
+</code></pre>
+
+<p>I still have lots of things to figure out and questions to answer, for example:</p>
+
+<ul>
+<li>What's the performance like when binding many hundreds of widgets?</li>
+<li>How will this really work when I make ajax requests for more data? (should I make ajax requests for html snippets which I add to the DOM and then bind onto, or switch to json for ajax requests and make my widgets able to replicate themselves from an initial html template?)</li>
+<li>What's the best way to divide labour between developers and designers, and for them to organize their interaction? (Ideally I'd like there to be something of a cycle between them, where the designer can rough-out a page design, agree the componentisation with the developer, the developer knocks out some components and a build which the designer can use to activate their static designs, add fidelity, work on other pages with the same components, etc).</li>
+<li>Where is the sweet-spot between creating high-fidelity html server-side and decorating it client-side using GWT? Should the GWT components really be just for adding dynamism, or is it a good idea to use them to build additional html sweetness? - I mean the server could dish out html that is more of a model than a view (just enough "view" to satisfy SEO), and the GWT layer acts as a client-side controller and view (<a href="http://www.thinserverarchitecture.com/home">SOFEA/TSA</a> with a nod to SEO).</li>
+</ul>
+
+<p>I'll try to keep posting as I work things out.</p>
+
+<p>This probably belongs in a separate post, but with reference to that last point on TSA (Thin Server Architecture) - the working group list the following points to define the concept:</p>
+
+<blockquote>
+  <ol>
+  <li>Do not use server-side templating to create the web page.</li>
+  <li>Use a classical and simple client-server model, where the client runs in the browser.</li>
+  <li>Separate concerns using protocol between client and server and get a much more efficient and less costly development model.</li>
+  </ol>
+</blockquote>
+
+<p>I'm right behind them on (2) and (3), and also on (1) for "enterprise" apps where SEO is a non-goal. However, for an app that needs SEO, (1) is a deal-breaker, so I'd offer this alternative 1st rule instead:</p>
+
+<ol>
+<li>Use server-side templating to produce a model for the client to consume which minimally satisfies the needs of SEO.</li>
+</ol>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ajax">ajax</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=designer">designer</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive enhancement">progressive enhancement</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SEO">SEO</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SOFEA">SOFEA</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=TSA">TSA</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=UiBinder">UiBinder</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="progressive_enhancement_with_gwt_part_3.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="110" description="Describes the process of installing fonts in Ubuntu Linux">
               <span class="meta" itemprop="datePublished"><time datetime="2011-02-12">February 12, 2011</time></span>
               <a itemprop="url" href="installing_fonts_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Installing fonts in Ubuntu</h1></a>
@@ -278,39 +432,6 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
 	        <a href="reading_list_17_01_2011.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="167" description="A comparison of Linux distribution popularity using Google Trends">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-01-03">January 03, 2011</time></span>
-              <a itemprop="url" href="linux_distro_popularity.html"><h1 itemprop="name" itemprop="headline">Linux Distro popularity</h1></a>
-	      <span itemprop="articleBody"><p>Interesting to see how Ubuntu has overtaken its sire Debian in recent years - Google Trends really is amazing.</p>
-
-<p><img src="http://2.bp.blogspot.com/_hG-kje6-TJM/TSIqrAJk8gI/AAAAAAAAG_g/e1VdMyp4pJ4/s1600/ubuntu-vs-debian.png" alt="Google Trends chart of Ubuntu (blue), Debian (red), CentOS (green) and Suse (orange)." /></p>
-
-<p><code>Ubuntu (blue), Debian (red), CentOS (green) and Suse (orange)</code></p>
-
-<p>Here's the link to see the full <a href="http://www.google.com/trends?q=ubuntu,+debian,+centos,+suse&amp;ctab=0&amp;geo=all&amp;date=all&amp;sort=0">google-trends page</a> for this comparison.</p>
-
-<p>I love the spikes on the ubuntu line every 6 months - I imagine these coincide with the 6-monthly .4 and .10 releases (April and October).</p>
-
-<p>Interestingly, when I compare Ubuntu with Windows 7 and OSX, OSX loses out strongly to Ubuntu (perhaps I'm using the wrong term, but I tried a number of different combinations), while Win7 is around 3x more popular than Ubuntu.  Also interesting to note how OSX beats Ubuntu in the "news" mentions (below the x-axis) presumably because of the Apple PR machine:</p>
-
-<p><img src="http://1.bp.blogspot.com/_hG-kje6-TJM/TSIsA8ZS4hI/AAAAAAAAG_k/x90cJQmmGJE/s1600/ubuntu-vs-windows.png" alt="Google Trends chart of Ubuntu (blue), Windows 7 (red), OSX (orange)" /></p>
-
-<p><code>Ubuntu (blue), Windows 7 (red), OSX (orange)</code></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=linux">linux</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=centos">centos</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=debian">debian</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=suse">suse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=distro">distro</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="linux_distro_popularity.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -328,11 +449,11 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Jan 11, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
-                <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

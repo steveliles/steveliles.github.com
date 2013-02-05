@@ -35,6 +35,291 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,266" description="Some things I learned while optimising a slow Android app, and a quick intro to dsl4xml for easy and fast xml parsing in Android.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-04-05">April 05, 2012</time></span>
+              <a itemprop="url" href="dsl_for_xml_parsing_in_android.html"><h1 itemprop="name" itemprop="headline">DSL for XML parsing in Android</h1></a>
+	      <span itemprop="articleBody"><p>For a readability and performance comparison of different parsing mechanisms available in Android, have a look at my <a href="http://steveliles.github.com/comparing_methods_of_xml_parsing_in_android.html">more recent post</a> that compares parsing a Twitter search result using DOM, SAX, and various Pull parsing methods.</p>
+
+<p><em>The short story:</em> Always use SAX in Android (<a href="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png">here's why</a>).</p>
+
+<p>SAX and Pull-parsing are fast, but don't lead to the most readable/maintainable code. Instead, how about a super-simple internal DSL for describing the mapping for unmarshalling from XML to POJO's, with pull-parsing performance? Quick example:</p>
+
+<pre><code>&lt;books&gt;
+  &lt;book&gt;
+    &lt;title&gt;The Hobbit&lt;/title&gt;
+    &lt;synopsis&gt;
+        A little guy goes on an adventure, 
+        finds ring, comes back.
+    &lt;/synopsis&gt;
+  &lt;/book&gt;
+  &lt;book&gt;
+    &lt;title&gt;The Lord of the Rings&lt;/title&gt;
+    &lt;synopsis&gt;
+        A couple of little guys go on an adventure, 
+        lose ring, come back.
+    &lt;/synopsis&gt;
+  &lt;/book&gt;
+&lt;/books&gt;
+</code></pre>
+
+<p>Can be unmarshalled to simple POJO's with this:</p>
+
+<pre><code>import static com.sjl.dsl4xml.DocumentReader.*;
+
+class BooksReader {
+    private DocumentReader&amp;lt;Books&gt; reader;
+
+    public BooksReader() {
+        reader = mappingOf(Books.class).to(
+           tag("book", Book.class).with(
+               tag("title"),
+               tag("synopsis")
+           )
+        );
+    }
+
+    public Books reader(Reader aReader) {
+        return reader.read(aReader);
+    }
+}
+</code></pre>
+
+<p><em>The long story:</em></p>
+
+<p>I recently had occasion to work on an Android app that was suffering horrible performance problems on startup (approx 7-12 seconds before displaying content).</p>
+
+<p>A look at the code showed up several possible contenders for the source of the problem:</p>
+
+<ol>
+<li>Many concurrent http requests to fetch XML content from web</li>
+<li>Parsing the returned XML documents concurrently</li>
+<li>Parsing documents using DOM (and some XPath)</li>
+</ol>
+
+<p>A quick run through with the excellent profiler built in to DDMS immediately showed lots of time spent in DOM methods, and masses of heap being consumed by sparsely populated <code>java.util.List</code> objects (used to represent the DOM in memory).</p>
+
+<p>Since the app was subsequently discarding the parsed Document object, the large heap consumption was contributing a huge garbage-collection load as a side-effect.</p>
+
+<p>Parsing many documents at once meant that the app suffered a perfect storm of exacerbating issues: Slow DOM traversal with XPath; constant thread context-switching; massive heap consumption; and huge object churn.</p>
+
+<p>The network requests - even over 3G - were comparatively insignificant in the grand scheme.</p>
+
+<h2>Reducing thread context switching</h2>
+
+<p>An obvious and inexpensive thing to try at this point was reducing the concurrency to minimise the overhead of context-switching and hopefully enable the CPU caches to be used to best advantage. </p>
+
+<p>I confess I hoped for a significant improvement from this small change, but the difference, while measurable, was too small to be significant (~5-10%).</p>
+
+<h2>More efficient parsing</h2>
+
+<p>XPath is easy to use, and typically makes it possible to write straight-forward code for marshalling data from an XML document into Java objects. It is, however, horribly slow and a terrible memory hog.</p>
+
+<p>I decided to try an experiment with an alternative parsing method, to see if a worthwhile performance gain could be achieved on one of the smaller documents that could then be applied to others.</p>
+
+<p>I wrote a small test-case confirming the correctness of the existing parsing mechanism and testing the throughput in documents per second, then extracted an interface and created a new implementation that used Pull-Parsing instead of DOM and XPath.</p>
+
+<p>The result was quite pleasing: 5x faster on a simple document. I fully expected the performance gains to be even better on more complex documents, so was quite eager to repeat the process for one of the most complex documents. </p>
+
+<p>However, I had one major concern that put me off: the code for parsing even a simple document was already quite long and had a nasty whiff of conditional-overkill (think: lots of if statements). I wasn't too happy about trading code readability for performance.</p>
+
+<p>I pondered a few alternatives like <a href="http://xstream.codehaus.org/">XStream</a> which I've used a lot for converting from Java to XML but not much the other way around, and <a href="http://simple.sourceforge.net/">SimpleXML</a> which I have used previously and can be nice, but pollutes your model objects with annotations and in some situations can be a real pain to get working.</p>
+
+<h2>An Internal DSL for mapping XML to POJO's</h2>
+
+<p>In the end I decided to spend just a few hours turning the problem over in code to see if I could come up with something more readable for working with the pull-parser directly. </p>
+
+<p>The result, after an afternoon of attempting to parse the most complex XML file the app consumed, was a small Internal DSL (Domain Specific Language) for declaratively describing the mapping between an XML and the Java model classes, and a 15x performance improvement in startup time for the app (7-12 seconds down to ~0.5s).</p>
+
+<p>The DSL I originally came up with required some boiler-plate code to do the final mapping between text nodes / attributes and the model classes being populated. If Java had a neat syntax for closures this would have been much less irritating :)</p>
+
+<p>As it was the boiler plate irked me - too much <em>stuff</em> getting in the way of reading what was really important. I thought about it a bit in my spare time, and had another shot at it. My aims were:</p>
+
+<ol>
+<li>To make readable, maintainable, declarative code that unmarshalls XML documents to Java objects.</li>
+<li>To make unmarshalling XML documents to Java objects very fast (sax/pull-parsing speeds).</li>
+<li>To avoid polluting model classes with metadata about xml parsing (no annotations).</li>
+<li>To avoid additional build-time steps or "untouchable" code (code generators, etc).</li>
+<li>To produce a very small jar with no large dependencies.</li>
+</ol>
+
+<p>The result is starting to take shape in github as <a href="https://github.com/steveliles/dsl4xml">dsl4xml</a>. It removes all of the boiler plate in exchange for a small performance penalty due to use of reflection. I don't have comparative performance figures yet, but will post some when I get time.</p>
+
+<h3>Another example</h3>
+
+<p>XML:</p>
+
+<pre><code>&lt;hobbit&gt;
+  &lt;name firstname="Frodo" surname="Baggins"/&gt;
+  &lt;dob&gt;11400930&lt;/dob&gt;
+  &lt;address&gt;
+    &lt;house&gt;
+      &lt;name&gt;Bag End&lt;/name&gt;
+      &lt;number&gt;&lt;/number&gt;
+    &lt;/house&gt;
+    &lt;street&gt;Bagshot Row&lt;/street&gt;
+    &lt;town&gt;Hobbiton&lt;/town&gt;
+    &lt;country&gt;The Shire&lt;/country&gt;
+  &lt;/address&gt;
+&lt;/hobbit&gt;
+</code></pre>
+
+<p>POJO's: <a href="https://github.com/steveliles/dsl4xml/commit/ad2141df218a776ebd68a75072feab16a5221fd5#diff-4">See the source-code of the test-case</a></p>
+
+<p>Unmarshalling code:</p>
+
+<pre><code>private static DocumentReader&amp;lt;Hobbit&gt; newReader() {
+    DocumentReader&amp;lt;Hobbit&gt; _marshaller = mappingOf(Hobbit.class).to(
+        tag("name", Name.class).with(
+            attributes("firstname", "surname")
+        ),
+        tag("dob"),
+        tag("address", Address.class).with(
+            tag("house", Address.House.class).with(
+                tag("name"),
+                tag("number")
+            ),
+            tag("street"),
+            tag("town"),
+            tag("country")
+        )
+    );
+
+    _reader.registerConverters(new ThreadUnsafeDateConverter("yyyyMMdd"));
+
+    return _reader;
+}
+</code></pre>
+
+<p>A <code>DocumentReader</code>, once constructed, is intended to be re-used repeatedly. The <code>DocumentReader</code> itself is <em>completely thread-safe</em> as unmarshalling does not modify any of its internal state. To ensure thread-safety you must use only thread-safe type converters (see type conversion section below).</p>
+
+<p>A minimum of garbage is generated because we're using a pull parser to skip over parts of the document we don't care about, and the only state maintained along the way (in a single-use context object for thread safety) is the domain objects we're creating.</p>
+
+<h3>Type conversion</h3>
+
+<p>You can create and register your own type converters. They are used only to map the lowest level xml data to your Java objects - attribute values and CData <code>String</code>s. The <code>Converter</code> interface looks like this:</p>
+
+<pre><code>package com.sjl.dsl4xml.support;
+
+public interface Converter&amp;lt;T&gt; {
+    public boolean canConvertTo(Class&lt;?&gt; aClass);
+    public T convert(String aValue);
+}
+</code></pre>
+
+<p>An example <code>Converter</code> for converting <code>String</code> values to primitive int's looks like this:</p>
+
+<pre><code>class PrimitiveIntConverter implements Converter&amp;lt;Integer&gt; {
+    @Override
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Integer.TYPE);
+    }
+
+    @Override
+    public Integer convert(String aValue) {
+        return ((aValue == null) || ("".equals(aValue))) ? 
+            0 : new Integer(aValue);
+    }
+}
+</code></pre>
+
+<p>Most converters can be thread-safe, but some may require concurrency control for multi-threaded use (example: when converting dates using SimpleDateFormat). </p>
+
+<p>You can use optimised type converters in situations where you <em>know</em> you will not be unmarshalling from multiple threads concurrently. An example is the <code>ThreadUnsafeDateConverter</code> which is used in the example above because it came from a test-case that will only ever run single-threaded. </p>
+
+<pre><code>public class ThreadUnsafeDateConverter implements Converter&amp;lt;Date&gt; {
+    private DateFormat dateFormat;
+
+    public ThreadUnsafeDateConverter(String aDateFormatPattern) {
+        // SimpleDateFormat is NOT thread-safe
+        dateFormat = new SimpleDateFormat(aDateFormatPattern);
+    }
+
+    @Override
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Date.class);
+    }
+
+    @Override
+    public Date convert(String aValue) {
+        try {
+            return ((aValue == null) || ("".equals(aValue))) ? 
+                null : dateFormat.parse(aValue);
+        } catch (ParseException anExc) {
+            throw new XmlMarshallingException(anExc);
+        }
+    }
+}
+</code></pre>
+
+<p>The alternative <code>ThreadSafeDateConverter</code> looks like this:</p>
+
+<pre><code>class ThreadSafeDateConverter implements Converter&amp;lt;Date&gt; {
+    private ThreadLocal&amp;lt;DateFormat&gt; dateFormat;
+
+    public ThreadSafeDateConverter(final String aDateFormatPattern) {
+        dateFormat = new ThreadLocal&amp;lt;DateFormat&gt;() {
+            protected DateFormat initialValue() {
+                return new SimpleDateFormat(aDateFormatPattern);
+            }
+        };
+    }
+
+    @Override
+    public boolean canConvertTo(Class&amp;lt;?&gt; aClass) {
+        return aClass.isAssignableFrom(Date.class);
+    }
+
+    @Override
+    public Date convert(String aValue) {
+        try {
+            return ((aValue == null) || ("".equals(aValue))) ? 
+                null : dateFormat.get().parse(aValue);
+        } catch (ParseException anExc) {
+            throw new XmlMarshallingException(anExc);
+        }
+    }
+}
+</code></pre>
+
+<h3>Missing features</h3>
+
+<p>This is still a very new project, and in an experimental stage. There's loads still to do:</p>
+
+<ul>
+<li>Experiment with more documents to drive improvements to the DSL</li>
+<li>More converters for the obvious types (e.g., BigDecimal, BigInteger, File, URI, etc.)</li>
+<li>Support for namespaced documents</li>
+<li>Support for CDATA (so far only tested with PCDATA)</li>
+<li>Performance comparisons with DOM, SAX and non-DSL'd Pull parsing</li>
+<li>Support for explicit (non-reflective) marshalling of properties</li>
+<li>Support for SAX parsing instead of Pull-Parsing (see notes below)</li>
+<li>Performance tests</li>
+<li>Performance optimisations</li>
+</ul>
+
+<h3>Notes</h3>
+
+<p>I came across some interesting comments by <a href="https://plus.google.com/105051985738280261832/posts">Diane Hackborn</a> (Android platform developer) in <a href="http://groups.google.com/group/android-developers/browse_thread/thread/3f9c5fc7402ecdf">this thread</a>. </p>
+
+<p>Diane points out that SAX parsing is faster than Pull Parsing (at least on Android). I had been under the impression it was the other way around, hence I went with Pull parsing. </p>
+
+<p>Later perf tests show SAX to be <em>much</em> faster on Android, so I will probably refactor to use SAX.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-npX8w__TdF8/T4avu-kllZI/AAAAAAAAJBo/rfq8oF43gdw/s800/samsung-galaxy-s2-perf.png" alt="android parser performance" /></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=unmarshall">unmarshall</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=pull-parsing">pull-parsing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dsl">dsl</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="dsl_for_xml_parsing_in_android.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,503" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-03-26">March 26, 2012</time></span>
               <a itemprop="url" href="android_s_asynctask.html"><h1 itemprop="name" itemprop="headline">Android's AsyncTask</h1></a>
@@ -638,76 +923,6 @@ public class BitmapActivity extends Activity {
 	        <a href="android_2_1_trouble_with_bitmaps.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="751" description="While creating icons for my Android app "Comic Strip It!", I spent some time learning to use Gimp's paths and selections. Here are my notes.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-02-14">February 14, 2012</time></span>
-              <a itemprop="url" href="paths_and_selections_in_gimp.html"><h1 itemprop="name" itemprop="headline">Paths and Selections in Gimp</h1></a>
-	      <span itemprop="articleBody"><p>As I mentioned in my previous post, I've been learning to use Gimp so I can produce icons for my apps. The most significant new finding for me has been the discovery of paths and how to use them in combination with selections.</p>
-
-<p>The ability to use set operations to combine selections in different ways, and to remember selections as paths opens up a whole world of possibilities. Lets look at a really simple example:</p>
-
-<p>Fire up the Gimp, and create a new image to work on. I'm going with a 512x512 canvas again. Choose the oval selection tool and draw an oval on your canvas, then hold down shift and draw another oval that overlaps the first a little. (I was already surprised that I could add to the selections like this actually!)</p>
-
-<p><img src="https://lh6.googleusercontent.com/-V7Kv9JeUjCg/TzogTnl5N9I/AAAAAAAAI3A/gdMgMCdWnAY/s800/Screen%2520Shot%25202012-02-14%2520at%252008.49.07.png" alt="multiple concurrent selections with gimp" /></p>
-
-<p>Now, in the "Layers, Channels, Paths, .." window, open the paths tab, and click the "Selection to Path" icon (red circle with black lines above and below). You'll see a new entry added in the palette for your current selection shape. Here's how mine looks at this point:</p>
-
-<p><img src="https://lh3.googleusercontent.com/-DewiC7SQ5XY/TzohG7h9qHI/AAAAAAAAI3Y/QvwAoWgS4Sg/s800/Screen%2520Shot%25202012-02-14%2520at%252008.53.24.png" alt="gimp path dialog" /></p>
-
-<p>There are immediately some neat things we can do:</p>
-
-<ul>
-<li>We can recreate this same selection at any time by selecting the path in the paths palette and clicking the "path to selection"" icon (the red square icon with dotted outline).</li>
-<li>We can "Stroke" this path (draw around its outline), using the currently selected tool, brush and colour, by clicking the paint-brush icon on the paths panel.</li>
-<li>We can add to or subtract from this selection using other selections, by drawing a new selection then holding down shift/ctrl/shift+ctrl and clicking the "path to selection" icon.</li>
-<li>We can add hand-drawn shapes to our path by using the path tool to create them, then adding them to a selection as described above.</li>
-</ul>
-
-<p>One thing I found very useful, is that you can convert text to a path, which allows you to get creative with the stroke and fill used on that text. I'm going to clear my canvas and add some text:</p>
-
-<ol>
-<li>Select the text tool, click on the canvas and enter some text (I went with "Hello!")</li>
-<li>Increase the font size so that the text just fits on the canvas (I'm using Trebuchet MS bold italic at 175px). You might have to grab the corners of the text selection and expand it so that you can see all of the text.</li>
-<li>Move the text into the centre of the canvas.</li>
-<li>On the tool window, in the section at the bottom containing the tool controls, look for a button  that says "Path from Text" - should be right at the bottom. Click it.</li>
-<li>Open the paths dialog again (from the layers, channels, paths.. window) - you should see that you now have a path called "Hello!", which looks like an outlined version of your text.</li>
-</ol>
-
-<p>Now you can stroke and fill your text, convert it to a selection (allowing you to paint only inside or only outside), and generally do all kinds of neat things. For example:</p>
-
-<ol>
-<li>Switch to the "layers" dialog, and delete the floating text layer.</li>
-<li>Switch back to the "Paths" dialog again, click the "path to selection" icon</li>
-<li>Pick a nice colour to outline your text with (I've selected a deep blue)</li>
-<li>Invert your selection (ctrl-i) - this is so that we only paint around the outside in the next step</li>
-<li>From the "Paths" dialog, click the stroke icon</li>
-<li>In the dialog that pops up, set the stroke width to be around 10. Because we are stroking the line at the edge of the selection, half of the stroke width falls inside the text outline and will not be painted because it isn't part of our current selection. Click OK to stroke the path.</li>
-</ol>
-
-<p><img src="https://lh5.googleusercontent.com/-Mu31NnkM59o/Tzonpy4bkqI/AAAAAAAAI3w/r8ab3bN_aVs/s800/hello-1.png" alt="" /></p>
-
-<p>Now lets paint a gradient inside our text:</p>
-
-<ol>
-<li>From the "paths" dialog, click the "path to selection" icon</li>
-<li>From the tool palette, select the gradient tool</li>
-<li>Choose a foreground and background colour for the end-colours of your gradient (I'm going with red and yellow)</li>
-<li>Click and hold the left button in the "H" of your text, then drag over to the "!" before letting go of the button. A gradient will be painted <em>inside</em> your text outline only.</li>
-</ol>
-
-<p><img src="https://lh4.googleusercontent.com/-q35MFgTHqRE/Tzoovka7aRI/AAAAAAAAI4I/r9J_Fi06MX0/s800/hello-2.png" alt="" /></p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Gimp">Gimp</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Icon">Icon</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Path">Path</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Selection">Selection</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="paths_and_selections_in_gimp.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -725,11 +940,11 @@ public class BitmapActivity extends Activity {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Jan 11, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
-                <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

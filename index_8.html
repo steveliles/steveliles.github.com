@@ -35,6 +35,73 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="637" description="My travails with getting google to use the microformat, rich-snippets and rel=author information on my blog">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
+              <a itemprop="url" href="microformats_rich_snippets_rel_author_and_search_listings.html"><h1 itemprop="name" itemprop="headline">Microformats, rich snippets, rel=author, and search listings</h1></a>
+	      <span itemprop="articleBody"><p>Whilst moving my blog from Blogger to github pages I've been looking into various ways to bump up my traffic. </p>
+
+<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and waited to see what google would make of it.</p>
+
+<p>I admit, I was pretty excited at the thought of my search listings being presented in a more interesting fashion - I think that would really make them stand out. Here's an example of what Google's "rich snippets" testing tool makes of my articles:</p>
+
+<p><img src="https://lh5.googleusercontent.com/-svXxV_v3GEM/Ts7iHUCNneI/AAAAAAAAHyY/lpTiC3ZKFI0/s867/rich-snippets.png" alt="rich snippets info for one of my blog posts" /></p>
+
+<p>Unfortunately to-date it hasn't made a great deal of difference to how my posts are presented in a google search result.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-56_YwrdGwv4/Ts7VbPtTwHI/AAAAAAAAHw8/s__A_feIMnY/s600/search-listing.png" alt="google search listing" /></p>
+
+<p>The first result in that listing image is for my blog. The only difference I see is that my blog result shows a date (which is nice, but I'm not sure its there because of the rich snippets markup - my old blogger blog shows dates like this too, and currently has no metadata markup that I can spot in the html source).</p>
+
+<p>So much for rich snippets. </p>
+
+<p>More recently I came across <code>rel=author</code>, and again I've been quite excited to try it out. This time I checked before-hand and found a handful of webby types who've got this working on their blogs. Here's what they look like:</p>
+
+<p><img src="https://lh4.googleusercontent.com/-j1PTvhmppyU/Ts7XnanwE-I/AAAAAAAAHxs/N4Z7toDlRN0/s600/rel-author-search-listing.png" alt="google search listing with rel=author" /></p>
+
+<p>A couple of weeks later I'm still having a bit of a trial getting this to work. I've done the setup exactly as described by google and a bunch of these other guys who've got it working - no joy. I'm using the three-way setup as follows:</p>
+
+<ul>
+<li>From each blog post, link to my about page with rel="author" (I've linked the lego man image at top-right in the header).</li>
+<li>From my about page, link to my google profile with rel="me" (I have two links, one <code>&lt;link rel="me"&gt;</code> in the <code>&lt;head&gt;</code>, and one in an <code>&lt;a rel="me" ..</code> in the G+ icon in the navigation bar just below the header.</li>
+<li>From my google profile, create a contributes-to link back to my about page.</li>
+</ul>
+
+<p>The reason for this set of reciprocal links is so that google can trust that the content really is produced by you, and its no hard-ship to set up. Except that for some reason I can't fathom it just <em>doesn't work for me</em>.</p>
+
+<p>The rich-snippets testing tool gives me the all-clear, and even shows an example search listing:</p>
+
+<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="" /></p>
+
+<p>I've tried about a dozen variants now, each time waiting for a re-index before trying something different (you can tell when you've been indexed using Google's <a href="http://www.google.com/webmasters/tools/">Webmaster Tools</a>).</p>
+
+<p>So far I've tried:</p>
+
+<ul>
+<li>Relative links between blog-post and about page</li>
+<li>Absolute links between blog-post and about page</li>
+<li>All links as <code>&lt;link&gt;</code> elements in the <code>&lt;head&gt;</code></li>
+<li>All links as <code>&lt;a&gt;</code> elements in the page <code>&lt;body&gt;</code></li>
+<li>All combinations of the above alternatives</li>
+</ul>
+
+<p>I have a few remaining alternatives in the works. One is to remove all rel=me links to profiles other than google (I currently also have twitter and linked-in profiles linked with rel=me). </p>
+
+<p>Another is to add a link to my google+ profile in an <code>&lt;a href="https://plus.google.com/105248011271585565954?rel=author"&gt;Steve+&lt;/a&gt;</code> (yes, with the + at the end of the link text - see <a href="http://www.google.com/support/webmasters/bin/answer.py?answer=1408986">option 2, here</a>). </p>
+
+<p>There's also <a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">this form</a> which sounds tantalisingly like it might be a necessary part of the process, and which I hadn't previously seen mentioned anywhere. I've submitted the form, but a bit of googling suggests that it will make no difference.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rel=author">rel=author</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rich snippets">rich snippets</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=microformats">microformats</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=schema.org">schema.org</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="microformats_rich_snippets_rel_author_and_search_listings.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="680" description="How to create a CSS selector that does not match for individual uses of the classes, but matches on elements that are assigned the intersection of the css classes">
               <span class="meta" itemprop="datePublished"><time datetime="2011-11-24">November 24, 2011</time></span>
               <a itemprop="url" href="a_multi_class_union_css_selector.html"><h1 itemprop="name" itemprop="headline">A multi-class union CSS selector</h1></a>
@@ -698,279 +765,6 @@ class Counter {
 	        <a href="creating_a_vectorisation_effect_with_java2d.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,097" description="Description and code for a progressive enhancement syntax highlighter written in javascript using Google Web Toolkit">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-13">November 13, 2011</time></span>
-              <a itemprop="url" href="syntax_highlighting_with_gwt_progressive.html"><h1 itemprop="name" itemprop="headline">Syntax Highlighting with GWT.Progressive</h1></a>
-	      <span itemprop="articleBody"><p>There are many good syntax-highlighters available for progressively enhancing code on website's such as my blog. On my old blog I used <a href="http://alexgorbatchev.com/SyntaxHighlighter/">Alex Gorbachev's</a> - which is exceptionally good.</p>
-
-<p>For this blog, I really wanted to write my own. Why? Well, for the same reason I wrote the site-generation software that builds the blog from Markdown templates - because I love programming, and doing this stuff is FUN!</p>
-
-<p>Having just released my <code>GWT.Progressive</code> library I had two very good reasons to write a syntax-highlighter that works by progressive-enhancement:</p>
-
-<ol>
-<li>I need good examples of progressive enhancement written in <code>GWT</code> using <code>GWT.Progressive</code></li>
-<li>Those very same code-samples need syntax-highlighting to aid readability!</li>
-</ol>
-
-<p>For this first attempt I'm not setting out to write the world's greatest syntax-highlighter. My aims are more modest: merely to illustrate the <code>GWT.Progressive</code> library and add basic syntax-highlighting (Java) capabilities to my blog.</p>
-
-<p>The syntax-highlighter will work as follows:</p>
-
-<ol>
-<li>After the page is loaded, identify <code>&lt;pre&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt;</code> blocks on my blog.</li>
-<li>Try to ascertain if the text in the block is Java, or a similar language (e.g. JavaScript).</li>
-<li>Mark keywords, literals, comments, and a few other choice elements using inline html markup to add css classes, allowing the actual colours and styles to be selected independently of the process of identify the parts to highlight.</li>
-</ol>
-
-<p>The script that kicks this off is loaded by the very last line in the html body of each page on my blog:</p>
-
-<pre><code>&lt;script 
-  type="text/javascript" language="javascript" 
-  src="blog/blog.nocache.js"&gt;
-&lt;/script&gt;
-</code></pre>
-
-<p>The Java class that uses the <code>GWT.Progressive</code> library to scan for <code>&lt;pre&gt;&lt;code&gt;</code> blocks is, in full, as follows:</p>
-
-<pre><code>package com.sjl.blog.client.syntax;
-
-import com.google.gwt.core.client.*;
-import com.google.gwt.dom.client.*;
-import com.knowledgeview.gwt.activator.client.*;
-import com.knowledgeview.gwt.activator.client.widgets.*;
-
-@RootBinding(tag="code")
-public class Code extends BoundRootPanel {
-    interface MyActivator extends ElementActivator&lt;Code&gt;{}
-    static MyActivator activator = GWT.create(MyActivator.class);
-
-    static JavaSyntaxHighlighter highlighter = 
-        new JavaSyntaxHighlighter();
-
-    public Code(Element anElement) {
-        setElement(activator.activate(this, anElement));
-
-        if (isJavaCode(getElement().getInnerText())) {
-            getElement().setInnerHTML(
-                highlighter.highlight(getElement().getInnerText()));
-        }
-    }
-
-    private boolean isJavaCode(String aString) {
-        return !aString.trim().startsWith("&lt;");
-    }
-}
-</code></pre>
-
-<p>The <code>GWT</code> module descriptor looks like this:</p>
-
-<pre><code>&lt;module rename-to="blog"&gt;
-  &lt;inherits name="com.google.gwt.user.User"/&gt;
-  &lt;inherits name="com.google.gwt.user.Debug"/&gt;
-
-  &lt;inherits name="com.sjl.gwt.progressive.Progressive"/&gt;
-  &lt;entry-point class="com.sjl.blog.client.BlogApplication" /&gt;
-
-      &lt;!-- allows the script to be used cross domain --&gt;
-  &lt;add-linker name="xs" /&gt;
-&lt;/module&gt;
-</code></pre>
-
-<p>I will take the time to write a better highlighter some time in the future (using ANTLR or similar to generate a parser), but for now I knocked up a simple version using regular expressions.</p>
-
-<p>This highlighter was built by TDD'ing my way through highlighting the different components, starting simple with keywords. The design changed a few times along the way, but in total, including the <code>Code</code> class, the finished highlighter took around 90 minutes to build.</p>
-
-<p>The slowest part, actually, was round-trip testing and fixing "for real" with GWT production mode, since the <a href="http://google-web-toolkit.googlecode.com/svn/javadoc/2.4/com/google/gwt/regexp/shared/RegExp.html">difference in regular expression engines</a> between development and production mode caught me out.</p>
-
-<p>Here's the Java syntax highlighter in full:</p>
-
-<pre><code>public class JavaSyntaxHighlighter implements SyntaxHighlighter {
-    private List&amp;lt;Replacement&gt; replacements;
-
-    public JavaSyntaxHighlighter() {
-        replacements = new ArrayList&amp;lt;Replacement&gt;();
-
-        // order is important
-        replacements.add(new CommentReplacement());
-        replacements.add(new AnnotationReplacement());
-        replacements.add(new LiteralReplacement());
-        replacements.add(new KeywordReplacement());
-    }
-
-    public String highlight(String anInput) {
-        List&amp;lt;Component&gt; _components = new ArrayList&amp;lt;Component&gt;();
-        _components.add(new SplittableComponent(anInput));
-
-        for (Replacement _r : replacements) {
-        _components = _r.process(_components);
-        }
-
-        StringBuilder _sb = new StringBuilder();
-        for (Component _c : _components) {
-        _sb.append(_c);
-        }
-        return _sb.toString();
-    }
-}
-
-interface Component {
-    boolean canSplit();
-    String toString();
-}
-
-class SplittableComponent implements Component {
-    protected String value;
-
-    public SplittableComponent(String aValue) {
-        value = aValue;
-    }
-
-    public boolean canSplit() {
-        return true;
-    }
-
-    public String toString() {
-        return value;
-    }
-}
-
-class UnsplittableComponent extends SplittableComponent {
-    public UnsplittableComponent(String aValue) {
-        super(aValue);
-    }
-
-    public boolean canSplit() {
-        return false;
-    }
-}
-
-interface Replacement {
-    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; anInput);
-}
-
-abstract class AbstractReplacement implements Replacement {
-    private String cssClass;
-
-    public AbstractReplacement(String aCssClass) {
-        cssClass = aCssClass;
-    }
-
-    protected abstract String replace(String aString);
-
-    @Override
-    public List&amp;lt;Component&gt; process(List&amp;lt;Component&gt; aComponents)
-    {
-        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
-        for (Component _c : aComponents) {
-        if (_c.canSplit()) {
-            String _replaced = replace(_c.toString());
-            _result.addAll(createComponents(_replaced, cssClass));
-        } else {
-            _result.add(_c);
-        }
-        }
-        return _result;
-    }
-
-    private List&amp;lt;Component&gt; createComponents(
-        String anInput, String aClass) {
-        List&amp;lt;Component&gt; _result = new ArrayList&amp;lt;Component&gt;();
-        for (String _s : anInput.split("\\[\\[\\[|\\]\\]\\]")) {
-        if (_s.startsWith("&amp;lt;span class=\"" + aClass)) {
-            _result.add(new UnsplittableComponent(_s));
-        } else {
-            _result.add(new SplittableComponent(_s));
-        }
-        }
-        return _result;
-    }
-
-    protected String replacement(String aClass) {
-        return "[ [ [&amp;lt;span class=\"" + aClass + "\"&amp;gt;$1&amp;lt;/span&amp;gt;] ] ]";
-    }
-}
-
-class KeywordReplacement extends AbstractReplacement
-{
-    public static String[] KEYWORDS = new String[] {
-        "class", "package", "import", "public", "private", "protected", 
-        "interface", "extends", "this", "implements", "throws", "try", 
-        "catch", "finally", "final", "return", "new", "void", "for", 
-        "if", "else", "while", "static", "transient", "synchronized", 
-        "byte", "short", "int ", "char ", "long ", "float ", "double ", 
-        "boolean ", "true", "false", "abstract", "volatile", "switch", 
-        "case"
-    };
-
-    public KeywordReplacement() {
-        super("sh-keyword");
-    }
-
-    protected String replace(String aString) {
-        String _result = aString;
-        for (String _k : KEYWORDS) {
-        _result = _result.replaceAll("(" + _k + ")", 
-                replacement("sh-keyword"));
-        }
-        return _result;
-    }
-}
-
-class LiteralReplacement extends AbstractReplacement {
-
-    public LiteralReplacement() {
-        super("sh-literal");
-    }
-
-    protected String replace(String aString) {
-        return aString.replaceAll("(\"[^\"]*\")", 
-            replacement("sh-literal"));
-    }
-}
-
-class CommentReplacement extends AbstractReplacement {
-    public CommentReplacement() {
-        super("sh-comment");
-    }
-
-    protected String replace(String aString) {
-        String _result = aString.replaceAll("(//.*)", 
-            replacement("sh-comment"));
-        _result = _result.replaceAll("(\\/\\*[\\*]?.*\\*\\/)", 
-            replacement("sh-comment"));
-        return _result;
-    }
-}
-
-class AnnotationReplacement extends AbstractReplacement {
-    public AnnotationReplacement() {
-        super("sh-annotation");
-    }
-
-    protected String replace(String aString) {
-        return aString.replaceAll("(@\\w+)", 
-            replacement("sh-annotation"));
-    }
-}
-</code></pre>
-
-<p>You can find out more about <code>GWT.Progressive</code> in the <a href="gwt_progressive.html">release announcement</a>, or at the <a href="https://github.com/steveliles/gwt-progressive">github repository</a>.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=syntax">syntax</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=highlight">highlight</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=progressive">progressive</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=enhancement">enhancement</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=regexp">regexp</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="syntax_highlighting_with_gwt_progressive.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -988,11 +782,11 @@ class AnnotationReplacement extends AbstractReplacement {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Jan 11, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
                 <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
-                <li><a href="spring_config_for_parameterised_non_static_factory_methods.html">Spring config for parameterised, non-static factory methods</a><span class="date"> - Sep 14, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

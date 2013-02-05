@@ -13,6 +13,164 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Cross-domain inter-frame communication in javascript]]></title>
+        <link><![CDATA[http://steveliles.github.com/cross_domain_inter_frame_communication_in_javascript.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/cross_domain_inter_frame_communication_in_javascript.html</guid>
+        <description><![CDATA[<p><em>Requirement:</em> Web-page A from domain A' loads web-page B from domain B' into an iframe. Web-page B wants to be able to render some content into the DOM of web-page A (outside of the view-port described by B's iframe). The content which B renders into A needs to be able to HTTP GET and POST data back to the domain B', handle the responses, and update the rendered content in web-page A.</p>
+
+<p><em>Problems:</em></p>
+
+<ul>
+<li>Scripts loaded into pages from different domains cannot interact so, for example, page B's scripts cannot <em>simply</em>* render content into the parent frame (page A)</li>
+<li>Page A cannot <em>simply</em>* use XMLHTTPRequest to GET/POST/PUT/DELETE to host B</li>
+</ul>
+
+<p>[*] I say "simply" because you can't just expect it to work like it would in a same-domain environment, but it is possible!</p>
+
+<h3>Escaping from an iframe</h3>
+
+<p>Lets start with rendering content into a parent frame. To get concrete, lets say that domain A is www.domain.com, while domain B is sub.domain.com. </p>
+
+<p>Yes, they are sub-domains of a common root. No, B is <em>not</em> allowed to modify the DOM of A, or communicate with scripts in A, because web-browsers won't allow that unless the ports, protocols, <em>and</em> domains match <em>exactly</em>.</p>
+
+<p>The only way for B to escape from the iframe is to have co-operation from A. That co-operation can come in one of two forms: </p>
+
+<ol>
+<li>Both pages must explicitly set the <code>document.domain</code> property to the same value (e.g. domain.com). Even if one of the pages is served directly from "domain.com", the act of explicitly setting the domain is required for this technique to work - it signals to the browser that the two pages want to collaborate.</li>
+<li>Have host A serve an iframe-buster page (more below)</li>
+</ol>
+
+<h4>Iframe Buster</h4>
+
+<p>Host A can serve a page which loads scripts on behalf of B, sometimes known as an <a href="http://www.adopstools.net/?section=miscellaneous&amp;page=iframes">iframe-buster</a>. </p>
+
+<p>This is a common technique in the ad-delivery world to allow complex ads like page take-over's to escape from the iframe they are loaded into. Note that this is not an exploit as such, since it requires host A to be complicit.</p>
+
+<p>To illustrate how it works, here's a very simple iframe-buster:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;p&gt;TODO: oops looks like I forgot to come back and fill this in!&lt;/p&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>The host-page A will initially load a page from host B. That page B will load the iframe-buster with some parameters which tell the iframe-buster what scripts to load. The initial page B might look something like this:</p>
+
+<pre><code>&lt;html&gt;
+  &lt;p&gt;TODO: oops looks like I forgot to come back and fill this in!&lt;/p&gt;      
+&lt;/html&gt;
+</code></pre>
+
+<p>&hellip;</p>
+
+<h4>Rendering into the parent DOM</h4>
+
+<p>Now that we have assistance from the host-page domain, our iframe can communicate directly with the DOM and scripts in the parent frame, using the <code>window.parent</code> handle.</p>
+
+<pre><code>var _ctx = window.parent.document;
+var _div = _ctx.createElement("div");
+_div.innerHTML = '&amp;#60;h1&gt;Hooray!&amp;#60;/h1&gt;';
+_ctx.body.appendChild(_div);
+</code></pre>
+
+<p>Great!</p>
+
+<h3>Making HTTP requests</h3>
+
+<p>Now we want to fetch some JSON data from host B by HTTP GET, and render it in the parent frame. For GET requests we might be OK - we just need the host API to support JSONP. If it doesn't we need one of the other techniques as for making POST requests …</p>
+
+<p>What if we want to POST some data to host B? We can't use XMLHTTPRequest to POST from A to B, as the browser security policies won't allow it. So, what are our options?</p>
+
+<ol>
+<li>HTML Form POST</li>
+<li>CORS (Cross Origin Resource Sharing)</li>
+<li>Pipelined communication through another frame</li>
+</ol>
+
+<h4>HTML Form POST</h4>
+
+<p>We could use a form POST, which <em>is</em> allowed to POST to another domain (mostly because the HTML Form POST spec pre-dates the tightened security policies), and will receive the response. </p>
+
+<p>You'll need to do a bit of scripting to wrap things up so that you can register callbacks and have things behave <em>similarly</em> to an XMLHTTPRequest.</p>
+
+<p>This method has the advantage of broad browser compatibility, but the implementation is by necessity less clean, and you lose some of the advantages of XMLHTTPRequest (e.g. the ability to check the response status code). </p>
+
+<p>If you're dealing with a pure RESTful API you'll struggle without the ability to check status codes. </p>
+
+<p>If you have help from the server-side you can probably engineer your way around most of the problems, and even tunnel non-POST API calls by using hidden FORM params and a server-side intercept (e.g. Servlet Filter) to translate the request for you before it hits the API handlers. </p>
+
+<p>That said, if you have control of (or co-operation from) the server-side you'll probably want to look at one of the other methods below.</p>
+
+<p>Advantages:</p>
+
+<ol>
+<li>Good browser compatibility</li>
+<li>Easily understood</li>
+</ol>
+
+<p>Disadvantages:</p>
+
+<ol>
+<li>Poor handling of pure RESTful APIs</li>
+</ol>
+
+<h4>CORS (Cross Origin Resource Sharing)</h4>
+
+<p>We could use <a href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a>, which involves the web-server B checking and sending additional HTTP headers. </p>
+
+<p>This requires a relatively modern browser and some server-side work to check and set additional HTTP headers. CORS is nice because it allows us to conveniently use XMLHTTPRequest for all of our requests (and no need for JSONP).</p>
+
+<p>CORS might put a little extra demand on your servers, as browsers "pre-flight" requests as part of the CORS protocol.</p>
+
+<p>Advantages:</p>
+
+<ol>
+<li>Just like working in a same-domain environment (good for RESTful API handling)</li>
+<li>CORS is an emerging standard, so you don't necessarily need to own/operate the host for this method to be a realistic possibility</li>
+</ol>
+
+<p>Disadvantages:</p>
+
+<ol>
+<li>Requires modern browser</li>
+<li>Requires that the host supports CORS</li>
+<li>Some HTTP request overhead (pre-flight)</li>
+</ol>
+
+<h4>Pipeline communication through another iframe</h4>
+
+<p>A third option is to pipeline your HTTP calls through another iframe - loaded from the domain of the host you want to make calls to.</p>
+
+<p>In newer browsers we can use <code>window.postMessage</code> to send text between frames loaded from different domains. </p>
+
+<p>Since this text can be JSON, and you can register event-handlers for the "message" event, you can set up a communication-frame per host that you need to talk to, and from inside that frame you can use straight-forward XMLHTTPRequest calls, same-domain style.</p>
+
+<p>There are some neat libraries that use a variety of fallback methods (message-passing via window.name; flash) to make this work in older browsers. The most popular one seems to be <a href="http://easyxdm.net/wp/">EasyXDM</a>.</p>
+
+<p>Advantages:
+1. Good browser compatibility (use libraries like EasyXDM)
+2. Good for RESTful API handling</p>
+
+<p>Disadvantages:</p>
+
+<ol>
+<li>More complex set-up</li>
+<li>You need control of the host</li>
+<li>There's some small overhead in piping everything as strings through nested iframe's</li>
+</ol>
+
+<h3>Summary</h3>
+
+<p>As with everything, there is no one-size-fits-all solution, and some flexibility and compromise is likely to be necessary. For the project I'm working on currently I'm using iframe busters, a little CORS, and a lot of pipelining through another frame, but YMMV.</p>
+]]></description>
+          <category>javascript</category>
+          <category>iframe</category>
+          <category>window</category>
+          <category>cross-domain</category>
+          <category>postMessage</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Fri, 11 Jan 2013 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Subversion 1.7 Eclipse integration in Ubuntu 12]]></title>
         <link><![CDATA[http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu_12.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu_12.html</guid>
@@ -5260,69 +5418,6 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <category>hosting</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Microformats, rich snippets, rel=author, and search listings]]></title>
-        <link><![CDATA[http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/microformats_rich_snippets_rel_author_and_search_listings.html</guid>
-        <description><![CDATA[<p>Whilst moving my blog from Blogger to github pages I've been looking into various ways to bump up my traffic. </p>
-
-<p>I came across <a href="http://schema.org">schema.org</a> microformats some time ago and read about plans from Google, Yahoo and Microsoft to support them. I implemented the <a href="http://schema.org/BlogPosting">BlogPosting</a> microformat to mark up my posts "semantically", and waited to see what google would make of it.</p>
-
-<p>I admit, I was pretty excited at the thought of my search listings being presented in a more interesting fashion - I think that would really make them stand out. Here's an example of what Google's "rich snippets" testing tool makes of my articles:</p>
-
-<p><img src="https://lh5.googleusercontent.com/-svXxV_v3GEM/Ts7iHUCNneI/AAAAAAAAHyY/lpTiC3ZKFI0/s867/rich-snippets.png" alt="rich snippets info for one of my blog posts" /></p>
-
-<p>Unfortunately to-date it hasn't made a great deal of difference to how my posts are presented in a google search result.</p>
-
-<p><img src="https://lh6.googleusercontent.com/-56_YwrdGwv4/Ts7VbPtTwHI/AAAAAAAAHw8/s__A_feIMnY/s600/search-listing.png" alt="google search listing" /></p>
-
-<p>The first result in that listing image is for my blog. The only difference I see is that my blog result shows a date (which is nice, but I'm not sure its there because of the rich snippets markup - my old blogger blog shows dates like this too, and currently has no metadata markup that I can spot in the html source).</p>
-
-<p>So much for rich snippets. </p>
-
-<p>More recently I came across <code>rel=author</code>, and again I've been quite excited to try it out. This time I checked before-hand and found a handful of webby types who've got this working on their blogs. Here's what they look like:</p>
-
-<p><img src="https://lh4.googleusercontent.com/-j1PTvhmppyU/Ts7XnanwE-I/AAAAAAAAHxs/N4Z7toDlRN0/s600/rel-author-search-listing.png" alt="google search listing with rel=author" /></p>
-
-<p>A couple of weeks later I'm still having a bit of a trial getting this to work. I've done the setup exactly as described by google and a bunch of these other guys who've got it working - no joy. I'm using the three-way setup as follows:</p>
-
-<ul>
-<li>From each blog post, link to my about page with rel="author" (I've linked the lego man image at top-right in the header).</li>
-<li>From my about page, link to my google profile with rel="me" (I have two links, one <code>&lt;link rel="me"&gt;</code> in the <code>&lt;head&gt;</code>, and one in an <code>&lt;a rel="me" ..</code> in the G+ icon in the navigation bar just below the header.</li>
-<li>From my google profile, create a contributes-to link back to my about page.</li>
-</ul>
-
-<p>The reason for this set of reciprocal links is so that google can trust that the content really is produced by you, and its no hard-ship to set up. Except that for some reason I can't fathom it just <em>doesn't work for me</em>.</p>
-
-<p>The rich-snippets testing tool gives me the all-clear, and even shows an example search listing:</p>
-
-<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="" /></p>
-
-<p>I've tried about a dozen variants now, each time waiting for a re-index before trying something different (you can tell when you've been indexed using Google's <a href="http://www.google.com/webmasters/tools/">Webmaster Tools</a>).</p>
-
-<p>So far I've tried:</p>
-
-<ul>
-<li>Relative links between blog-post and about page</li>
-<li>Absolute links between blog-post and about page</li>
-<li>All links as <code>&lt;link&gt;</code> elements in the <code>&lt;head&gt;</code></li>
-<li>All links as <code>&lt;a&gt;</code> elements in the page <code>&lt;body&gt;</code></li>
-<li>All combinations of the above alternatives</li>
-</ul>
-
-<p>I have a few remaining alternatives in the works. One is to remove all rel=me links to profiles other than google (I currently also have twitter and linked-in profiles linked with rel=me). </p>
-
-<p>Another is to add a link to my google+ profile in an <code>&lt;a href="https://plus.google.com/105248011271585565954?rel=author"&gt;Steve+&lt;/a&gt;</code> (yes, with the + at the end of the link text - see <a href="http://www.google.com/support/webmasters/bin/answer.py?answer=1408986">option 2, here</a>). </p>
-
-<p>There's also <a href="https://spreadsheets.google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">this form</a> which sounds tantalisingly like it might be a necessary part of the process, and which I hadn't previously seen mentioned anywhere. I've submitted the form, but a bit of googling suggests that it will make no difference.</p>
-]]></description>
-          <category>rel=author</category>
-          <category>rich snippets</category>
-          <category>microformats</category>
-          <category>schema.org</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Thu, 24 Nov 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>
