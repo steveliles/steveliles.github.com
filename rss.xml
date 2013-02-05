@@ -168,7 +168,7 @@ _ctx.body.appendChild(_div);
           <category>cross-domain</category>
           <category>postMessage</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Fri, 11 Jan 2013 00:00:00 +0000</pubDate>
+        <pubDate>Tue, 05 Feb 2013 00:00:00 +0000</pubDate>
       </item>
       <item>
         <title><![CDATA[Subversion 1.7 Eclipse integration in Ubuntu 12]]></title>
