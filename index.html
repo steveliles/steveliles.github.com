@@ -35,7 +35,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,216" description="Communication between frames/windows in javascript is fine until some of your frames are served from different domains. Communication between frames in different domains is still possible, but you have to work in a very different way...">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,312" description="Communication between frames/windows in javascript is fine until some of your frames are served from different domains. Communication between frames in different domains is still possible, but you have to work in a very different way...">
               <span class="meta" itemprop="datePublished"><time datetime="2013-02-05">February 05, 2013</time></span>
               <a itemprop="url" href="cross_domain_inter_frame_communication_in_javascript.html"><h1 itemprop="name" itemprop="headline">Cross-domain inter-frame communication in javascript</h1></a>
 	      <span itemprop="articleBody"><p><em>Requirement:</em> Web-page A from domain A' loads web-page B from domain B' into an iframe. Web-page B wants to be able to render some content into the DOM of web-page A (outside of the view-port described by B's iframe). The content which B renders into A needs to be able to HTTP GET and POST data back to the domain B', handle the responses, and update the rendered content in web-page A.</p>
@@ -68,21 +68,25 @@
 
 <p>This is a common technique in the ad-delivery world to allow complex ads like page take-over's to escape from the iframe they are loaded into. Note that this is not an exploit as such, since it requires host A to be complicit.</p>
 
-<p>To illustrate how it works, here's a very simple iframe-buster:</p>
+<p>To illustrate how it works, here's what a very simple iframe-buster might look like:</p>
 
-<pre><code>&lt;html&gt;
-  &lt;p&gt;TODO: oops looks like I forgot to come back and fill this in!&lt;/p&gt;
-&lt;/html&gt;
+<pre><code>&amp;#60;!DOCTYPE HTML PUBLIC 
+  "-//W3C//DTD HTML 4.01 Transitional//EN" 
+  "http://www.w3.org/TR/html4/strict.dtd"&gt;
+&amp;#60;html&gt;
+  &amp;#60;body&gt;
+    &amp;#60;script type="text/javascript" language="javascript"&gt;
+      var _url = "http://www.domain.com/bust.js?" + document.location.search;
+      var _script = document.createElement("script");
+      _script.setAttribute("type", "text/javascript");
+      _script.setAttribute("src", _url);
+      document.body.appendChild(_script);        
+    &amp;#60;/script&gt;    
+  &amp;#60;/body&gt;
+&amp;#60;/html&gt;
 </code></pre>
 
-<p>The host-page A will initially load a page from host B. That page B will load the iframe-buster with some parameters which tell the iframe-buster what scripts to load. The initial page B might look something like this:</p>
-
-<pre><code>&lt;html&gt;
-  &lt;p&gt;TODO: oops looks like I forgot to come back and fill this in!&lt;/p&gt;      
-&lt;/html&gt;
-</code></pre>
-
-<p>&hellip;</p>
+<p>The host-page A will initially load a page from host B. That page B will load the iframe-buster on host A with some parameters which can be used to direct what the bust-out actually does.</p>
 
 <h4>Rendering into the parent DOM</h4>
 
