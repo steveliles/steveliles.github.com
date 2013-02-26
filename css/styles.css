@@ -27,14 +27,6 @@ img {
   width:100%;
   display:table;
   background-color:#263347;
-  
-  background:-webkit-gradient(
-    radial, 250 10%, 0, 1000 25%, 40, from(#424963), to(#263347)
-  ) #263347;
-
-  background:-moz-radial-gradient(
-    250px 25%, circle, #424963 0px, #263347 40px
-  );
 }
 
 .site-header > div.left {
