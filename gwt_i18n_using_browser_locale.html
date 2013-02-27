@@ -6,14 +6,13 @@
     <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
     <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
-      <meta name="keywords" content="google+" itemprop="keywords"></meta>
-      <meta name="keywords" content="g+" itemprop="keywords"></meta>
-      <meta name="keywords" content="+1" itemprop="keywords"></meta>
-      <meta name="keywords" content="plusone" itemprop="keywords"></meta>
-      <meta name="keywords" content="bookmarklet" itemprop="keywords"></meta>
-    <meta name="description" content="Many pages that you might want to share don't have Google+ plus-one buttons. This bookmarklet makes it easy to +1 any page directly while browsing it."></meta>
+      <meta name="keywords" content="GWT" itemprop="keywords"></meta>
+      <meta name="keywords" content="i18n" itemprop="keywords"></meta>
+      <meta name="keywords" content="l10n" itemprop="keywords"></meta>
+      <meta name="keywords" content="locale" itemprop="keywords"></meta>
+    <meta name="description" content="Loading the correct GWT language permutation according to the browser (user-agent) locale."></meta>
     <script type="text/javascript" src="google-analytics.js"></script>
-    <title>Plus-One any page - Google +1 Bookmarklet</title>
+    <title>GWT i18n using browser locale</title>
   </head>
   <body>
     <div>
@@ -40,34 +39,30 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="227" description="Many pages that you might want to share don't have Google+ plus-one buttons. This bookmarklet makes it easy to +1 any page directly while browsing it.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
-              <a itemprop="url" href="plus_one_any_page_google_1_bookmarklet.html"><h1 itemprop="name" itemprop="headline">Plus-One any page - Google +1 Bookmarklet</h1></a>
-	      <span itemprop="articleBody"><p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it - share from anywhere!</p>
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="156" description="Loading the correct GWT language permutation according to the browser (user-agent) locale.">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-02-27">February 27, 2013</time></span>
+              <a itemprop="url" href="gwt_i18n_using_browser_locale.html"><h1 itemprop="name" itemprop="headline">GWT i18n using browser locale</h1></a>
+	      <span itemprop="articleBody"><p>I was trying to get GWT to load a localised permutation based on the user's browser locale. For whatever reason I didn't have much luck coming up with a good combination of search keywords to get a good hit from Google.</p>
 
-<p>To install the bookmarklet just drag the <code>Google+1</code> link below to your browser bookmarks bar:</p>
+<p>After rummaging around in the bowels of GWT I found that it is possible to use the browser locale to determine the build permutation to use. </p>
 
-<div style="text-align:center;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';gpc.style.padding='50px';gpc.style.backgroundColor='#def';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a></div>
+<p>It doesn't seem all that well publicised or documented (does not figure in the <a href="https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n">i18n docs</a> for example), although it is used in the <a href="http://google-web-toolkit.googlecode.com/svn-history/r11299/trunk/samples/showcase/src/com/google/gwt/sample/showcase/Showcase.gwt.xml">showcase demo app</a>.</p>
 
-<p>To use the bookmarklet at any time while browsing the web just click the link on your bookmarks bar and a +1 button will appear in the top-right corner of the page. Click the plus one button to share and comment just like you would on any other site that already has +1 buttons (feel free to test it out on this page!).</p>
+<p>There are clues as to why it isn't well publicised in the <a href="http://code.google.com/p/google-web-toolkit/issues/detail?id=4228">bug containing the original patch</a>.</p>
 
-<p>I have tested this bookmarklet in Chrome 16.0.9 and Firefox 8.0. Please leave a comment if you have trouble with other browsers and I'll see what I can do.</p>
+<p>To use the browser's locale to determine the permutation, simply add the following to the module.gwt.xml:</p>
 
-<p>Internet Explorer 6 users might struggle - the bookmarklet code is longer than IE6 can cope with. May I suggest upgrading to one of the many much better browsers available, such as <a href="http://www.google.com/chrome">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>. </p>
+<pre><code>&lt;set-configuration-property name="locale.useragent" value="Y"/&gt;
+</code></pre>
 
-<p>Alternatively you can try this bookmarklet (disclaimer: I cannot test it - I don't have IE6) - drag the "Google+1" to your browser links bar:</p>
-
-<div style="text-align:center;margin:auto;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a>(IE6)</div>
-
-<p>Enjoy!</p>
+<p>Setting the locale of chrome for testing is explained for <a href="http://developer.chrome.com/extensions/i18n.html#testing-win">windows</a>, <a href="http://developer.chrome.com/extensions/i18n.html#testing-linux">linux</a>, and <a href="http://developer.chrome.com/extensions/i18n.html#testing-mac">mac</a>.</p>
 </span>
 
               <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=google+">google+</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=g+">g+</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=+1">+1</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=plusone">plusone</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=bookmarklet">bookmarklet</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=i18n">i18n</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=l10n">l10n</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=locale">locale</a></li>
               </ul>
               <div style="clear:both"></div>
 
@@ -119,7 +114,6 @@
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
-                <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
                 <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
@@ -131,8 +125,8 @@
       </div>
       <div class="nav">
         <div class="links">
-          <div class="prev"><a title="previous" href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">Pointing a domain name to a...</a></div>
-          <div class="next"><a title="next" href="hosting_a_static_website_in_amazon_s3.html">Hosting a static website in...</a></div>
+          
+          <div class="next"><a title="next" href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame co...</a></div>
         </div>
       </div>
     </div>

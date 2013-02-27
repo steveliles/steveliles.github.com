@@ -35,6 +35,345 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,917" description="A description of my initial set up of Android projects with Maven & SVN for distributed team development">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-01-09">January 09, 2012</time></span>
+              <a itemprop="url" href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html"><h1 itemprop="name" itemprop="headline">Setting up Maven, Android and SVN for team development of multiple applications</h1></a>
+	      <span itemprop="articleBody"><p>If you don't yet have your Eclipse - ADT - Maven tool-chain set up you might be interested in the <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">previous post</a>. If you are joining a team that <em>has already set up as I describe here</em> you probably want <a href="http://steveliles.github.com/maven_android_and_eclipse_joining_the_team.html">this post instead</a>.</p>
+
+<p>Google's ADT is great if you're working alone, but falls short when a team needs to work on the same Android project. It gets worse when you have multiple projects - especially if some are library projects.</p>
+
+<p>It gets worse still if the development team is distributed (as we are) and/or running different development platforms - Windows, Linux, Mac OSX - (as we do). A description of how I've set things up follows this brief interlude:</p>
+
+<p><a target="top" href="https://lh6.googleusercontent.com/-3U09-bd8s5E/TxtBOFAOssI/AAAAAAAAIlw/F1kSpCLv_DI/s1600/39.jpg"><img alt="Android Maven Eclipse Subversion, a lego comic strip made with Comic Strip It!" src="https://lh6.googleusercontent.com/-3U09-bd8s5E/TxtBOFAOssI/AAAAAAAAIlw/F1kSpCLv_DI/s600/39.jpg"></a></p>
+
+<p>The important things I wanted to enable in our team environment are:</p>
+
+<ol>
+<li>That the whole team can "get" the latest code quickly and easily</li>
+<li>That the whole team can contribute updates to the codebase quickly and easily</li>
+<li>That any new team member coming on-board can build <em>immediately</em> from check-out (given a short list of pre-requisites)</li>
+<li>That any team member can easily, consistently and <em>correctly</em> build a signed apk for release to the market</li>
+<li>New projects can be created quickly and easily with minimum of re-work <em>and</em> copy-paste in configuration</li>
+<li>Componentisation (e.g. jars and apklibs) is a Good Thing, and should be encouraged by making it as straight-forward as possible</li>
+<li>Developers have their choice of OS</li>
+</ol>
+
+<p>Here's how I've set things up to support these goals...</p>
+
+<h3>Pre-requisites</h3>
+
+<p>I am assuming that:</p>
+
+<ul>
+<li>You use some form of source-code control (Subversion/GIT/other...). Of course you do :)</li>
+<li>All developers will install Eclipse and ADT for themselves as a pre-requisite.</li>
+<li>If, as a team, you use Maven and/or Continuous integration, all developers will also install m2eclipse and m2e-android eclipse plugins and Maven 3 (see <a href="converting_eclipse_adt_android_projects_to_build_with_maven.html">previous article</a>).</li>
+<li>You have some common practices in your team like, for example, checking out all projects as siblings in a single workspace directory (otherwise you'll have problems with sharing relative paths to referenced projects between developers).</li>
+</ul>
+
+<h3>Our Setup</h3>
+
+<p>I've set up projects in the workspace such that all of the following are siblings in a single workspace directory:</p>
+
+<ul>
+<li>A parent project that hosts most of the maven-android config as a parent pom.</li>
+<li>A project that hosts the keystore, and is checked in to source-code control (I actually use the same project for both the parent pom and keystore).</li>
+<li>A (Android Library) project that contains a copy of the market licensing code (Google recommend keeping a separate copy outside of the SDK install directory). Ours is checked in to SVN for convenient sharing.</li>
+<li>Multiple Android library (apklib) projects for our own code that is shared between multiple apps (apk's).</li>
+<li>Multiple Android (apk) projects</li>
+</ul>
+
+<p>Since most of the maven configuration is provided by the parent pom, each new project requires only minimal configuration. The parent pom for our android projects currently looks like this:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xsi:schemaLocation="
+  http://maven.apache.org/POM/4.0.0 
+  http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+  &lt;artifactId&gt;android&lt;/artifactId&gt;
+  &lt;version&gt;1.0&lt;/version&gt;
+  &lt;packaging&gt;pom&lt;/packaging&gt;
+  &lt;build&gt;
+    &lt;sourceDirectory&gt;src/java/main&lt;/sourceDirectory&gt;
+    &lt;pluginManagement&gt;
+      &lt;plugins&gt;
+        &lt;!--This plugin's configuration is used to store 
+                Eclipse m2e settings only. It has no influence 
+                on the Maven build itself.--&gt;
+        &lt;plugin&gt;
+          &lt;groupId&gt;org.eclipse.m2e&lt;/groupId&gt;
+          &lt;artifactId&gt;lifecycle-mapping&lt;/artifactId&gt;
+          &lt;version&gt;1.0.0&lt;/version&gt;
+          &lt;configuration&gt;
+            &lt;lifecycleMappingMetadata&gt;
+              &lt;pluginExecutions&gt;
+                &lt;pluginExecution&gt;
+                  &lt;pluginExecutionFilter&gt;
+                &lt;groupId&gt;
+                  com.jayway.maven.plugins.android.generation2
+            &lt;/groupId&gt;
+                    &lt;artifactId&gt;android-maven-plugin&lt;/artifactId&gt;
+                    &lt;versionRange&gt;[3.0.0,)&lt;/versionRange&gt;
+                &lt;goals&gt;
+                  &lt;goal&gt;proguard&lt;/goal&gt;
+                &lt;/goals&gt;
+              &lt;/pluginExecutionFilter&gt;
+              &lt;action&gt;
+                &lt;ignore&gt;&lt;/ignore&gt;
+              &lt;/action&gt;
+                &lt;/pluginExecution&gt;
+              &lt;/pluginExecutions&gt;
+            &lt;/lifecycleMappingMetadata&gt;
+          &lt;/configuration&gt;
+        &lt;/plugin&gt;
+      &lt;/plugins&gt;
+    &lt;/pluginManagement&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;com.jayway.maven.plugins.android.generation2&lt;/groupId&gt;
+        &lt;artifactId&gt;android-maven-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.0.0&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;androidManifestFile&gt;
+            ${project.basedir}/AndroidManifest.xml
+              &lt;/androidManifestFile&gt;
+          &lt;assetsDirectory&gt;${project.basedir}/assets&lt;/assetsDirectory&gt;
+          &lt;resourceDirectory&gt;${project.basedir}/res&lt;/resourceDirectory&gt;
+          &lt;nativeLibrariesDirectory&gt;
+            ${project.basedir}/src/main/native
+          &lt;/nativeLibrariesDirectory&gt;
+          &lt;sdk&gt;
+            &lt;platform&gt;14&lt;/platform&gt;
+          &lt;/sdk&gt;
+          &lt;proguard&gt;
+            &lt;skip&gt;false&lt;/skip&gt;
+          &lt;/proguard&gt;
+          &lt;sign&gt;
+            &lt;debug&gt;false&lt;/debug&gt;
+          &lt;/sign&gt;
+          &lt;deleteConflictingFiles&gt;true&lt;/deleteConflictingFiles&gt;
+          &lt;undeployBeforeDeploy&gt;true&lt;/undeployBeforeDeploy&gt;
+        &lt;/configuration&gt;
+        &lt;extensions&gt;true&lt;/extensions&gt;
+      &lt;/plugin&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-jarsigner-plugin&lt;/artifactId&gt;
+        &lt;version&gt;1.2&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;id&gt;signing&lt;/id&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;sign&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;inherited&gt;true&lt;/inherited&gt;
+            &lt;configuration&gt;
+              &lt;archiveDirectory&gt;&lt;/archiveDirectory&gt;
+              &lt;includes&gt;
+                &lt;include&gt;target/*.apk&lt;/include&gt;
+              &lt;/includes&gt;
+              &lt;keystore&gt;../android/keystore&lt;/keystore&gt;
+              &lt;storepass&gt;keystore-password-goes-here&lt;/storepass&gt;
+              &lt;keypass&gt;key-password-goes-here&lt;/keypass&gt;
+              &lt;alias&gt;key-alias-goes-here&lt;/alias&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+      &lt;plugin&gt;
+        &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+        &lt;version&gt;2.3.2&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;source&gt;1.6&lt;/source&gt;
+          &lt;target&gt;1.6&lt;/target&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+
+<p>An example of a pom from a library (apklib) project looks like this:</p>
+
+<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xsi:schemaLocation="
+    http://maven.apache.org/POM/4.0.0 
+    http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;parent&gt;
+    &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+    &lt;artifactId&gt;android&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+  &lt;/parent&gt;
+  &lt;artifactId&gt;android.util&lt;/artifactId&gt;
+  &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;name&gt;Android Utils&lt;/name&gt;
+  &lt;packaging&gt;apklib&lt;/packaging&gt;
+  &lt;description&gt;&lt;/description&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.google.android&lt;/groupId&gt;
+      &lt;artifactId&gt;android&lt;/artifactId&gt;
+      &lt;version&gt;2.2.1&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+        &lt;!-- made available to android by 
+             "maven android sdk deployer" --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;android.support&lt;/groupId&gt;
+      &lt;artifactId&gt;compatibility-v13&lt;/artifactId&gt;
+      &lt;version&gt;r6&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-core&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-commonshttp4&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.twitter4j&lt;/groupId&gt;
+      &lt;artifactId&gt;twitter4j-core&lt;/artifactId&gt;
+      &lt;version&gt;2.1.0&lt;/version&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+  &lt;scm&gt;
+    &lt;connection&gt;scm:svn:svn://repo/project/trunk&lt;/connection&gt;
+    &lt;developerConnection&gt;
+      scm:svn:svn://repo/project/trunk
+    &lt;/developerConnection&gt;
+  &lt;/scm&gt;
+&lt;/project&gt;
+</code></pre>
+
+<p>An example pom for an app (apk) project looks like this:</p>
+
+<pre><code>&lt;project xsi:schemaLocation="
+  http://maven.apache.org/POM/4.0.0 
+  http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;parent&gt;
+    &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+    &lt;artifactId&gt;android&lt;/artifactId&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+  &lt;/parent&gt;
+  &lt;artifactId&gt;android.ui&lt;/artifactId&gt;
+  &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+  &lt;packaging&gt;apk&lt;/packaging&gt;
+  &lt;description&gt;&lt;/description&gt;
+  &lt;dependencies&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+      &lt;artifactId&gt;domain&lt;/artifactId&gt;
+      &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+      &lt;type&gt;jar&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+      &lt;artifactId&gt;android.util&lt;/artifactId&gt;
+      &lt;version&gt;1.0.1-SNAPSHOT&lt;/version&gt;
+      &lt;type&gt;apklib&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;!-- this project contains a copy of 
+             the sdk licensing code --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.mycompany&lt;/groupId&gt;
+      &lt;artifactId&gt;android.licensing&lt;/artifactId&gt;
+      &lt;version&gt;1.0.0-SNAPSHOT&lt;/version&gt;
+      &lt;type&gt;apklib&lt;/type&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.google.android&lt;/groupId&gt;
+      &lt;artifactId&gt;android&lt;/artifactId&gt;
+      &lt;version&gt;2.2.1&lt;/version&gt;
+      &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+        &lt;!-- made available to android 
+             by "maven android sdk deployer" --&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;android.support&lt;/groupId&gt;
+      &lt;artifactId&gt;compatibility-v13&lt;/artifactId&gt;
+      &lt;version&gt;r6&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-core&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;oauth.signpost&lt;/groupId&gt;
+      &lt;artifactId&gt;signpost-commonshttp4&lt;/artifactId&gt;
+      &lt;version&gt;1.2&lt;/version&gt;
+      &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+      &lt;groupId&gt;org.twitter4j&lt;/groupId&gt;
+      &lt;artifactId&gt;twitter4j-core&lt;/artifactId&gt;
+      &lt;version&gt;2.1.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;!-- prevent commons-logging from being included by 
+         the Google HTTP client dependencies, which creates 
+         a truck load of warnings and eventually kills eclipse --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;commons-logging&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-logging&lt;/artifactId&gt;
+        &lt;version&gt;1.1.1&lt;/version&gt;
+        &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+  &lt;/dependencies&gt;
+  &lt;scm&gt;
+    &lt;connection&gt;scm:svn:svn://repo/project/trunk&lt;/connection&gt;
+    &lt;developerConnection&gt;
+      scm:svn:svn://repo/project/trunk
+    &lt;/developerConnection&gt;
+  &lt;/scm&gt;
+&lt;/project&gt;
+</code></pre>
+
+<h3>Building a Release</h3>
+
+<p>Building a release, including running proguard to optimise and obfuscate the apk, and signing the apk from the shared keystore is now available from the maven cmdline with (as you'd expect):</p>
+
+<pre><code>mvn clean package
+</code></pre>
+
+<p>Its still early days for us, so I'm sure there are still wrinkles to iron out, but so far it seems to be working pretty well.</p>
+
+<p>You can start the emulator and deploy the packaged apk into it using two further commands:</p>
+
+<pre><code>mvn android:emulator-start android:deploy
+</code></pre>
+
+<p>Enjoy!</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ADT">ADT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=maven">maven</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=team">team</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=release">release</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="setting_up_maven_android_and_svn_for_team_development_of_multiple_applications.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="937" description="A description of how I got some existing ADT Android projects building with Maven for distributed team development and continuous integration">
               <span class="meta" itemprop="datePublished"><time datetime="2012-01-04">January 04, 2012</time></span>
               <a itemprop="url" href="converting_eclipse_adt_android_projects_to_build_with_maven.html"><h1 itemprop="name" itemprop="headline">Converting Eclipse ADT Android projects to build with Maven</h1></a>
@@ -283,81 +622,6 @@ openFile
 	        <a href="subversion_1_7_eclipse_integration_in_ubuntu.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="646" description="After quite a bit of effort and a lot of frustration I'm beginning to think Google's approach to rel=author, microformats, and all that jazz is borderline evil, or at the very least flawed by favouring those who already have high page-rank.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
-              <a itemprop="url" href="google_and_rel_author_not_a_level_playing_field.html"><h1 itemprop="name" itemprop="headline">Google and rel=author - not a level playing field</h1></a>
-	      <span itemprop="articleBody"><p>If you've read my earlier post documenting my attempts to get Google to recognize my <a href="microformats_rich_snippets_rel_author_and_search_listings.html">rel=author</a> markup you'll see that I expended quite a bit of effort trying to get my mugshot to appear with search result listings for my blog pages. Here's what I'm aiming for:</p>
-
-<p><img src="https://lh3.googleusercontent.com/-DKGP9ZJF8G0/Ts7aVKcwJiI/AAAAAAAAHyE/ZHCauxKCvYM/s600/rich-snippets-search-listing.png" alt="rich-snippets test tool example of how search-result listings could look" /></p>
-
-<p>Its been more than a month now, and the Googlebot has crawled my site many times, but still no mugshots. </p>
-
-<p>Just lately I'm starting to think that there's absolutely nothing wrong with how I've marked up my content (this is confirmed by Google's rich-snippets testing tool as you can see in the screen-shot above). Rather I'm beginning to suspect a minor evil (or stupidity) is at play.</p>
-
-<h3>rel=author: The small-print</h3>
-
-<p>My suspicions were aroused on my latest re-reading of Google's documentation on rel=author. There are three things that struck me on this re-reading:</p>
-
-<p>First, on the subject of your Google Profile picture, Google have this to say:</p>
-
-<blockquote>
-  <p>"you'll need a Google Profile with a good, recognizable headshot as your profile photo"</p>
-</blockquote>
-
-<p>Mm, ok, well my profile pic is a headshot, and (I think) is pretty recognizable... but what, in Google's subjective judgement, is a "good" photo?</p>
-
-<p>Second, and more ominously:</p>
-
-<blockquote>
-  <p>"Google doesn't guarantee to show author information in Google Web Search or Google News results."</p>
-</blockquote>
-
-<p>Riiiight. Here's the thing: when do Google actually show author information? Is it based on something algorithmic as you might expect from Google (e.g. PageRank), or is it a subjective human judgement?</p>
-
-<p>Finally:</p>
-
-<blockquote>
-  <p>"Once you're done, please complete this <a href="https://spreadsheets.google.com/a/google.com/spreadsheet/viewform?formkey=dHdCLVRwcTlvOWFKQXhNbEgtbE10QVE6MQ">form</a> so we can let you know of any implementation issues. While we won't be able to individually reply to everyone who fills out this form, we may be in touch with questions about your data."</p>
-</blockquote>
-
-<p>OK, so this suggests that there actually may be a human in the loop, and google are actively white-listing sites for inclusion of author information. </p>
-
-<p>I hope this is the case, because that would mean at least some small chance that my authorship info will <em>eventually</em> appear in search result listings.</p>
-
-<h3>page-rank: The rich get richer</h3>
-
-<p>Right now - perhaps somewhat pessimistically - I'm guessing that Google will show authorship information if you already have a sufficiently high page-rank (I've no idea what rank is required, but I'm pretty sure I'm a long way below it). </p>
-
-<p>Here's why I think that:</p>
-
-<ol>
-<li>It would be very un-Google-like - not to mention unscalable - to have a human in the loop making subjective judgements.</li>
-<li>Page-rank gives Google a heuristic on which to judge the quality of a site, and they (understandably) want to promote high-quality sites more vigourously.</li>
-</ol>
-
-<h3>Google: Evil, or just stupid?</h3>
-
-<p>And here's why I think that is borderline evil, or at least stupid: it creates a situation where the already popular gain even more popularity, and the rest of us fade even further into obscurity. Its an example of the <a href="http://en.wikipedia.org/wiki/Greedy_algorithm">greedy algorithm</a> at work. </p>
-
-<p>Come on Google - I'm following your rules to the letter, working hard to make the web a better place and helping you to better <a href="http://www.google.com/about/corporate/company/">organise the world's information</a>, why aren't you taking advantage of that?</p>
-
-<h3>Conclusion: It's all just speculation</h3>
-
-<p>Actually my only real problem with all this is that it isn't clear how, when or why authorship information will or will not be used, which leads to the sort of speculation I've presented in this article. </p>
-
-<p>If it were possible to understand definitively why my authorship information isn't showing I could potentially do something about it instead of spinning my wheels guessing how to make it work (and whining about it :)).</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=google">google</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=good-evil-stupid?">good-evil-stupid?</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=rel=author">rel=author</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="google_and_rel_author_not_a_level_playing_field.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -375,11 +639,11 @@ openFile
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
                 <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
-                <li><a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Configuring global data-binding formatters in Spring MVC</a><span class="date"> - Oct 01, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

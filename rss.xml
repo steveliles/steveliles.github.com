@@ -13,10 +13,38 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[GWT i18n using browser locale]]></title>
+        <link><![CDATA[http://steveliles.github.com/gwt_i18n_using_browser_locale.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/gwt_i18n_using_browser_locale.html</guid>
+        <description><![CDATA[<p>I was trying to get GWT to load a localised permutation based on the user's browser locale. For whatever reason I didn't have much luck coming up with a good combination of search keywords to get a good hit from Google.</p>
+
+<p>After rummaging around in the bowels of GWT I found that it is possible to use the browser locale to determine the build permutation to use. </p>
+
+<p>It doesn't seem all that well publicised or documented (does not figure in the <a href="https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n">i18n docs</a> for example), although it is used in the <a href="http://google-web-toolkit.googlecode.com/svn-history/r11299/trunk/samples/showcase/src/com/google/gwt/sample/showcase/Showcase.gwt.xml">showcase demo app</a>.</p>
+
+<p>There are clues as to why it isn't well publicised in the <a href="http://code.google.com/p/google-web-toolkit/issues/detail?id=4228">bug containing the original patch</a>.</p>
+
+<p>To use the browser's locale to determine the permutation, simply add the following to the module.gwt.xml:</p>
+
+<pre><code>&lt;set-configuration-property name="locale.useragent" value="Y"/&gt;
+</code></pre>
+
+<p>Setting the locale of chrome for testing is explained for <a href="http://developer.chrome.com/extensions/i18n.html#testing-win">windows</a>, <a href="http://developer.chrome.com/extensions/i18n.html#testing-linux">linux</a>, and <a href="http://developer.chrome.com/extensions/i18n.html#testing-mac">mac</a>.</p>
+]]></description>
+          <category>GWT</category>
+          <category>i18n</category>
+          <category>l10n</category>
+          <category>locale</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Wed, 27 Feb 2013 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Cross-domain inter-frame communication in javascript]]></title>
         <link><![CDATA[http://steveliles.github.com/cross_domain_inter_frame_communication_in_javascript.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/cross_domain_inter_frame_communication_in_javascript.html</guid>
-        <description><![CDATA[<p><em>Requirement:</em> Web-page A from domain A' loads web-page B from domain B' into an iframe. Web-page B wants to be able to render some content into the DOM of web-page A (outside of the view-port described by B's iframe). The content which B renders into A needs to be able to HTTP GET and POST data back to the domain B', handle the responses, and update the rendered content in web-page A.</p>
+        <description><![CDATA[<p><em>Requirement:</em> </p>
+
+<p>Web-page A from domain A' loads web-page B from domain B' into an iframe. Web-page B wants to be able to render some content into the DOM of web-page A (outside of the view-port described by B's iframe). The content which B renders into A needs to be able to HTTP GET and POST data back to the domain B', handle the responses, and update the rendered content in web-page A.</p>
 
 <p><em>Problems:</em></p>
 
@@ -5340,86 +5368,6 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <category>+1</category>
           <category>plusone</category>
           <category>bookmarklet</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Hosting a static website in Amazon S3]]></title>
-        <link><![CDATA[http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/hosting_a_static_website_in_amazon_s3.html</guid>
-        <description><![CDATA[<p>Amazon Simple Storage Service - S3 - can be used to host a static web-site, but it isn't immediately obvious how to set this up. Here's how I did it (I'm using the standard AWS console for this):</p>
-
-<h4>Step-1: If you haven't already, sign up for Amazon S3</h4>
-
-<h4>Step-2: Log-in to the AWS console, and go to the S3 Tab</h4>
-
-<h4>Step-3: Create an S3 bucket:</h4>
-
-<p>It doesn't really matter what name you give your bucket unless you plan to <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">forward a domain name to your S3 hosted site</a> </p>
-
-<p><img src="https://lh6.googleusercontent.com/-ntmu1ROjx_k/TtEulvLq2qI/AAAAAAAAHy0/kAz8dljKeMU/s578/create-bucket.png" alt="Create a bucket" /></p>
-
-<h4>Step-4: Upload your static site to the bucket</h4>
-
-<p>Select your bucket in the "Buckets" pane, then right-click in the "Objects and Folders" pane and choose "upload". If you are uploading many folders you'll probably want to use the "enhanced" uploader applet.</p>
-
-<h4>Step-5: Set your bucket to be a website:</h4>
-
-<p>First, right-click on your bucket in the "Buckets" pane (far left) and choose "Properties".</p>
-
-<p><img src="https://lh6.googleusercontent.com/-5qHHItMStOU/TtEumMeQGeI/AAAAAAAAHzA/3HSscD7aFr0/s426/bucket-properties.png" alt="Open Bucket Properties" /></p>
-
-<p>The properties of your bucket will appear in the "Properties" pane at the bottom of the screen.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-4B_VhzIeRjw/TtEzQSqQdUI/AAAAAAAAHzY/EcMc-2ruk98/s600/bucket-properties-tabs.png" alt="Bucket Properties" /></p>
-
-<p>In the bucket propertes go to the "Website" tab. Make sure to:</p>
-
-<ol>
-<li>Check the "enabled" box</li>
-<li>Enter the name of an "index document" in the box (this will be page that should be loaded if someone visits the root of your bucket - websites typically us index.html).</li>
-<li>Note the "endpoint" url - this will be the url to your website.</li>
-</ol>
-
-<p><img src="https://lh4.googleusercontent.com/-poLROP8Apoc/TtE1Fn9kH2I/AAAAAAAAH0M/XQJ1XrGLoS8/s600/bucket-properties-website.png" alt="Bucket Properties Website Tab" /></p>
-
-<p>If you open the endpoint url in a separate tab in your browser now you will see permission denied errors, so lets fix that...</p>
-
-<h4>Step-6: Make your web-site accessable to viewers:</h4>
-
-<ol>
-<li>Still in the bucket "Properties" pane, open the "Permissions" tab and click "Edit Bucket Policy" - a window pops up.</li>
-<li>Paste in the code from the box below, replacing <code>mybucketname</code> with, well, your bucket name :)</li>
-<li>Click <code>save</code> and your done - go visit that end-point url which should now be hosting your static website :)</li>
-</ol>
-
-<p>Here's the permissions policy you need - don't forget to change <code>mybucketname</code>!</p>
-
-<pre><code>{
-    "Version": "2008-10-17",
-    "Statement": [{
-        "Sid": "PublicReadForGetBucketObjects",
-        "Effect": "Allow",
-        "Principal": {
-            "AWS": "*"
-        },
-        "Action": "s3:GetObject",
-        "Resource": "arn:aws:s3:::mybucketname/*"
-    }]
-}
-</code></pre>
-
-<p><img src="https://lh5.googleusercontent.com/-loUsJEs3JC4/TtEulGDjuEI/AAAAAAAAHyw/Q1QYKwZY5WQ/s600/bucket-policy-edit.png" alt="Edit Bucket Policy" /></p>
-
-<h4>Step-7: Registered a domain-name? Point it at your S3 hosted website...</h4>
-
-<p>See my other post on <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">how to forward a domain name to an S3 bucket</a>.</p>
-]]></description>
-          <category>static</category>
-          <category>website</category>
-          <category>amazon</category>
-          <category>S3</category>
-          <category>hosting</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
       </item>
