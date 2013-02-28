@@ -38,7 +38,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,140" description="For my first ever attempt at writing Clojure code I had a shot at a Roman numeral converter">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,403" description="For my first ever attempt at writing Clojure code I had a shot at a Roman numeral converter">
               <span class="meta" itemprop="datePublished"><time datetime="2013-02-28">February 28, 2013</time></span>
               <a itemprop="url" href="roman_numeral_conversion_in_clojure.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure</h1></a>
 	      <span itemprop="articleBody"><p><a style="float:left; margin-right:10px" href="http://www.amazon.co.uk/gp/product/1934356867/ref=as_li_ss_il?ie=UTF8&amp;camp=1634&amp;creative=19450&amp;creativeASIN=1934356867&amp;linkCode=as2&amp;tag=stlibl-21"><img border="0" src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&amp;ASIN=1934356867&amp;Format=_SL110_&amp;ID=AsinImage&amp;MarketPlace=GB&amp;ServiceVersion=20070822&amp;WS=1&amp;tag=stlibl-21" ></a></p>
@@ -49,19 +49,19 @@
 
 <p>I started by creating a map of the individual numerals:</p>
 
-<pre><code>(def digits {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+<pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
 </code></pre>
 
 <p>Maps are functions, so invoking a map with a key gives the value, like this:</p>
 
-<pre><code>=&gt; (digits \X)
+<pre><code>=&gt; (numerals \X)
 10
 </code></pre>
 
 <p>Next I created a function that maps roman numerals to decimal values (baby steps!):</p>
 
 <pre><code>(defn decimal-values [s]
-  (map digits s))
+  (map numerals s))
 </code></pre>
 
 <p>Testing this at the REPL I get:</p>
@@ -135,7 +135,7 @@
 <p>I also need to change <code>roman</code> to reduce the list in reverse with the new add-numeral function:</p>
 
 <pre><code>(defn roman [s]
-  (reduce add-numeral (map digits (reverse s))))
+  (reduce add-numeral (map numerals (reverse s))))
 </code></pre>
 
 <p>Testing at the REPL gives:</p>
@@ -154,7 +154,7 @@
 
 <p>So, lets see the whole program:</p>
 
-<pre><code>(def digits {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+<pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
 
 (def add-numeral [n t]
   (if (&gt; n (* 4 t))
@@ -162,7 +162,7 @@
     (+ t n)))
 
 (defn roman [s]
-  (reduce add-numeral (map digits (reverse s))))
+  (reduce add-numeral (map numerals (reverse s))))
 </code></pre>
 
 <p>I confess myself truly amazed that -</p>
@@ -173,7 +173,50 @@
 <li>It is incredibly concise and moderately readable (even to my unfamiliar eyes)</li>
 </ol>
 
-<p>I plan to come back to this exercise over time as I learn more Clojure - pretty sure there's a recursive version that would be more idiomatic/elegant, and I haven't made any attempt at handling bad input, etc.</p>
+<p>Here's a rough translation of the same algorithm to Java -</p>
+
+<pre><code>import java.util.*;
+
+public class RomanNumerals {
+
+    private static Map&amp;lt;Character, Integer&gt; numerals = 
+        new HashMap&amp;lt;Character, Integer&gt;();
+
+    static {
+        numerals.put('I', 1);
+        numerals.put('V', 5);
+        numerals.put('X', 10);
+        numerals.put('L', 50);
+        numerals.put('C', 100);
+        numerals.put('D', 500);
+        numerals.put('M', 1000);
+    }
+
+    public int convert(String aRoman) {
+        int total = 0;      
+        for (int i=aRoman.length()-1; i&gt;=0; i--) {
+            char c = aRoman.charAt(i);
+            total = combine(numerals.get(c), total);
+        }
+        return total;
+    }
+
+    private int combine(int aCurrent, int aRunningTotal) {
+        return (aRunningTotal &gt; (aCurrent * 4)) ?
+            aRunningTotal - aCurrent : aRunningTotal + aCurrent;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new RomanNumerals().convert(args[0]));
+    }
+}
+</code></pre>
+
+<p>28 lines of Java to 7 lines of Clojure, but I'm not judging (yet). </p>
+
+<p>Java pads out with boiler-plate, and there are big losses in populating the <code>HashMap</code>. I walked the array in reverse rather than actually reversing it, as there's no convenient array reversal method in the JDK (I could have reversed the <code>String</code> first with <code>new StringBuilder(aRoman).reverse().toString()</code> I suppose, although that's pretty ugly). </p>
+
+<p>Fun stuff! I plan to come back to this exercise over time as I learn more Clojure - pretty sure there's a recursive version that would be more idiomatic/elegant, and I haven't made any attempt at handling bad input, etc.</p>
 </span>
 
               <ul class="keywords">
