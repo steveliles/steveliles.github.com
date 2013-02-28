@@ -189,7 +189,7 @@ public class RomanNumerals {
 
 <p>25 lines of Java (not counting the main method) to 7 lines of Clojure, but I'm not judging (yet). </p>
 
-<p>Java pads out with boiler-plate, and there are big losses in populating the <code>HashMap</code>. I walked the array in reverse rather than actually reversing it, as there's no convenient array reversal method in the JDK (I could have reversed the <code>String</code> first with <code>new StringBuilder(aRoman).reverse().toString()</code> I suppose, although that's pretty ugly). </p>
+<p>Java pads out with boiler-plate, and there are big losses in populating the <code>HashMap</code>. I walked the <code>String</code> in reverse rather than actually reversing it. I could have reversed it with <code>new StringBuilder(aRoman).reverse().toString()</code> I suppose, but that's pretty ugly. </p>
 
 <p>Fun stuff! I plan to come back to this exercise over time as I learn more Clojure - pretty sure there's a recursive version that would be more idiomatic/elegant, and I haven't made any attempt at handling bad input, etc.</p>
 ]]></description>
