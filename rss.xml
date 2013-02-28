@@ -27,6 +27,12 @@
 <pre><code>(def digits {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
 </code></pre>
 
+<p>Maps are functions, so invoking a map with a key gives the value, like this:</p>
+
+<pre><code>=&gt; (digits \X)
+10
+</code></pre>
+
 <p>Next I created a function that maps roman numerals to decimal values (baby steps!):</p>
 
 <pre><code>(defn decimal-values [s]
