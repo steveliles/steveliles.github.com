@@ -187,7 +187,7 @@ public class RomanNumerals {
 }
 </code></pre>
 
-<p>28 lines of Java to 7 lines of Clojure, but I'm not judging (yet). </p>
+<p>25 lines of Java (not counting the main method) to 7 lines of Clojure, but I'm not judging (yet). </p>
 
 <p>Java pads out with boiler-plate, and there are big losses in populating the <code>HashMap</code>. I walked the array in reverse rather than actually reversing it, as there's no convenient array reversal method in the JDK (I could have reversed the <code>String</code> first with <code>new StringBuilder(aRoman).reverse().toString()</code> I suppose, although that's pretty ugly). </p>
 
