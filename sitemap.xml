@@ -91,6 +91,11 @@
     </url>
 
     <url> 
+      <loc>http://steveliles.github.com/roman_numeral_conversion_in_clojure.html</loc>
+      <changefreq>daily</changefreq>
+      <priority>0.9</priority>
+    </url>
+    <url> 
       <loc>http://steveliles.github.com/gwt_i18n_using_browser_locale.html</loc>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>

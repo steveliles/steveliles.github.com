@@ -13,6 +13,142 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Roman numeral conversion in Clojure]]></title>
+        <link><![CDATA[http://steveliles.github.com/roman_numeral_conversion_in_clojure.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/roman_numeral_conversion_in_clojure.html</guid>
+        <description><![CDATA[<p>I've been reading Stu Halloway's <a href="">Programming Clojure</a> (which is excellent by the way). When I reached chapter 6 "Concurrency" I thought I'd better pause and practise some of the basics before venturing into deeper waters!</p>
+
+<p>I once saw a programming challenge posted with a job ad, which asked applicants to write some code to convert numbers from the decimal numeral system to Roman. This seemed like a sufficiently challenging and self-contained thing to try for a first attempt at Clojure.</p>
+
+<p>I started by creating a map of the individual numerals:</p>
+
+<pre><code>(def digits {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+</code></pre>
+
+<p>Next I created a function that maps roman numerals to decimal values (baby steps!):</p>
+
+<pre><code>(defn decimal-values [s]
+  (map digits s))
+</code></pre>
+
+<p>Testing this at the REPL I get:</p>
+
+<pre><code>=&gt; (decimal-values "MCXVII")
+(1000 100 10 5 1 1)
+</code></pre>
+
+<p>Great, I have a list of the values which I need to compose together. Next I want to combine the values in this list by adding them together.</p>
+
+<pre><code>(defn roman [s]
+  (reduce + (decimal-values s)))
+</code></pre>
+
+<p>Testing again at the REPL I get:</p>
+
+<pre><code>=&gt; (roman "MCXVII")
+1117
+</code></pre>
+
+<p>Whoop! OK, we have our first conversion. Are we done? Unfortunately not - there's a complication.</p>
+
+<p>The "simple" way of writing 4 in Roman numerals is IIII. That repetition is allowed, but not commonly used. The short-hand is to prefix a higher numeral with a lower one, e.g. IV, which means subtract the lower number from the higher. This works for all of the other numerals too, so 999 can be written IM (1000 - 1).</p>
+
+<p>I pondered this for a while, then decided to write a <code>combine-numerals</code> function to use in place of + in the <code>reduce</code> call. I want my <code>roman</code> function to look like this:</p>
+
+<pre><code>(defn roman [s]
+  (reduce combine-numerals (decimal-values s)))
+</code></pre>
+
+<p>Now, <code>combine-numerals</code> needs to account for the more complicated logic described above. Here's what I came up with:</p>
+
+<pre><code>(defn combine-numerals [a b]
+  (if (&gt; a b)
+    (+ a b)
+    (- b a)))
+</code></pre>
+
+<p>This simply checks that the value seen first is larger than the following value - if it is we add, if it isn't we subtract. Testing that at the REPL gives:</p>
+
+<pre><code>=&gt; (combine-numerals 1 10)
+9
+=&gt; (combine-numerals 10 1)
+11
+</code></pre>
+
+<p>Perfect, if I see a 1 before a 10 it is subtracted to give 9, otherwise it is added to give 11. Lets try our <code>roman</code> function again:</p>
+
+<pre><code>=&gt; (roman "XVII")
+17
+=&gt; (roman "MCMXVII")
+2117
+</code></pre>
+
+<p>Hmm, that last one isn't right, it should give 1917. What's going on? </p>
+
+<p><code>reduce</code> takes each value in the given list and applies the function to it and the reduced result so far. That means that when <code>combine-numerals</code> is called it isn't called with two adjacent values except in the case where the numeral string only has two numerals. Bum.</p>
+
+<p>What I really need is to have the sum so far, the previous numeral seen, and the current numeral being handled, so that I can decide whether to add/subtract the current numeral by comparing it with the previous numeral. </p>
+
+<p>I think I could do this with a recursive function, but I'm struggling to remember the syntax, so I ponder a little more and decide to try running in reverse through the numerals, and add if the total so far is less than 4 times the current total. </p>
+
+<p>This involves changing <code>combine-numerals</code> to multiply the current numeral's value by 4 before comparing, and renaming it to add-numeral:</p>
+
+<pre><code>(def add-numeral [n t]
+  (if (&gt; n (* 4 t))
+    (- n t)
+    (+ t n)))
+</code></pre>
+
+<p>I also need to change <code>roman</code> to reduce the list in reverse with the new add-numeral function:</p>
+
+<pre><code>(defn roman [s]
+  (reduce add-numeral (map digits (reverse s))))
+</code></pre>
+
+<p>Testing at the REPL gives:</p>
+
+<pre><code>=&gt; (roman "IX")
+9
+=&gt; (roman "MCMXIX")
+1919
+=&gt; (roman "MIM")
+1999
+=&gt; (roman "MLMXXXIIII")
+1984
+=&gt; (roman "MCMLXXXIV")
+1984
+</code></pre>
+
+<p>So, lets see the whole program:</p>
+
+<pre><code>(def digits {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+
+(def add-numeral [n t]
+  (if (&gt; n (* 4 t))
+    (- n t)
+    (+ t n)))
+
+(defn roman [s]
+  (reduce add-numeral (map digits (reverse s))))
+</code></pre>
+
+<p>I confess myself truly amazed that -</p>
+
+<ol>
+<li>I managed to write some Clojure that actually works</li>
+<li>I think it is nearly idiomatic Clojure (is it? please comment!)</li>
+<li>It is incredibly concise and moderately readable (even to my unfamiliar eyes)</li>
+</ol>
+
+<p>I plan to come back to this exercise over time as I learn more Clojure - pretty sure there's a recursive version that would be more idiomatic/elegant, and I haven't made any attempt at handling bad input, etc.</p>
+]]></description>
+          <category>clojure</category>
+          <category>exercise</category>
+          <category>roman-numerals</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Thu, 28 Feb 2013 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[GWT i18n using browser locale]]></title>
         <link><![CDATA[http://steveliles.github.com/gwt_i18n_using_browser_locale.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/gwt_i18n_using_browser_locale.html</guid>
@@ -5338,36 +5474,6 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <category>domain name</category>
           <category>forward</category>
           <category>mask</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Plus-One any page - Google +1 Bookmarklet]]></title>
-        <link><![CDATA[http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/plus_one_any_page_google_1_bookmarklet.html</guid>
-        <description><![CDATA[<p>Many pages that you might want to share don't have <code>Google+</code> <img src="images/gplus.png" alt="plus button" /> buttons. This bookmarklet makes it easy to plus-one any page directly while browsing it - share from anywhere!</p>
-
-<p>To install the bookmarklet just drag the <code>Google+1</code> link below to your browser bookmarks bar:</p>
-
-<div style="text-align:center;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';gpc.style.padding='50px';gpc.style.backgroundColor='#def';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a></div>
-
-<p>To use the bookmarklet at any time while browsing the web just click the link on your bookmarks bar and a +1 button will appear in the top-right corner of the page. Click the plus one button to share and comment just like you would on any other site that already has +1 buttons (feel free to test it out on this page!).</p>
-
-<p>I have tested this bookmarklet in Chrome 16.0.9 and Firefox 8.0. Please leave a comment if you have trouble with other browsers and I'll see what I can do.</p>
-
-<p>Internet Explorer 6 users might struggle - the bookmarklet code is longer than IE6 can cope with. May I suggest upgrading to one of the many much better browsers available, such as <a href="http://www.google.com/chrome">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>. </p>
-
-<p>Alternatively you can try this bookmarklet (disclaimer: I cannot test it - I don't have IE6) - drag the "Google+1" to your browser links bar:</p>
-
-<div style="text-align:center;margin:auto;font-size:75px; font-family:'Ubuntu Mono',monospace;"><a href="javascript:var gpc=document.createElement('div');gpc.style.position='fixed';gpc.style.top='50px';gpc.style.right='50px';var gp=document.createElement('g:plusone');document.body.insertBefore(gpc,document.body.firstChild);gpc.appendChild(gp);window.___gcfg={lang:'en-GB'};(function(){var po=document.createElement('script');po.type='text/javascript';po.async=true;po.src='https://apis.google.com/js/plusone.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(po,s);})();">Google+1</a>(IE6)</div>
-
-<p>Enjoy!</p>
-]]></description>
-          <category>google+</category>
-          <category>g+</category>
-          <category>+1</category>
-          <category>plusone</category>
-          <category>bookmarklet</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sat, 26 Nov 2011 00:00:00 +0000</pubDate>
       </item>

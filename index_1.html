@@ -35,6 +35,135 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,033" description="A quick how-to for exception handling alternatives in Spring (3.1.x) MVC">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-10-05">October 05, 2012</time></span>
+              <a itemprop="url" href="configuring_global_exception_handling_in_spring_mvc.html"><h1 itemprop="name" itemprop="headline">Configuring global exception-handling in Spring MVC</h1></a>
+	      <span itemprop="articleBody"><p>It took a couple of hours to figure this out - the mighty Google and <em>even</em> StackOverflow let me down - in the end I had to actually read Spring's DispatcherServlet code! (I know, right!?)</p>
+
+<p>Here's the problem I was having - I'm using Spring MVC's data-binding tricks to inject objects into my <code>@Controller</code>'s methods like this: </p>
+
+<pre><code>@Controller
+@RequestMapping("things/{thing}.html")
+class MyController {
+    public ModelAndView thing(@PathVariable Thing aThing) {
+        // Thing should be magically mapped from 
+        // the {thing} part of the url
+
+        return new ModelAndView(..blah..);
+    }
+}
+</code></pre>
+
+<p>I have global <code>Formatter</code>'s configured as described in <a href="http://steveliles.github.com/configuring_global_data_binding_formatters_in_spring_mvc.html">my previous post</a>, and I want my method parameters to be automatically conjured from <code>@PathVariable</code>'s and so on. </p>
+
+<p>So far so good .. until I make a screw-up and parameter binding fails for any reason, at which point Spring's exception-handling kicks in. When that happens, Spring eats the exception and dumps me on the worlds shittiest error page saying:</p>
+
+<pre><code>HTTP ERROR 400
+Problem accessing /your/url/whatever.html. Reason:
+    Bad Request
+</code></pre>
+
+<p>Wow, thanks Spring!</p>
+
+<p>To blame here are Spring's default set of <code>HandlerExceptionResolver</code>'s, which are specified in <code>DispatcherServlet.properties</code> in the spring-webmvc jar. In 3.1.2 it says:</p>
+
+<pre><code>org.springframework.web.servlet.HandlerExceptionResolver=
+    org.springfr..AnnotationMethodHandlerExceptionResolver,
+    org.springfr..ResponseStatusExceptionResolver,
+    org.springfr..DefaultHandlerExceptionResolver
+</code></pre>
+
+<p>(I've shortened the package-names to keep things readable)</p>
+
+<p>Beats me why the default is to eat the exception without even logging it when Spring is normally so chatty about everything it does, but there you go. OK, so we need to configure some custom exception-handling so we can find out what's actually going wrong. There are two ways (that I know of) to do that:</p>
+
+<ol>
+<li>Use <code>@ExceptionHandler</code> annotated methods in our <code>@Controller</code>'s to handle exceptions on a per-controller basis (or across more than one <code>@Controller</code> if you have a hierarchy and implement the <code>@ExceptionHandler</code> method high-up in the hierarchy).</li>
+<li>Register a <code>HandlerExceptionResolver</code> implementation to deal with exceptions globally (ie. across all <code>@Controller</code>'s, regardless of hierarchy).</li>
+</ol>
+
+<h3>@ExceptionHandler</h3>
+
+<p>These bad-boys are straight-forward to use - just add a method in your <code>@Controller</code> and annotate it with <code>@ExceptionHandler(SomeException.class)</code> - something like this:</p>
+
+<pre><code>@Controller
+class MyExceptionalController {
+    @ExceptionHandler(Exception.class) 
+    public void handleExceptions(Exception anExc) {
+        anExc.printStackTrace(); // do something better than this ;)
+    }
+
+    @RequestMapping("/my/favourite/{thing}")
+    public void showThing(@PathVariable Thing aThing) {
+        throw new RuntimeException("boom");
+    }
+}
+</code></pre>
+
+<p>That exception-handler method will now be triggered for any exceptions that occur while processing this controller - including any exceptions that occur while trying to format the Thing parameter.</p>
+
+<p>There's a bit more to it, for example you can parameterise the annotation with an array of exception-types. Shrug.</p>
+
+<p>Just for completeness its worth mentioning that when formatting/conversion fails the exception presented to the <code>@ExceptionHandler</code> will be a <code>TypeMismatchException</code>, possibly wrapping a <code>ConversionFailedException</code> which in turn would wrap any exception thrown by your <code>Formatter</code> classes.</p>
+
+<h3>Custom HandlerExceptionResolver</h3>
+
+<p>This is the better approach, IMHO: Set up a HandlerExceptionResolver to deal with exceptions across all <code>@Controller</code>'s and override with <code>@ExceptionHandler</code>'s if you have specific cases that need special handling.</p>
+
+<p>A deadly simple <code>HandlerExceptionResolver</code> might look like this:</p>
+
+<pre><code>package com.sjl.web;
+
+import org.springframework.core.*;
+import org.springframework.web.servlet.*
+
+public class LoggingHandlerExceptionResolver 
+implements HandlerExceptionResolver, Ordered {
+    public int getOrder() {
+        return Integer.MIN_VALUE; // we're first in line, yay!
+    }
+
+    public ModelAndView resolveException(
+        HttpServletRequest aReq, HttpServletResponse aRes,
+        Object aHandler, Exception anExc
+    ) {
+        anExc.printStackTrace(); // again, you can do better than this ;)
+        return null; // trigger other HandlerExceptionResolver's
+    }
+}
+</code></pre>
+
+<p>Two things worth pointing out here:</p>
+
+<ol>
+<li>We are implementing <code>Ordered</code> and returning <code>Integer.MIN_VALUE</code> - this puts us at the front of the queue for resolving exceptions (and ahead of the default). If we don't implement <code>Ordered</code> we won't see the exception before one of the default handlers grabs and handles it. The default handlers appear to be registered with orders of <code>Integer.MAX_VALUE</code>, so any int below that will do.</li>
+<li>We are returning <code>null</code> from the <code>resolveException</code> method - doing this means that the other handlers in the chain get a chance to deal with the exception. Alternatively we can return a <code>ModelAndView</code> if we want to (and if we know how to deal with this particular kind of exception), which will prevent handlers further down the chain from seeing the exception.</li>
+</ol>
+
+<p>There are some classes in Spring's <code>HandlerExceptionResolver</code> hierarchy that you might want to look at sub-classing - <code>AbstractHandlerMethodExceptionResolver</code> and <code>SimpleMappingExceptionResolver</code> are good ones to check first.</p>
+
+<p>Of course we need to make Spring's <code>DispatcherServlet</code> aware of our custom <code>HandlerExceptionResolver</code>. The only configuration we need is:</p>
+
+<pre><code>&lt;bean class="com.sjl.web.LoggingHandlerExceptionResolver"/&gt;
+</code></pre>
+
+<p>No really, that's it. </p>
+
+<p>There's an unusually high level of magic surrounding the <code>DispatcherServlet</code>, so although you must define your resolver as a bean in your spring config <em>you do not need to inject it into any other spring beans</em>. The <code>DispatcherServlet</code> will search for beans implementing the interface and automagically use them.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=@RequestMapping">@RequestMapping</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=data-binding">data-binding</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=exception handling">exception handling</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="configuring_global_exception_handling_in_spring_mvc.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="806" description="A very quick how-to for setting up data-binding formatters in Spring ()3.1.x) MVC">
               <span class="meta" itemprop="datePublished"><time datetime="2012-10-01">October 01, 2012</time></span>
               <a itemprop="url" href="configuring_global_data_binding_formatters_in_spring_mvc.html"><h1 itemprop="name" itemprop="headline">Configuring global data-binding formatters in Spring MVC</h1></a>
@@ -500,536 +629,6 @@ implements InstrumentationService {
 	        <a href="dynamic_proxies_in_java.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,991" description="Jetty embedded with Spring MVC is a great combination for building self-hosting web-apps of all kinds which are easy to maintain and deploy. Setting up is also easy (particularly if you use Maven), as you'll see in this post.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-08-25">August 25, 2012</time></span>
-              <a itemprop="url" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html"><h1 itemprop="name" itemprop="headline">Setting up embedded Jetty 8 and Spring MVC with Maven</h1></a>
-	      <span itemprop="articleBody"><p>This is intended to be the first post in a series on building straight-forward web-apps with Spring-MVC and embedded Jetty. You can check out the complete source of this simple project from <a href="https://github.com/steveliles/jetty-embedded-spring-mvc">github</a>.</p>
-
-<p>This post describes configuring your Jetty and Spring MVC with XML-based configuration. If you want to use annotations/java-config take a look at <a href="http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">this post</a>.</p>
-
-<p>Its been a while since I last posted. I've been busy starting up two big projects at work, one using Google App Engine (and Spring MVC ;)), the other using Jetty 8 (embedded), Spring MVC, MongoDB and ElasticSearch.</p>
-
-<p>The Jetty/Spring combination is one which I've used before - several times since Jetty-5/Spring-1.2 - and I really like. You just can't beat it for quick debug cycles, complete control of the environment, minimal configuration, single-jar deployment, etc., etc.</p>
-
-<p>On this most recent project I'm using jsp as the view technology - this is probably the easiest way to go since most things "just work" out of the box. Other view technologies can be used too - for example last year we used this same combination with FreeMarker - its just a little more effort to get things wired up right.</p>
-
-<p>Here's how I set my projects up:</p>
-
-<h3>Maven POM</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;project 
- xsi:schemaLocation="
- http://maven.apache.org/POM/4.0.0 
- http://maven.apache.org/xsd/maven-4.0.0.xsd" 
- xmlns="http://maven.apache.org/POM/4.0.0" 
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
-&lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-
-&lt;groupId&gt;com.sjl&lt;/groupId&gt;
-&lt;artifactId&gt;webapp&lt;/artifactId&gt;
-&lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
-&lt;name&gt;WebApp&lt;/name&gt;
-&lt;description&gt;&lt;/description&gt;
-
-&lt;repositories&gt;
-  &lt;repository&gt;
-    &lt;id&gt;springsource-repo&lt;/id&gt;
-    &lt;name&gt;SpringSource Repository&lt;/name&gt;
-    &lt;url&gt;http://repo.springsource.org/release&lt;/url&gt;
-  &lt;/repository&gt;
-&lt;/repositories&gt;
-
-&lt;properties&gt;
-  &lt;jetty.version&gt;8.1.5.v20120716&lt;/jetty.version&gt;
-  &lt;jetty.jsp.version&gt;8.1.4.v20120524&lt;/jetty.jsp.version&gt;
-  &lt;spring.version&gt;3.1.2.RELEASE&lt;/spring.version&gt;
-&lt;/properties&gt;
-
-&lt;build&gt;
-  &lt;plugins&gt;
-    &lt;plugin&gt;
-      &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-      &lt;artifactId&gt;maven-source-plugin&lt;/artifactId&gt;
-      &lt;version&gt;2.1.2&lt;/version&gt;
-      &lt;executions&gt;
-        &lt;execution&gt;
-          &lt;id&gt;attach-sources&lt;/id&gt;
-          &lt;phase&gt;verify&lt;/phase&gt;
-          &lt;goals&gt;
-            &lt;goal&gt;jar-no-fork&lt;/goal&gt;
-          &lt;/goals&gt;
-        &lt;/execution&gt;
-      &lt;/executions&gt;
-    &lt;/plugin&gt;
-    &lt;plugin&gt;
-      &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
-      &lt;version&gt;2.3.2&lt;/version&gt;
-      &lt;configuration&gt;
-        &lt;source&gt;1.6&lt;/source&gt;
-        &lt;target&gt;1.6&lt;/target&gt;
-      &lt;/configuration&gt;
-    &lt;/plugin&gt;
-    &lt;plugin&gt; 
-      &lt;artifactId&gt;maven-eclipse-plugin&lt;/artifactId&gt; 
-      &lt;configuration&gt; 
-        &lt;downloadSources&gt;true&lt;/downloadSources&gt;
-      &lt;/configuration&gt; 
-    &lt;/plugin&gt; 
-  &lt;/plugins&gt;    
-&lt;/build&gt;
-
-&lt;dependencies&gt;
-
-  &lt;!-- SPRING DEPENDENCIES --&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
-    &lt;version&gt;${spring.version}&lt;/version&gt;
-  &lt;/dependency&gt; 
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-webmvc&lt;/artifactId&gt;
-    &lt;version&gt;${spring.version}&lt;/version&gt;
-  &lt;/dependency&gt;
-
-  &lt;!-- JETTY DEPENDENCIES --&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-    &lt;artifactId&gt;jetty-server&lt;/artifactId&gt;
-    &lt;version&gt;${jetty.version}&lt;/version&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-    &lt;artifactId&gt;jetty-servlet&lt;/artifactId&gt;
-    &lt;version&gt;${jetty.version}&lt;/version&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-    &lt;artifactId&gt;jetty-webapp&lt;/artifactId&gt;
-    &lt;version&gt;${jetty.version}&lt;/version&gt;
-  &lt;/dependency&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-    &lt;artifactId&gt;jetty-servlets&lt;/artifactId&gt;
-    &lt;version&gt;${jetty.version}&lt;/version&gt;
-  &lt;/dependency&gt;
-
-  &lt;!-- JSP and JSTL SUPPORT --&gt;
-  &lt;dependency&gt;
-    &lt;groupId&gt;org.eclipse.jetty&lt;/groupId&gt;
-    &lt;artifactId&gt;jetty-jsp&lt;/artifactId&gt;
-    &lt;version&gt;${jetty.jsp.version}&lt;/version&gt;
-  &lt;/dependency&gt;    
-  &lt;dependency&gt;
-    &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
-    &lt;artifactId&gt;jstl&lt;/artifactId&gt;
-    &lt;version&gt;1.2&lt;/version&gt;
-    &lt;scope&gt;provided&lt;/scope&gt;
-  &lt;/dependency&gt;
-&lt;/dependencies&gt;
-
-&lt;/project&gt;
-</code></pre>
-
-<p>A couple of things worth pointing out:</p>
-
-<ul>
-<li>I've added the spring-source maven repo in order to get the spring dependencies</li>
-<li>I'm using Jetty 8 from eclipse, who have taken over from codehaus (who took over from mortbay)</li>
-<li>I'm attaching sources for all dependencies that make them available, so that you can drill down into the source while debugging</li>
-<li>I'm setting the source and target jdk compliance to 6</li>
-<li>I'm using Jetty-jsp 8.1.4 - many other jstl implementations I tried have bugs, including a nasty one where recursive calls in tag-files would not compile.</li>
-<li>I've never really bothered with things like maven archetypes, which is probably lazy-stupid of me. I tend to start from a pom that i've created previously then modify it to suit my needs.</li>
-</ul>
-
-<p>After creating the pom in my project directory I create the <code>src/main/java</code> and <code>src/test/java</code> directories and then run <code>mvn eclipse:eclipse</code> to fetch the dependencies and create the eclipse .project and .classpath files. Having done that I import the project to Eclipse.</p>
-
-<p>Once I have the project in Eclipse I create a few more directories - specifically the <code>META-INF/webapp/WEB-INF</code> directory to host my web.xml and spring context files (amongst other things).</p>
-
-<p>I typically start with a spring application context and a spring web context, so I can specify beans at a larger scope than the web-application. Here's some simple example web and spring configs, all of which I place in WEB-INF:</p>
-
-<h3>web.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://java.sun.com/xml/ns/javaee" 
-xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-xsi:schemaLocation="
-  http://java.sun.com/xml/ns/javaee 
-  http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-id="WebApp_ID" version="3.0"&gt;
-
-&lt;listener&gt;
-  &lt;listener-class&gt;
-    org.springframework.web.context.ContextLoaderListener
-  &lt;/listener-class&gt;
-&lt;/listener&gt;
-
-&lt;context-param&gt;
-    &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-    &lt;param-value&gt;
-        /WEB-INF/application-context.xml
-    &lt;/param-value&gt;
-&lt;/context-param&gt;
-
-&lt;!-- Handles all requests into the application --&gt;
-&lt;servlet&gt;
-    &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-    &lt;servlet-class&gt;
-      org.springframework.web.servlet.DispatcherServlet
-    &lt;/servlet-class&gt;
-    &lt;init-param&gt;
-        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
-        &lt;param-value&gt;/WEB-INF/web-context.xml&lt;/param-value&gt;
-    &lt;/init-param&gt;
-    &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
-&lt;/servlet&gt;  
-
-&lt;servlet-mapping&gt;
-    &lt;servlet-name&gt;Spring MVC Dispatcher Servlet&lt;/servlet-name&gt;
-    &lt;url-pattern&gt;/&lt;/url-pattern&gt;
-&lt;/servlet-mapping&gt;      
-
-&lt;/web-app&gt;
-</code></pre>
-
-<h3>application-context.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:context="http://www.springframework.org/schema/context"
-  xsi:schemaLocation="
-http://www.springframework.org/schema/beans 
-http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-http://www.springframework.org/schema/context 
-http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
-
-&lt;!-- Define your application beans here. They will be available to the
-   beans defined in your web-context because it is a sub-context.
-
-   Beans defined in the web-context will not be available in the 
-   application context.
---&gt;
-
-&lt;/beans&gt;
-</code></pre>
-
-<h3>web-context.xml</h3>
-
-<pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:context="http://www.springframework.org/schema/context"
-  xmlns:mvc="http://www.springframework.org/schema/mvc"
-  xsi:schemaLocation="
-http://www.springframework.org/schema/mvc 
-http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
-http://www.springframework.org/schema/beans 
-http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-http://www.springframework.org/schema/context 
-http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;
-
-&lt;!-- Configures the @Controller programming model --&gt;
-&lt;mvc:annotation-driven/&gt;
-
-&lt;!-- Forwards requests to the "/" resource to the "home" view --&gt;
-&lt;mvc:view-controller path="/" view-name="index"/&gt;    
-
-&lt;mvc:resources mapping="/i/**" location="WEB-INF/images/" /&gt;
-&lt;mvc:resources mapping="/c/**" location="WEB-INF/css/" /&gt;
-&lt;mvc:resources mapping="/s/**" location="WEB-INF/scripts/" /&gt;
-&lt;mvc:resources mapping="/favicon.ico" 
-  location="WEB-INF/images/favicon.ico" /&gt;
-
-&lt;!-- Resolve jsp's --&gt;
-&lt;bean id="viewResolver" 
-  class="org.springframework.web.servlet.view.UrlBasedViewResolver"&gt;
-    &lt;property name="viewClass" 
-      value="org.springframework.web.servlet.view.JstlView"/&gt;
-    &lt;property name="prefix" value="/WEB-INF/views/"/&gt;
-    &lt;property name="suffix" value=".jsp"/&gt;
-&lt;/bean&gt;
-
-&lt;!-- i18n message source --&gt;
-&lt;bean id="messageSource" 
-  class="
-    org.springframework.context.support.
-      ReloadableResourceBundleMessageSource"&gt;
-    &lt;property name="basename" value="/WEB-INF/i18n/messages" /&gt;
-    &lt;property name="defaultEncoding" value="UTF-8"/&gt;
-    &lt;property name="cacheSeconds" value="30" /&gt;
-&lt;/bean&gt;
-
-&lt;/beans&gt;
-</code></pre>
-
-<p>Some important things to note in this file are:</p>
-
-<ul>
-<li>We're using the annotation model for spring Controllers, hence there aren't any Controller beans specified in this xml</li>
-<li>We're mapping static resources to be served efficiently by the Spring dispatcher servlet</li>
-<li>We've set up a view resolver to look for jsp's in /WEB-INF/views. Note that when specifying a view in Controller code you drop the .jsp suffix.</li>
-<li>We're configuring an internationalization message source, just so we can demonstrate use of a spring taglib a bit later...</li>
-</ul>
-
-<p>Now we need to create a class to set up the embedded Jetty.</p>
-
-<h3>Embedded Jetty</h3>
-
-<pre><code>package com.sjl;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
-import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.*;
-import org.eclipse.jetty.server.nio.*;
-import org.eclipse.jetty.util.thread.*;
-import org.eclipse.jetty.webapp.*;
-
-/**
- * Example WebServer class which sets up an embedded Jetty 
- * appropriately whether running in an IDE or in "production" 
- * mode in a shaded jar.
- */
-public class WebServer
-{
-    // TODO: You should configure this appropriately for 
-    // your environment
-    private static final String LOG_PATH = 
-      "./var/logs/access/yyyy_mm_dd.request.log";
-
-    private static final String WEB_XML = 
-      "META-INF/webapp/WEB-INF/web.xml";
-    private static final String CLASS_ONLY_AVAILABLE_IN_IDE = 
-      "com.sjl.IDE";
-    private static final String PROJECT_RELATIVE_PATH_TO_WEBAPP = 
-      "src/main/java/META-INF/webapp";
-
-    public static interface WebContext
-    {
-        public File getWarPath();
-        public String getContextPath();
-    }
-
-    private Server server;
-    private int port;
-    private String bindInterface;
-
-    public WebServer(int aPort)
-    {
-        this(aPort, null);
-    }
-
-    public WebServer(int aPort, String aBindInterface)
-    {        
-        port = aPort;
-        bindInterface = aBindInterface;
-    }
-
-    public void start() throws Exception
-    {
-        server = new Server();
-
-        server.setThreadPool(createThreadPool());
-        server.addConnector(createConnector());
-        server.setHandler(createHandlers());        
-        server.setStopAtShutdown(true);
-
-        server.start();       
-    }
-
-    public void join() throws InterruptedException
-    {
-        server.join();
-    }
-
-    public void stop() throws Exception
-    {        
-        server.stop();
-    }
-
-    private ThreadPool createThreadPool()
-    {
-        // TODO: You should configure these appropriately
-        // for your environment - this is an example only
-        QueuedThreadPool _threadPool = new QueuedThreadPool();
-        _threadPool.setMinThreads(10);
-        _threadPool.setMaxThreads(100);
-        return _threadPool;
-    }
-
-    private SelectChannelConnector createConnector()
-    {
-        SelectChannelConnector _connector = 
-            new SelectChannelConnector();
-        _connector.setPort(port);
-        _connector.setHost(bindInterface);
-        return _connector;
-    }
-
-    private HandlerCollection createHandlers()
-    {                
-        WebAppContext _ctx = new WebAppContext();
-        _ctx.setContextPath("/");
-
-        if(isRunningInShadedJar())
-        {          
-            _ctx.setWar(getShadedWarUrl());
-        }
-        else
-        {            
-            _ctx.setWar(PROJECT_RELATIVE_PATH_TO_WEBAPP);
-        }
-
-        List&amp;lt;Handler&gt; _handlers = new ArrayList&amp;lt;Handler&gt;();
-
-        _handlers.add(_ctx);
-
-        HandlerList _contexts = new HandlerList();
-        _contexts.setHandlers(_handlers.toArray(new Handler[0]));
-
-        RequestLogHandler _log = new RequestLogHandler();
-        _log.setRequestLog(createRequestLog());
-
-        HandlerCollection _result = new HandlerCollection();
-        _result.setHandlers(new Handler[] {_contexts, _log});
-
-        return _result;
-    }
-
-    private RequestLog createRequestLog()
-    {
-        NCSARequestLog _log = new NCSARequestLog();
-
-        File _logPath = new File(LOG_PATH);
-        _logPath.getParentFile().mkdirs();
-
-        _log.setFilename(_logPath.getPath());
-        _log.setRetainDays(90);
-        _log.setExtended(false);
-        _log.setAppend(true);
-        _log.setLogTimeZone("GMT");
-        _log.setLogLatency(true);
-        return _log;
-    }  
-
-    private boolean isRunningInShadedJar()
-    {
-        try
-        {
-            Class.forName(CLASS_ONLY_AVAILABLE_IN_IDE);
-            return false;
-        }
-        catch(ClassNotFoundException anExc)
-        {
-            return true;
-        }
-    }
-
-    private URL getResource(String aResource)
-    {
-        return Thread.currentThread().
-            getContextClassLoader().getResource(aResource); 
-    }
-
-    private String getShadedWarUrl()
-    {
-        String _urlStr = getResource(WEB_XML).toString();
-        // Strip off "WEB-INF/web.xml"
-        return _urlStr.substring(0, _urlStr.length() - 15);
-    }
-}
-</code></pre>
-
-<p>Notice that here we try to load a class that will only ever be available if we're running in test mode (e.g. directly from Eclipse). </p>
-
-<p>If the class is found we assume we're running in exploded form, otherwise we assume we're running in a shaded jar - this is so that we can use the correct path to locate the web resources. </p>
-
-<p>If you're trying this out you must make sure that the com.sjl.IDE class exists in your test source tree!.</p>
-
-<h3>Spring MVC Controller</h3>
-
-<pre><code>package com.sjl.web;
-
-import org.springframework.stereotype.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.*;
-
-@Controller
-public class Home {
-    @RequestMapping("/")
-    public ModelAndView home()
-    {
-        return new ModelAndView("index");
-    }
-}
-</code></pre>
-
-<p>A very simple Controller that simply tells Spring to render the index.jsp view when a request is made for the root of the web-app.</p>
-
-<h3>index.jsp</h3>
-
-<pre><code>&lt;%@taglib prefix="spring" uri="http://www.springframework.org/tags"%&gt;
-&lt;html&gt;
-  &lt;body&gt;
-    &lt;p&gt;&lt;spring:message code="hello"/&gt;&lt;/p&gt;
-  &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<h3>messages.properties</h3>
-
-<pre><code>hello=Hi
-</code></pre>
-
-<p>That's almost everything. You will need a couple of other little pieces, for example a main class to instantiate the WebServer.</p>
-
-<h3>Project directory structure</h3>
-
-<p>Your project directory structure should end up looking something like this:</p>
-
-<pre><code>|_src
-|___main
-|_____java
-|_______META-INF
-|_________webapp
-|___________WEB-INF
-|_____________[web.xml and spring context configs here]
-|_____________css
-|_____________i18n
-|_____________images
-|_____________scripts
-|_____________views
-|_______________[jsp files here]
-|_______com
-|_________sjl
-|___________web
-|_____________[Spring MVC Controllers here]
-|___test
-|_____java
-|_______com
-|_________sjl
-</code></pre>
-
-<p>Check out the <a href="https://github.com/steveliles/jetty-embedded-spring-mvc">github project</a> for the complete working example.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Jetty">Jetty</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Embedded">Embedded</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Maven">Maven</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -1047,11 +646,11 @@ public class Home {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
                 <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
                 <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
                 <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
-                <li><a href="configuring_global_exception_handling_in_spring_mvc.html">Configuring global exception-handling in Spring MVC</a><span class="date"> - Oct 05, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

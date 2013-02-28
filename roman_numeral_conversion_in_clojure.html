@@ -1,0 +1,244 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="clojure" itemprop="keywords"></meta>
+      <meta name="keywords" content="exercise" itemprop="keywords"></meta>
+      <meta name="keywords" content="roman-numerals" itemprop="keywords"></meta>
+    <meta name="description" content="For my first ever attempt at writing Clojure code I had a shot at a Roman numeral converter"></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Roman numeral conversion in Clojure</title>
+  </head>
+  <body>
+    <div>
+      <div class="site-header">
+        <div class="left">
+          <a href="/index.html"><h1>ExoMemory</h1></a>
+          <h2>Because I'll forget it if I don't write it down...</h2>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego.png"></a>
+        </div>
+      </div>
+      <div class="nav">
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="https://ssl.gstatic.com/images/icons/gplus-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </div>
+      <div class="content">
+        <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,099" description="For my first ever attempt at writing Clojure code I had a shot at a Roman numeral converter">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-02-28">February 28, 2013</time></span>
+              <a itemprop="url" href="roman_numeral_conversion_in_clojure.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure</h1></a>
+	      <span itemprop="articleBody"><p>I've been reading Stu Halloway's <a href="">Programming Clojure</a> (which is excellent by the way). When I reached chapter 6 "Concurrency" I thought I'd better pause and practise some of the basics before venturing into deeper waters!</p>
+
+<p>I once saw a programming challenge posted with a job ad, which asked applicants to write some code to convert numbers from the decimal numeral system to Roman. This seemed like a sufficiently challenging and self-contained thing to try for a first attempt at Clojure.</p>
+
+<p>I started by creating a map of the individual numerals:</p>
+
+<pre><code>(def digits {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+</code></pre>
+
+<p>Next I created a function that maps roman numerals to decimal values (baby steps!):</p>
+
+<pre><code>(defn decimal-values [s]
+  (map digits s))
+</code></pre>
+
+<p>Testing this at the REPL I get:</p>
+
+<pre><code>=&gt; (decimal-values "MCXVII")
+(1000 100 10 5 1 1)
+</code></pre>
+
+<p>Great, I have a list of the values which I need to compose together. Next I want to combine the values in this list by adding them together.</p>
+
+<pre><code>(defn roman [s]
+  (reduce + (decimal-values s)))
+</code></pre>
+
+<p>Testing again at the REPL I get:</p>
+
+<pre><code>=&gt; (roman "MCXVII")
+1117
+</code></pre>
+
+<p>Whoop! OK, we have our first conversion. Are we done? Unfortunately not - there's a complication.</p>
+
+<p>The "simple" way of writing 4 in Roman numerals is IIII. That repetition is allowed, but not commonly used. The short-hand is to prefix a higher numeral with a lower one, e.g. IV, which means subtract the lower number from the higher. This works for all of the other numerals too, so 999 can be written IM (1000 - 1).</p>
+
+<p>I pondered this for a while, then decided to write a <code>combine-numerals</code> function to use in place of + in the <code>reduce</code> call. I want my <code>roman</code> function to look like this:</p>
+
+<pre><code>(defn roman [s]
+  (reduce combine-numerals (decimal-values s)))
+</code></pre>
+
+<p>Now, <code>combine-numerals</code> needs to account for the more complicated logic described above. Here's what I came up with:</p>
+
+<pre><code>(defn combine-numerals [a b]
+  (if (&gt; a b)
+    (+ a b)
+    (- b a)))
+</code></pre>
+
+<p>This simply checks that the value seen first is larger than the following value - if it is we add, if it isn't we subtract. Testing that at the REPL gives:</p>
+
+<pre><code>=&gt; (combine-numerals 1 10)
+9
+=&gt; (combine-numerals 10 1)
+11
+</code></pre>
+
+<p>Perfect, if I see a 1 before a 10 it is subtracted to give 9, otherwise it is added to give 11. Lets try our <code>roman</code> function again:</p>
+
+<pre><code>=&gt; (roman "XVII")
+17
+=&gt; (roman "MCMXVII")
+2117
+</code></pre>
+
+<p>Hmm, that last one isn't right, it should give 1917. What's going on? </p>
+
+<p><code>reduce</code> takes each value in the given list and applies the function to it and the reduced result so far. That means that when <code>combine-numerals</code> is called it isn't called with two adjacent values except in the case where the numeral string only has two numerals. Bum.</p>
+
+<p>What I really need is to have the sum so far, the previous numeral seen, and the current numeral being handled, so that I can decide whether to add/subtract the current numeral by comparing it with the previous numeral. </p>
+
+<p>I think I could do this with a recursive function, but I'm struggling to remember the syntax, so I ponder a little more and decide to try running in reverse through the numerals, and add if the total so far is less than 4 times the current total. </p>
+
+<p>This involves changing <code>combine-numerals</code> to multiply the current numeral's value by 4 before comparing, and renaming it to add-numeral:</p>
+
+<pre><code>(def add-numeral [n t]
+  (if (&gt; n (* 4 t))
+    (- n t)
+    (+ t n)))
+</code></pre>
+
+<p>I also need to change <code>roman</code> to reduce the list in reverse with the new add-numeral function:</p>
+
+<pre><code>(defn roman [s]
+  (reduce add-numeral (map digits (reverse s))))
+</code></pre>
+
+<p>Testing at the REPL gives:</p>
+
+<pre><code>=&gt; (roman "IX")
+9
+=&gt; (roman "MCMXIX")
+1919
+=&gt; (roman "MIM")
+1999
+=&gt; (roman "MLMXXXIIII")
+1984
+=&gt; (roman "MCMLXXXIV")
+1984
+</code></pre>
+
+<p>So, lets see the whole program:</p>
+
+<pre><code>(def digits {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+
+(def add-numeral [n t]
+  (if (&gt; n (* 4 t))
+    (- n t)
+    (+ t n)))
+
+(defn roman [s]
+  (reduce add-numeral (map digits (reverse s))))
+</code></pre>
+
+<p>I confess myself truly amazed that -</p>
+
+<ol>
+<li>I managed to write some Clojure that actually works</li>
+<li>I think it is nearly idiomatic Clojure (is it? please comment!)</li>
+<li>It is incredibly concise and moderately readable (even to my unfamiliar eyes)</li>
+</ol>
+
+<p>I plan to come back to this exercise over time as I learn more Clojure - pretty sure there's a recursive version that would be more idiomatic/elegant, and I haven't made any attempt at handling bad input, etc.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=clojure">clojure</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=exercise">exercise</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=roman-numerals">roman-numerals</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </div>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
+                <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
+                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
+                <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="links">
+          
+          <div class="next"><a title="next" href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>
