@@ -20,10 +20,8 @@
 
 <pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
 
-(def add-numeral [n t]
-  (if (&gt; n (* 4 t))
-    (- n t)
-    (+ t n)))
+(defn add-numeral [n t]
+  (if (&gt; n (* 4 t)) (- n t) (+ t n)))
 
 (defn roman [s]
   (reduce add-numeral (map numerals (reverse s))))
@@ -349,9 +347,7 @@ nil
     (if (= 0 r) (str n) (apply str n (decimal-to-roman r)))))
 
 (defn add-numeral [n t]
-  (if (&gt; n (* 4 t))
-    (- n t)
-    (+ t n)))
+  (if (&gt; n (* 4 t)) (- n t) (+ t n)))
 
 (defn roman-to-decimal [r]
   (reduce add-numeral 

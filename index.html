@@ -35,17 +35,15 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,099" description="Previously I wrote my first ever Clojure code to convert Roman numerals to decimal numbers. Continuing with that exercise I moved on to trying to convert decimals to Roman numerals.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,067" description="Previously I wrote my first ever Clojure code to convert Roman numerals to decimal numbers. Continuing with that exercise I moved on to trying to convert decimals to Roman numerals.">
               <span class="meta" itemprop="datePublished"><time datetime="2013-03-03">March 03, 2013</time></span>
               <a itemprop="url" href="roman_numeral_conversion_in_clojure_part_ii.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure, part II</h1></a>
 	      <span itemprop="articleBody"><p><a href="http://steveliles.github.com/roman_numeral_conversion_in_clojure.html">Previously</a> I translated Roman numerals to decimals with this code:</p>
 
 <pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
 
-(def add-numeral [n t]
-  (if (&gt; n (* 4 t))
-    (- n t)
-    (+ t n)))
+(defn add-numeral [n t]
+  (if (&gt; n (* 4 t)) (- n t) (+ t n)))
 
 (defn roman [s]
   (reduce add-numeral (map numerals (reverse s))))
@@ -371,9 +369,7 @@ nil
     (if (= 0 r) (str n) (apply str n (decimal-to-roman r)))))
 
 (defn add-numeral [n t]
-  (if (&gt; n (* 4 t))
-    (- n t)
-    (+ t n)))
+  (if (&gt; n (* 4 t)) (- n t) (+ t n)))
 
 (defn roman-to-decimal [r]
   (reduce add-numeral 
