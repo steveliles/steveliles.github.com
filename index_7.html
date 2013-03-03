@@ -35,6 +35,64 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="500" description="How to make a perforated postage-stamp (or old-fashioned postcard) border using the Inkscape vector graphics tool.">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-12-18">December 18, 2011</time></span>
+              <a itemprop="url" href="perforated_postage_stamp_border_with_inkscape.html"><h1 itemprop="name" itemprop="headline">Perforated postage-stamp border with Inkscape</h1></a>
+	      <span itemprop="articleBody"><p>This short tutorial explains how I created a curved-serrated border - such as you would find on a tear-off postage stamp - using the Inkscape vector graphics tool (v0.48.2). It is extremely easy to do, and shouldn't take more than 5 minutes.</p>
+
+<h3>Getting Inkscape</h3>
+
+<p>If you're running a debian based linux you can install Inkscape with:</p>
+
+<pre><code>sudo apt-get install inkscape
+</code></pre>
+
+<p>Ubuntu users can install it using the graphical Ubuntu software centre. Downloads for other OS's can be found <a href="http://inkscape.org/download/">here</a>.</p>
+
+<h3>Creating the perforated border</h3>
+
+<p>First draw a rectangle using the <code>"rectangles and squares (F4)"</code> tool. Make this reasonably large. </p>
+
+<p>Then select the <code>"circles, ellipses and arcs (F5)"</code> tool and draw a much smaller circle. Holding down the ctrl key while drawing the circle will lock the aspect ratio so that you don't end up with an ellipse.</p>
+
+<p><img src="https://lh5.googleusercontent.com/-f7Ifgk1xqds/Tu4lanssEDI/AAAAAAAAH20/ZIkzqyhFnEM/s800/step-2.png" alt="Rectangle and circle" /></p>
+
+<p>Next, select both the circle and the rectangle by first selecting the circle then holding down the shift key and selecting the rectangle.</p>
+
+<p>Now from the <code>"Extensions"</code> menu, select <code>"Generate from path"</code> and in the sub-menu, select <code>"Pattern along path"</code>. The <code>"Pattern along Path"</code> dialog pops up. </p>
+
+<p><img src="https://lh6.googleusercontent.com/-Q-jYlXWOous/Tu4laEZHkvI/AAAAAAAAH28/Sz3ydQTqghQ/s800/pattern-along-path.png" alt="Pattern along path dialog" /></p>
+
+<p>Choose <code>"Repeated"</code> in the <code>"Copies of the pattern"</code> combo, in <code>"Deformation type"</code> choose <code>"Snake"</code>, and pick a number for <code>"Space between copies"</code> - this is the distance between each circle that will be cut out from the border of the rectangle, so good values depend on the size of your circle and subjective taste. Hit <code>"apply"</code>.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-ccgBpNnVZsY/Tu4laDpsFhI/AAAAAAAAH2s/qpmSfkjxo0M/s800/first-pattern-step.png" alt="Circles applied to the path" /></p>
+
+<p>Now we want to <em>remove</em> the path created by the circles around the border of the rectangle. To do that, first select the circles around the edge of the rectangle, then (holding down shift) select the rectangle itself and then choose <code>"Difference"</code> from the <code>"Path"</code> menu.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-XoboYeO1yHM/Tu4lZbdS9DI/AAAAAAAAH2k/ZqTIKj2oecQ/s800/difference.png" alt="Path difference effect" /></p>
+
+<p>Change the colour of your postage-stamp shape to black (fill and stroke), then select it and hit ctrl-c to copy it, then ctrl-v to paste a new copy. Re-select the original and choose <code>"Filters-&gt;Blurs-&gt;Evanescent"</code> - this creates a nice blurred shadow effect.</p>
+
+<p>Select the new copy and change it to an off-white colour (I went for #fbfad4ff), then move it so that it sits just a few pixels above and to the left of the original (blurred shadow) shape.</p>
+
+<p><img src="https://lh3.googleusercontent.com/-Pgk_1jBRtT0/Tu4lZThH_iI/AAAAAAAAH2g/XeJE1jFDNZU/s800/postage-stamp-inkscape.png" alt="the finished postage stamp in inkscape" /></p>
+
+<p>That's it, all done! Now you can add whatever content you like to your stamp and then export as a bitmap image. Below you can see what mine looks like exported as a png. Notice that the corners aren't quite "right" - this is because I didn't spend any time trying to ensure that the rectangle side-lengths were appropriately divisible by the circle + the space between copies - something that's worth doing if you want to get your stamp to look "just right".</p>
+
+<p><img src="https://lh6.googleusercontent.com/-jWvZBSpzLmA/Tu4lZKrXkhI/AAAAAAAAH2c/qrRRQYx43DQ/s800/postage-stamp.png" alt="png postage stamp" /></p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=inkscape">inkscape</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=perforated">perforated</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=border">border</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=vector">vector</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="perforated_postage_stamp_border_with_inkscape.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="255" description="Canonical currently package javahl 1.6 in the official repositories, making it difficult to run eclipse with subclipse 1.8 and subversion 1.7. Here's how I got it working.">
               <span class="meta" itemprop="datePublished"><time datetime="2011-12-16">December 16, 2011</time></span>
               <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu</h1></a>
@@ -285,54 +343,6 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
 	        <a href="google_chrome_css_bug.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="407" description="How to point a registered domain name to an Amazon S3 website bucket">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-11-26">November 26, 2011</time></span>
-              <a itemprop="url" href="pointing_a_domain_name_to_an_amazon_s3_bucket.html"><h1 itemprop="name" itemprop="headline">Pointing a domain name to an Amazon S3 bucket</h1></a>
-	      <span itemprop="articleBody"><p>I recently registered a domain name for some static content i'm hosting in Amazon's Simple Storage Service (S3). <a href="hosting_a_static_website_in_amazon_s3.html">Setting up an S3 bucket as a static website</a> is pretty straight-forward, but pointing your domain to it is tricky. After a bit of playing and googling I think I've got the right combination:</p>
-
-<h4>Step-1: Create your S3 website bucket</h4>
-
-<p>When naming your bucket you <em>must</em> use the same name as your domain - e.g. <code>www.mydomain.com</code>. The website end-point will then be something like <code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>. If you don't do this you will get warnings (404 not found, nosuchbucket).</p>
-
-<h4>Step-2: Remove any existing "A" records</h4>
-
-<p>Using the administration tools provided by your domain registrar, remove any <code>"A"</code> records that may have been automatically set up for your domain - you don't want your domain name pointing to "parking" sites.</p>
-
-<h4>Step-3: Forward your root domain to www</h4>
-
-<p>Forward your root domain (<code>mydomain.com</code>) to the <code>www</code> subdomain (<code>www.mydomain.com</code>). Most registrars and hosting companies give you the ability to forward domain names. With Fasthosts I had to "add" forwarding to my package, but it didn't cost anything extra.</p>
-
-<p>If you can <em>mask</em> the forwarding, so much the better, as this will mean that visitors to your site will see your registered domain rather than the S3 url (depends what your registrar offers - fasthosts and godaddy both support masked forwarding). In Fasthosts admin, masking is a checkbox option in the forwarding configuration.</p>
-
-<h4>Step-4: Add a `CNAME` pointing to your S3 site</h4>
-
-<p>Add a CNAME for the <code>www</code> subdomain, pointing to your S3 website (<code>www.mydomain.com.s3-website-eu-west-1.amazonaws.com</code>). The admin tools should make this easy for you.</p>
-
-<p><img src="https://lh4.googleusercontent.com/-6aH7JLLgpVQ/TtFmqVjl4QI/AAAAAAAAH0k/vT_wK-8EEd0/s522/cname-config.png" alt="Add a CNAME" /></p>
-
-<p>That's it - all you have to do now is wait for the changes to propagate (this can take a while).</p>
-
-<h4>See it in action...</h4>
-
-<p>You can see this in action with my setup:</p>
-
-<p>My domain-name is overpayment-calculator.com, which forwards to <a href="http://www.overpayment-calculator.com">www.overpayment-calculator.com</a>, which points (via CNAME) at my S3 bucket <a href="http://www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com">www.overpayment-calculator.com.s3-website-eu-west-1.amazonaws.com</a>, masking the S3 name (so that when you visit via the overpayment-calculator.com address you don't see the S3 address in the address bar).</p>
-
-<p><em>p.s.</em> props to <a href="http://www.fasthosts.co.uk/">fasthosts</a> - the dns information propagated extremely quickly - from registering the domain name to acessing my site via that domain name (including the time it took me to do the set up) took less than one hour!</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Amazon">Amazon</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=S3">S3</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=domain name">domain name</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=forward">forward</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=mask">mask</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="pointing_a_domain_name_to_an_amazon_s3_bucket.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -350,11 +360,11 @@ Today while working on a project that uses <code>contenteditable &lt;div&gt;</co
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
                 <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
                 <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
-                <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

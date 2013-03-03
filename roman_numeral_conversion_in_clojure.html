@@ -126,7 +126,7 @@
 
 <p>This involves changing <code>combine-numerals</code> to multiply the current numeral's value by 4 before comparing, and renaming it to add-numeral:</p>
 
-<pre><code>(def add-numeral [n t]
+<pre><code>(defn add-numeral [n t]
   (if (&gt; n (* 4 t))
     (- n t)
     (+ t n)))
@@ -156,7 +156,7 @@
 
 <pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
 
-(def add-numeral [n t]
+(defn add-numeral [n t]
   (if (&gt; n (* 4 t))
     (- n t)
     (+ t n)))
@@ -274,10 +274,10 @@ public class RomanNumerals {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
                 <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
                 <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
                 <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
-                <li><a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</a><span class="date"> - Nov 13, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
@@ -285,7 +285,7 @@ public class RomanNumerals {
       </div>
       <div class="nav">
         <div class="links">
-          
+          <div class="prev"><a title="previous" href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in...</a></div>
           <div class="next"><a title="next" href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a></div>
         </div>
       </div>
