@@ -37,7 +37,6 @@ img {
 
 .site-header > div.right {
   float:right;
-  margin-right:35px;
   padding:15px;
   padding-right:55px;
 }
@@ -67,7 +66,7 @@ img {
 .site-header h2 {
   font-family:'Gochi Hand', serif;
   font-size:40px;
-  margin-top:0px;
+  margin-top:20px;
   margin-bottom:0px;
   color:#bac7da;
   text-shadow:#000 1px 2px 3px;
