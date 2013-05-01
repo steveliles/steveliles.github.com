@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.sjl.dsl4xml</groupId>
+  <artifactId>dsl4xml-pull</artifactId>
+  <versioning>
+    <versions>
+      <version>0.1.8-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20130501135951</lastUpdated>
+  </versioning>
+</metadata>
