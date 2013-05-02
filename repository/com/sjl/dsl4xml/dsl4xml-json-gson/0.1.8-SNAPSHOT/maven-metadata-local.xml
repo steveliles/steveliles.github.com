@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata modelVersion="1.1.0">
   <groupId>com.sjl.dsl4xml</groupId>
-  <artifactId>dsl4xml-example</artifactId>
+  <artifactId>dsl4xml-json-gson</artifactId>
   <version>0.1.8-SNAPSHOT</version>
   <versioning>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
-    <lastUpdated>20130502163619</lastUpdated>
+    <lastUpdated>20130502163618</lastUpdated>
     <snapshotVersions>
       <snapshotVersion>
         <extension>jar</extension>
         <value>0.1.8-SNAPSHOT</value>
-        <updated>20130502163619</updated>
+        <updated>20130502163618</updated>
       </snapshotVersion>
       <snapshotVersion>
         <extension>pom</extension>
         <value>0.1.8-SNAPSHOT</value>
-        <updated>20130502163619</updated>
+        <updated>20130502163618</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
   <groupId>com.sjl.dsl4xml</groupId>
-  <artifactId>dsl4xml-sax</artifactId>
+  <artifactId>dsl4xml-json-gson</artifactId>
   <versioning>
     <versions>
       <version>0.1.8-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20130502163616</lastUpdated>
+    <lastUpdated>20130502163618</lastUpdated>
   </versioning>
 </metadata>
