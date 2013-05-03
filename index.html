@@ -34,6 +34,98 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="637" description=" Trust anchor for certification path not found, Android - don't automatically reach for a custom trust manager!">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-05-01">May 01, 2013</time></span>
+              <a itemprop="url" href="android_ssl_certificate_not_trusted.html"><h1 itemprop="name" itemprop="headline">Android SSL - Certificate not trusted</h1></a>
+	      <span itemprop="articleBody"><p>I hit a problem in Android, trying to talk HTTPS with an Apache web-server that has an SSL certificate purchased from Dynadot/AlphaSSL:</p>
+
+<pre><code>javax.net.ssl.SSLHandshakeException: 
+  java.security.cert.CertPathValidatorException: 
+    Trust anchor for certification path not found.
+</code></pre>
+
+<p>The code to talk to the server looks something like this:</p>
+
+<pre><code>...
+HttpsURLConnection _conn = null;
+try {
+    _conn = (HttpsURLConnection) 
+        new URL(aUrl).openConnection();
+    if ((_conn.getResponseCode() &gt;= 200) &amp;&amp; 
+        (_conn.getResponseCode() &lt; 300)) {
+        return handleSuccessResponse(_conn);
+    } else if (...) {
+        ...
+    } else {
+        return handleErrorResponse(_conn);
+    }
+finally {
+    _conn.disconnect();
+}
+...
+</code></pre>
+
+<p>I googled the message "Trust anchor for certification path not found". Unsurprisingly, StackOverflow shows up several times in the results, but several of the top hits I got suggest reaching immediately for a custom trust manager as the preferred solution.</p>
+
+<p>This set off alarm bells for me, ranging from "that sounds like a lot of effort" through "so, why does connecting to another https site (e.g. my bank) work?".  </p>
+
+<p>You <em>do</em> need a custom trust manager <em>if</em> you signed your own certificate. </p>
+
+<p>I haven't thought about it much, but the extra effort actually seems to outweight the cost of buying a certificate. </p>
+
+<p>You <em>do not</em> need a custom trust manager if you <em>bought</em> your certificate!</p>
+
+<p>If you <em>bought</em> a certificate, building a custom trust manager is a complicated, slow, high-effort <em>workaround</em>, and - worse - you'd have to repeat the workaround on each client (imagine you are building apps for Android, iOS and Windows Mobile).</p>
+
+<p>Certificates are signed in a "chain", where the chain eventually leads back to a set of root authority certificates that are known and trusted by Android. The point is to be able to trace a certificate back to a trusted signing authority without having to have any advance knowledge of the certificate. </p>
+
+<p>So why is my certificate not trusted?</p>
+
+<p>It turns out the server I was connecting to was misconfigured. It was returning its own certificate, but it was not returning the intermediate certificate, so there was no chain, and Android was unable to verify its authenticity, hence "trust anchor not found". Happily I was able to get access to the server to fix up the configuration.</p>
+
+<p>One way to investigate your certificate chain is with openssl client:</p>
+
+<pre><code>openssl s_client -debug -connect www.thedomaintocheck.com:443
+</code></pre>
+
+<p>This lists some useful information about your cert, including the chain. If you are experiencing a trust anchor not found, your chain will probably only contain one element, like this:</p>
+
+<pre><code>Certificate chain
+  0 s:/OU=Domain Control Validated/CN=www.thedomaintocheck.com
+    i:/O=AlphaSSL/CN=AlphaSSL CA - G2
+</code></pre>
+
+<p>.. and openssl will finish its output with something like</p>
+
+<pre><code>Verify return code: 21 (unable to verify the first certificate)
+</code></pre>
+
+<p>A server configured correctly with intermediate certificates will return a complete chain, like this:</p>
+
+<pre><code>Certificate chain
+  0 s:/OU=Domain Control Validated/CN=www.thedomaintocheck.com
+    i:/O=AlphaSSL/CN=AlphaSSL CA - G2
+  1 s:/O=AlphaSSL/CN=AlphaSSL CA - G2
+    i:/C=BE/O=GlobalSign nv-sa/OU=Root CA/CN=GlobalSign Root CA
+  2 s:/C=BE/O=GlobalSign nv-sa/OU=Root CA/CN=GlobalSign Root CA
+    i:/C=BE/O=GlobalSign nv-sa/OU=Root CA/CN=GlobalSign Root CA
+</code></pre>
+
+<p>.. and Android's HttpsURLConnection will happily accept the certificate - no custom trust manager keystore nonsense here, thank you.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=SSL">SSL</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Trust Manager">Trust Manager</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Certificate">Certificate</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=URLConnection">URLConnection</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="android_ssl_certificate_not_trusted.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,067" description="Previously I wrote my first ever Clojure code to convert Roman numerals to decimal numbers. Continuing with that exercise I moved on to trying to convert decimals to Roman numerals.">
               <span class="meta" itemprop="datePublished"><time datetime="2013-03-03">March 03, 2013</time></span>
               <a itemprop="url" href="roman_numeral_conversion_in_clojure_part_ii.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure, part II</h1></a>
@@ -796,55 +888,6 @@ _ctx.body.appendChild(_div);
 	        <a href="cross_domain_inter_frame_communication_in_javascript.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="237" description="Getting javahl subversion integration working with Eclipse, Subclipse and Ubuntu 12.10">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
-              <a itemprop="url" href="subversion_1_7_eclipse_integration_in_ubuntu_12.html"><h1 itemprop="name" itemprop="headline">Subversion 1.7 Eclipse integration in Ubuntu 12</h1></a>
-	      <span itemprop="articleBody"><p>Almost a year ago I <a href="http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html">posted</a> about getting Subclipse/Subversion/Eclipse/Javahl to play nicely together in Ubuntu 11.10. </p>
-
-<p>Things have changed a little with Quantal Quetzal (notably that canonical have updated their repo's to support SVN 1.7.7 and that the libsvn-java installation has moved), so here's an updated note for getting Subversion 1.7.x integration working with Eclipse (3.7.x) and Subclipse 1.8.x on Ubuntu 12.10.</p>
-
-<p>I'm assuming you already have Eclipse and Subclipse installed (with all the optional extras). </p>
-
-<p>To use the native svn integration you will of course need subversion installed, so install Subversion from canonical's repo's - <code>sudo apt-get install subversion</code>.</p>
-
-<p>You'll also need libsvn-java, to allow subclipse to talk to svn - <code>sudo apt-get install libsvn-java</code>.</p>
-
-<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
-
-<p>You need to add <code>-Djava.library.path=/usr/lib/x86_64-linux-gnu/jni/</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
-
-<pre><code>-startup
-plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
---launcher.library
-plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
--showsplash
-org.eclipse.platform
---launcher.XXMaxPermSize
-256m
---launcher.defaultAction
-openFile
--vmargs
--Djava.library.path=/usr/lib/x86_64-linux-gnu/jni/
--Xms40m
--Xmx600m
-</code></pre>
-
-<p>If you use Subclipse but never previously installed Javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :).</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=eclipse">eclipse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subversion">subversion</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javahl">javahl</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=subclipse">subclipse</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=quantal">quantal</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -862,11 +905,11 @@ openFile
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
                 <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
                 <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
-                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

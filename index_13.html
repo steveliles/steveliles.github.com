@@ -34,6 +34,28 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="110" description="Describes the process of installing fonts in Ubuntu Linux">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-02-12">February 12, 2011</time></span>
+              <a itemprop="url" href="installing_fonts_in_ubuntu.html"><h1 itemprop="name" itemprop="headline">Installing fonts in Ubuntu</h1></a>
+	      <span itemprop="articleBody"><p>Installing fonts in ubuntu is very easy these days - just open a ttf file and you are presented with a nice sample of the font (quick brown fox style), and a button in the bottom right corner to install the font.</p>
+
+<p>Nice'n'easy, but you're not quite done yet. You'll definitely need to restart running apps before the font becomes available to them, and quite possibly you'll need to rebuild the font cache, which you can do by rebooting (hah!) or:</p>
+
+<pre><code>sudo fccache -fv
+</code></pre>
+
+<p>btw., check out <a href="http://en.wikipedia.org/wiki/File:EurostileSpec.svg">Eurostile</a>. Its about 50 years old, but nonetheless is one of the most gorgeous fonts i've ever seen.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=fonts">fonts</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=ubuntu">ubuntu</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="installing_fonts_in_ubuntu.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="738" description="Ideas on how to implement progressive enhancement with Google Web Toolkit - part 2">
               <span class="meta" itemprop="datePublished"><time datetime="2011-02-12">February 12, 2011</time></span>
               <a itemprop="url" href="progressive_enhancement_with_gwt_part_2.html"><h1 itemprop="name" itemprop="headline">Progressive Enhancement with GWT, part 2</h1></a>
@@ -288,99 +310,6 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
 	        <a href="linux_distro_popularity.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="880" description="fun 3d project rendering 3d rubiks cubes in a html5 canvas element in real time using a z-buffer implemented in javascript with Google Web Toolkit and progressive enhancement techniques">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-01-02">January 02, 2011</time></span>
-              <a itemprop="url" href="3d_graphics_using_the_html5_canvas.html"><h1 itemprop="name" itemprop="headline">3D graphics using the html5 canvas</h1></a>
-	      <span itemprop="articleBody"><p>I thought i'd put up a quick sample of my latest play-thing - a 3D rendering of a rubik's cube, using javascript (GWT) to implement the z-buffer and the html5 canvas as the display.  I originally built this in plain old javascript, but have now converted it to GWT - partly just for fun and partly to make the code a bit more manageable and refactorable (if that's even a word). Along the way I made a few optimisations like caching radian, sin and cosine values of angles.</p>
-
-<p>The cube is made from 27 "blocks", each of which has a face in each of the rubik-cube face colours. When the 27 blocks are put together we get the completed cube. Admittedly the 27th block isn't really necessary (its right in the middle where it is never visible), but it made life just that little bit simpler to ignore that and go with it.</p>
-
-<p>The cubes you can see below are rendered when the page loads. The scenes are pretty simple, so render very quickly. You may have seen the cube configuration instead of the cubes for a short while until the javascript loaded, at which point the configuration is replaced by the rendered cubes.</p>
-
-<p>Configuring a cube to display is done <a href="http://steveliles.github.com/gwt_progressive.html">progressive enhancement</a> style -  simply by adding a <code>&lt;div&gt;</code> element like this:</p>
-
-<pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
-  {"rubik-cube":{}, "camera":{}}}
-&lt;/div&gt;
-</code></pre>
-
-<p>This sets up the default position and orientation for both camera and cube, which looks like this:</p>
-
-<div class="rubiks" style="height: 150px; width: 150px; margin:auto;">{"rubik-cube":{}, "camera":{}}</div>
-
-<p>That's a pretty boring view, so lets rotate the cube so that we can see more than just the red-face nearest us. To do that we supply some rotations around the x and y axis like this:</p>
-
-<pre><code>&lt;div class="rubiks" style="width:150px; height:150px;"&gt;
-  { 
-    "rubik-cube":{ 
-      "rotate-x":35, 
-      "rotate-y":35, 
-      "rotate-z":35 
-    }, 
-    "camera":{}
-  }
-&lt;/div&gt;
-</code></pre>
-
-<p>This results in the following cube:</p>
-
-<div class="rubiks" style="height: 150px; width: 150px; margin:auto;">{ "rubik-cube": { "rotate-x":35, "rotate-y":35, "rotate-z":35 }, "camera":{} }</div>
-
-<p>I'm quite pleased with the results so far, and the performance is not bad either it seems. The speed of actually drawing on the canvas seems to be plenty good enough to get away with a bit of animation. On my (Core i7) laptop I can spin the cube on all 3 axis at a couple-hundred frames per second (hopefully i'll put up an example in a later post). </p>
-
-<p>Next steps for the rubik's application (yeah, like i'll get around to it) would be:</p>
-
-<ul>
-<li>Supply "twist" information in the configuration so I can show cubes in various stages of completion.</li>
-<li>Animate the twists, allowing a viewer to step through the twists, for example to see how to solve a particular part of a cube.</li>
-<li>Interactive mode where the viewer can play with the cube.</li>
-<li>In a separate direction, the z-buffer i've built up in order to render the cubes could be improved in lots of nice ways too.</li>
-</ul>
-
-<p>Just before I finish off with a few more views of the cube, I wanted to mention that I had a few issues finding a way to host the scripts and use them in Blogger. Annoyingly you can't host javascript or html files directly from Blogger, so I had to find somewhere else to put them.</p>
-
-<p>My usual approach for hosting source code is to use github "gists", which provides a neat way of showing prettified source, but also lets you view the "raw" source. That allowed me to host the js somewhere, but I had to work around a cross-site scripting issue loading the GWT sources from a different domain. </p>
-
-<p>Fortunately GWT makes that easy with its "xs" linker, which produces a bunch of ".no-cache.js" files instead of "no-cache.html" files, and solves the XSS problem. To use the xs linker you just add a single line to your .gwt.xml file:</p>
-
-<pre><code>&lt;add-linker name="xs" /&gt;
-</code></pre>
-
-<p>Sadly that prevents hosted mode from working (currently), but that's easy enough to work around :)</p>
-
-<table cellpadding="0" cellspacing="0">
-<tr> 
-<td><div class="rubiks" style="height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":35, "rotate-y":35 }, "camera":{} }</div></td> 
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-y":135 }, "camera":{} }</div></td>  
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-z":135 }, "camera":{} }</div></td>  
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":45, "rotate-y":215 }, "camera":{} }</div></td>  
-</tr>
-<tr> 
-<td><div class="rubiks" style="height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":135, "rotate-y":35 }, "camera":{} }</div></td>
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":95, "rotate-y":125 }, "camera":{} }</div></td>
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":15, "rotate-y":15, "rotate-z":15 }, "camera":{} }</div></td>
-<td><div class="rubiks" style="float: left; height: 146px; width: 146px;">{ "rubik-cube": { "rotate-x":25, "rotate-y":-25 }, "camera":{} }</div></td>
-</tr>
-</table>
-
-<p><br/></p>
-
-<script language="javascript" src="rubiks/rubiks.nocache.js" type="text/javascript">
-</script>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=canvas">canvas</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=graphics">graphics</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=gwt">gwt</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=html5">html5</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=XSS linker">XSS linker</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="3d_graphics_using_the_html5_canvas.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -398,11 +327,11 @@ I'm particularly intrigued to read "The Art of Scalability" - I've never come ac
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
                 <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
                 <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
-                <li><a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Subversion 1.7 Eclipse integration in Ubuntu 12</a><span class="date"> - Nov 13, 2012</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
