@@ -36,7 +36,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="245" description="">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="276" description="">
               <span class="meta" itemprop="datePublished"><time datetime="2013-10-21">October 21, 2013</time></span>
               <a itemprop="url" href="porting_ischangingconfigurations_to_api_levels_below_11.html"><h1 itemprop="name" itemprop="headline">Porting isChangingConfigurations to API-levels below 11</h1></a>
 	      <span itemprop="articleBody"><p>A really handy method since API-level 11 is <code>isChangingConfigurations()</code>. When you need to make a decision about which objects to tear down, observers to unregister, etc., you really want to know if your <code>Activity</code> is restarting, going onto the back-stack, or finishing for good.</p>
@@ -55,6 +55,8 @@
 <li><code>onSaveInstanceState</code> - overridden to set a boolean property <code>isConfigChange</code> to true.</li>
 <li><code>isChangingConfigurations</code> - overridden to either invoke the super-class method or return the value of <code>isConfigChange</code>, depending on the API level running the app.</li>
 </ol>
+
+<p>There is one big downside - <code>onSaveInstanceState</code> is not invoked until <em>after</em> <code>onPause</code> has completed, so <code>isChangingConfigurations()</code> will only return a correct value when invoked from <code>onStop</code> pre API-level 11.</p>
 
 <p>Full source code below ...</p>
 

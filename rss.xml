@@ -33,6 +33,8 @@
 <li><code>isChangingConfigurations</code> - overridden to either invoke the super-class method or return the value of <code>isConfigChange</code>, depending on the API level running the app.</li>
 </ol>
 
+<p>There is one big downside - <code>onSaveInstanceState</code> is not invoked until <em>after</em> <code>onPause</code> has completed, so <code>isChangingConfigurations()</code> will only return a correct value when invoked from <code>onStop</code> pre API-level 11.</p>
+
 <p>Full source code below ...</p>
 
 <script src="https://gist.github.com/steveliles/7076351.js"></script>
