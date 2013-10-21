@@ -36,14 +36,14 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="276" description="">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="275" description="">
               <span class="meta" itemprop="datePublished"><time datetime="2013-10-21">October 21, 2013</time></span>
               <a itemprop="url" href="porting_ischangingconfigurations_to_api_levels_below_11.html"><h1 itemprop="name" itemprop="headline">Porting isChangingConfigurations to API-levels below 11</h1></a>
 	      <span itemprop="articleBody"><p>A really handy method since API-level 11 is <code>isChangingConfigurations()</code>. When you need to make a decision about which objects to tear down, observers to unregister, etc., you really want to know if your <code>Activity</code> is restarting, going onto the back-stack, or finishing for good.</p>
 
 <p><code>isFinishing()</code> differentiates between going to the back-stack or one of the other two cases, but doesn't help us to figure out if we're finishing for good or coming right back following a configuration change, say.</p>
 
-<p>At API-level 11 we got a new method to help address that - <code>isChangingConfigurations()</code>. This is great - in lifecycle methods (typically <code>onPause</code>) we can check to see why we're pausing and potentially leave some of our long lived objects alone, being careful to avoid memory leaks, of course…</p>
+<p>At API-level 11 we got a new method to help address that - <code>isChangingConfigurations()</code>. This is great - in lifecycle methods (typically <code>onPause</code>) we can check to see why we're pausing and potentially leave some of our long lived objects alone, being careful to avoid memory leaks, of course!</p>
 
 <blockquote class="twitter-tweet"><p>note to self: do not write ContentObserver&#39;s as anonymous inner classes of Activity&#39;s <a href="https://twitter.com/search?q=%23android&amp;src=hash">#android</a> <a href="https://twitter.com/search?q=%23memoryleak&amp;src=hash">#memoryleak</a> <a href="https://twitter.com/search?q=%23iamadope&amp;src=hash">#iamadope</a></p>&mdash; Steve Liles (@steveliles) <a href="https://twitter.com/steveliles/statuses/392051976990892032">October 20, 2013</a></blockquote>
 
@@ -58,7 +58,7 @@
 
 <p>There is one big downside - <code>onSaveInstanceState</code> is not invoked until <em>after</em> <code>onPause</code> has completed, so <code>isChangingConfigurations()</code> will only return a correct value when invoked from <code>onStop</code> pre API-level 11.</p>
 
-<p>Full source code below ...</p>
+<p>Full source code below.</p>
 
 <script src="https://gist.github.com/steveliles/7076351.js"></script>
 </span>
