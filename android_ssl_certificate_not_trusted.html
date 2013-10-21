@@ -39,7 +39,7 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="637" description=" Trust anchor for certification path not found, Android - don't automatically reach for a custom trust manager!">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="641" description=" Trust anchor for certification path not found, Android - don't automatically reach for a custom trust manager!">
               <span class="meta" itemprop="datePublished"><time datetime="2013-05-01">May 01, 2013</time></span>
               <a itemprop="url" href="android_ssl_certificate_not_trusted.html"><h1 itemprop="name" itemprop="headline">Android SSL - Certificate not trusted</h1></a>
 	      <span itemprop="articleBody"><p>I hit a problem in Android, trying to talk HTTPS with an Apache web-server that has an SSL certificate purchased from Dynadot/AlphaSSL:</p>
@@ -76,11 +76,11 @@ finally {
 
 <p>You <em>do</em> need a custom trust manager <em>if</em> you signed your own certificate. </p>
 
-<p>I haven't thought about it much, but the extra effort actually seems to outweight the cost of buying a certificate. </p>
+<p>I haven't thought about it much, but the extra effort actually seems to outweigh the cost of buying a certificate. </p>
 
 <p>You <em>do not</em> need a custom trust manager if you <em>bought</em> your certificate!</p>
 
-<p>If you <em>bought</em> a certificate, building a custom trust manager is a complicated, slow, high-effort <em>workaround</em>, and - worse - you'd have to repeat the workaround on each client (imagine you are building apps for Android, iOS and Windows Mobile).</p>
+<p>If you <em>bought</em> a certificate, building a custom trust manager is a complicated, slow, high-effort <em>workaround</em> for your actual problem, and - worse - you'd have to repeat the workaround on each client (imagine you are building apps for Android, iOS and Windows Mobile).</p>
 
 <p>Certificates are signed in a "chain", where the chain eventually leads back to a set of root authority certificates that are known and trusted by Android. The point is to be able to trace a certificate back to a trusted signing authority without having to have any advance knowledge of the certificate. </p>
 
@@ -176,10 +176,10 @@ finally {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
                 <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
-                <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
@@ -187,7 +187,7 @@ finally {
       </div>
       <div class="nav">
         <div class="links">
-          
+          <div class="prev"><a title="previous" href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigura...</a></div>
           <div class="next"><a title="next" href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in...</a></div>
         </div>
       </div>

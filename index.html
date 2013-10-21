@@ -34,7 +34,41 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="637" description=" Trust anchor for certification path not found, Android - don't automatically reach for a custom trust manager!">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="245" description="">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-10-21">October 21, 2013</time></span>
+              <a itemprop="url" href="porting_ischangingconfigurations_to_api_levels_below_11.html"><h1 itemprop="name" itemprop="headline">Porting isChangingConfigurations to API-levels below 11</h1></a>
+	      <span itemprop="articleBody"><p>A really handy method since API-level 11 is <code>isChangingConfigurations()</code>. When you need to make a decision about which objects to tear down, observers to unregister, etc., you really want to know if your <code>Activity</code> is restarting, going onto the back-stack, or finishing for good.</p>
+
+<p><code>isFinishing()</code> differentiates between going to the back-stack or one of the other two cases, but doesn't help us to figure out if we're finishing for good or coming right back following a configuration change, say.</p>
+
+<p>At API-level 11 we got a new method to help address that - <code>isChangingConfigurations()</code>. This is great - in lifecycle methods (typically <code>onPause</code>) we can check to see why we're pausing and potentially leave some of our long lived objects alone, being careful to avoid memory leaks, of course…</p>
+
+<blockquote class="twitter-tweet"><p>note to self: do not write ContentObserver&#39;s as anonymous inner classes of Activity&#39;s <a href="https://twitter.com/search?q=%23android&amp;src=hash">#android</a> <a href="https://twitter.com/search?q=%23memoryleak&amp;src=hash">#memoryleak</a> <a href="https://twitter.com/search?q=%23iamadope&amp;src=hash">#iamadope</a></p>&mdash; Steve Liles (@steveliles) <a href="https://twitter.com/steveliles/statuses/392051976990892032">October 20, 2013</a></blockquote>
+
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<p>What options do we have prior to API-level 11? Not a whole lot, actually. The best I could come up with was to create a base <code>Activity</code> class (sub-classing <code>FragmentActivity</code>, obviously) and override two methods:</p>
+
+<ol>
+<li><code>onSaveInstanceState</code> - overridden to set a boolean property <code>isConfigChange</code> to true.</li>
+<li><code>isChangingConfigurations</code> - overridden to either invoke the super-class method or return the value of <code>isConfigChange</code>, depending on the API level running the app.</li>
+</ol>
+
+<p>Full source code below ...</p>
+
+<script src="https://gist.github.com/steveliles/7076351.js"></script>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Fragmentation">Fragmentation</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Comment on this post</a>
+
+            </div>
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="641" description=" Trust anchor for certification path not found, Android - don't automatically reach for a custom trust manager!">
               <span class="meta" itemprop="datePublished"><time datetime="2013-05-01">May 01, 2013</time></span>
               <a itemprop="url" href="android_ssl_certificate_not_trusted.html"><h1 itemprop="name" itemprop="headline">Android SSL - Certificate not trusted</h1></a>
 	      <span itemprop="articleBody"><p>I hit a problem in Android, trying to talk HTTPS with an Apache web-server that has an SSL certificate purchased from Dynadot/AlphaSSL:</p>
@@ -71,11 +105,11 @@ finally {
 
 <p>You <em>do</em> need a custom trust manager <em>if</em> you signed your own certificate. </p>
 
-<p>I haven't thought about it much, but the extra effort actually seems to outweight the cost of buying a certificate. </p>
+<p>I haven't thought about it much, but the extra effort actually seems to outweigh the cost of buying a certificate. </p>
 
 <p>You <em>do not</em> need a custom trust manager if you <em>bought</em> your certificate!</p>
 
-<p>If you <em>bought</em> a certificate, building a custom trust manager is a complicated, slow, high-effort <em>workaround</em>, and - worse - you'd have to repeat the workaround on each client (imagine you are building apps for Android, iOS and Windows Mobile).</p>
+<p>If you <em>bought</em> a certificate, building a custom trust manager is a complicated, slow, high-effort <em>workaround</em> for your actual problem, and - worse - you'd have to repeat the workaround on each client (imagine you are building apps for Android, iOS and Windows Mobile).</p>
 
 <p>Certificates are signed in a "chain", where the chain eventually leads back to a set of root authority certificates that are known and trusted by Android. The point is to be able to trace a certificate back to a trusted signing authority without having to have any advance knowledge of the certificate. </p>
 
@@ -720,174 +754,6 @@ public class RomanNumerals {
 	        <a href="gwt_i18n_using_browser_locale.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,314" description="Communication between frames/windows in javascript is fine until some of your frames are served from different domains. Communication between frames in different domains is still possible, but you have to work in a very different way...">
-              <span class="meta" itemprop="datePublished"><time datetime="2013-02-05">February 05, 2013</time></span>
-              <a itemprop="url" href="cross_domain_inter_frame_communication_in_javascript.html"><h1 itemprop="name" itemprop="headline">Cross-domain inter-frame communication in javascript</h1></a>
-	      <span itemprop="articleBody"><p><em>Requirement:</em> </p>
-
-<p>Web-page A from domain A' loads web-page B from domain B' into an iframe. Web-page B wants to be able to render some content into the DOM of web-page A (outside of the view-port described by B's iframe). The content which B renders into A needs to be able to HTTP GET and POST data back to the domain B', handle the responses, and update the rendered content in web-page A.</p>
-
-<p><em>Problems:</em></p>
-
-<ul>
-<li>Scripts loaded into pages from different domains cannot interact so, for example, page B's scripts cannot <em>simply</em>* render content into the parent frame (page A)</li>
-<li>Page A cannot <em>simply</em>* use XMLHTTPRequest to GET/POST/PUT/DELETE to host B</li>
-</ul>
-
-<p>[*] I say "simply" because you can't just expect it to work like it would in a same-domain environment, but it is possible!</p>
-
-<h3>Escaping from an iframe</h3>
-
-<p>Lets start with rendering content into a parent frame. To get concrete, lets say that domain A is www.domain.com, while domain B is sub.domain.com. </p>
-
-<p>Yes, they are sub-domains of a common root. No, B is <em>not</em> allowed to modify the DOM of A, or communicate with scripts in A, because web-browsers won't allow that unless the ports, protocols, <em>and</em> domains match <em>exactly</em>.</p>
-
-<p>The only way for B to escape from the iframe is to have co-operation from A. That co-operation can come in one of two forms: </p>
-
-<ol>
-<li>Both pages must explicitly set the <code>document.domain</code> property to the same value (e.g. domain.com). Even if one of the pages is served directly from "domain.com", the act of explicitly setting the domain is required for this technique to work - it signals to the browser that the two pages want to collaborate.</li>
-<li>Have host A serve an iframe-buster page (more below)</li>
-</ol>
-
-<h4>Iframe Buster</h4>
-
-<p>Host A can serve a page which loads scripts on behalf of B, sometimes known as an <a href="http://www.adopstools.net/?section=miscellaneous&amp;page=iframes">iframe-buster</a>. </p>
-
-<p>This is a common technique in the ad-delivery world to allow complex ads like page take-over's to escape from the iframe they are loaded into. Note that this is not an exploit as such, since it requires host A to be complicit.</p>
-
-<p>To illustrate how it works, here's what a very simple iframe-buster might look like:</p>
-
-<pre><code>&amp;#60;!DOCTYPE HTML PUBLIC 
-  "-//W3C//DTD HTML 4.01 Transitional//EN" 
-  "http://www.w3.org/TR/html4/strict.dtd"&gt;
-&amp;#60;html&gt;
-  &amp;#60;body&gt;
-    &amp;#60;script type="text/javascript" language="javascript"&gt;
-      var _url = "http://www.domain.com/bust.js?" + document.location.search;
-      var _script = document.createElement("script");
-      _script.setAttribute("type", "text/javascript");
-      _script.setAttribute("src", _url);
-      document.body.appendChild(_script);        
-    &amp;#60;/script&gt;    
-  &amp;#60;/body&gt;
-&amp;#60;/html&gt;
-</code></pre>
-
-<p>The host-page A will initially load a page from host B. That page B will load the iframe-buster on host A with some parameters which can be used to direct what the bust-out actually does.</p>
-
-<h4>Rendering into the parent DOM</h4>
-
-<p>Now that we have assistance from the host-page domain, our iframe can communicate directly with the DOM and scripts in the parent frame, using the <code>window.parent</code> handle.</p>
-
-<pre><code>var _ctx = window.parent.document;
-var _div = _ctx.createElement("div");
-_div.innerHTML = '&amp;#60;h1&gt;Hooray!&amp;#60;/h1&gt;';
-_ctx.body.appendChild(_div);
-</code></pre>
-
-<p>Great!</p>
-
-<h3>Making HTTP requests</h3>
-
-<p>Now we want to fetch some JSON data from host B by HTTP GET, and render it in the parent frame. For GET requests we might be OK - we just need the host API to support JSONP. If it doesn't we need one of the other techniques as for making POST requests …</p>
-
-<p>What if we want to POST some data to host B? We can't use XMLHTTPRequest to POST from A to B, as the browser security policies won't allow it. So, what are our options?</p>
-
-<ol>
-<li>HTML Form POST</li>
-<li>CORS (Cross Origin Resource Sharing)</li>
-<li>Pipelined communication through another frame</li>
-</ol>
-
-<h4>HTML Form POST</h4>
-
-<p>We could use a form POST, which <em>is</em> allowed to POST to another domain (mostly because the HTML Form POST spec pre-dates the tightened security policies), and will receive the response. </p>
-
-<p>You'll need to do a bit of scripting to wrap things up so that you can register callbacks and have things behave <em>similarly</em> to an XMLHTTPRequest.</p>
-
-<p>This method has the advantage of broad browser compatibility, but the implementation is by necessity less clean, and you lose some of the advantages of XMLHTTPRequest (e.g. the ability to check the response status code). </p>
-
-<p>If you're dealing with a pure RESTful API you'll struggle without the ability to check status codes. </p>
-
-<p>If you have help from the server-side you can probably engineer your way around most of the problems, and even tunnel non-POST API calls by using hidden FORM params and a server-side intercept (e.g. Servlet Filter) to translate the request for you before it hits the API handlers. </p>
-
-<p>That said, if you have control of (or co-operation from) the server-side you'll probably want to look at one of the other methods below.</p>
-
-<p>Advantages:</p>
-
-<ol>
-<li>Good browser compatibility</li>
-<li>Easily understood</li>
-</ol>
-
-<p>Disadvantages:</p>
-
-<ol>
-<li>Poor handling of pure RESTful APIs</li>
-</ol>
-
-<h4>CORS (Cross Origin Resource Sharing)</h4>
-
-<p>We could use <a href="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a>, which involves the web-server B checking and sending additional HTTP headers. </p>
-
-<p>This requires a relatively modern browser and some server-side work to check and set additional HTTP headers. CORS is nice because it allows us to conveniently use XMLHTTPRequest for all of our requests (and no need for JSONP).</p>
-
-<p>CORS might put a little extra demand on your servers, as browsers "pre-flight" requests as part of the CORS protocol.</p>
-
-<p>Advantages:</p>
-
-<ol>
-<li>Just like working in a same-domain environment (good for RESTful API handling)</li>
-<li>CORS is an emerging standard, so you don't necessarily need to own/operate the host for this method to be a realistic possibility</li>
-</ol>
-
-<p>Disadvantages:</p>
-
-<ol>
-<li>Requires modern browser</li>
-<li>Requires that the host supports CORS</li>
-<li>Some HTTP request overhead (pre-flight)</li>
-</ol>
-
-<h4>Pipeline communication through another iframe</h4>
-
-<p>A third option is to pipeline your HTTP calls through another iframe - loaded from the domain of the host you want to make calls to.</p>
-
-<p>In newer browsers we can use <code>window.postMessage</code> to send text between frames loaded from different domains. </p>
-
-<p>Since this text can be JSON, and you can register event-handlers for the "message" event, you can set up a communication-frame per host that you need to talk to, and from inside that frame you can use straight-forward XMLHTTPRequest calls, same-domain style.</p>
-
-<p>There are some neat libraries that use a variety of fallback methods (message-passing via window.name; flash) to make this work in older browsers. The most popular one seems to be <a href="http://easyxdm.net/wp/">EasyXDM</a>.</p>
-
-<p>Advantages:
-1. Good browser compatibility (use libraries like EasyXDM)
-2. Good for RESTful API handling</p>
-
-<p>Disadvantages:</p>
-
-<ol>
-<li>More complex set-up</li>
-<li>You need control of the host</li>
-<li>There's some small overhead in piping everything as strings through nested iframe's</li>
-</ol>
-
-<h3>Summary</h3>
-
-<p>As with everything, there is no one-size-fits-all solution, and some flexibility and compromise is likely to be necessary. For the project I'm working on currently I'm using iframe busters, a little CORS, and a lot of pipelining through another frame, but YMMV.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=javascript">javascript</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=iframe">iframe</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=window">window</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=cross-domain">cross-domain</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=postMessage">postMessage</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="cross_domain_inter_frame_communication_in_javascript.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -905,11 +771,11 @@ _ctx.body.appendChild(_div);
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
                 <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
-                <li><a href="cross_domain_inter_frame_communication_in_javascript.html">Cross-domain inter-frame communication in javascript</a><span class="date"> - Feb 05, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

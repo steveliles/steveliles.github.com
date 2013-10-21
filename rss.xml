@@ -13,6 +13,36 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Porting isChangingConfigurations to API-levels below 11]]></title>
+        <link><![CDATA[http://steveliles.github.com/porting_ischangingconfigurations_to_api_levels_below_11.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/porting_ischangingconfigurations_to_api_levels_below_11.html</guid>
+        <description><![CDATA[<p>A really handy method since API-level 11 is <code>isChangingConfigurations()</code>. When you need to make a decision about which objects to tear down, observers to unregister, etc., you really want to know if your <code>Activity</code> is restarting, going onto the back-stack, or finishing for good.</p>
+
+<p><code>isFinishing()</code> differentiates between going to the back-stack or one of the other two cases, but doesn't help us to figure out if we're finishing for good or coming right back following a configuration change, say.</p>
+
+<p>At API-level 11 we got a new method to help address that - <code>isChangingConfigurations()</code>. This is great - in lifecycle methods (typically <code>onPause</code>) we can check to see why we're pausing and potentially leave some of our long lived objects alone, being careful to avoid memory leaks, of course…</p>
+
+<blockquote class="twitter-tweet"><p>note to self: do not write ContentObserver&#39;s as anonymous inner classes of Activity&#39;s <a href="https://twitter.com/search?q=%23android&amp;src=hash">#android</a> <a href="https://twitter.com/search?q=%23memoryleak&amp;src=hash">#memoryleak</a> <a href="https://twitter.com/search?q=%23iamadope&amp;src=hash">#iamadope</a></p>&mdash; Steve Liles (@steveliles) <a href="https://twitter.com/steveliles/statuses/392051976990892032">October 20, 2013</a></blockquote>
+
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+<p>What options do we have prior to API-level 11? Not a whole lot, actually. The best I could come up with was to create a base <code>Activity</code> class (sub-classing <code>FragmentActivity</code>, obviously) and override two methods:</p>
+
+<ol>
+<li><code>onSaveInstanceState</code> - overridden to set a boolean property <code>isConfigChange</code> to true.</li>
+<li><code>isChangingConfigurations</code> - overridden to either invoke the super-class method or return the value of <code>isConfigChange</code>, depending on the API level running the app.</li>
+</ol>
+
+<p>Full source code below ...</p>
+
+<script src="https://gist.github.com/steveliles/7076351.js"></script>
+]]></description>
+          <category>Fragmentation</category>
+          <category>Android</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 21 Oct 2013 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Android SSL - Certificate not trusted]]></title>
         <link><![CDATA[http://steveliles.github.com/android_ssl_certificate_not_trusted.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/android_ssl_certificate_not_trusted.html</guid>
@@ -50,11 +80,11 @@ finally {
 
 <p>You <em>do</em> need a custom trust manager <em>if</em> you signed your own certificate. </p>
 
-<p>I haven't thought about it much, but the extra effort actually seems to outweight the cost of buying a certificate. </p>
+<p>I haven't thought about it much, but the extra effort actually seems to outweigh the cost of buying a certificate. </p>
 
 <p>You <em>do not</em> need a custom trust manager if you <em>bought</em> your certificate!</p>
 
-<p>If you <em>bought</em> a certificate, building a custom trust manager is a complicated, slow, high-effort <em>workaround</em>, and - worse - you'd have to repeat the workaround on each client (imagine you are building apps for Android, iOS and Windows Mobile).</p>
+<p>If you <em>bought</em> a certificate, building a custom trust manager is a complicated, slow, high-effort <em>workaround</em> for your actual problem, and - worse - you'd have to repeat the workaround on each client (imagine you are building apps for Android, iOS and Windows Mobile).</p>
 
 <p>Certificates are signed in a "chain", where the chain eventually leads back to a set of root authority certificates that are known and trusted by Android. The point is to be able to trace a certificate back to a trusted signing authority without having to have any advance knowledge of the certificate. </p>
 
@@ -5828,51 +5858,6 @@ openFile
           <category>rel=author</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Fri, 16 Dec 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Another Google Chrome CSS bug]]></title>
-        <link><![CDATA[http://steveliles.github.com/another_google_chrome_css_bug.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/another_google_chrome_css_bug.html</guid>
-        <description><![CDATA[<p><style>
-.legible { text-rendering:optimizelegibility; }
-.shadow { box-shadow: 0px 0px 20px black;}
-</style>
-Since I moved my blog from blogger I've noticed on many occasions that Chrome would screw up the text rendering on the first view of a page. Hit F5 to refresh and it goes away. For a long time I thought this was related to my use of web-fonts (the excellent <a href="http://www.google.com/webfonts#ChoosePlace:select">Google Web Fonts</a>, but in fact its simpler than that.</p>
-
-<p>Eventually I took the time to look into it a bit more, and narrowed it down to the fact that I am using the <code>text-rendering:optimizeLegibility</code> css directive, which does make a nice difference to the kerning of the fixed-width fonts I'm using (<code>Ubuntu Mono</code>), but also has the apparent side-effect of setting negative margins on those fixed-width texts which make them run into/over surrounding text.</p>
-
-<p>Once I'd figured out what was causing my problem a quick Google search showed I'm not alone. The chromium issue tracker has several relevant bug reports. I chose to add my tuppence to <a href="http://code.google.com/p/chromium/issues/detail?id=96936#c16">bug 96936</a></p>
-
-<h3>Examples of the bug</h3>
-
-<p>Here's what the problem looks like when <code>text-rendering:optimizeLegibility</code> is in use in Chrome 15 (and the as yet unreleased 16 beta):</p>
-
-<p><img class="shadow" title="With 'text-rendering:optimizeLegibility'" src="https://lh5.googleusercontent.com/-T5peLzltfzU/TupN9gwMcoI/AAAAAAAAH18/_CDK0F-qh2Q/s600/text-rendering.png"></p>
-
-<p>And here (and also now in the blog you are reading) is how it looks without optimizeLegibility:</p>
-
-<p><img class="shadow" title="Without 'text-rendering:optimizeLegibility'" src="https://lh6.googleusercontent.com/-sK4tre7Q8dc/TupN-4pchhI/AAAAAAAAH2E/7WYdEGb3kKk/s600/not-text-rendering.png"></p>
-
-<p>If you are reading this in Google Chrome you can check to see if the bug still exists by taking a look at the example text below, which is taken from the sample I submitted to <a href="http://code.google.com/p/chromium/issues/detail?id=96936#c16">bug 96936</a>. If you see overlapping characters below, the bug is not fixed in your version of Chrome.</p>
-
-<div class="example legible">
-  <p>Code blocks inside paragraphs like <code>this</code> don't <code>look</code> very <code>nice</code> with text-rendering set to optimizeLegibility.</p>
-</div>
-
-<p><em>Note</em>: Some interesting characteristics of the bug include:</p>
-
-<ol>
-<li>Text renders correctly if you refresh the page after the initial visit</li>
-<li>It appears much worse with certain fonts - fixed-width/monospace fonts in particular seem to suffer</li>
-<li>The width of the text appears to be calculated incorrectly, not just margins - you can see this in the first screen-shot where the date tab cuts into the end of "2011".</li>
-</ol>
-]]></description>
-          <category>css</category>
-          <category>chrome</category>
-          <category>bug</category>
-          <category>font</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Wed, 14 Dec 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>
