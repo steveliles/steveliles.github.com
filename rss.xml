@@ -37,7 +37,9 @@
 
 <p>Full source code below.</p>
 
+<div style="font-family:'Ubuntu Mono', monospace">
 <script src="https://gist.github.com/steveliles/7076351.js"></script>
+</div>
 ]]></description>
           <category>Fragmentation</category>
           <category>Android</category>
