@@ -34,6 +34,36 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="156" description="Loading the correct GWT language permutation according to the browser (user-agent) locale.">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-02-27">February 27, 2013</time></span>
+              <a itemprop="url" href="gwt_i18n_using_browser_locale.html"><h1 itemprop="name" itemprop="headline">GWT i18n using browser locale</h1></a>
+	      <span itemprop="articleBody"><p>I was trying to get GWT to load a localised permutation based on the user's browser locale. For whatever reason I didn't have much luck coming up with a good combination of search keywords to get a good hit from Google.</p>
+
+<p>After rummaging around in the bowels of GWT I found that it is possible to use the browser locale to determine the build permutation to use. </p>
+
+<p>It doesn't seem all that well publicised or documented (does not figure in the <a href="https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n">i18n docs</a> for example), although it is used in the <a href="http://google-web-toolkit.googlecode.com/svn-history/r11299/trunk/samples/showcase/src/com/google/gwt/sample/showcase/Showcase.gwt.xml">showcase demo app</a>.</p>
+
+<p>There are clues as to why it isn't well publicised in the <a href="http://code.google.com/p/google-web-toolkit/issues/detail?id=4228">bug containing the original patch</a>.</p>
+
+<p>To use the browser's locale to determine the permutation, simply add the following to the module.gwt.xml:</p>
+
+<pre><code>&lt;set-configuration-property name="locale.useragent" value="Y"/&gt;
+</code></pre>
+
+<p>Setting the locale of chrome for testing is explained for <a href="http://developer.chrome.com/extensions/i18n.html#testing-win">windows</a>, <a href="http://developer.chrome.com/extensions/i18n.html#testing-linux">linux</a>, and <a href="http://developer.chrome.com/extensions/i18n.html#testing-mac">mac</a>.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=i18n">i18n</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=l10n">l10n</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=locale">locale</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="gwt_i18n_using_browser_locale.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,314" description="Communication between frames/windows in javascript is fine until some of your frames are served from different domains. Communication between frames in different domains is still possible, but you have to work in a very different way...">
               <span class="meta" itemprop="datePublished"><time datetime="2013-02-05">February 05, 2013</time></span>
               <a itemprop="url" href="cross_domain_inter_frame_communication_in_javascript.html"><h1 itemprop="name" itemprop="headline">Cross-domain inter-frame communication in javascript</h1></a>
@@ -522,136 +552,6 @@ implements HandlerExceptionResolver, Ordered {
 	        <a href="configuring_global_exception_handling_in_spring_mvc.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="806" description="A very quick how-to for setting up data-binding formatters in Spring ()3.1.x) MVC">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-10-01">October 01, 2012</time></span>
-              <a itemprop="url" href="configuring_global_data_binding_formatters_in_spring_mvc.html"><h1 itemprop="name" itemprop="headline">Configuring global data-binding formatters in Spring MVC</h1></a>
-	      <span itemprop="articleBody"><p>Here's a very quick how-to for configuring Spring-MVC (Spring 3.1.x) to use a global set of formatters for converting (data-binding) web-request and form parameters for use in Controllers, rather than having to have an <code>@InitBinder</code> annotated method in all your <code>@Controller</code>'s.</p>
-
-<p>In your spring-web configuration:</p>
-
-<pre><code>&lt;mvc:annotation-driven conversion-service="conversionService"/&gt;
-
-&lt;!-- just to show that we can wire other beans into our registrar --&gt;
-&lt;bean id="serviceA" class="com.sjl.myproject.ServiceA"/&gt;
-&lt;bean id="serviceB" class="com.sjl.myproject.ServiceB"/&gt;
-
-&lt;!-- Binding --&gt;    
-&lt;bean 
-  id="customFormatterRegistrar" 
-  class="com.sjl.myproject.web.config.CustomFormatterRegistrar"&gt;
-  &lt;constructor-arg ref="serviceA"/&gt;        
-  &lt;constructor-arg ref="serviceB"/&gt;
-&lt;/bean&gt;
-
-&lt;bean 
-  id="conversionService"
-  class="
-    org.springframework.format.support.FormattingConversionServiceFactoryBean"&gt;
-  &lt;property name="formatterRegistrars"&gt;
-    &lt;set&gt;
-      &lt;ref local="customFormatterRegistrar"/&gt;
-    &lt;/set&gt;
-  &lt;/property&gt;
-&lt;/bean&gt;
-</code></pre>
-
-<p>Be sure to add the "conversion-service" attribute (pointing at your conversionService bean) to the &lt;mvc:annotation-driven> element, otherwise it won't work!</p>
-
-<p>The CustomFormatterRegistrar class:</p>
-
-<pre><code>package com.sjl.myproject.web.config;
-
-import org.springframework.format.*;
-import com.sjl.myproject.*;
-
-public class CustomFormatterRegistrar implements FormatterRegistrar {
-    private ServiceA serviceA;
-    private ServiceB serviceB;      
-
-    // construct the registrar with other spring-beans as constructor args
-    public CustomFormatterRegistrar(
-        ServiceA aServiceA,
-        ServiceB aServiceB) {
-        serviceA = aServiceA;
-        serviceB = aServiceB;
-    }
-
-    @Override
-    public void registerFormatters(FormatterRegistry aRegistry) {
-        aRegistry.addFormatter(new SomeTypeFormatter(serviceA));
-        aRegistry.addFormatter(new OtherTypeFormatter(serviceB))
-    }
-}
-</code></pre>
-
-<p>An example formatter:</p>
-
-<pre><code>package com.sjl.myproject.web.config;
-
-import java.text.*;
-import java.util.*;
-
-import org.springframework.format.Formatter;
-
-import com.sjl.myproject.*;
-
-public class SomeTypeFormatter implements Formatter&amp;lt;SomeType&gt; {
-    private ServiceA serviceA;
-
-    public SomeTypeFormatter(ServiceA aServiceA) {
-        serviceA = aServiceA;
-    }
-
-    @Override
-    public String print(SomeType aSomeType, Locale aLocale) {
-        return aSomeType..; // produce some string-based identifier
-    }
-
-    @Override
-    public SomeType parse(String aText, Locale aLocale) throws ParseException {
-        return serviceA.lookupByNameOrIdOrSomething(aText);
-    }
-}
-</code></pre>
-
-<p>And a Controller that benefits from it:</p>
-
-<pre><code>package com.sjl.myproject.web.controllers;
-
-import org.springframework.stereotype.*;
-import org.springframework.web.bind.annotation.*;
-
-import com.sjl.myproject.*;
-
-@Controller
-public class SomeController {
-    public static final String URL = "path/with/{param1}/and/{param2}";
-
-    @RequestMapping(SomeController.URL)
-    public String blah(
-        @PathVariable SomeType param1, 
-        @PathVariable OtherType param2) {
-
-        // .. do stuff with our typed params
-
-        return "view-name";
-    }
-}
-</code></pre>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=data-binding">data-binding</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=convert">convert</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=format">format</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="configuring_global_data_binding_formatters_in_spring_mvc.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -669,11 +569,11 @@ public class SomeController {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
-                <li><a href="gwt_i18n_using_browser_locale.html">GWT i18n using browser locale</a><span class="date"> - Feb 27, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
