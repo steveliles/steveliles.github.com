@@ -37,18 +37,25 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,503" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,725" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-03-26">March 26, 2012</time></span>
               <a itemprop="url" href="android_s_asynctask.html"><h1 itemprop="name" itemprop="headline">Android's AsyncTask</h1></a>
-	      <span itemprop="articleBody"><p>The Android platform allows you to use all of the normal Java concurrency constructs. You should use them if you need to do any long-running operations: you must do these off the main UI thread if you want keep your users happy, and the platform even enforces this by displaying an Application Not Responding dialog if an app does not respond to user-input within 5 seconds.</p>
-
-<p>The kinds of things you will want to do off the UI thread are reading/writing data from databases, network calls fetching data from web-servcies, and any time-consuming computational work.</p>
+	      <span itemprop="articleBody"><p>The Android platform allows you to use all of the normal Java concurrency constructs. You should use them if you need to do any long-running<a href="#long-running">*</a> operations: you must do these off the main UI thread if you want keep your users happy, and the platform even enforces this by displaying an Application Not Responding dialog if an app does not respond to user-input within 5 seconds.</p>
 
 <p>The platform provides a couple of mechanisms to facilitate communication between background threads and the main application thread: <code>Handler</code>'s and <code>AsyncTask</code>s. In this article I want to concentrate on <code>AsyncTask</code>.</p>
 
+<p><a name="long-running"></a>
+<em>update, December 2013</em>: I came across a <a href="http://stackoverflow.com/questions/16246496/should-or-should-not-asynctask-be-used-for-long-running-operations">StackOverflow post</a> referencing this article, where the poster was - understandably - confused by my use of "long-running" in the first paragraph. Long-running is a relative term, and here I mean 'more than a few milliseconds and less than ~500ms'. </p>
+
+<p>The main thread has just 16.67ms to render a single frame at 60Hz, so if you do anything on the main thread that gets even <em>close</em> to using up that 16ms you're risking skipped frames. </p>
+
+<p>For operations that are long-running in human terms (500ms+) there are other constructs which may be more appropriate (Loaders/Services) - you might find <a href="http://steveliles.github.io/asynchronous_android.html">my book</a> useful, which covers all of the Android concurrency constructs in detail, including much more up-to-date and in-depth coverage of <code>AsyncTask</code>.</p>
+
+<p>There are all kinds of things you will want to do off the UI thread, but <code>AsyncTask</code> (when used from an <code>Activity</code> or <code>Fragment</code>) is only really appropriate for relatively short operations. Ideal uses include CPU-intensive tasks, such as number crunching or searching for words in large text strings, blocking I/O operations such as reading and writing text files, or loading images from local files with <code>BitmapFactory</code>.</p>
+
 <h3>The basics of AsyncTask</h3>
 
-<p>AsyncTask provides a simple API for doing work in the background and re-integrating the result with the main thread. Here's what it looks like:</p>
+<p><code>AsyncTask</code> provides a simple API for doing work in the background and re-integrating the result with the main thread. Here's what it looks like:</p>
 
 <pre><code>new AsyncTask&amp;lt;Param, Progress, Result&gt;() {
     protected void onPreExecute() {
@@ -147,7 +154,7 @@
 
 <p>Don't forget that the Activity is destroyed and re-created even on something as simple as a device orientation change, so if a user rotates their device you will have two copies of your Activity retained until the last <code>AsyncTask</code> completes. In a memory constrained environment this can be a disaster!</p>
 
-<p>If you do not intend to update the UI after processing you <em>may</em> be using the wrong construct in some cases - consider whether using a Service would be more appropriate.</p>
+<p>For longer operations, e.g. networking, consider whether <code>IntentService</code> or <code>Service</code> are more appropriate to your needs (be aware, though, that <code>Service</code> does not automatically offload work from the main thread!).</p>
 
 <p>For some useful discussion and ideas related to <code>AsyncTask</code> and lifecycle management, see <a href="http://stackoverflow.com/questions/3357477/is-asynctask-really-conceptually-flawed-or-am-i-just-missing-something">this stackoverflow post</a>.</p>
 
@@ -158,6 +165,9 @@
 <p>In an environment where users switch contexts frequently and quickly (example: receive a phone call while in the midst of writing an email on your phone), it is probably important that your app does not hog resources whilst it is not the current focus.</p>
 
 <p>If, as described above, you've set yourself up to cancel tasks according to the Activity lifecycle methods then you're all set and should not face any issues here.</p>
+
+<p><a style="float:right" href="http://steveliles.github.io/asynchronous_android.html"><img src="images/asynchronous-android-cover-small.png"></a>
+My book, <a href="http://steveliles.github.io/asynchronous_android.html">Asynchronous Android</a>, goes into a lot more detail of how to use <code>AsyncTask</code>, including things like showing progress bars, continuing work across <code>Activity</code> restarts, understanding how <code>AsyncTask</code> works, cancelling running tasks, exception handling, and how to avoid some very common issues that developers face.</p>
 </span>
 
               <ul class="keywords">
