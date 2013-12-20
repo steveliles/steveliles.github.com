@@ -4111,7 +4111,9 @@ public interface Converter&amp;lt;T&gt; {
 <p>If, as described above, you've set yourself up to cancel tasks according to the Activity lifecycle methods then you're all set and should not face any issues here.</p>
 
 <p><a style="float:right" href="http://steveliles.github.io/asynchronous_android.html"><img src="images/asynchronous-android-cover-small.png"></a>
-My book, <a href="http://steveliles.github.io/asynchronous_android.html">Asynchronous Android</a>, goes into a lot more detail of how to use <code>AsyncTask</code>, including things like showing progress bars, continuing work across <code>Activity</code> restarts, understanding how <code>AsyncTask</code> works, cancelling running tasks, exception handling, and how to avoid some very common issues that developers face.</p>
+My book, <a href="http://steveliles.github.io/asynchronous_android.html">Asynchronous Android</a>, goes into a lot more detail of how to use <code>AsyncTask</code>, including things like showing progress bars, continuing work across <code>Activity</code> restarts, understanding how <code>AsyncTask</code> works, cancelling running tasks, exception handling, and how to avoid some very common issues that developers face. </p>
+
+<p><code>AsyncTask</code> is just one of the 7 chapters; the book aims to arm you with a complete toolkit for building smooth, responsive apps by working <em>with</em> the platform to get work done off the main thread. </p>
 ]]></description>
           <category>Android</category>
           <category>AsyncTask</category>

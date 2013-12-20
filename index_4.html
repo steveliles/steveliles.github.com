@@ -1334,7 +1334,7 @@ public interface Converter&amp;lt;T&gt; {
 	        <a href="dsl_for_xml_parsing_in_android.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,725" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,763" description="The Android platform provides AsyncTask for straight-forward handling of background tasks which can re-integrate with the UI thread easily, but you should understand what happens under the hood and use it with care.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-03-26">March 26, 2012</time></span>
               <a itemprop="url" href="android_s_asynctask.html"><h1 itemprop="name" itemprop="headline">Android's AsyncTask</h1></a>
 	      <span itemprop="articleBody"><p>The Android platform allows you to use all of the normal Java concurrency constructs. You should use them if you need to do any long-running<a href="#long-running">*</a> operations: you must do these off the main UI thread if you want keep your users happy, and the platform even enforces this by displaying an Application Not Responding dialog if an app does not respond to user-input within 5 seconds.</p>
@@ -1464,7 +1464,9 @@ public interface Converter&amp;lt;T&gt; {
 <p>If, as described above, you've set yourself up to cancel tasks according to the Activity lifecycle methods then you're all set and should not face any issues here.</p>
 
 <p><a style="float:right" href="http://steveliles.github.io/asynchronous_android.html"><img src="images/asynchronous-android-cover-small.png"></a>
-My book, <a href="http://steveliles.github.io/asynchronous_android.html">Asynchronous Android</a>, goes into a lot more detail of how to use <code>AsyncTask</code>, including things like showing progress bars, continuing work across <code>Activity</code> restarts, understanding how <code>AsyncTask</code> works, cancelling running tasks, exception handling, and how to avoid some very common issues that developers face.</p>
+My book, <a href="http://steveliles.github.io/asynchronous_android.html">Asynchronous Android</a>, goes into a lot more detail of how to use <code>AsyncTask</code>, including things like showing progress bars, continuing work across <code>Activity</code> restarts, understanding how <code>AsyncTask</code> works, cancelling running tasks, exception handling, and how to avoid some very common issues that developers face. </p>
+
+<p><code>AsyncTask</code> is just one of the 7 chapters; the book aims to arm you with a complete toolkit for building smooth, responsive apps by working <em>with</em> the platform to get work done off the main thread. </p>
 </span>
 
               <ul class="keywords">
