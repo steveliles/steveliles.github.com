@@ -249,7 +249,7 @@ public void onActivityPaused(Activity activity) {
 
 <p>For completeness, here's the <a href="https://gist.github.com/steveliles/11116937">github gist</a> containing the full code for the Foreground class we've just explored.</p>
 
-<div style="font-family:'Ubuntu Mono', monospace">
+<div style="font-family:'Ubuntu Mono', monospace; font-size:12px">
 <script src="https://gist.github.com/steveliles/11116937.js"></script>
 </div>
 ]]></description>
