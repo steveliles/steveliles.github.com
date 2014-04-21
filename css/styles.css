@@ -191,7 +191,7 @@ body, p, div, span, input {
   line-height:25px;
 }
 
-.line {
+.line > span {
   font-size:14px !important;
 }
 
