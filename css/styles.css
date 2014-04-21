@@ -199,11 +199,13 @@ body, p, div, span, input {
 .line > span {
   font-size:14px !important;
   line-height:18px;
+  font-family: 'ubuntu mono', 'courier new', monospace;
 }
 
 .line-number {
   font-size:14px !important;
   line-height:18px;
+  font-family: 'ubuntu mono', 'courier new', monospace;
 }
 
 a {
