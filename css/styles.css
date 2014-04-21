@@ -191,6 +191,10 @@ body, p, div, span, input {
   line-height:25px;
 }
 
+.gist > * {
+  font-size:14px;
+}
+
 a {
   color:#336699;
   text-decoration:none;
