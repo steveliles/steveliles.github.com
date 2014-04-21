@@ -13,6 +13,254 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[Is my Android app currently foreground or background?]]></title>
+        <link><![CDATA[http://steveliles.github.com/is_my_android_app_currently_foreground_or_background.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/is_my_android_app_currently_foreground_or_background.html</guid>
+        <description><![CDATA[<p>Android doesn't directly provide a way to know if your app is currently foreground or background, by which I mean actively running an Activity (screen on, user present, and your app currently presenting UI to the user).</p>
+
+<p>Obviously if you're coding in an Activity then for almost all of the time (e.g. in any callbacks other than <code>onPause</code>, <code>onStop</code>, or <code>onDestroy</code>) you already know you are foreground, however if you have <code>Service</code>'s or <code>BroadcastReceiver</code>'s that need to adjust their behaviour when the app is foreground vs. background you need a different approach.</p>
+
+<p>Since API level 14 (Android 4, ICS) we can easily obtain this information by hooking into the activity lifecycle events using <code>Application.registerActivityLifecycleCallbacks</code>.</p>
+
+<p>Using this method we can register a single listener that will be called back whenever an activity lifecycle method is called on any activity in our application. We could call our listener class <code>Foreground</code>, and hook it in to the activity lifecycle methods by providing a custom Application class for our application:</p>
+
+<pre><code>class MyApplication extends Application {
+    public void onCreate(){
+        Foreground.init(this);
+    }
+}
+</code></pre>
+
+<p>Of course, we need to register this custom <code>Application</code> class in our <code>Manifest.xml</code>:</p>
+
+<pre><code>&amp;lt;application
+    android:label="@string/app_name"
+    android:theme="@style/AppTheme"
+    android:name=".MyApplication"&gt;
+</code></pre>
+
+<p>So, what does our <code>Foreground</code> class look like? Let's begin by creating a class that implements <code>ActivityLifecycleCallbacks</code> and allows only one instance of itself to be created via a static method:  </p>
+
+<pre><code>class Foreground 
+implements Application.ActivityLifecycleCallbacks {
+
+    private static Foreground instance;
+
+    public static void init(Application app){
+        if (instance == null){
+            instance = new Foreground();
+            app.registerActivityLifecycleCallbacks(instance);
+        }
+    }
+
+    public static Foreground get(){
+        return instance;
+    }
+
+    private Foreground(){}
+
+    // TODO: implement the lifecycle callback methods!
+
+}
+</code></pre>
+
+<p>This approach of using <code>Singleton's</code> is used a lot in Android programming, as it is a technique recommended by Google.</p>
+
+<p>OK, so we have a class that we can initialise from our Application and then retrieve from any code in our app using <code>Foreground.get()</code>. Now we need to implement the lifecycle callbacks to track the foreground/background status of our app.</p>
+
+<p>To do that we'll use the <code>onActivityPaused</code>/<code>onActivityResumed</code> method-pair, using paused to signal a potential shift to background, and resumed to know we are in the foreground. </p>
+
+<pre><code>private boolean foreground;
+
+public boolean isForeground(){
+    return foreground;
+}
+
+public boolean isBackground(){
+    return !foreground;
+}
+
+public void onActivityPaused(Activity activity){
+    foreground = false;
+}
+
+public void onActivityResumed(Activity activity){
+    foreground = true;
+}
+
+// other ActivityLifecycleCallbacks methods omitted for brevity
+// we don't need them, so they are empty anyway ;)
+</code></pre>
+
+<p>Nice, so now from any code in our application we can test whether we're currently foreground or not, like this:</p>
+
+<pre><code>Foreground.get().isForeground()
+</code></pre>
+
+<p>Cool. Are we done? We-ell, depends.</p>
+
+<p>There are three potential issues here:</p>
+
+<ol>
+<li>The app might go to background at any time, so it would be nice if we could get notified instead of having to continually poll the <code>isForeground</code> method.</li>
+<li>When an application transitions between two Activities there is a brief period during which the first <code>Activity</code> is paused and the second <code>Activity</code> has not yet resumed ... during this period <code>isForeground</code> will return false, even though our application <em>is</em> the foreground app.</li>
+<li><code>Application.registerActivityLifecycleCallbacks</code> is only available from API-level 14 onwards.</li>
+</ol>
+
+<p>Can we address both of these issues? You betcha!</p>
+
+<p>First lets make it possible to get notified of foreground/background state transitions. We'll add a Listener interface to our Foreground class:</p>
+
+<pre><code>class Foreground 
+implements Application.ActivityLifecycleCallbacks {
+
+    public interface Listener {
+        public void onBecameForeground();
+        public void onBecameBackground();
+    }
+
+    ...
+}
+</code></pre>
+
+<p>We'll also need to manage any registered listeners and allow listeners to be added and removed. We'll manage registered listeners using a thread-safe and efficient <code>List</code> implementation from java.util.concurrent - <code>CopyOnWriteArrayList</code>:</p>
+
+<pre><code>private List&lt;Listener&gt; listeners = 
+    new CopyOnWriteArrayList&lt;Listener&gt;();
+
+public void addListener(Listener listener){
+    listeners.add(listener);
+}
+
+public void removeListener(Listener listener){
+    listeners.remove(listener);
+}
+</code></pre>
+
+<p>And, of course, we'll need to notify our listeners whenever we transition between foreground and background states, which we'll do by updating our <code>onActivityPaused</code> and <code>onActivityResumed</code> methods:</p>
+
+<pre><code>public void onPause(){
+    foreground = false;
+    for (Listener l : listeners){
+        try {
+            l.onBecameBackground();
+        } catch (Exception exc) {
+            Log.e("Foreground", "Unhappy listener", exc);
+        }
+    }
+}
+
+public void onResume(){
+    foreground = true;
+    for (Listener l : listeners){
+        try {
+            l.onBecameForeground();
+        } catch (Exception exc) {
+            Log.e("Foreground", "Unhappy listener", exc);
+        }
+    }
+}
+</code></pre>
+
+<p>Allright, now we're able to register listeners with our Foreground class which will be called-back when we transition from foreground to background and vice-versa. </p>
+
+<p>Bear in mind that the callback is invoked from the lifecycle callbacks and therefore <em>on the main thread</em>. Remember the golden rule of Android development: do not block the main thread. If you don't know what that means you should <a href="http://steveliles.github.io/asynchronous_android.html">buy my book</a> :)</p>
+
+<p>Right, that's problem 1 sorted, what about problem 2? (What, you forgot it already? I mean the brief period between <code>onPause</code> being called in <code>Activity</code> A before <code>onResume</code> is called in <code>Activity</code> B).</p>
+
+<p>OK, the issue here is that if we blindly update our foreground/background state in <code>onActivityPaused</code> and <code>onActivityResumed</code> we will always have a period where we're reporting incorrect values. Worse, if we're firing events we'll even tell everyone who's listening that we just went background when we didn't really!</p>
+
+<p>Lets fix that by giving ourselves a brief period of grace before announcing that we've gone background. This is, like many things in engineering, is a compromise - in this case between immediacy and correctness. We'll accept a small delay in order not to falsely report that we went to background.</p>
+
+<p>To do this we'll use one of the nice features of Android's <code>Handler</code> class - the ability to post a Runnable onto the main-thread's event-loop to be executed after a specified delay.</p>
+
+<p>Things are getting a bit more complex now, and we've some extra state to juggle. We're going to introduce another boolean to track whether we're paused or not, and we'll also need to keep a reference to the Runnable that we post to the main thread, so that we can cancel it when necessary.</p>
+
+<pre><code>private boolean foreground = false, paused = true;
+private Handler handler = new Handler();
+private Runnable check;
+</code></pre>
+
+<p>A quick note on <code>Handler</code>'s: A <code>Handler</code> created with the no-arg constructor will perform all of its work on the thread that created it. Since we're instantiating this Handler inline in the <code>Foreground</code> class, and the <code>Foreground</code> instance is being created on the main thread during our <code>Application</code>'s <code>onCreate</code> method callback, any work we post to this <code>Handler</code> will execute on the main thread.</p>
+
+<p>Here's what our updated <code>onActivityPaused</code> and <code>onActivityResumed</code> methods look like:</p>
+
+<pre><code>@Override
+public void onActivityResumed(Activity activity) {
+    paused = false;
+    boolean wasBackground = !foreground;
+    foreground = true;
+
+    if (check != null)
+        handler.removeCallbacks(check);
+
+    if (wasBackground){
+        Log.i(TAG, "went foreground");
+        for (Listener l : listeners) {
+            try {
+                l.onBecameForeground();
+            } catch (Exception exc) {
+                Log.e(TAG, "Listener threw exception!", exc);
+            }
+        }
+    } else {
+        Log.i(TAG, "still foreground");
+    }
+}
+
+@Override
+public void onActivityPaused(Activity activity) {
+    paused = true;
+
+    if (check != null)
+        handler.removeCallbacks(check);
+
+    handler.postDelayed(check = new Runnable(){
+        @Override
+        public void run() {
+            if (foreground &amp;&amp; paused) {
+                foreground = false;
+                Log.i(TAG, "went background");
+                for (Listener l : listeners) {
+                    try {
+                        l.onBecameBackground();
+                    } catch (Exception exc) {
+                        Log.e(TAG, "Listener threw exception!", exc);
+                    }
+                }
+            } else {
+                Log.i(TAG, "still foreground");
+            }
+        }
+    }, CHECK_DELAY);
+}
+</code></pre>
+
+<p>A couple of things worth pointing out here:</p>
+
+<ol>
+<li><code>onActivityPaused</code> schedules a Runnable to execute after CHECK<em>DELAY milliseconds (CHECK</em>DELAY is set to 500), and captures the Runnable in the <code>check</code> member variable so it can be cancelled if necessary</li>
+<li><code>onActivityResumed</code> removes (cancels) the <code>check</code> callback if there is one, to cancel the pending notification of going background.</li>
+</ol>
+
+<p>So now we have a nice neat mechanism for making direct checks for foreground/background status (Foreground.get().isBackground(), etc), and for being notified of changes to this status using the <code>Listener</code> interface.</p>
+
+<p>To support API levels below 14 we'd need to hook our <code>Foreground</code> class more directly from the <code>onPause</code> and <code>onResume</code> methods of each individual <code>Activity</code>. This is most easily done by extending all activities in our application from a common base class and implementing the calls to Foreground from there.</p>
+
+<p>For completeness, here's the <a href="https://gist.github.com/steveliles/11116937">github gist</a> containing the full code for the Foreground class we've just explored.</p>
+
+<div style="font-family:'Ubuntu Mono', monospace">
+<script src="https://gist.github.com/steveliles/11116937.js"></script>
+</div>
+]]></description>
+          <category>Android</category>
+          <category>Foreground</category>
+          <category>Background</category>
+          <category>Detect</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 21 Apr 2014 00:00:00 +0100</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Asynchronous Android]]></title>
         <link><![CDATA[http://steveliles.github.com/asynchronous_android.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/asynchronous_android.html</guid>
@@ -55,7 +303,7 @@
 
 <p>Right now you can get the book direct from <a href="http://www.packtpub.com/concurrent-programming-on-android/book">Packt Publishing</a>, and <a href="http://www.barnesandnoble.com/w/asynchronous-android-steve-liles/1117737892?ean=9781783286874">Barnes and Noble</a>.</p>
 
-<p>The links for <a href="http://www.amazon.com/dp/1783286873/?tag=packtpubli-20">Amazon US</a>, <a href="http://www.amazon.co.uk/dp/1783286873/?tag=packtpubli-21">Amazon UK</a>, <a href="http://shop.oreilly.com/product/9781783286874.do">OReilly</a>, and <a href="http://my.safaribooksonline.com/9781783286874?cid=packt-cat-readnow-9781783286874">Safari</a> aren't active yet, but should be by the time you read this.</p>
+<p>The links for <a href="http://www.amazon.com/dp/1783286873/?tag=packtpubli-20">Amazon US</a>, <a href="http://goo.gl/DblAKO">Amazon UK</a>, <a href="http://shop.oreilly.com/product/9781783286874.do">OReilly</a>, and <a href="http://my.safaribooksonline.com/9781783286874?cid=packt-cat-readnow-9781783286874">Safari</a> aren't active yet, but should be by the time you read this.</p>
 
 <p>A free sample chapter should be available from the Packt page soon - I believe it will be <em>Chapter 7, Scheduling work with AlarmManager</em>.</p>
 
@@ -5813,57 +6061,6 @@ java.lang.IllegalArgumentException:
           <category>vector</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Sun, 18 Dec 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Subversion 1.7 Eclipse integration in Ubuntu]]></title>
-        <link><![CDATA[http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/subversion_1_7_eclipse_integration_in_ubuntu.html</guid>
-        <description><![CDATA[<p>Getting Subversion 1.7 integration working with Eclipse (3.7.1) and Subclipse 1.8 isn't all that straight-forward because Canonical currently only support the older Javahl-1.6 in their repositories. </p>
-
-<p>If you don't want to switch repo's your best bet is to go with Subclipse 1.6 and the 1.6 version of javahl (and subversion) from the official Canonical Ubuntu repositories.</p>
-
-<p>If you do want to go ahead with SVN 1.7, here's how I got it working by switching to repo's provided by dominik stadler:</p>
-
-<ol>
-<li>Add dominik's repository: <code>sudo apt-add-repository ppa:dominik-stadler/subversion-1.7</code></li>
-<li>Update apt: <code>sudo apt-get update</code></li>
-<li>Install libsvn-java: <code>sudo apt-get install libsvn-java</code></li>
-<li>Install subversion 1.7: <code>sudo apt-get install subversion</code></li>
-</ol>
-
-<p>To enable Eclipse to see your libsvn-java installation, go to the eclipse install directory (I install in <code>/home/steve/dev/tools/eclipse</code>) and edit the eclipse.ini file. </p>
-
-<p>You need to add <code>-Djava.library.path=/usr/lib/jni</code>, which is where libsvn-java's native libraries get installed. Add it immediately following <code>-vmargs</code>. My eclipse.ini file now looks like this:</p>
-
-<pre><code>-startup
-plugins/org.eclipse.equinox.launcher_1.2.0.v20110502.jar
---launcher.library
-plugins/org.eclipse.equinox.launcher.gtk.linux.x86_64_1.1.100.v20110505
--showsplash
-org.eclipse.platform
---launcher.XXMaxPermSize
-256m
---launcher.defaultAction
-openFile
--vmargs
--Djava.library.path=/usr/lib/jni
--Xms40m
--Xmx600m
-</code></pre>
-
-<p>If you use Subclipse but never previously installed Javahl you probably see irritating warning dialogs the first time you do <em>anything</em> in Eclipse after a restart. Installing javahl correctly will prevent those :). </p>
-
-<p><a href="https://lh3.googleusercontent.com/-KJtp8zUoqwQ/TxtOTq8hF-I/AAAAAAAAImw/fdzs2yeDUxw/s1600/53.jpg"><img alt="Eclipse, SVN and Ubuntu - Javahl, all playing nicely - a lego minifigure comic strip made with Comic Strip It!" src="https://lh3.googleusercontent.com/-KJtp8zUoqwQ/TxtOTq8hF-I/AAAAAAAAImw/fdzs2yeDUxw/s600/53.jpg"></a></p>
-
-<p>Merry Christmas!</p>
-]]></description>
-          <category>ubuntu</category>
-          <category>eclipse</category>
-          <category>subversion</category>
-          <category>javahl</category>
-          <category>subclipse</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Fri, 16 Dec 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>

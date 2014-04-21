@@ -34,6 +34,258 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,214" description="">
+              <span class="meta" itemprop="datePublished"><time datetime="2014-04-21">April 21, 2014</time></span>
+              <a itemprop="url" href="is_my_android_app_currently_foreground_or_background.html"><h1 itemprop="name" itemprop="headline">Is my Android app currently foreground or background?</h1></a>
+	      <span itemprop="articleBody"><p>Android doesn't directly provide a way to know if your app is currently foreground or background, by which I mean actively running an Activity (screen on, user present, and your app currently presenting UI to the user).</p>
+
+<p>Obviously if you're coding in an Activity then for almost all of the time (e.g. in any callbacks other than <code>onPause</code>, <code>onStop</code>, or <code>onDestroy</code>) you already know you are foreground, however if you have <code>Service</code>'s or <code>BroadcastReceiver</code>'s that need to adjust their behaviour when the app is foreground vs. background you need a different approach.</p>
+
+<p>Since API level 14 (Android 4, ICS) we can easily obtain this information by hooking into the activity lifecycle events using <code>Application.registerActivityLifecycleCallbacks</code>.</p>
+
+<p>Using this method we can register a single listener that will be called back whenever an activity lifecycle method is called on any activity in our application. We could call our listener class <code>Foreground</code>, and hook it in to the activity lifecycle methods by providing a custom Application class for our application:</p>
+
+<pre><code>class MyApplication extends Application {
+    public void onCreate(){
+        Foreground.init(this);
+    }
+}
+</code></pre>
+
+<p>Of course, we need to register this custom <code>Application</code> class in our <code>Manifest.xml</code>:</p>
+
+<pre><code>&amp;lt;application
+    android:label="@string/app_name"
+    android:theme="@style/AppTheme"
+    android:name=".MyApplication"&gt;
+</code></pre>
+
+<p>So, what does our <code>Foreground</code> class look like? Let's begin by creating a class that implements <code>ActivityLifecycleCallbacks</code> and allows only one instance of itself to be created via a static method:  </p>
+
+<pre><code>class Foreground 
+implements Application.ActivityLifecycleCallbacks {
+
+    private static Foreground instance;
+
+    public static void init(Application app){
+        if (instance == null){
+            instance = new Foreground();
+            app.registerActivityLifecycleCallbacks(instance);
+        }
+    }
+
+    public static Foreground get(){
+        return instance;
+    }
+
+    private Foreground(){}
+
+    // TODO: implement the lifecycle callback methods!
+
+}
+</code></pre>
+
+<p>This approach of using <code>Singleton's</code> is used a lot in Android programming, as it is a technique recommended by Google.</p>
+
+<p>OK, so we have a class that we can initialise from our Application and then retrieve from any code in our app using <code>Foreground.get()</code>. Now we need to implement the lifecycle callbacks to track the foreground/background status of our app.</p>
+
+<p>To do that we'll use the <code>onActivityPaused</code>/<code>onActivityResumed</code> method-pair, using paused to signal a potential shift to background, and resumed to know we are in the foreground. </p>
+
+<pre><code>private boolean foreground;
+
+public boolean isForeground(){
+    return foreground;
+}
+
+public boolean isBackground(){
+    return !foreground;
+}
+
+public void onActivityPaused(Activity activity){
+    foreground = false;
+}
+
+public void onActivityResumed(Activity activity){
+    foreground = true;
+}
+
+// other ActivityLifecycleCallbacks methods omitted for brevity
+// we don't need them, so they are empty anyway ;)
+</code></pre>
+
+<p>Nice, so now from any code in our application we can test whether we're currently foreground or not, like this:</p>
+
+<pre><code>Foreground.get().isForeground()
+</code></pre>
+
+<p>Cool. Are we done? We-ell, depends.</p>
+
+<p>There are three potential issues here:</p>
+
+<ol>
+<li>The app might go to background at any time, so it would be nice if we could get notified instead of having to continually poll the <code>isForeground</code> method.</li>
+<li>When an application transitions between two Activities there is a brief period during which the first <code>Activity</code> is paused and the second <code>Activity</code> has not yet resumed ... during this period <code>isForeground</code> will return false, even though our application <em>is</em> the foreground app.</li>
+<li><code>Application.registerActivityLifecycleCallbacks</code> is only available from API-level 14 onwards.</li>
+</ol>
+
+<p>Can we address both of these issues? You betcha!</p>
+
+<p>First lets make it possible to get notified of foreground/background state transitions. We'll add a Listener interface to our Foreground class:</p>
+
+<pre><code>class Foreground 
+implements Application.ActivityLifecycleCallbacks {
+
+    public interface Listener {
+        public void onBecameForeground();
+        public void onBecameBackground();
+    }
+
+    ...
+}
+</code></pre>
+
+<p>We'll also need to manage any registered listeners and allow listeners to be added and removed. We'll manage registered listeners using a thread-safe and efficient <code>List</code> implementation from java.util.concurrent - <code>CopyOnWriteArrayList</code>:</p>
+
+<pre><code>private List&lt;Listener&gt; listeners = 
+    new CopyOnWriteArrayList&lt;Listener&gt;();
+
+public void addListener(Listener listener){
+    listeners.add(listener);
+}
+
+public void removeListener(Listener listener){
+    listeners.remove(listener);
+}
+</code></pre>
+
+<p>And, of course, we'll need to notify our listeners whenever we transition between foreground and background states, which we'll do by updating our <code>onActivityPaused</code> and <code>onActivityResumed</code> methods:</p>
+
+<pre><code>public void onPause(){
+    foreground = false;
+    for (Listener l : listeners){
+        try {
+            l.onBecameBackground();
+        } catch (Exception exc) {
+            Log.e("Foreground", "Unhappy listener", exc);
+        }
+    }
+}
+
+public void onResume(){
+    foreground = true;
+    for (Listener l : listeners){
+        try {
+            l.onBecameForeground();
+        } catch (Exception exc) {
+            Log.e("Foreground", "Unhappy listener", exc);
+        }
+    }
+}
+</code></pre>
+
+<p>Allright, now we're able to register listeners with our Foreground class which will be called-back when we transition from foreground to background and vice-versa. </p>
+
+<p>Bear in mind that the callback is invoked from the lifecycle callbacks and therefore <em>on the main thread</em>. Remember the golden rule of Android development: do not block the main thread. If you don't know what that means you should <a href="http://steveliles.github.io/asynchronous_android.html">buy my book</a> :)</p>
+
+<p>Right, that's problem 1 sorted, what about problem 2? (What, you forgot it already? I mean the brief period between <code>onPause</code> being called in <code>Activity</code> A before <code>onResume</code> is called in <code>Activity</code> B).</p>
+
+<p>OK, the issue here is that if we blindly update our foreground/background state in <code>onActivityPaused</code> and <code>onActivityResumed</code> we will always have a period where we're reporting incorrect values. Worse, if we're firing events we'll even tell everyone who's listening that we just went background when we didn't really!</p>
+
+<p>Lets fix that by giving ourselves a brief period of grace before announcing that we've gone background. This is, like many things in engineering, is a compromise - in this case between immediacy and correctness. We'll accept a small delay in order not to falsely report that we went to background.</p>
+
+<p>To do this we'll use one of the nice features of Android's <code>Handler</code> class - the ability to post a Runnable onto the main-thread's event-loop to be executed after a specified delay.</p>
+
+<p>Things are getting a bit more complex now, and we've some extra state to juggle. We're going to introduce another boolean to track whether we're paused or not, and we'll also need to keep a reference to the Runnable that we post to the main thread, so that we can cancel it when necessary.</p>
+
+<pre><code>private boolean foreground = false, paused = true;
+private Handler handler = new Handler();
+private Runnable check;
+</code></pre>
+
+<p>A quick note on <code>Handler</code>'s: A <code>Handler</code> created with the no-arg constructor will perform all of its work on the thread that created it. Since we're instantiating this Handler inline in the <code>Foreground</code> class, and the <code>Foreground</code> instance is being created on the main thread during our <code>Application</code>'s <code>onCreate</code> method callback, any work we post to this <code>Handler</code> will execute on the main thread.</p>
+
+<p>Here's what our updated <code>onActivityPaused</code> and <code>onActivityResumed</code> methods look like:</p>
+
+<pre><code>@Override
+public void onActivityResumed(Activity activity) {
+    paused = false;
+    boolean wasBackground = !foreground;
+    foreground = true;
+
+    if (check != null)
+        handler.removeCallbacks(check);
+
+    if (wasBackground){
+        Log.i(TAG, "went foreground");
+        for (Listener l : listeners) {
+            try {
+                l.onBecameForeground();
+            } catch (Exception exc) {
+                Log.e(TAG, "Listener threw exception!", exc);
+            }
+        }
+    } else {
+        Log.i(TAG, "still foreground");
+    }
+}
+
+@Override
+public void onActivityPaused(Activity activity) {
+    paused = true;
+
+    if (check != null)
+        handler.removeCallbacks(check);
+
+    handler.postDelayed(check = new Runnable(){
+        @Override
+        public void run() {
+            if (foreground &amp;&amp; paused) {
+                foreground = false;
+                Log.i(TAG, "went background");
+                for (Listener l : listeners) {
+                    try {
+                        l.onBecameBackground();
+                    } catch (Exception exc) {
+                        Log.e(TAG, "Listener threw exception!", exc);
+                    }
+                }
+            } else {
+                Log.i(TAG, "still foreground");
+            }
+        }
+    }, CHECK_DELAY);
+}
+</code></pre>
+
+<p>A couple of things worth pointing out here:</p>
+
+<ol>
+<li><code>onActivityPaused</code> schedules a Runnable to execute after CHECK<em>DELAY milliseconds (CHECK</em>DELAY is set to 500), and captures the Runnable in the <code>check</code> member variable so it can be cancelled if necessary</li>
+<li><code>onActivityResumed</code> removes (cancels) the <code>check</code> callback if there is one, to cancel the pending notification of going background.</li>
+</ol>
+
+<p>So now we have a nice neat mechanism for making direct checks for foreground/background status (Foreground.get().isBackground(), etc), and for being notified of changes to this status using the <code>Listener</code> interface.</p>
+
+<p>To support API levels below 14 we'd need to hook our <code>Foreground</code> class more directly from the <code>onPause</code> and <code>onResume</code> methods of each individual <code>Activity</code>. This is most easily done by extending all activities in our application from a common base class and implementing the calls to Foreground from there.</p>
+
+<p>For completeness, here's the <a href="https://gist.github.com/steveliles/11116937">github gist</a> containing the full code for the Foreground class we've just explored.</p>
+
+<div style="font-family:'Ubuntu Mono', monospace">
+<script src="https://gist.github.com/steveliles/11116937.js"></script>
+</div>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Foreground">Foreground</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Background">Background</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Detect">Detect</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="is_my_android_app_currently_foreground_or_background.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="563" description=" Asynchronous Android is a practical book that guides you through the concurrency constructs provided by the Android platform, illustrating the applications, benefits and pitfalls of each">
               <span class="meta" itemprop="datePublished"><time datetime="2013-12-18">December 18, 2013</time></span>
               <a itemprop="url" href="asynchronous_android.html"><h1 itemprop="name" itemprop="headline">Asynchronous Android</h1></a>
@@ -76,7 +328,7 @@
 
 <p>Right now you can get the book direct from <a href="http://www.packtpub.com/concurrent-programming-on-android/book">Packt Publishing</a>, and <a href="http://www.barnesandnoble.com/w/asynchronous-android-steve-liles/1117737892?ean=9781783286874">Barnes and Noble</a>.</p>
 
-<p>The links for <a href="http://www.amazon.com/dp/1783286873/?tag=packtpubli-20">Amazon US</a>, <a href="http://www.amazon.co.uk/dp/1783286873/?tag=packtpubli-21">Amazon UK</a>, <a href="http://shop.oreilly.com/product/9781783286874.do">OReilly</a>, and <a href="http://my.safaribooksonline.com/9781783286874?cid=packt-cat-readnow-9781783286874">Safari</a> aren't active yet, but should be by the time you read this.</p>
+<p>The links for <a href="http://www.amazon.com/dp/1783286873/?tag=packtpubli-20">Amazon US</a>, <a href="http://goo.gl/DblAKO">Amazon UK</a>, <a href="http://shop.oreilly.com/product/9781783286874.do">OReilly</a>, and <a href="http://my.safaribooksonline.com/9781783286874?cid=packt-cat-readnow-9781783286874">Safari</a> aren't active yet, but should be by the time you read this.</p>
 
 <p>A free sample chapter should be available from the Packt page soon - I believe it will be <em>Chapter 7, Scheduling work with AlarmManager</em>.</p>
 
@@ -600,199 +852,6 @@ nil
 	        <a href="roman_numeral_conversion_in_clojure_part_ii.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,402" description="For my first ever attempt at writing Clojure code I had a shot at a Roman numeral converter">
-              <span class="meta" itemprop="datePublished"><time datetime="2013-02-28">February 28, 2013</time></span>
-              <a itemprop="url" href="roman_numeral_conversion_in_clojure.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure</h1></a>
-	      <span itemprop="articleBody"><p>(see also <a href="http://steveliles.github.com/roman_numeral_conversion_in_clojure_part_ii.html">part II</a>)</p>
-
-<p><a style="float:left; margin-right:10px" href="http://www.amazon.co.uk/gp/product/1934356867/ref=as_li_ss_il?ie=UTF8&amp;camp=1634&amp;creative=19450&amp;creativeASIN=1934356867&amp;linkCode=as2&amp;tag=stlibl-21"><img border="0" src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&amp;ASIN=1934356867&amp;Format=_SL110_&amp;ID=AsinImage&amp;MarketPlace=GB&amp;ServiceVersion=20070822&amp;WS=1&amp;tag=stlibl-21" ></a></p>
-
-<p>I've been reading Stu Halloway's <a href="http://www.amazon.co.uk/gp/product/1934356867/ref=as_li_ss_tl?ie=UTF8&amp;camp=1634&amp;creative=19450&amp;creativeASIN=1934356867&amp;linkCode=as2&amp;tag=stlibl-21">Programming Clojure</a> (which is excellent by the way). When I reached chapter 6 "Concurrency" I thought I'd better pause and practise some of the basics before venturing into deeper waters!</p>
-
-<p>I once saw a programming challenge posted with a job ad, which asked applicants to write some code to convert numbers from the decimal numeral system to Roman. This seemed like a sufficiently challenging and self-contained thing to try for a first attempt at Clojure.</p>
-
-<p>I started by creating a map of the individual numerals:</p>
-
-<pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
-</code></pre>
-
-<p>Maps are functions, so invoking a map with a key gives the value, like this:</p>
-
-<pre><code>=&gt; (numerals \X)
-10
-</code></pre>
-
-<p>Next I created a function that maps roman numerals to decimal values (baby steps!):</p>
-
-<pre><code>(defn decimal-values [s]
-  (map numerals s))
-</code></pre>
-
-<p>Testing this at the REPL I get:</p>
-
-<pre><code>=&gt; (decimal-values "MCXVII")
-(1000 100 10 5 1 1)
-</code></pre>
-
-<p>Great, I have a list of the values which I need to compose together. Next I want to combine the values in this list by adding them together.</p>
-
-<pre><code>(defn roman [s]
-  (reduce + (decimal-values s)))
-</code></pre>
-
-<p>Testing again at the REPL I get:</p>
-
-<pre><code>=&gt; (roman "MCXVII")
-1117
-</code></pre>
-
-<p>Whoop! OK, we have our first conversion. Are we done? Unfortunately not - there's a complication.</p>
-
-<p>The "simple" way of writing 4 in Roman numerals is IIII. That repetition is allowed, but not commonly used. The short-hand is to prefix a higher numeral with a lower one, e.g. IV, which means subtract the lower number from the higher. This works for all of the other numerals too, so 999 can be written IM (1000 - 1).</p>
-
-<p>I pondered this for a while, then decided to write a <code>combine-numerals</code> function to use in place of + in the <code>reduce</code> call. I want my <code>roman</code> function to look like this:</p>
-
-<pre><code>(defn roman [s]
-  (reduce combine-numerals (decimal-values s)))
-</code></pre>
-
-<p>Now, <code>combine-numerals</code> needs to account for the more complicated logic described above. Here's what I came up with:</p>
-
-<pre><code>(defn combine-numerals [a b]
-  (if (&gt; a b)
-    (+ a b)
-    (- b a)))
-</code></pre>
-
-<p>This simply checks that the value seen first is larger than the following value - if it is we add, if it isn't we subtract. Testing that at the REPL gives:</p>
-
-<pre><code>=&gt; (combine-numerals 1 10)
-9
-=&gt; (combine-numerals 10 1)
-11
-</code></pre>
-
-<p>Perfect, if I see a 1 before a 10 it is subtracted to give 9, otherwise it is added to give 11. Lets try our <code>roman</code> function again:</p>
-
-<pre><code>=&gt; (roman "XVII")
-17
-=&gt; (roman "MCMXVII")
-2117
-</code></pre>
-
-<p>Hmm, that last one isn't right, it should give 1917. What's going on? </p>
-
-<p><code>reduce</code> takes each value in the given list and applies the function to it and the reduced result so far. That means that when <code>combine-numerals</code> is called it isn't called with two adjacent values except in the case where the numeral string only has two numerals. Bum.</p>
-
-<p>What I really need is to have the sum so far, the previous numeral seen, and the current numeral being handled, so that I can decide whether to add/subtract the current numeral by comparing it with the previous numeral. </p>
-
-<p>I think I could do this with a recursive function, but I'm struggling to remember the syntax, so I ponder a little more and decide to try running in reverse through the numerals, and add if the total so far is less than 4 times the current total. </p>
-
-<p>This involves changing <code>combine-numerals</code> to multiply the current numeral's value by 4 before comparing, and renaming it to add-numeral:</p>
-
-<pre><code>(defn add-numeral [n t]
-  (if (&gt; n (* 4 t))
-    (- n t)
-    (+ t n)))
-</code></pre>
-
-<p>I also need to change <code>roman</code> to reduce the list in reverse with the new add-numeral function:</p>
-
-<pre><code>(defn roman [s]
-  (reduce add-numeral (map numerals (reverse s))))
-</code></pre>
-
-<p>Testing at the REPL gives:</p>
-
-<pre><code>=&gt; (roman "IX")
-9
-=&gt; (roman "MCMXIX")
-1919
-=&gt; (roman "MIM")
-1999
-=&gt; (roman "MLMXXXIIII")
-1984
-=&gt; (roman "MCMLXXXIV")
-1984
-</code></pre>
-
-<p>So, lets see the whole program:</p>
-
-<pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
-
-(defn add-numeral [n t]
-  (if (&gt; n (* 4 t))
-    (- n t)
-    (+ t n)))
-
-(defn roman [s]
-  (reduce add-numeral (map numerals (reverse s))))
-</code></pre>
-
-<p>I confess myself truly amazed that -</p>
-
-<ol>
-<li>I managed to write some Clojure that actually works</li>
-<li>I think it is nearly idiomatic Clojure (is it? please comment!)</li>
-<li>It is incredibly concise and moderately readable (even to my unfamiliar eyes)</li>
-</ol>
-
-<p>Here's a rough translation of the same algorithm to Java -</p>
-
-<pre><code>import java.util.*;
-
-public class RomanNumerals {
-
-    private static Map&amp;lt;Character, Integer&gt; numerals = 
-        new HashMap&amp;lt;Character, Integer&gt;();
-
-    static {
-        numerals.put('I', 1);
-        numerals.put('V', 5);
-        numerals.put('X', 10);
-        numerals.put('L', 50);
-        numerals.put('C', 100);
-        numerals.put('D', 500);
-        numerals.put('M', 1000);
-    }
-
-    public int convert(String aRoman) {
-        int total = 0;      
-        for (int i=aRoman.length()-1; i&gt;=0; i--) {
-            char c = aRoman.charAt(i);
-            total = combine(numerals.get(c), total);
-        }
-        return total;
-    }
-
-    private int combine(int aCurrent, int aRunningTotal) {
-        return (aRunningTotal &gt; (aCurrent * 4)) ?
-            aRunningTotal - aCurrent : aRunningTotal + aCurrent;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(new RomanNumerals().convert(args[0]));
-    }
-}
-</code></pre>
-
-<p>25 lines of Java (not counting the main method) to 7 lines of Clojure, but I'm not judging (yet). </p>
-
-<p>Java pads out with boiler-plate, and there are big losses in populating the <code>HashMap</code>. I walked the <code>String</code> in reverse rather than actually reversing it. I could have reversed it with <code>new StringBuilder(aRoman).reverse().toString()</code> I suppose, but that's pretty ugly. </p>
-
-<p>Fun stuff! I plan to come back to this exercise over time as I learn more Clojure - pretty sure there are several dozen alternative versions that are more idiomatic/elegant, and I haven't made any attempt at handling bad input, etc.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=clojure">clojure</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=exercise">exercise</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=roman-numerals">roman-numerals</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="roman_numeral_conversion_in_clojure.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -810,11 +869,11 @@ public class RomanNumerals {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="is_my_android_app_currently_foreground_or_background.html">Is my Android app currently foreground or background?</a><span class="date"> - Apr 21, 2014</span></li>
                 <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
-                <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

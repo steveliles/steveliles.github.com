@@ -34,6 +34,199 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,402" description="For my first ever attempt at writing Clojure code I had a shot at a Roman numeral converter">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-02-28">February 28, 2013</time></span>
+              <a itemprop="url" href="roman_numeral_conversion_in_clojure.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure</h1></a>
+	      <span itemprop="articleBody"><p>(see also <a href="http://steveliles.github.com/roman_numeral_conversion_in_clojure_part_ii.html">part II</a>)</p>
+
+<p><a style="float:left; margin-right:10px" href="http://www.amazon.co.uk/gp/product/1934356867/ref=as_li_ss_il?ie=UTF8&amp;camp=1634&amp;creative=19450&amp;creativeASIN=1934356867&amp;linkCode=as2&amp;tag=stlibl-21"><img border="0" src="http://ws.assoc-amazon.co.uk/widgets/q?_encoding=UTF8&amp;ASIN=1934356867&amp;Format=_SL110_&amp;ID=AsinImage&amp;MarketPlace=GB&amp;ServiceVersion=20070822&amp;WS=1&amp;tag=stlibl-21" ></a></p>
+
+<p>I've been reading Stu Halloway's <a href="http://www.amazon.co.uk/gp/product/1934356867/ref=as_li_ss_tl?ie=UTF8&amp;camp=1634&amp;creative=19450&amp;creativeASIN=1934356867&amp;linkCode=as2&amp;tag=stlibl-21">Programming Clojure</a> (which is excellent by the way). When I reached chapter 6 "Concurrency" I thought I'd better pause and practise some of the basics before venturing into deeper waters!</p>
+
+<p>I once saw a programming challenge posted with a job ad, which asked applicants to write some code to convert numbers from the decimal numeral system to Roman. This seemed like a sufficiently challenging and self-contained thing to try for a first attempt at Clojure.</p>
+
+<p>I started by creating a map of the individual numerals:</p>
+
+<pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+</code></pre>
+
+<p>Maps are functions, so invoking a map with a key gives the value, like this:</p>
+
+<pre><code>=&gt; (numerals \X)
+10
+</code></pre>
+
+<p>Next I created a function that maps roman numerals to decimal values (baby steps!):</p>
+
+<pre><code>(defn decimal-values [s]
+  (map numerals s))
+</code></pre>
+
+<p>Testing this at the REPL I get:</p>
+
+<pre><code>=&gt; (decimal-values "MCXVII")
+(1000 100 10 5 1 1)
+</code></pre>
+
+<p>Great, I have a list of the values which I need to compose together. Next I want to combine the values in this list by adding them together.</p>
+
+<pre><code>(defn roman [s]
+  (reduce + (decimal-values s)))
+</code></pre>
+
+<p>Testing again at the REPL I get:</p>
+
+<pre><code>=&gt; (roman "MCXVII")
+1117
+</code></pre>
+
+<p>Whoop! OK, we have our first conversion. Are we done? Unfortunately not - there's a complication.</p>
+
+<p>The "simple" way of writing 4 in Roman numerals is IIII. That repetition is allowed, but not commonly used. The short-hand is to prefix a higher numeral with a lower one, e.g. IV, which means subtract the lower number from the higher. This works for all of the other numerals too, so 999 can be written IM (1000 - 1).</p>
+
+<p>I pondered this for a while, then decided to write a <code>combine-numerals</code> function to use in place of + in the <code>reduce</code> call. I want my <code>roman</code> function to look like this:</p>
+
+<pre><code>(defn roman [s]
+  (reduce combine-numerals (decimal-values s)))
+</code></pre>
+
+<p>Now, <code>combine-numerals</code> needs to account for the more complicated logic described above. Here's what I came up with:</p>
+
+<pre><code>(defn combine-numerals [a b]
+  (if (&gt; a b)
+    (+ a b)
+    (- b a)))
+</code></pre>
+
+<p>This simply checks that the value seen first is larger than the following value - if it is we add, if it isn't we subtract. Testing that at the REPL gives:</p>
+
+<pre><code>=&gt; (combine-numerals 1 10)
+9
+=&gt; (combine-numerals 10 1)
+11
+</code></pre>
+
+<p>Perfect, if I see a 1 before a 10 it is subtracted to give 9, otherwise it is added to give 11. Lets try our <code>roman</code> function again:</p>
+
+<pre><code>=&gt; (roman "XVII")
+17
+=&gt; (roman "MCMXVII")
+2117
+</code></pre>
+
+<p>Hmm, that last one isn't right, it should give 1917. What's going on? </p>
+
+<p><code>reduce</code> takes each value in the given list and applies the function to it and the reduced result so far. That means that when <code>combine-numerals</code> is called it isn't called with two adjacent values except in the case where the numeral string only has two numerals. Bum.</p>
+
+<p>What I really need is to have the sum so far, the previous numeral seen, and the current numeral being handled, so that I can decide whether to add/subtract the current numeral by comparing it with the previous numeral. </p>
+
+<p>I think I could do this with a recursive function, but I'm struggling to remember the syntax, so I ponder a little more and decide to try running in reverse through the numerals, and add if the total so far is less than 4 times the current total. </p>
+
+<p>This involves changing <code>combine-numerals</code> to multiply the current numeral's value by 4 before comparing, and renaming it to add-numeral:</p>
+
+<pre><code>(defn add-numeral [n t]
+  (if (&gt; n (* 4 t))
+    (- n t)
+    (+ t n)))
+</code></pre>
+
+<p>I also need to change <code>roman</code> to reduce the list in reverse with the new add-numeral function:</p>
+
+<pre><code>(defn roman [s]
+  (reduce add-numeral (map numerals (reverse s))))
+</code></pre>
+
+<p>Testing at the REPL gives:</p>
+
+<pre><code>=&gt; (roman "IX")
+9
+=&gt; (roman "MCMXIX")
+1919
+=&gt; (roman "MIM")
+1999
+=&gt; (roman "MLMXXXIIII")
+1984
+=&gt; (roman "MCMLXXXIV")
+1984
+</code></pre>
+
+<p>So, lets see the whole program:</p>
+
+<pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+
+(defn add-numeral [n t]
+  (if (&gt; n (* 4 t))
+    (- n t)
+    (+ t n)))
+
+(defn roman [s]
+  (reduce add-numeral (map numerals (reverse s))))
+</code></pre>
+
+<p>I confess myself truly amazed that -</p>
+
+<ol>
+<li>I managed to write some Clojure that actually works</li>
+<li>I think it is nearly idiomatic Clojure (is it? please comment!)</li>
+<li>It is incredibly concise and moderately readable (even to my unfamiliar eyes)</li>
+</ol>
+
+<p>Here's a rough translation of the same algorithm to Java -</p>
+
+<pre><code>import java.util.*;
+
+public class RomanNumerals {
+
+    private static Map&amp;lt;Character, Integer&gt; numerals = 
+        new HashMap&amp;lt;Character, Integer&gt;();
+
+    static {
+        numerals.put('I', 1);
+        numerals.put('V', 5);
+        numerals.put('X', 10);
+        numerals.put('L', 50);
+        numerals.put('C', 100);
+        numerals.put('D', 500);
+        numerals.put('M', 1000);
+    }
+
+    public int convert(String aRoman) {
+        int total = 0;      
+        for (int i=aRoman.length()-1; i&gt;=0; i--) {
+            char c = aRoman.charAt(i);
+            total = combine(numerals.get(c), total);
+        }
+        return total;
+    }
+
+    private int combine(int aCurrent, int aRunningTotal) {
+        return (aRunningTotal &gt; (aCurrent * 4)) ?
+            aRunningTotal - aCurrent : aRunningTotal + aCurrent;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new RomanNumerals().convert(args[0]));
+    }
+}
+</code></pre>
+
+<p>25 lines of Java (not counting the main method) to 7 lines of Clojure, but I'm not judging (yet). </p>
+
+<p>Java pads out with boiler-plate, and there are big losses in populating the <code>HashMap</code>. I walked the <code>String</code> in reverse rather than actually reversing it. I could have reversed it with <code>new StringBuilder(aRoman).reverse().toString()</code> I suppose, but that's pretty ugly. </p>
+
+<p>Fun stuff! I plan to come back to this exercise over time as I learn more Clojure - pretty sure there are several dozen alternative versions that are more idiomatic/elegant, and I haven't made any attempt at handling bad input, etc.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=clojure">clojure</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=exercise">exercise</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=roman-numerals">roman-numerals</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="roman_numeral_conversion_in_clojure.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="156" description="Loading the correct GWT language permutation according to the browser (user-agent) locale.">
               <span class="meta" itemprop="datePublished"><time datetime="2013-02-27">February 27, 2013</time></span>
               <a itemprop="url" href="gwt_i18n_using_browser_locale.html"><h1 itemprop="name" itemprop="headline">GWT i18n using browser locale</h1></a>
@@ -423,135 +616,6 @@ public class WebModule extends WebMvcConfigurerAdapter
 	        <a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,033" description="A quick how-to for exception handling alternatives in Spring (3.1.x) MVC">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-10-05">October 05, 2012</time></span>
-              <a itemprop="url" href="configuring_global_exception_handling_in_spring_mvc.html"><h1 itemprop="name" itemprop="headline">Configuring global exception-handling in Spring MVC</h1></a>
-	      <span itemprop="articleBody"><p>It took a couple of hours to figure this out - the mighty Google and <em>even</em> StackOverflow let me down - in the end I had to actually read Spring's DispatcherServlet code! (I know, right!?)</p>
-
-<p>Here's the problem I was having - I'm using Spring MVC's data-binding tricks to inject objects into my <code>@Controller</code>'s methods like this: </p>
-
-<pre><code>@Controller
-@RequestMapping("things/{thing}.html")
-class MyController {
-    public ModelAndView thing(@PathVariable Thing aThing) {
-        // Thing should be magically mapped from 
-        // the {thing} part of the url
-
-        return new ModelAndView(..blah..);
-    }
-}
-</code></pre>
-
-<p>I have global <code>Formatter</code>'s configured as described in <a href="http://steveliles.github.com/configuring_global_data_binding_formatters_in_spring_mvc.html">my previous post</a>, and I want my method parameters to be automatically conjured from <code>@PathVariable</code>'s and so on. </p>
-
-<p>So far so good .. until I make a screw-up and parameter binding fails for any reason, at which point Spring's exception-handling kicks in. When that happens, Spring eats the exception and dumps me on the worlds shittiest error page saying:</p>
-
-<pre><code>HTTP ERROR 400
-Problem accessing /your/url/whatever.html. Reason:
-    Bad Request
-</code></pre>
-
-<p>Wow, thanks Spring!</p>
-
-<p>To blame here are Spring's default set of <code>HandlerExceptionResolver</code>'s, which are specified in <code>DispatcherServlet.properties</code> in the spring-webmvc jar. In 3.1.2 it says:</p>
-
-<pre><code>org.springframework.web.servlet.HandlerExceptionResolver=
-    org.springfr..AnnotationMethodHandlerExceptionResolver,
-    org.springfr..ResponseStatusExceptionResolver,
-    org.springfr..DefaultHandlerExceptionResolver
-</code></pre>
-
-<p>(I've shortened the package-names to keep things readable)</p>
-
-<p>Beats me why the default is to eat the exception without even logging it when Spring is normally so chatty about everything it does, but there you go. OK, so we need to configure some custom exception-handling so we can find out what's actually going wrong. There are two ways (that I know of) to do that:</p>
-
-<ol>
-<li>Use <code>@ExceptionHandler</code> annotated methods in our <code>@Controller</code>'s to handle exceptions on a per-controller basis (or across more than one <code>@Controller</code> if you have a hierarchy and implement the <code>@ExceptionHandler</code> method high-up in the hierarchy).</li>
-<li>Register a <code>HandlerExceptionResolver</code> implementation to deal with exceptions globally (ie. across all <code>@Controller</code>'s, regardless of hierarchy).</li>
-</ol>
-
-<h3>@ExceptionHandler</h3>
-
-<p>These bad-boys are straight-forward to use - just add a method in your <code>@Controller</code> and annotate it with <code>@ExceptionHandler(SomeException.class)</code> - something like this:</p>
-
-<pre><code>@Controller
-class MyExceptionalController {
-    @ExceptionHandler(Exception.class) 
-    public void handleExceptions(Exception anExc) {
-        anExc.printStackTrace(); // do something better than this ;)
-    }
-
-    @RequestMapping("/my/favourite/{thing}")
-    public void showThing(@PathVariable Thing aThing) {
-        throw new RuntimeException("boom");
-    }
-}
-</code></pre>
-
-<p>That exception-handler method will now be triggered for any exceptions that occur while processing this controller - including any exceptions that occur while trying to format the Thing parameter.</p>
-
-<p>There's a bit more to it, for example you can parameterise the annotation with an array of exception-types. Shrug.</p>
-
-<p>Just for completeness its worth mentioning that when formatting/conversion fails the exception presented to the <code>@ExceptionHandler</code> will be a <code>TypeMismatchException</code>, possibly wrapping a <code>ConversionFailedException</code> which in turn would wrap any exception thrown by your <code>Formatter</code> classes.</p>
-
-<h3>Custom HandlerExceptionResolver</h3>
-
-<p>This is the better approach, IMHO: Set up a HandlerExceptionResolver to deal with exceptions across all <code>@Controller</code>'s and override with <code>@ExceptionHandler</code>'s if you have specific cases that need special handling.</p>
-
-<p>A deadly simple <code>HandlerExceptionResolver</code> might look like this:</p>
-
-<pre><code>package com.sjl.web;
-
-import org.springframework.core.*;
-import org.springframework.web.servlet.*
-
-public class LoggingHandlerExceptionResolver 
-implements HandlerExceptionResolver, Ordered {
-    public int getOrder() {
-        return Integer.MIN_VALUE; // we're first in line, yay!
-    }
-
-    public ModelAndView resolveException(
-        HttpServletRequest aReq, HttpServletResponse aRes,
-        Object aHandler, Exception anExc
-    ) {
-        anExc.printStackTrace(); // again, you can do better than this ;)
-        return null; // trigger other HandlerExceptionResolver's
-    }
-}
-</code></pre>
-
-<p>Two things worth pointing out here:</p>
-
-<ol>
-<li>We are implementing <code>Ordered</code> and returning <code>Integer.MIN_VALUE</code> - this puts us at the front of the queue for resolving exceptions (and ahead of the default). If we don't implement <code>Ordered</code> we won't see the exception before one of the default handlers grabs and handles it. The default handlers appear to be registered with orders of <code>Integer.MAX_VALUE</code>, so any int below that will do.</li>
-<li>We are returning <code>null</code> from the <code>resolveException</code> method - doing this means that the other handlers in the chain get a chance to deal with the exception. Alternatively we can return a <code>ModelAndView</code> if we want to (and if we know how to deal with this particular kind of exception), which will prevent handlers further down the chain from seeing the exception.</li>
-</ol>
-
-<p>There are some classes in Spring's <code>HandlerExceptionResolver</code> hierarchy that you might want to look at sub-classing - <code>AbstractHandlerMethodExceptionResolver</code> and <code>SimpleMappingExceptionResolver</code> are good ones to check first.</p>
-
-<p>Of course we need to make Spring's <code>DispatcherServlet</code> aware of our custom <code>HandlerExceptionResolver</code>. The only configuration we need is:</p>
-
-<pre><code>&lt;bean class="com.sjl.web.LoggingHandlerExceptionResolver"/&gt;
-</code></pre>
-
-<p>No really, that's it. </p>
-
-<p>There's an unusually high level of magic surrounding the <code>DispatcherServlet</code>, so although you must define your resolver as a bean in your spring config <em>you do not need to inject it into any other spring beans</em>. The <code>DispatcherServlet</code> will search for beans implementing the interface and automagically use them.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=@RequestMapping">@RequestMapping</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=data-binding">data-binding</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=exception handling">exception handling</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="configuring_global_exception_handling_in_spring_mvc.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -569,11 +633,11 @@ implements HandlerExceptionResolver, Ordered {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="is_my_android_app_currently_foreground_or_background.html">Is my Android app currently foreground or background?</a><span class="date"> - Apr 21, 2014</span></li>
                 <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
-                <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

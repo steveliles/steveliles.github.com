@@ -1,0 +1,356 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel="stylesheet" href="css/styles.css" type="text/css" media="screen"/>
+    <link rel="alternate" type="application/rss+xml" title="ExoMemory" href="http://steveliles.github.com/rss.xml" />
+    <link href='http://fonts.googleapis.com/css?family=Gochi+Hand' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:700' rel='stylesheet' type='text/css'>
+      <meta name="keywords" content="Android" itemprop="keywords"></meta>
+      <meta name="keywords" content="Foreground" itemprop="keywords"></meta>
+      <meta name="keywords" content="Background" itemprop="keywords"></meta>
+      <meta name="keywords" content="Detect" itemprop="keywords"></meta>
+    <meta name="description" content=""></meta>
+    <script type="text/javascript" src="google-analytics.js"></script>
+    <title>Is my Android app currently foreground or background?</title>
+  </head>
+  <body>
+    <div>
+      <div class="site-header">
+        <div class="left">
+          <a href="/index.html"><h2>Because I'll forget it if I don't write it down...</h2></a>
+        </div>
+        <div class="right">
+	  <a rel="author" href="http://steveliles.github.com/about_me.html"><img src="images/lego-small.png"></a>
+        </div>
+      </div>
+      <div class="nav">
+        <span>
+          <a rel="me" href="https://plus.google.com/105248011271585565954"><img src="https://ssl.gstatic.com/images/icons/gplus-16.png" width="16" height="16"></a>
+          <a rel="me" href="http://www.twitter.com/steveliles"><img src="http://twitter-badges.s3.amazonaws.com/t_mini-a.png" alt="Follow steveliles on Twitter"></a>
+	  <a rel="me" href="http://uk.linkedin.com/in/steveliles"><img src="http://www.linkedin.com/img/webpromo/btn_in_20x15.png" width="20" height="15" alt="View my LinkedIn profile"></a>
+	  <form action="http://www.google.com/search" method="get">
+            <input type="hidden" name="q" value="site:steveliles.github.com">
+            <input type="text" name="q" placeholder="search"></input>
+          </form>
+	  <a href="rss.xml"><img src="images/rss.png" width="16" height="16" alt="Subscribe to RSS feed"></a>
+        </span>
+      </div>
+      <div class="content">
+        <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,214" description="">
+              <span class="meta" itemprop="datePublished"><time datetime="2014-04-21">April 21, 2014</time></span>
+              <a itemprop="url" href="is_my_android_app_currently_foreground_or_background.html"><h1 itemprop="name" itemprop="headline">Is my Android app currently foreground or background?</h1></a>
+	      <span itemprop="articleBody"><p>Android doesn't directly provide a way to know if your app is currently foreground or background, by which I mean actively running an Activity (screen on, user present, and your app currently presenting UI to the user).</p>
+
+<p>Obviously if you're coding in an Activity then for almost all of the time (e.g. in any callbacks other than <code>onPause</code>, <code>onStop</code>, or <code>onDestroy</code>) you already know you are foreground, however if you have <code>Service</code>'s or <code>BroadcastReceiver</code>'s that need to adjust their behaviour when the app is foreground vs. background you need a different approach.</p>
+
+<p>Since API level 14 (Android 4, ICS) we can easily obtain this information by hooking into the activity lifecycle events using <code>Application.registerActivityLifecycleCallbacks</code>.</p>
+
+<p>Using this method we can register a single listener that will be called back whenever an activity lifecycle method is called on any activity in our application. We could call our listener class <code>Foreground</code>, and hook it in to the activity lifecycle methods by providing a custom Application class for our application:</p>
+
+<pre><code>class MyApplication extends Application {
+    public void onCreate(){
+        Foreground.init(this);
+    }
+}
+</code></pre>
+
+<p>Of course, we need to register this custom <code>Application</code> class in our <code>Manifest.xml</code>:</p>
+
+<pre><code>&amp;lt;application
+    android:label="@string/app_name"
+    android:theme="@style/AppTheme"
+    android:name=".MyApplication"&gt;
+</code></pre>
+
+<p>So, what does our <code>Foreground</code> class look like? Let's begin by creating a class that implements <code>ActivityLifecycleCallbacks</code> and allows only one instance of itself to be created via a static method:  </p>
+
+<pre><code>class Foreground 
+implements Application.ActivityLifecycleCallbacks {
+
+    private static Foreground instance;
+
+    public static void init(Application app){
+        if (instance == null){
+            instance = new Foreground();
+            app.registerActivityLifecycleCallbacks(instance);
+        }
+    }
+
+    public static Foreground get(){
+        return instance;
+    }
+
+    private Foreground(){}
+
+    // TODO: implement the lifecycle callback methods!
+
+}
+</code></pre>
+
+<p>This approach of using <code>Singleton's</code> is used a lot in Android programming, as it is a technique recommended by Google.</p>
+
+<p>OK, so we have a class that we can initialise from our Application and then retrieve from any code in our app using <code>Foreground.get()</code>. Now we need to implement the lifecycle callbacks to track the foreground/background status of our app.</p>
+
+<p>To do that we'll use the <code>onActivityPaused</code>/<code>onActivityResumed</code> method-pair, using paused to signal a potential shift to background, and resumed to know we are in the foreground. </p>
+
+<pre><code>private boolean foreground;
+
+public boolean isForeground(){
+    return foreground;
+}
+
+public boolean isBackground(){
+    return !foreground;
+}
+
+public void onActivityPaused(Activity activity){
+    foreground = false;
+}
+
+public void onActivityResumed(Activity activity){
+    foreground = true;
+}
+
+// other ActivityLifecycleCallbacks methods omitted for brevity
+// we don't need them, so they are empty anyway ;)
+</code></pre>
+
+<p>Nice, so now from any code in our application we can test whether we're currently foreground or not, like this:</p>
+
+<pre><code>Foreground.get().isForeground()
+</code></pre>
+
+<p>Cool. Are we done? We-ell, depends.</p>
+
+<p>There are three potential issues here:</p>
+
+<ol>
+<li>The app might go to background at any time, so it would be nice if we could get notified instead of having to continually poll the <code>isForeground</code> method.</li>
+<li>When an application transitions between two Activities there is a brief period during which the first <code>Activity</code> is paused and the second <code>Activity</code> has not yet resumed ... during this period <code>isForeground</code> will return false, even though our application <em>is</em> the foreground app.</li>
+<li><code>Application.registerActivityLifecycleCallbacks</code> is only available from API-level 14 onwards.</li>
+</ol>
+
+<p>Can we address both of these issues? You betcha!</p>
+
+<p>First lets make it possible to get notified of foreground/background state transitions. We'll add a Listener interface to our Foreground class:</p>
+
+<pre><code>class Foreground 
+implements Application.ActivityLifecycleCallbacks {
+
+    public interface Listener {
+        public void onBecameForeground();
+        public void onBecameBackground();
+    }
+
+    ...
+}
+</code></pre>
+
+<p>We'll also need to manage any registered listeners and allow listeners to be added and removed. We'll manage registered listeners using a thread-safe and efficient <code>List</code> implementation from java.util.concurrent - <code>CopyOnWriteArrayList</code>:</p>
+
+<pre><code>private List&lt;Listener&gt; listeners = 
+    new CopyOnWriteArrayList&lt;Listener&gt;();
+
+public void addListener(Listener listener){
+    listeners.add(listener);
+}
+
+public void removeListener(Listener listener){
+    listeners.remove(listener);
+}
+</code></pre>
+
+<p>And, of course, we'll need to notify our listeners whenever we transition between foreground and background states, which we'll do by updating our <code>onActivityPaused</code> and <code>onActivityResumed</code> methods:</p>
+
+<pre><code>public void onPause(){
+    foreground = false;
+    for (Listener l : listeners){
+        try {
+            l.onBecameBackground();
+        } catch (Exception exc) {
+            Log.e("Foreground", "Unhappy listener", exc);
+        }
+    }
+}
+
+public void onResume(){
+    foreground = true;
+    for (Listener l : listeners){
+        try {
+            l.onBecameForeground();
+        } catch (Exception exc) {
+            Log.e("Foreground", "Unhappy listener", exc);
+        }
+    }
+}
+</code></pre>
+
+<p>Allright, now we're able to register listeners with our Foreground class which will be called-back when we transition from foreground to background and vice-versa. </p>
+
+<p>Bear in mind that the callback is invoked from the lifecycle callbacks and therefore <em>on the main thread</em>. Remember the golden rule of Android development: do not block the main thread. If you don't know what that means you should <a href="http://steveliles.github.io/asynchronous_android.html">buy my book</a> :)</p>
+
+<p>Right, that's problem 1 sorted, what about problem 2? (What, you forgot it already? I mean the brief period between <code>onPause</code> being called in <code>Activity</code> A before <code>onResume</code> is called in <code>Activity</code> B).</p>
+
+<p>OK, the issue here is that if we blindly update our foreground/background state in <code>onActivityPaused</code> and <code>onActivityResumed</code> we will always have a period where we're reporting incorrect values. Worse, if we're firing events we'll even tell everyone who's listening that we just went background when we didn't really!</p>
+
+<p>Lets fix that by giving ourselves a brief period of grace before announcing that we've gone background. This is, like many things in engineering, is a compromise - in this case between immediacy and correctness. We'll accept a small delay in order not to falsely report that we went to background.</p>
+
+<p>To do this we'll use one of the nice features of Android's <code>Handler</code> class - the ability to post a Runnable onto the main-thread's event-loop to be executed after a specified delay.</p>
+
+<p>Things are getting a bit more complex now, and we've some extra state to juggle. We're going to introduce another boolean to track whether we're paused or not, and we'll also need to keep a reference to the Runnable that we post to the main thread, so that we can cancel it when necessary.</p>
+
+<pre><code>private boolean foreground = false, paused = true;
+private Handler handler = new Handler();
+private Runnable check;
+</code></pre>
+
+<p>A quick note on <code>Handler</code>'s: A <code>Handler</code> created with the no-arg constructor will perform all of its work on the thread that created it. Since we're instantiating this Handler inline in the <code>Foreground</code> class, and the <code>Foreground</code> instance is being created on the main thread during our <code>Application</code>'s <code>onCreate</code> method callback, any work we post to this <code>Handler</code> will execute on the main thread.</p>
+
+<p>Here's what our updated <code>onActivityPaused</code> and <code>onActivityResumed</code> methods look like:</p>
+
+<pre><code>@Override
+public void onActivityResumed(Activity activity) {
+    paused = false;
+    boolean wasBackground = !foreground;
+    foreground = true;
+
+    if (check != null)
+        handler.removeCallbacks(check);
+
+    if (wasBackground){
+        Log.i(TAG, "went foreground");
+        for (Listener l : listeners) {
+            try {
+                l.onBecameForeground();
+            } catch (Exception exc) {
+                Log.e(TAG, "Listener threw exception!", exc);
+            }
+        }
+    } else {
+        Log.i(TAG, "still foreground");
+    }
+}
+
+@Override
+public void onActivityPaused(Activity activity) {
+    paused = true;
+
+    if (check != null)
+        handler.removeCallbacks(check);
+
+    handler.postDelayed(check = new Runnable(){
+        @Override
+        public void run() {
+            if (foreground &amp;&amp; paused) {
+                foreground = false;
+                Log.i(TAG, "went background");
+                for (Listener l : listeners) {
+                    try {
+                        l.onBecameBackground();
+                    } catch (Exception exc) {
+                        Log.e(TAG, "Listener threw exception!", exc);
+                    }
+                }
+            } else {
+                Log.i(TAG, "still foreground");
+            }
+        }
+    }, CHECK_DELAY);
+}
+</code></pre>
+
+<p>A couple of things worth pointing out here:</p>
+
+<ol>
+<li><code>onActivityPaused</code> schedules a Runnable to execute after CHECK<em>DELAY milliseconds (CHECK</em>DELAY is set to 500), and captures the Runnable in the <code>check</code> member variable so it can be cancelled if necessary</li>
+<li><code>onActivityResumed</code> removes (cancels) the <code>check</code> callback if there is one, to cancel the pending notification of going background.</li>
+</ol>
+
+<p>So now we have a nice neat mechanism for making direct checks for foreground/background status (Foreground.get().isBackground(), etc), and for being notified of changes to this status using the <code>Listener</code> interface.</p>
+
+<p>To support API levels below 14 we'd need to hook our <code>Foreground</code> class more directly from the <code>onPause</code> and <code>onResume</code> methods of each individual <code>Activity</code>. This is most easily done by extending all activities in our application from a common base class and implementing the calls to Foreground from there.</p>
+
+<p>For completeness, here's the <a href="https://gist.github.com/steveliles/11116937">github gist</a> containing the full code for the Foreground class we've just explored.</p>
+
+<div style="font-family:'Ubuntu Mono', monospace">
+<script src="https://gist.github.com/steveliles/11116937.js"></script>
+</div>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Foreground">Foreground</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Background">Background</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Detect">Detect</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+
+                <a name="comments"></a>
+                <div id="disqus_thread"></div>
+ 	        <script type="text/javascript">    	     
+	          var disqus_shortname = 'steveliles';
+	          (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	          })();
+	        </script>
+	        <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+                <div class="sharing">
+		  <ul>
+		    <li><a href="http://twitter.com/share?text=@steveliles" class="twitter" target="top">Tweet</a></li>
+		    <li class="gplus"><g:plusone size="small" annotation="none"></g:plusone></li>
+	          </ul>
+                </div>
+                
+                <script type="text/javascript">
+                  window.___gcfg = {lang: 'en-GB'};
+                  (function() {
+                    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+                    po.src = 'https://apis.google.com/js/plusone.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+                  })();
+                </script>
+
+
+            </div>
+        </div>
+        <div class="sidebar">
+          <div>
+            <div class="twitter-feed" show="4" account="steveliles">
+              <h5>Recent Tweets</h5>            
+              <ul class="tweets">
+                <li class="tweet-template" style="display:none">        
+                  <span class="text"></span>&nbsp;<span class="date" format="yyyy"></span>
+                </li>
+              </ul>
+              <a href="https://twitter.com/steveliles" class="twitter-follow-button" data-show-count="false">Follow @steveliles</a>
+	      <script src="//platform.twitter.com/widgets.js" type="text/javascript"></script>
+            </div>
+          </div>
+          <div>
+            <a href="article-archive.html"><h5>Recent Posts</h5></a>
+            <ul>
+                <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
+                <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
+                <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
+                <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
+            </ul>
+            <a href="article-archive.html">Older posts...</a>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="links">
+          
+          <div class="next"><a title="next" href="asynchronous_android.html">Asynchronous Android</a></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" language="javascript" src="blog/blog.nocache.js"></script>
+  </body>
+</html>

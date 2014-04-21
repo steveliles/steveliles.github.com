@@ -34,6 +34,59 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="414" description="Some stuff I learned about using custom fonts in Android.">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-02-20">February 20, 2012</time></span>
+              <a itemprop="url" href="custom_fonts_in_android.html"><h1 itemprop="name" itemprop="headline">Custom fonts in Android</h1></a>
+	      <span itemprop="articleBody"><p>I've been playing with Android since late December (2011). Its been fun. I've been meaning to document some things I've picked up, but I've been pretty busy hacking away. Time to write a few things down before I forget!</p>
+
+<p>In my - admittedly limited - experience, Android devices typically come pre-installed with just the one font family. Before Ice-Cream Sandwich that font was <a href="http://goo.gl/ssJLD">Droid</a>. In Ice-Cream Sandwich its <a href="http://en.wikipedia.org/wiki/Roboto">Roboto</a>.</p>
+
+<p>If you want to use other fonts in your app, you must package them as assets. I believe Android has supported true-type fonts since the beginning, but now also supports open-type fonts (since 1.6). I always use true-type fonts anyway.</p>
+
+<p>To bundle the font, simply place the .tff file in your project's assets directory. Here's how you load the font in your <code>Activity</code> code:</p>
+
+<pre><code>Typeface t = Typeface.createFromAsset(getAssets(), "my-font.ttf");
+</code></pre>
+
+<p>If you want to reference the font from xml markup you're in for a frustrating time. If you do want to take that path, check out this handy <a href="http://stackoverflow.com/questions/2376250/custom-fonts-and-xml-layouts-android">StackOverflow post</a>.</p>
+
+<p>If, like me, you prefer to set the font programmatically to the necessary views, you can call <code>setTypeface(Typeface)</code> on <code>TextView</code>'s and <code>EditText</code>'s.</p>
+
+<p>In some of my layouts (for example "help" screens) I have many <code>TextView</code>'s interspersed with <code>ImageView</code>'s. To make life a bit easier I use the following utility method to set the font on all <code>TextView</code>'s in the view hierarchy:</p>
+
+<pre><code>public static void setFontForAllTextViewsInHierarchy(
+    ViewGroup aViewGroup, Typeface aFont) {
+    for (int i=0; i&amp;lt;aViewGroup.getChildCount(); i++) {
+        View _v = aViewGroup.getChildAt(i);
+        if (_v instanceof TextView) {
+            ((TextView) _v).setTypeface(aFont);
+        } else if (_v instanceof ViewGroup) {
+            setFontForAllTextViewsInHierarchy((ViewGroup) _v, aFont);
+        }
+    }
+}
+</code></pre>
+
+<p>Using this utility method is as simple as finding <code>ViewGroup</code> whose descendants need a font change, then invoking the method with that <code>ViewGroup</code>:</p>
+
+<pre><code>// somewhere in an Activity..
+Typeface font = Typeface.createFromAsset(getAssets(), "my-font.ttf");
+ViewGroup vg = (ViewGroup) findViewById(R.id.myViewGroup);
+Utils.setFontForAllTextViewsInHierarchy(vg, font);
+</code></pre>
+
+<p>I worried at first that this would cause a noticeable re-draw where you first see the system font, then it flashes over to the custom font. Since I tend to set my fonts in my <code>Activity</code>'s <code>onCreate</code>  method immediately following the call to <code>setContentView</code>, my custom font is already specified before the first <code>onDraw</code> invocation hits any of my <code>View</code>'s.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=fonts">fonts</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=android">android</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="custom_fonts_in_android.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,211" description="Following a bug report from a user, this documents my efforts to track down and fix some Bitmap related issues in Android 2.1 (eclair), including the first SIGSEGV I've fallen victim to in Android.">
               <span class="meta" itemprop="datePublished"><time datetime="2012-02-19">February 19, 2012</time></span>
               <a itemprop="url" href="android_2_1_trouble_with_bitmaps.html"><h1 itemprop="name" itemprop="headline">Android 2.1 - trouble with bitmaps</h1></a>
@@ -604,240 +657,6 @@ public class BitmapActivity extends Activity {
 	        <a href="creating_ios_style_icons_with_imagemagick.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,457" description="Invoking an external process from Java appears easy enough but there are sooo many gotchas to watch out for. Here I try to describe some of them, and suggest some ways to avoid those problems.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-01-26">January 26, 2012</time></span>
-              <a itemprop="url" href="invoking_processes_from_java.html"><h1 itemprop="name" itemprop="headline">Invoking Processes from Java</h1></a>
-	      <span itemprop="articleBody"><p>Invoking an external process from Java appears easy enough but there are sooo many gotchas to watch out for. Typical problems that arise include:</p>
-
-<ol>
-<li><em>Hanging Processes</em> - The invoked process "hangs" and never completes (because it is waiting for input that never comes, or for the output buffer(s) to be drained).</li>
-<li><em>Failure to execute</em> - Commands that work fine from the cmdline refuse to run when invoked from Java (because the parameters are passed incorrectly).</li>
-<li><em>Mysterious issues in production</em> - Peculiar situations where processes cease to work after running happily for some time (the file-handle quota is exhausted because the IO streams are not being correctly closed).</li>
-</ol>
-
-<p>The first two are irritating, but at least they present themselves immediately and are typically fixed before the code leaves the developer. </p>
-
-<p>The last problem is much more insidious and often only rears its head after some time in production (sometimes this is because it takes time and a significant number of executions before it manifests, other times it is because of differences between the development and production environments).</p>
-
-<p>Lets have a look at the general solution to each of these problems. Later I'll list some code that I've been using to invoke processes safely.</p>
-
-<h3>Hanging Processes</h3>
-
-<p><em>Symptoms:</em> When invoked, the process starts but does not complete. Sometimes this may appear to be caused by the input that is being fed to the process (e.g. with input A it works but with input B it does not), which adds to the confusion over why the problem occurs.</p>
-
-<p><em>Cause:</em> The most common reason for this problem is failing to pump input into the program, and drain output buffers from the program, using separate threads.</p>
-
-<p>If a program is consuming sufficient input via standard-input (stdin), or producing sufficient output via stdout or stderr, the limited buffers available to it will fill up. Until those buffers are drained the process will block on IO to those buffers, so the process is effectively hung.</p>
-
-<p><em>Solution:</em> When you invoke any process from Java, you must use separate threads to pump data to/from stdin, stdout, and stderr:</p>
-
-<pre><code>// invoke the process, keeping a handle to it for later...
-final Process _p = Runtime.getRuntime().exec("some-command-or-other");
-
-// Handle stdout...
-new Thread() {
-    public void run() {
-    try {
-            Streams.copy(_p.getInputStream(), System.out);
-        } catch (Exception anExc) {
-            anExc.printStackTrace();
-        }
-    }
-}.start();
-
-// Handle stderr...
-new Thread() {
-    public void run() {
-    try {
-            Streams.copy(_p.getInputStream(), System.out);
-        } catch (Exception anExc) {
-            anExc.printStackTrace();
-        }
-    }
-}.start();
-</code></pre>
-
-<p>Correctly pumping data into and out of the std io buffers will keep your processes from hanging.</p>
-
-<h3>Failure to communicate</h3>
-
-<p><em>Symptoms:</em> You have a command-line that works perfectly when executed at the shell prompt, but invoking it from Java results in strange errors and, perhaps, complaints about invalid parameters.</p>
-
-<p><em>Cause:</em> Typically this occurs when you try to pass parameters which include spaces - for example file-names - which you escape or quote at the shell prompt.</p>
-
-<p><a href="https://lh4.googleusercontent.com/-khRgW4ViBts/TyM8-x7BVZI/AAAAAAAAIsQ/2IiEhj5GdkA/s1600/27.jpg"><img alt="Java invoking ImageMagick - a lego comic strip created with Comic Strip It! for Android" src="https://lh4.googleusercontent.com/-khRgW4ViBts/TyM8-x7BVZI/AAAAAAAAIsQ/2IiEhj5GdkA/s600/27.jpg"></a></p>
-
-<p><em>Example:</em> Running ImageMagick "convert" to add transparent rounded corners to an icon:</p>
-
-<pre><code>convert -size 72x72 xc:none -fill white -draw \
-  'roundRectangle 0,0 72,72 15,15' in.png \
-  -compose SrcIn -composite out.png
-</code></pre>
-
-<p>This command-line works fine at a bash prompt, but if you try to invoke it naively from Java it will likely fail in a variety of interesting ways depending on your platform:</p>
-
-<pre><code>public static void main(String... anArgs) {
-    // invoke the process, keeping a handle to it for later...
-    final Process _p = Runtime.getRuntime().exec(
-        "/usr/bin/convert -size 72x72 xc:none -fill white -draw" +
-        " 'roundRectangle 0,0 72,72 15,15' /home/steve/Desktop/in.png" +
-        " -compose SrcIn -composite /home/steve/Desktop/out.png"
-    );
-
-    // Handle stdout...
-    new Thread() {
-        public void run() {
-            try {
-                Streams.copy(_p.getInputStream(), System.out);
-            } catch (Exception anExc) {
-                anExc.printStackTrace();
-            }
-        }
-    }.start();
-
-    // Handle sderr...
-    new Thread() {
-        public void run() {
-            try {
-                Streams.copy(_p.getErrorStream(), System.out);
-            } catch (Exception anExc) {
-                anExc.printStackTrace();
-            }
-        }
-    }.start();
-
-    // wait for the process to complete
-    _p.waitFor();
-}
-</code></pre>
-
-<p>Whilst the command-line worked fine at the bash prompt, running the same command from Java results in an error message!:</p>
-
-<pre><code>convert: non-conforming drawing primitive definition 
-    `roundRectangle' @ error/draw.c/DrawImage/3143.
-convert: unable to open image `0,0':  @ error/blob.c/OpenBlob/2489.
-convert: unable to open image `72,72':  @ error/blob.c/OpenBlob/2489.
-convert: unable to open image `15,15'':  @ error/blob.c/OpenBlob/2489.
-convert: non-conforming drawing primitive definition 
-    `roundRectangle' @ error/draw.c/DrawImage/3143.
-</code></pre>
-
-<p>What's going on!? Basically the command we gave to Runtime.exec has been sliced up at spaces, ignoring the single quotes, and so ImageMagick has seen a very different command-line to the one we presented via the shell.</p>
-
-<p><em>Solution:</em> The solution this time is very easy: Use the overloaded Runtime.exec(..) methods that accept the command <em>and</em> the parameters as an array of String's. Re-writing our previous example:</p>
-
-<pre><code>public static void main(String... anArgs) 
-throws Exception {
-    // invoke the process, keeping a handle to it for later...
-    // note that we pass the command and its params as String's in
-    // the same String[]
-    final Process _p = Runtime.getRuntime().exec(
-        new String[]{
-            "/usr/bin/convert",
-            "-size", "72x72", "xc:none", "-fill", "white", "-draw",
-            "roundRectangle 0,0 72,72 15,15", 
-            "/home/steve/Desktop/in.png", "-compose", "SrcIn",
-            "-composite", "/home/steve/Desktop/out.png"
-        }
-    );
-
-    // Handle stdout...
-    new Thread() {
-        public void run() {
-            try {
-                Streams.copy(_p.getInputStream(), System.out);
-            } catch (Exception anExc) {
-                anExc.printStackTrace();
-            }
-        }
-    }.start();
-
-    // Handle sderr...
-    new Thread() {
-        public void run() {
-            try {
-                Streams.copy(_p.getErrorStream(), System.out);
-            } catch (Exception anExc) {
-                anExc.printStackTrace();
-            }
-        }
-    }.start();
-
-    // wait for the process to complete
-    _p.waitFor();
-}
-</code></pre>
-
-<p>Passing your cmdline parameters in a String array instead of as one long String should prevent your parameters from being chewed up and mis-interpreted.</p>
-
-<h3>Mysterious issues in production</h3>
-
-<p><em>Symptoms:</em> For a good while things appear to be working fine. Processes are invoked, do their work, and shut-down. After a while a problem occurs - the processes are no longer being invoked, or hang.</p>
-
-<p><em>Cause:</em> The cause of this is usually exhaustion of the available file-handles, which in turn is caused by failing to correctly close all of the IO streams opened to handle the process IO.</p>
-
-<p><em>Solution:</em> Careful closure of all standard IO streams opened by the process <em>and</em> streams opened by you to consume the data from the standard streams opened by the process. Note: That's SIX streams in total, not just the three that you open to deal with stdin, stdout and stderr! I also recommend calling <code>destroy</code> on the Process object.</p>
-
-<p>I <em>may</em> be being over-cautious in closing the process's own std streams, but I have seen many cases where closing these streams solved problems of leaked file-handles. (btw., A handy tool if you're running a *nix is <code>lsof</code>, which lists open file handles).</p>
-
-<p>Here's how I recommend cleaning up after your process completes (this assumes that you did provide input via stdin):</p>
-
-<pre><code>public static void main(String... anArgs) {
-    Process _process = null;
-    InputStream _in = null;
-    OutputStream _out = null;
-    OutputStream _err = null;
-    try {
-        _process = Runtime.getRuntime().exec( ... );
-        // ... don't forget to initialise in, out, and error,
-        // .... and consume the streams in separate threads!
-        _process.waitFor();
-    } finally {
-        if( _process != null ) {
-            close(_process.getErrorStream());
-            close(_process.getOutputStream());
-            close(_process.getInputStream());
-            _process.destroy();
-        }
-        close(_in);
-        close(_out);
-        close(_err);
-    }
-}
-
-private static void close(InputStream anInput) {
-    try {
-        if (anInput != null) {
-            anInput.close();
-        }
-    } catch (IOException anExc) {
-        anExc.printStackTrace();
-    }
-}
-
-private static void close(OutputStream anOutput) {
-    try {
-        if (anOutput != null) {
-            anOutput.close();
-        }
-    } catch (IOException anExc) {
-        anExc.printStackTrace();
-    }
-}
-</code></pre>
-
-<p>These days I usually use some utility classes which I've written to wrap all this stuff up and make life a little easier. You can find them in my <a href="https://github.com/steveliles/sjl.io">sjl.io</a> project at github. There's an example of usage in the <code>test</code> source tree - <code>ExternalProcessTest</code> - which invokes ImageMagick.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Process">Process</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="invoking_processes_from_java.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -855,11 +674,11 @@ private static void close(OutputStream anOutput) {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="is_my_android_app_currently_foreground_or_background.html">Is my Android app currently foreground or background?</a><span class="date"> - Apr 21, 2014</span></li>
                 <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
                 <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
-                <li><a href="roman_numeral_conversion_in_clojure.html">Roman numeral conversion in Clojure</a><span class="date"> - Feb 28, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
