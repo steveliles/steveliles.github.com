@@ -193,6 +193,12 @@ body, p, div, span, input {
 
 .line > span {
   font-size:14px !important;
+  line-height:18px;
+}
+
+.line-number {
+  font-size:14px !important;
+  line-height:18px;
 }
 
 a {
