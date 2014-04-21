@@ -191,8 +191,8 @@ body, p, div, span, input {
   line-height:25px;
 }
 
-.gist > * {
-  font-size:14px;
+.gist > div {
+  font-size:14px !important;
 }
 
 a {
