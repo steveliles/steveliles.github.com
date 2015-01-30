@@ -34,10 +34,22 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,215" description="">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,272" description="">
               <span class="meta" itemprop="datePublished"><time datetime="2014-04-21">April 21, 2014</time></span>
               <a itemprop="url" href="is_my_android_app_currently_foreground_or_background.html"><h1 itemprop="name" itemprop="headline">Is my Android app currently foreground or background?</h1></a>
-	      <span itemprop="articleBody"><p>Android doesn't directly provide a way to know if your app is currently foreground or background, by which I mean actively running an Activity (screen on, user present, and your app currently presenting UI to the user).</p>
+	      <span itemprop="articleBody"><p><em>Update, 2015-01-30:</em> After lots of interesting discussion in the comments, <a href="http://stackoverflow.com/users/385478/graham-borland">Graham Borland</a> pointed out the glaringly obvious (once you can see the wood for the trees) hack-free solution: use onStart/onStop rather than onResume/onPause, and you no longer need "clever" strategies or hacks to determine whether you really have gone background.</p>
+
+<p>I'm leaving the original post untouched (below) to serve as an embarrassing reminder to myself not to look for complicated solutions to simple problems.</p>
+
+<p>The following updated <a href="https://gist.github.com/steveliles/dd9035dbfaa776ee5a51">gist</a> seems to work nicely without any determinism issues:</p>
+
+<div style="font-family:'Ubuntu Mono', monospace; font-size:12px">
+<script src="https://gist.github.com/steveliles/dd9035dbfaa776ee5a51.js"></script>
+</div>
+
+<p><em>Original post:</em></p>
+
+<p>Android doesn't directly provide a way to know if your app is currently foreground or background, by which I mean actively running an Activity (screen on, user present, and your app currently presenting UI to the user).</p>
 
 <p>Obviously if you're coding in an Activity then for almost all of the time (e.g. in any callbacks other than <code>onPause</code>, <code>onStop</code>, or <code>onDestroy</code>) you already know you are foreground, however if you have <code>Service</code>'s or <code>BroadcastReceiver</code>'s that need to adjust their behaviour when the app is foreground vs. background you need a different approach.</p>
 
@@ -60,9 +72,9 @@
     android:name=".MyApplication"&gt;
 </code></pre>
 
-<p>So, what does our <code>Foreground</code> class look like? Let's begin by creating a class that implements <code>ActivityLifecycleCallbacks</code> and allows only one instance of itself to be created via a static method:  </p>
+<p>So, what does our <code>Foreground</code> class look like? Let's begin by creating a class that implements <code>ActivityLifecycleCallbacks</code> and allows only one instance of itself to be created via a static method:</p>
 
-<pre><code>class Foreground 
+<pre><code>class Foreground
 implements Application.ActivityLifecycleCallbacks {
 
     private static Foreground instance;
@@ -89,7 +101,7 @@ implements Application.ActivityLifecycleCallbacks {
 
 <p>OK, so we have a class that we can initialise from our Application and then retrieve from any code in our app using <code>Foreground.get()</code>. Now we need to implement the lifecycle callbacks to track the foreground/background status of our app.</p>
 
-<p>To do that we'll use the <code>onActivityPaused</code>/<code>onActivityResumed</code> method-pair, using paused to signal a potential shift to background, and resumed to know we are in the foreground. </p>
+<p>To do that we'll use the <code>onActivityPaused</code>/<code>onActivityResumed</code> method-pair, using paused to signal a potential shift to background, and resumed to know we are in the foreground.</p>
 
 <pre><code>private boolean foreground;
 
@@ -132,7 +144,7 @@ public void onActivityResumed(Activity activity){
 
 <p>First lets make it possible to get notified of foreground/background state transitions. We'll add a Listener interface to our Foreground class:</p>
 
-<pre><code>class Foreground 
+<pre><code>class Foreground
 implements Application.ActivityLifecycleCallbacks {
 
     public interface Listener {
@@ -146,7 +158,7 @@ implements Application.ActivityLifecycleCallbacks {
 
 <p>We'll also need to manage any registered listeners and allow listeners to be added and removed. We'll manage registered listeners using a thread-safe and efficient <code>List</code> implementation from java.util.concurrent - <code>CopyOnWriteArrayList</code>:</p>
 
-<pre><code>private List&lt;Listener&gt; listeners = 
+<pre><code>private List&lt;Listener&gt; listeners =
     new CopyOnWriteArrayList&lt;Listener&gt;();
 
 public void addListener(Listener listener){
@@ -183,7 +195,7 @@ public void onResume(){
 }
 </code></pre>
 
-<p>Allright, now we're able to register listeners with our Foreground class which will be called-back when we transition from foreground to background and vice-versa. </p>
+<p>Allright, now we're able to register listeners with our Foreground class which will be called-back when we transition from foreground to background and vice-versa.</p>
 
 <p>Bear in mind that the callback is invoked from the lifecycle callbacks and therefore <em>on the main thread</em>. Remember the golden rule of Android development: do not block the main thread. If you don't know what that means you should <a href="http://steveliles.github.io/asynchronous_android.html">buy my book</a> :)</p>
 
