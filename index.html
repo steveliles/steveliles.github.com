@@ -34,18 +34,31 @@
       </div>
       <div class="content">
         <div class="main">
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,272" description="">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,388" description="">
               <span class="meta" itemprop="datePublished"><time datetime="2014-04-21">April 21, 2014</time></span>
               <a itemprop="url" href="is_my_android_app_currently_foreground_or_background.html"><h1 itemprop="name" itemprop="headline">Is my Android app currently foreground or background?</h1></a>
-	      <span itemprop="articleBody"><p><em>Update, 2015-01-30:</em> After lots of interesting discussion in the comments, <a href="http://stackoverflow.com/users/385478/graham-borland">Graham Borland</a> pointed out the glaringly obvious (once you can see the wood for the trees) hack-free solution: use onStart/onStop rather than onResume/onPause, and you no longer need "clever" strategies or hacks to determine whether you really have gone background.</p>
+	      <span itemprop="articleBody"><p><em>Update, 2015-03-27:</em> Finally got around to having another look at this, attempting to take into account
+the feedback from commenters.</p>
 
-<p>I'm leaving the original post untouched (below) to serve as an embarrassing reminder to myself not to look for complicated solutions to simple problems.</p>
+<p>I just drafted a new version that tries to respond immediately using onStart/onStop when possible, and
+deals with edge cases like received phone-calls using a delayed Runnable posted to a Handler like the original.</p>
 
-<p>The following updated <a href="https://gist.github.com/steveliles/dd9035dbfaa776ee5a51">gist</a> seems to work nicely without any determinism issues:</p>
+<p>This time I posted an <a href="https://github.com/steveliles/Foredroid">AndroidStudio project</a> as a new github repo
+rather than just a gist of the interesting bit.</p>
 
-<div style="font-family:'Ubuntu Mono', monospace; font-size:12px">
-<script src="https://gist.github.com/steveliles/dd9035dbfaa776ee5a51.js"></script>
-</div>
+<p>I'm not convinced the defensive WeakReferences to Listeners are strictly necessary, but it seems pear cider brings
+out my cautious side (its Friday night, what can I say).</p>
+
+<p>Fair warning: I haven't tested this exhaustively, YMMV.</p>
+
+<p><em>Update, 2015-01-30:</em> Lots of interesting discussion in the comments. Nobody, myself included, is particularly
+happy with the non-determinism inherent in posting runnables to a handler with an arbitrary delay.</p>
+
+<p><a href="http://stackoverflow.com/users/385478/graham-borland">Graham Borland</a> pointed out that if you use onStart/onStop
+rather than onResume/onPause, you no longer need clever strategies or hacks to determine whether you really have
+gone background, but others have raised edge cases that complicate matters: phone calls trigger onPause
+but not onStop, and configuration changes (e.g. rotating the device) call onPause->onStop->onStart->onResume which
+would toggle our state from foreground to background and back to foreground again.</p>
 
 <p><em>Original post:</em></p>
 
