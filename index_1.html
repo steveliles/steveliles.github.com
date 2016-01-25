@@ -34,6 +34,377 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="3,067" description="Previously I wrote my first ever Clojure code to convert Roman numerals to decimal numbers. Continuing with that exercise I moved on to trying to convert decimals to Roman numerals.">
+              <span class="meta" itemprop="datePublished"><time datetime="2013-03-03">March 03, 2013</time></span>
+              <a itemprop="url" href="roman_numeral_conversion_in_clojure_part_ii.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure, part II</h1></a>
+	      <span itemprop="articleBody"><p><a href="http://steveliles.github.com/roman_numeral_conversion_in_clojure.html">Previously</a> I translated Roman numerals to decimals with this code:</p>
+
+<pre><code>(def numerals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+
+(defn add-numeral [n t]
+  (if (&gt; n (* 4 t)) (- n t) (+ t n)))
+
+(defn roman [s]
+  (reduce add-numeral (map numerals (reverse s))))
+</code></pre>
+
+<p>Now I want to continue my Clojure practise by doing the reverse: translating from decimals to Roman numerals.</p>
+
+<p>I started where I left off previously, so I already have the numerals map defined. I figure the inverse of this map will be handy for doing look-ups of decimals, and sure enough clojure has a handy function - map-invert:</p>
+
+<pre><code>=&gt; (use '[clojure.set :only (map-invert)])
+nil
+
+=&gt; (doc map-invert)
+&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;&amp;ndash;
+clojure.set/map-invert
+([m])
+  Returns the map with the vals mapped to the keys.
+nil
+</code></pre>
+
+<p>Inverting my numerals map gives:</p>
+
+<pre><code>=&gt; (map-invert numerals)
+{10 \X, 5 \V, 1000 \M, 50 \L, 1 \I, 500 \D, 100 \C}
+</code></pre>
+
+<p>Great, but that highlights a lack of foresight in my original naming of the numerals map, so I define a new one named <code>numerals-to-decimals</code>, and decimals to numerals as its inverse:</p>
+
+<pre><code>(def numerals-to-decimals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+(def decimals-to-numerals (map-invert numerals-to-decimals))
+</code></pre>
+
+<p>Now I can convert easily to numerals where there is an exact match for the decimal:</p>
+
+<pre><code>=&gt; (decimals-to-numerals 10)
+\X
+</code></pre>
+
+<p>But I get nil if there's no match:</p>
+
+<pre><code>=&gt; (decimals-to-numerals 11)
+nil
+</code></pre>
+
+<p>In Roman numerals there is no zero, but they did use the concept of nul (nulla), so I start composing a function which I will incrementally improve as I figure out more steps:</p>
+
+<pre><code>(defn decimal-to-roman [d]
+  (cond
+    (= 0 d) "nulla"
+    :else 
+      (decimals-to-numerals d)))
+</code></pre>
+
+<p>Which yields the following results:</p>
+
+<pre><code>=&gt; (decimal-to-roman 0)
+"nulla"
+=&gt; (decimal-to-roman 5)
+\V
+=&gt; (decimal-to-roman 11)
+nil
+</code></pre>
+
+<p>So now I need to tackle the case where the decimal value can only be represented by some composite of the available Roman numerals. Clearly this is going to need to involve dividing the decimal number by the largest available numeral, then repeating for the remainder. Lets try for a single numeral:</p>
+
+<pre><code>(defn decompose-decimal-with-numeral [d v n]
+  [n (quot d v) (rem d v)])
+</code></pre>
+
+<p>Testing that gives:</p>
+
+<pre><code>=&gt; (decompose-decimal-with-numeral 23 10 \X)
+[\X 2 3]
+=&gt; (decompose-decimal-with-numeral 3 10 \X)
+[\X 0 3]
+</code></pre>
+
+<p>Where the resulting vector contains the numeral, the number of times it divides into the decimal value, and the remainder. Lets apply that function to our map of <code>decimals-to-numerals</code>:</p>
+
+<pre><code>(defn decompose-decimal-with-numerals [d]
+  (for [[v n] decimals-to-numerals]
+    (decompose-decimal-with-numeral d v n)))
+</code></pre>
+
+<p>Applying this function to the decimal 123 gives me the following:</p>
+
+<pre><code>=&gt; (decompose-decimal-with-numerals 123)
+([\X 12 3] [\V 24 3] [\M 0 123] [\L 2 23] [\I 123 0] [\D 0 123] [\C 1 23])
+</code></pre>
+
+<p>That's useful progress, but now I want to get the result of the biggest divisor only. To do that I need to filter when the divisors are larger than the input, and sort the results. Filtering is relatively straight-forward by supplying a <code>:when</code> filter function to the comprehension.</p>
+
+<pre><code>(defn decompose-decimal-with-numerals [d]
+  (for [[v n] decimals-to-numerals :when (#(&gt;= d v))]
+    (decompose-decimal-with-numeral d v n)))
+</code></pre>
+
+<p>I could sort at various points along the way. Most efficient is probably to work with a sorted list of numerals from the outset, so lets create one:</p>
+
+<pre><code>(def numerals-desc (sort-by first &gt; decimals-to-numerals))
+</code></pre>
+
+<p>Printing the new list gives:</p>
+
+<pre><code>=&gt; (println numerals-desc)
+([1000 M] [500 D] [100 C] [50 L] [10 X] [5 V] [1 I])
+</code></pre>
+
+<p>Using that in the decompose method gives:</p>
+
+<pre><code>(defn decompose-decimal-with-numerals [d]
+  (for [[v n] numerals-desc :when (#(&gt;= d v))]
+    (decompose-decimal-with-numeral d v n)))
+
+=&gt; (decompose-decimal-with-numerals 123)
+([\C 1 23] [\L 2 23] [\X 12 3] [\V 24 3] [\I 123 0])
+</code></pre>
+
+<p>Sweet! We only actually need the result for the largest available divisor, so lets re-write this function to do that:</p>
+
+<pre><code>(defn largest-divisor [d]
+  (first (for [[v n] numerals-desc :when (#(&gt;= d v))]
+    (decompose-decimal-with-numeral d v n))))
+
+=&gt; (largest-divisor 123)
+[\C 1 23]
+</code></pre>
+
+<p>Actually what I really want is the string representation of the numeral * the number of occurrences, so I create a new function n-numerals which concatenates N of the numeral together into a string and modify the <code>decompose-decimal-with-numeral</code> function:</p>
+
+<pre><code>(defn n-numerals [n num]
+  (apply str (for [n (range 0 n)] num)))
+
+(defn decompose-decimal-with-numeral [d v n]
+  [(n-numerals (quot d v) n) (rem d v)])
+</code></pre>
+
+<p>Now I can apply <code>decompose-decimal-with-numerals</code> and see the break-down for each numeral:</p>
+
+<pre><code>=&gt; (decompose-decimal-with-numerals 23)
+([&amp;quot;XX&amp;quot; 3] [&amp;quot;VVVV&amp;quot; 3] [&amp;quot;IIIIIIIIIIIIIIIIIIIIIII&amp;quot; 0])
+</code></pre>
+
+<p>Good to see that it is giving the correct values, but more importantly I can use <code>largest-divisor</code> to see the Roman numeral form of the quotient:</p>
+
+<pre><code>=&gt;(largest-divisor 323)
+[&amp;quot;CCC&amp;quot; 23]
+</code></pre>
+
+<p>What remains is to apply this recursively until the remainder is zero:</p>
+
+<pre><code>(defn decompose-decimal-recursively [d]
+  (let [[n r] (largest-divisor d)]
+    (if (= 0 r) n (apply str n (decompose-decimal-recursively r)))))
+</code></pre>
+
+<p>Here I'm using tail recursion and the recursion can never be very deep because the set of numerals is small, so there should be no danger of blowing the stack. Testing the function gives:</p>
+
+<pre><code>=&gt; (decompose-decimal-recursively 424)
+"CCCCXXIIII"
+=&gt; (decompose-decimal-recursively 1984)
+"MDCCCCLXXXIIII"
+</code></pre>
+
+<p>These are correct answers, but there are two problems: First, the results are not optimal - we have runs of 4 numerals, for example <code>IIII</code> which can be written more succinctly as <code>IV</code>. Second, I think I've over-complicated things by using division instead of subtraction.</p>
+
+<p>The decimal-to-roman translation program so far looks like:</p>
+
+<pre><code>(use '[clojure.set :only (map-invert)])
+
+(def numerals-to-decimals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+(def decimals-to-numerals (map-invert numerals-to-decimals))
+
+(def numerals-desc (sort-by first &gt; decimals-to-numerals))
+
+(defn n-numerals [n num]
+  (apply str (for [n (range 0 n)] num)))
+
+(defn decompose-decimal-with-numeral [d v n]
+  [(n-numerals (quot d v) n) (rem d v)])
+
+(defn largest-divisor [d]
+  (first (for [[v n] numerals-desc :when (#(&gt;= d v))]
+    (decompose-decimal-with-numeral d v n))))
+
+(defn decompose-decimal-recursively [d]
+  (let [[n r] (largest-divisor d)]
+    (if (= 0 r) n (apply str n (decompose-decimal-recursively r)))))
+</code></pre>
+
+<p>I'm going to try to simplify before fixing the optimisation problem. I can find the next largest numeral that can be <em>subtracted</em> from the total like this:</p>
+
+<pre><code>(defn largest-numeral-in [d]
+  (first (for [[v n] numerals-desc :when (#(&gt;= d v))] [v n])))
+</code></pre>
+
+<p>Then I can recursively use this to eat away at the target decimal, like this:</p>
+
+<pre><code>(defn decimal-to-roman [d]
+  (let [[v n] (largest-numeral-in d) [r] [(- d v)]]
+    (if (= 0 r) (str n) (apply str n (decimal-to-roman r)))))
+</code></pre>
+
+<p>The program just got a lot simpler! From 4 functions in 10 lines to 3 functions in 6 lines. Here it is in entirety:</p>
+
+<pre><code>(use '[clojure.set :only (map-invert)])
+
+(def numerals-to-decimals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+(def decimals-to-numerals (map-invert numerals-to-decimals))
+
+(def numerals-desc (sort-by first &gt; decimals-to-numerals))
+
+(defn largest-numeral-in [d]
+  (first (for [[v n] numerals-desc :when (#(&gt;= d v))] [v n])))
+
+(defn decimal-to-roman [d]
+  (let [[v n] (largest-numeral-in d) [r] [(- d v)]]
+    (if (= 0 r) (str n) (apply str n (decimal-to-roman r)))))
+</code></pre>
+
+<p>Now to optimise the results. After noodling with this for a while I realise that there really aren't all that many optimisation cases. They are: 4, 9, 40, 45, 49, 90, 95, 99, 400, 450, 490, 495, 499, 900, 950, 990, 995, and 999. 18 cases. I could generate these and then just do a lookup</p>
+
+<pre><code>(def optimisations (apply hash-map (flatten 
+  (for [[n1 d1] numerals-to-decimals]
+    (for [[n2 d2] numerals-to-decimals :when (#(&amp;lt; d2 (quot d1 2)))]
+      [(- d1 d2) (str n2 n1)])))))
+</code></pre>
+
+<p>I'm sure there's a much neater way of doing that, but it does the trick and produces this map:</p>
+
+<pre><code>=&gt; (println optimisations)
+{450 LD, 99 IC, 995 VM, 4 IV, 900 CM, 999 IM, 40 XL, 9 IX, 
+490 XD, 45 VL, 495 VD, 400 CD, 49 IL, 499 ID, 950 LM, 90 XC, 
+990 XM, 95 VC}
+</code></pre>
+
+<p>Now I can simply check this map in addition to the map of single numerals. Even better if there was just one map containing all of these numerals, so:</p>
+
+<pre><code>(def opt-decimals-to-numerals
+  (merge decimals-to-numerals optimisations))
+</code></pre>
+
+<p>Redefining <code>numerals-desc</code> to include the optimisations should be all I need to do:</p>
+
+<pre><code>(def numerals-desc (sort-by first &gt; opt-decimals-to-numerals))
+</code></pre>
+
+<p>So now when I invoke <code>decimal-to-roman</code> I get:</p>
+
+<pre><code>=&gt; (decimal-to-roman 1999)
+"MIM"
+=&gt; (decimal-to-roman 1954)
+"MLMIV"
+=&gt; (decimal-to-roman 1984)
+"MLMXXXIV"
+=&gt; (decimal-to-roman 313)
+"CCCXIII"
+=&gt; (decimal-to-roman 413)
+"CDXIII"
+=&gt; (decimal-to-roman 419)
+"CDXIX"
+</code></pre>
+
+<p>The program in entirety now looks like this:</p>
+
+<pre><code>(use '[clojure.set :only (map-invert)])
+
+(def numerals-to-decimals {\I 1, \V 5, \X 10, \L 50, \C 100, \D 500, \M 1000})
+(def decimals-to-numerals (map-invert numerals-to-decimals))
+
+(def optimisations (apply hash-map (flatten 
+  (for [[n1 d1] numerals-to-decimals]
+    (for [[n2 d2] numerals-to-decimals :when (#(&amp;lt; d2 (quot d1 2)))]
+      [(- d1 d2) (str n2 n1)])))))
+
+(def opt-decimals-to-numerals
+  (merge decimals-to-numerals optimisations))
+
+(def numerals-desc (sort-by first &gt; opt-decimals-to-numerals))
+
+(defn largest-numeral-in [d]
+  (first (for [[v n] numerals-desc :when (#(&gt;= d v))] [v n])))
+
+(defn decimal-to-roman [d]
+  (let [[v n] (largest-numeral-in d) [r] [(- d v)]]
+    (if (= 0 r) (str n) (apply str n (decimal-to-roman r)))))
+</code></pre>
+
+<p>There's quite a chunk of code there simply for converting the map of numerals-to-decimals to include the optimisations. The code would be shorter if I simply created that map to begin with:</p>
+
+<pre><code>(def numerals-desc 
+  '([1000 "M"] [999 "IM"] [995 "VM"] [990 "XM"] [950 "LM"] [900 "CM"] 
+   [500 "D"] [499 "ID"] [495 "VD"] [490 "XD"] [450 "LD"] [400 "CD"] 
+   [100 "C"] [99 "IC"] [95 "VC"] [90 "XC"] [50 "L"] [49 "IL"] [45 "VL"] 
+   [40 "XL"] [10 "X"] [9 "IX"] [5 "V"] [4 "IV"] [1 "I"]))
+
+(defn largest-numeral-in [d]
+  (first (for [[v n] numerals-desc :when (#(&gt;= d v))] [v n])))
+
+(defn decimal-to-roman [d]
+  (let [[v n] (largest-numeral-in d) [r] [(- d v)]]
+    (if (= 0 r) (str n) (apply str n (decimal-to-roman r)))))
+</code></pre>
+
+<p>Nice! Now to put everything together so that I can convert both ways - decimal-to-roman and roman-to-decimal:</p>
+
+<pre><code>(use '[clojure.set :only (map-invert)])
+
+(def numerals-desc 
+  '([1000 "M"] [999 "IM"] [995 "VM"] [990 "XM"] [950 "LM"] [900 "CM"] 
+   [500 "D"] [499 "ID"] [495 "VD"] [490 "XD"] [450 "LD"] [400 "CD"] 
+   [100 "C"] [99 "IC"] [95 "VC"] [90 "XC"] [50 "L"] [49 "IL"] [45 "VL"] 
+   [40 "XL"] [10 "X"] [9 "IX"] [5 "V"] [4 "IV"] [1 "I"]))
+
+(def numerals-to-decimals
+  (map-invert (apply hash-map (flatten numerals-desc))))
+
+(defn largest-numeral-in [d]
+  (first (for [[v n] numerals-desc :when (#(&gt;= d v))] [v n])))
+
+(defn decimal-to-roman [d]
+  (let [[v n] (largest-numeral-in d) [r] [(- d v)]]
+    (if (= 0 r) (str n) (apply str n (decimal-to-roman r)))))
+
+(defn add-numeral [n t]
+  (if (&gt; n (* 4 t)) (- n t) (+ t n)))
+
+(defn roman-to-decimal [r]
+  (reduce add-numeral 
+    (map numerals-to-decimals (map str (reverse r)))))
+
+(defn optimise-roman [r]
+  (decimal-to-roman (roman-to-decimal r)))
+</code></pre>
+
+<p>For fun I added one extra function <code>optimise-roman</code> which takes a roman-numeral string and returns the optimal representation, for example:</p>
+
+<pre><code>=&gt; (optimise-roman "VIIII")
+"IX"
+=&gt; (optimise-roman "XCVIIII")
+"IC"
+=&gt; (optimise-roman "MDCCCCLXXXXVIIII")
+"MIM"
+</code></pre>
+
+<p>I confess I am struggling with the mind-shift from imperative to functional programming. I find myself thinking of various convoluted ways to avoid recursion (why!?) and struggling to remember to <em>use</em> list comprehensions, even though (I think) I understand them well enough.</p>
+
+<p>I'm not sure if it was because of this or in spite of it that it took me quite a while to realise that I was starting with a too-complex algorithm (division) when a much simpler one existed (subtraction).</p>
+
+<p>Still, Clojure is fun :)</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=clojure">clojure</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=exercise">exercise</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=roman-numerals">roman-numerals</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="roman_numeral_conversion_in_clojure_part_ii.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,402" description="For my first ever attempt at writing Clojure code I had a shot at a Roman numeral converter">
               <span class="meta" itemprop="datePublished"><time datetime="2013-02-28">February 28, 2013</time></span>
               <a itemprop="url" href="roman_numeral_conversion_in_clojure.html"><h1 itemprop="name" itemprop="headline">Roman numeral conversion in Clojure</h1></a>
@@ -474,148 +845,6 @@ openFile
 	        <a href="subversion_1_7_eclipse_integration_in_ubuntu_12.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="996" description="Setting up embedded Jetty with Spring-MVC and xml configuration is straight-forward. Setting up the same configuration with zero xml proved to be much more tricky!">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
-              <a itemprop="url" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html"><h1 itemprop="name" itemprop="headline">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</h1></a>
-	      <span itemprop="articleBody"><p>You can check out the complete source of this simple project from <a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml">github</a>. If you want to set up <em>with</em> XML configuration, check my <a href="http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">earlier post</a>.</p>
-
-<p>Starting a new project, and irritated by xml configuration, I thought I'd try Spring @MVC (annotation configured MVC) with Jetty-8 embedded using the no xml servlet 3.0 configuration approach.</p>
-
-<h3>Initializing the Servlet Context</h3>
-
-<p>The Servlet 3 spec introduces the ability to configure the servlet context from code, via implementations of <code>ServletContainerInitializer</code>. You can dynamically configure Servlets and Filters here.</p>
-
-<p>Spring @MVC provides an implementation of <code>ServletContainerInitializer</code> (<code>SpringServletContainerInitializer</code>) which tells the container to scan for classes which implement <code>WebApplicationInitializer</code>, so when using @MVC we need to provide an implementation of <code>WebApplicationInitializer</code>. </p>
-
-<p>Here's a simple one that gets us up and running with a Spring DispatcherServlet mapped to "/" and JSP processing for *.jsp requests (including those forwarded from Controllers):</p>
-
-<pre><code>public class WebAppInitializer implements WebApplicationInitializer
-{
-    private static final String JSP_SERVLET_NAME = "jsp";
-    private static final String DISPATCHER_SERVLET_NAME = "dispatcher";
-
-    @Override
-    public void onStartup(ServletContext aServletContext) 
-    throws ServletException
-    {       
-        registerListener(aServletContext);
-        registerDispatcherServlet(aServletContext);
-        registerJspServlet(aServletContext);
-    }
-
-    private void registerListener(ServletContext aContext)
-    {
-        AnnotationConfigWebApplicationContext _root = 
-            createContext(ApplicationModule.class);
-        aContext.addListener(new ContextLoaderListener(_root));
-    }
-
-    private void registerDispatcherServlet(ServletContext aContext)
-    {
-        AnnotationConfigWebApplicationContext _ctx = 
-            createContext(WebModule.class);
-        ServletRegistration.Dynamic _dispatcher = 
-            aContext.addServlet(
-                DISPATCHER_SERVLET_NAME, new DispatcherServlet(_ctx));
-        _dispatcher.setLoadOnStartup(1);
-        _dispatcher.addMapping("/");
-    }
-
-    private void registerJspServlet(ServletContext aContext) {
-        ServletRegistration.Dynamic _dispatcher = 
-            aContext.addServlet(JSP_SERVLET_NAME, new JspServlet());
-        _dispatcher.setLoadOnStartup(1);
-        _dispatcher.addMapping("*.jsp");
-    }
-
-    private AnnotationConfigWebApplicationContext createContext(
-        final Class&lt;?&gt;... aModules)
-    {
-        AnnotationConfigWebApplicationContext _ctx = 
-            new AnnotationConfigWebApplicationContext();
-        _ctx.register(aModules);
-        return _ctx;
-    }
-}
-</code></pre>
-
-<p>Notice here that I am registering two "Modules" (a naming convention I've adopted for my Spring @Configuration classes) - <code>ApplicationModule</code> and <code>WebModule</code>. I like to configure the various layers of the application separately. </p>
-
-<p>In <code>ApplicationModule</code> I'll put things like scheduled operations and any dependencies those operations need, while anything that is only needed during web request handling I'll put in <code>WebModule</code>.</p>
-
-<p><code>ApplicationModule</code> for a simple web-app might be unnecessary.</p>
-
-<pre><code>@Configuration
-public class ApplicationModule
-{
-    // Declare "application" scope beans here (ie., 
-    // beans that are not _only_ used by the web context)
-}
-</code></pre>
-
-<p><code>WebModule</code> will be used to configure Spring MVC, and for a simple web-app might look like this:</p>
-
-<pre><code>@EnableWebMvc
-@Configuration
-@ComponentScan(basePackages={"com.sjl"})
-public class WebModule extends WebMvcConfigurerAdapter
-{
-    @Override
-    public void addViewControllers(ViewControllerRegistry aRegistry)
-    {
-        aRegistry.addViewController("/").setViewName("index");
-    }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry aRegistry)
-    {
-        ResourceHandlerRegistration _res = 
-            aRegistry.addResourceHandler("/WEB-INF/view/**/*");
-        _res.addResourceLocations(
-            "classpath:/META-INF/webapp/WEB-INF/view/");
-    }
-
-    @Bean
-    public ViewResolver viewResolver() 
-    {
-        UrlBasedViewResolver _viewResolver = 
-            new UrlBasedViewResolver();
-        _viewResolver.setViewClass(JstlView.class);
-        _viewResolver.setPrefix("WEB-INF/view/");
-        _viewResolver.setSuffix(".jsp");
-        return _viewResolver;
-    }
-}
-</code></pre>
-
-<p>I'm extending Spring's WebMvcConfigurerAdapter which provides a host of conveniences. Note that this <code>WebModule</code> sets the annotations @EnableWebMvc and @ComponentScan which are equivalent to the xml configuration you're probably familiar with:</p>
-
-<pre><code>&lt;mvc:annotation-driven/&gt;   
-&lt;context:component-scan base-package="com.sjl" /&gt;
-</code></pre>
-
-<p>The <code>ResourceHandlerRegistration</code> provides a mapping from requests forwarded to <code>/WEB-INF/view/</code> onto the classpath location of the actual files. Without this, for example, Jetty won't be able to find your jsp files when <code>Controller</code>'s forward requests to <code>View</code>'s (the <code>ViewResolver</code>'s prefix must be matched by the <code>ResourceHandler</code>'s path-pattern).</p>
-
-<p>What remains is to instantiate Jetty and have it find its configuration from the classpath. I won't list that here as its quite long, and the full working example is in <a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml">github</a>. </p>
-
-<p>An important thing to point out is that there is a <a href="http://stackoverflow.com/questions/13222071/spring-3-1-webapplicationinitializer-embedded-jetty-8-annotationconfiguration">problem with current versions of Jetty (8.1.7)</a> where Jetty won't find your <code>WebApplicationInitializer</code> classes unless they are either inside a Jar or in the WEB-INF/classes. When running embedded from your IDE neither of these will be true. </p>
-
-<p>This results in log output like "No Spring WebApplicationInitializer types detected on classpath" and is why, in my WebServer class, I set a subclass of <code>AnnotationConfiguration</code> which overrides the default Jetty behaviour to also search for non-jar'd classes on the classpath (<a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml/blob/master/src/main/java/com/sjl/WebServer.java">see the code</a>from around line 75).</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Jetty">Jetty</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Embedded">Embedded</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Maven">Maven</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=no-xml">no-xml</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -633,11 +862,11 @@ public class WebModule extends WebMvcConfigurerAdapter
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="building_opencv_as_an_aar_for_android.html"> Building OpenCV as an .aar for Android</a><span class="date"> - Jan 25, 2016</span></li>
                 <li><a href="is_my_android_app_currently_foreground_or_background.html">Is my Android app currently foreground or background?</a><span class="date"> - Apr 21, 2014</span></li>
                 <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
-                <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

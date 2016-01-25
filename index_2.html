@@ -34,6 +34,148 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="996" description="Setting up embedded Jetty with Spring-MVC and xml configuration is straight-forward. Setting up the same configuration with zero xml proved to be much more tricky!">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-11-13">November 13, 2012</time></span>
+              <a itemprop="url" href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html"><h1 itemprop="name" itemprop="headline">Setting up embedded Jetty 8 and Spring MVC with Maven and NO XML</h1></a>
+	      <span itemprop="articleBody"><p>You can check out the complete source of this simple project from <a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml">github</a>. If you want to set up <em>with</em> XML configuration, check my <a href="http://steveliles.github.com/setting_up_embedded_jetty_8_and_spring_mvc_with_maven.html">earlier post</a>.</p>
+
+<p>Starting a new project, and irritated by xml configuration, I thought I'd try Spring @MVC (annotation configured MVC) with Jetty-8 embedded using the no xml servlet 3.0 configuration approach.</p>
+
+<h3>Initializing the Servlet Context</h3>
+
+<p>The Servlet 3 spec introduces the ability to configure the servlet context from code, via implementations of <code>ServletContainerInitializer</code>. You can dynamically configure Servlets and Filters here.</p>
+
+<p>Spring @MVC provides an implementation of <code>ServletContainerInitializer</code> (<code>SpringServletContainerInitializer</code>) which tells the container to scan for classes which implement <code>WebApplicationInitializer</code>, so when using @MVC we need to provide an implementation of <code>WebApplicationInitializer</code>. </p>
+
+<p>Here's a simple one that gets us up and running with a Spring DispatcherServlet mapped to "/" and JSP processing for *.jsp requests (including those forwarded from Controllers):</p>
+
+<pre><code>public class WebAppInitializer implements WebApplicationInitializer
+{
+    private static final String JSP_SERVLET_NAME = "jsp";
+    private static final String DISPATCHER_SERVLET_NAME = "dispatcher";
+
+    @Override
+    public void onStartup(ServletContext aServletContext) 
+    throws ServletException
+    {       
+        registerListener(aServletContext);
+        registerDispatcherServlet(aServletContext);
+        registerJspServlet(aServletContext);
+    }
+
+    private void registerListener(ServletContext aContext)
+    {
+        AnnotationConfigWebApplicationContext _root = 
+            createContext(ApplicationModule.class);
+        aContext.addListener(new ContextLoaderListener(_root));
+    }
+
+    private void registerDispatcherServlet(ServletContext aContext)
+    {
+        AnnotationConfigWebApplicationContext _ctx = 
+            createContext(WebModule.class);
+        ServletRegistration.Dynamic _dispatcher = 
+            aContext.addServlet(
+                DISPATCHER_SERVLET_NAME, new DispatcherServlet(_ctx));
+        _dispatcher.setLoadOnStartup(1);
+        _dispatcher.addMapping("/");
+    }
+
+    private void registerJspServlet(ServletContext aContext) {
+        ServletRegistration.Dynamic _dispatcher = 
+            aContext.addServlet(JSP_SERVLET_NAME, new JspServlet());
+        _dispatcher.setLoadOnStartup(1);
+        _dispatcher.addMapping("*.jsp");
+    }
+
+    private AnnotationConfigWebApplicationContext createContext(
+        final Class&lt;?&gt;... aModules)
+    {
+        AnnotationConfigWebApplicationContext _ctx = 
+            new AnnotationConfigWebApplicationContext();
+        _ctx.register(aModules);
+        return _ctx;
+    }
+}
+</code></pre>
+
+<p>Notice here that I am registering two "Modules" (a naming convention I've adopted for my Spring @Configuration classes) - <code>ApplicationModule</code> and <code>WebModule</code>. I like to configure the various layers of the application separately. </p>
+
+<p>In <code>ApplicationModule</code> I'll put things like scheduled operations and any dependencies those operations need, while anything that is only needed during web request handling I'll put in <code>WebModule</code>.</p>
+
+<p><code>ApplicationModule</code> for a simple web-app might be unnecessary.</p>
+
+<pre><code>@Configuration
+public class ApplicationModule
+{
+    // Declare "application" scope beans here (ie., 
+    // beans that are not _only_ used by the web context)
+}
+</code></pre>
+
+<p><code>WebModule</code> will be used to configure Spring MVC, and for a simple web-app might look like this:</p>
+
+<pre><code>@EnableWebMvc
+@Configuration
+@ComponentScan(basePackages={"com.sjl"})
+public class WebModule extends WebMvcConfigurerAdapter
+{
+    @Override
+    public void addViewControllers(ViewControllerRegistry aRegistry)
+    {
+        aRegistry.addViewController("/").setViewName("index");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry aRegistry)
+    {
+        ResourceHandlerRegistration _res = 
+            aRegistry.addResourceHandler("/WEB-INF/view/**/*");
+        _res.addResourceLocations(
+            "classpath:/META-INF/webapp/WEB-INF/view/");
+    }
+
+    @Bean
+    public ViewResolver viewResolver() 
+    {
+        UrlBasedViewResolver _viewResolver = 
+            new UrlBasedViewResolver();
+        _viewResolver.setViewClass(JstlView.class);
+        _viewResolver.setPrefix("WEB-INF/view/");
+        _viewResolver.setSuffix(".jsp");
+        return _viewResolver;
+    }
+}
+</code></pre>
+
+<p>I'm extending Spring's WebMvcConfigurerAdapter which provides a host of conveniences. Note that this <code>WebModule</code> sets the annotations @EnableWebMvc and @ComponentScan which are equivalent to the xml configuration you're probably familiar with:</p>
+
+<pre><code>&lt;mvc:annotation-driven/&gt;   
+&lt;context:component-scan base-package="com.sjl" /&gt;
+</code></pre>
+
+<p>The <code>ResourceHandlerRegistration</code> provides a mapping from requests forwarded to <code>/WEB-INF/view/</code> onto the classpath location of the actual files. Without this, for example, Jetty won't be able to find your jsp files when <code>Controller</code>'s forward requests to <code>View</code>'s (the <code>ViewResolver</code>'s prefix must be matched by the <code>ResourceHandler</code>'s path-pattern).</p>
+
+<p>What remains is to instantiate Jetty and have it find its configuration from the classpath. I won't list that here as its quite long, and the full working example is in <a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml">github</a>. </p>
+
+<p>An important thing to point out is that there is a <a href="http://stackoverflow.com/questions/13222071/spring-3-1-webapplicationinitializer-embedded-jetty-8-annotationconfiguration">problem with current versions of Jetty (8.1.7)</a> where Jetty won't find your <code>WebApplicationInitializer</code> classes unless they are either inside a Jar or in the WEB-INF/classes. When running embedded from your IDE neither of these will be true. </p>
+
+<p>This results in log output like "No Spring WebApplicationInitializer types detected on classpath" and is why, in my WebServer class, I set a subclass of <code>AnnotationConfiguration</code> which overrides the default Jetty behaviour to also search for non-jar'd classes on the classpath (<a href="https://github.com/steveliles/jetty-embedded-spring-mvc-noxml/blob/master/src/main/java/com/sjl/WebServer.java">see the code</a>from around line 75).</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Jetty">Jetty</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Embedded">Embedded</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Spring">Spring</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=MVC">MVC</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Maven">Maven</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=no-xml">no-xml</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="setting_up_embedded_jetty_8_and_spring_mvc_with_maven_and_no_xml.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,033" description="A quick how-to for exception handling alternatives in Spring (3.1.x) MVC">
               <span class="meta" itemprop="datePublished"><time datetime="2012-10-05">October 05, 2012</time></span>
               <a itemprop="url" href="configuring_global_exception_handling_in_spring_mvc.html"><h1 itemprop="name" itemprop="headline">Configuring global exception-handling in Spring MVC</h1></a>
@@ -519,115 +661,6 @@ class AsynchronousComputer implements Computer {
 	        <a href="implicit_future_s_aka_promises.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,297" description="A dynamic proxy example demonstrating how dynamic proxies can be used to provide behaviour "around" method calls on java classes that implement any arbitrary interface.">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-09-07">September 07, 2012</time></span>
-              <a itemprop="url" href="dynamic_proxies_in_java.html"><h1 itemprop="name" itemprop="headline">Dynamic Proxies in Java</h1></a>
-	      <span itemprop="articleBody"><p>Dynamic Proxies are a fantastic tool to have in your kit, and pretty easy to get up and running with. </p>
-
-<p>A Dynamic Proxy is just what the name suggests: a proxy to a "normal" Java class, where the proxy is created dynamically - at runtime - and can be substituted instead of the proxied class. </p>
-
-<p>If that still doesn't make sense, hopefully the example below will clear it up.</p>
-
-<p>Lets imagine we want to be able to time the execution of <em>any</em> method on <em>any</em> implementation of <em>any</em> interface. We don't know or care what the interface is. We'll do this by passing the class that implements the interface to an "InstrumentationService", whose interface looks like this:</p>
-
-<pre><code>public interface InstrumentationService {
-    /**
-     * @param aT - the object to be instrumented for monitoring
-     * @return A polymorphically equivalent T which has been instrumented
-     */
-    public &amp;lt;T&gt; T instrument(T aT);
-}
-</code></pre>
-
-<p>We'll get to the implementation of InstrumentationService shortly, but for now it should be clear that to instrument a class is as simple as this:</p>
-
-<pre><code>private InstrumentationService instr;
-
-public void doSomeStuff() {
-    SomeInterface _si = new SomeClassThatImplementsIt();
-
-    _si.doSomething(); // won't be timed
-
-    _si = instr(_si);
-
-    _si.doSomething(); // will be timed!
-}
-</code></pre>
-
-<p>OK, so how can we implement InstrumentationService so that it can decorate arbitrary methods on as-yet-unknown interfaces? Enter Dynamic Proxies. </p>
-
-<p>There are several rules and caveats to follow which I won't go into - they are documented pretty well <a href="http://docs.oracle.com/javase/6/docs/technotes/guides/reflection/proxy.html">here</a>. For now it should suffice to say that you can only proxy interfaces (which is ok because you always <a href="http://www.artima.com/lejava/articles/designprinciples.html">program to interfaces</a> / <a href="http://en.wikipedia.org/wiki/Design_by_contract">design by contract</a> anyway, right?)</p>
-
-<p>Here's an implementation of InstrumentationService that uses Dynamic Proxying:</p>
-
-<pre><code>package com.sjl.example;
-
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.concurrent.*;
-
-public abstract class DynamicInstrumentationService 
-implements InstrumentationService {
-
-    protected abstract void record(String anEvent, long aNanos);
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public &amp;lt;T&gt; T instrument(final T aT)
-    {
-        return (T) Proxy.newProxyInstance(
-            aT.getClass().getClassLoader(), 
-            aT.getClass().getInterfaces(), 
-            new InvocationHandler() {
-                @Override
-                public Object invoke(
-                    Object aProxy, Method aMethod, Object[] aArgs) 
-                    throws Throwable 
-                {
-                    long _start = System.nanoTime();
-                    try {
-                        return aMethod.invoke(aT, anArgs);
-                    } catch (InvocationTargetException anExc) {
-                        throw anExc.getCause();
-                    } finally {
-                        record(_t.event(), System.nanoTime()-_start);
-                    }
-                }
-            });
-    }
-}
-</code></pre>
-
-<p>So what do we have here?</p>
-
-<ol>
-<li>An abstract implementation of IntrumentationService which defers the actual recording of the timed value to a concrete subclass - you could extend and implement the <code>record</code> method to log to stdout, for example.</li>
-<li>The <code>instrument</code> method creates a new Dynamic Proxy around the given class by invoking <code>Proxy.newInstance</code>. Notice that we use the classloader of the given class, and pass <em>all</em> of the interfaces it implements as types to be proxied.</li>
-<li>The details of <em>what to do</em> when any method of the proxy is invoked are in the InvocationHandler, implemented here as an anonymous inner class. Its pretty simple - capture the clock time before the method is invoked; invoke the method; capture the clock time after the method completes; record the difference in time (after - before).</li>
-</ol>
-
-<p>Notice that when we invoke the proxied class's method, we wrap the invocation with a try/catch that catches InvocationTargetException, and if such an exception is thrown we propagate its <em>cause</em>, not the InvocationTargetException itself. This is just unwrapping an uninteresting layer of exceptions (which we added by using reflection to invoke the method) to get to the real problem.</p>
-
-<p>This is a pretty simple example of what you can do with Dynamic Proxies. Even with this simple example its clear that you could modify it to, for example, record separate timings for successful invocations vs those that throw exceptions, or to only record timings for methods with annotations (e.g. you might create an @Timed annotation), etc., etc.</p>
-
-<p>I should mention that there is a down-side to Dynamic Proxies: they use reflection to invoke the method of the proxied class, so there is a small performance penalty.</p>
-
-<p>Lately I've been having all kinds of fun with Dynamic Proxies, from instrumentation (somewhat more complex than the above example) to monitoring service health (by escalating through warning statuses based on the ratio of successful/exceptional completion). </p>
-
-<p>My favourite use so far: asynchronous execution of synchronous service calls, returning the result as a disguised/implicit <a href="http://en.wikipedia.org/wiki/Futures_and_promises">Future/Promise</a> with a coordinated Service Level Agreement cut-off . . . yeah anyways, that's a blog post for another day :) (update 09-09-2012: see <a href="https://github.com/steveliles/implicit-futures">Implicit-Futures</a>)</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Java">Java</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Dynamic Proxy">Dynamic Proxy</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Instrumentation">Instrumentation</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Timing">Timing</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="dynamic_proxies_in_java.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -645,11 +678,11 @@ implements InstrumentationService {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="building_opencv_as_an_aar_for_android.html"> Building OpenCV as an .aar for Android</a><span class="date"> - Jan 25, 2016</span></li>
                 <li><a href="is_my_android_app_currently_foreground_or_background.html">Is my Android app currently foreground or background?</a><span class="date"> - Apr 21, 2014</span></li>
                 <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
-                <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

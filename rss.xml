@@ -13,6 +13,88 @@
     <copyright>Copyright 2011 Steve Liles. The contents of this feed are available for non-commercial use only.</copyright>
     <generator>Steve's own home-grown blog generator</generator>
           <item>
+        <title><![CDATA[ Building OpenCV as an .aar for Android]]></title>
+        <link><![CDATA[http://steveliles.github.com/building_opencv_as_an_aar_for_android.html]]></link>
+        <guid isPermaLink="true">http://steveliles.github.com/building_opencv_as_an_aar_for_android.html</guid>
+        <description><![CDATA[<p>After a couple of years doing Node.js and React.js I've just come back to Android to do a refresh of an app I originally built in 2012 using OpenCV 2.4.5.</p>
+
+<p>Since then OpenCV 3.0.0 has been released and I was full of hope that the static integration route would have gotten easier (it has, sort of) and that the OpenCV guys would have stopped pushing the insane OpenCV Manager integration approach (they haven't).</p>
+
+<p>As it turns out things are easier now, but not because of changes in OpenCV - rather its because of changes in Android tooling. The relatively new Android Library format (.aar) means that it is very easy to create a reusable library that bundles OpenCV for Android, and the Gradle build system and its integration with Android Studio makes it super-simple to use a library once it is published somewhere, or to use it as local a module dependency if that's your thing.</p>
+
+<p>I've made an example <a href="https://github.com/steveliles/opencv-android-3.0.0">Android Studio project</a>, and deployed the resulting .aar to <a href="https://bintray.com/steveliles/maven/OpenCV-Android/view">bintray</a>. I can't / won't stop anyone using my build, although of course it isn't an <em>official</em> build or anything ;)</p>
+
+<p>I figured I'd document the steps I took, since I'll probably have forgotten by tomorrow otherwise.</p>
+
+<ol>
+<li>Download the OpenCV4Android bundle from <a href="http://sourceforge.net/projects/opencvlibrary/files/opencv-android/">sourceforge</a></li>
+<li>Unpack the bundle on your machine</li>
+<li>Fire up Android Studio and create a Library Project</li>
+<li>Copy the java sources from the OpenCV4Android bundle into src/main/java in your library project</li>
+<li>Copy the native library directories from the OpenCV4Android bundle into src/main/jniLibs</li>
+<li>Build the .aar</li>
+</ol>
+
+<p>If you only want to integrate OpenCV into one application you could do the above steps as an additional module in your existing app project then include the .aar into your app module as a module dependency.</p>
+
+<p>If you want to use the library in several apps or whatever, you'll probably want to push it to a maven repo - bintray gives you a nice free way of doing that.</p>
+
+<p>Once you've published your .aar, using it is a doddle. First, reference your maven repo in the top-level build.gradle of your project:</p>
+
+<pre><code>allprojects {
+  repositories {
+    jcenter()
+    maven {
+        url  "http://dl.bintray.com/steveliles/maven"
+    }
+  }
+}
+</code></pre>
+
+<p>Next, add the .aar dependency in your app's build.gradle file:</p>
+
+<pre><code>    dependencies {
+      compile 'org.opencv:OpenCV-Android:3.0.0'
+    }
+</code></pre>
+
+<p>Finally, bootstrap OpenCV in your Java code:</p>
+
+<pre><code>    if (OpenCVLoader.initDebug()) {
+      // do some opencv stuff
+    }
+</code></pre>
+
+<p>Awesome!</p>
+
+<h3>Bonus: Split your APK's per architecture</h3>
+
+<p>OpenCV includes native libraries for each of the possible device architectures, which means that if you bundle them all in one APK you'll be looking at a minimum 40MB download without counting any of your own assets, code, and what have you.</p>
+
+<p>It is actually very easy to split your APK's by ABI so that the end-user download is kept as small as possible - around 8-9MB - and also the build+deploy time onto your development device is kept to a minimum if you only target your specific hardware architecture during development.</p>
+
+<p>Setting up APK splitting is very easy with gradle. Just modify your app module's <code>build.gradle</code> file, adding the following to the 'android' directive:</p>
+
+<pre><code>splits {
+  abi {
+    enable true
+    reset()
+    include 'x86', 'x86_64', 'armeabi', 'armeabi-v7a', 'mips', 'mips64', 'arm64-v8a'
+    universalApk false
+  }
+}
+</code></pre>
+
+<p>Enjoy!</p>
+]]></description>
+          <category>Android</category>
+          <category>OpenCV</category>
+          <category>Library</category>
+          <category>.aar</category>
+        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
+        <pubDate>Mon, 25 Jan 2016 00:00:00 +0000</pubDate>
+      </item>
+      <item>
         <title><![CDATA[Is my Android app currently foreground or background?]]></title>
         <link><![CDATA[http://steveliles.github.com/is_my_android_app_currently_foreground_or_background.html]]></link>
         <guid isPermaLink="true">http://steveliles.github.com/is_my_android_app_currently_foreground_or_background.html</guid>
@@ -6032,60 +6114,6 @@ java.lang.IllegalArgumentException:
           <category>SDK</category>
         <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
         <pubDate>Tue, 20 Dec 2011 00:00:00 +0000</pubDate>
-      </item>
-      <item>
-        <title><![CDATA[Perforated postage-stamp border with Inkscape]]></title>
-        <link><![CDATA[http://steveliles.github.com/perforated_postage_stamp_border_with_inkscape.html]]></link>
-        <guid isPermaLink="true">http://steveliles.github.com/perforated_postage_stamp_border_with_inkscape.html</guid>
-        <description><![CDATA[<p>This short tutorial explains how I created a curved-serrated border - such as you would find on a tear-off postage stamp - using the Inkscape vector graphics tool (v0.48.2). It is extremely easy to do, and shouldn't take more than 5 minutes.</p>
-
-<h3>Getting Inkscape</h3>
-
-<p>If you're running a debian based linux you can install Inkscape with:</p>
-
-<pre><code>sudo apt-get install inkscape
-</code></pre>
-
-<p>Ubuntu users can install it using the graphical Ubuntu software centre. Downloads for other OS's can be found <a href="http://inkscape.org/download/">here</a>.</p>
-
-<h3>Creating the perforated border</h3>
-
-<p>First draw a rectangle using the <code>"rectangles and squares (F4)"</code> tool. Make this reasonably large. </p>
-
-<p>Then select the <code>"circles, ellipses and arcs (F5)"</code> tool and draw a much smaller circle. Holding down the ctrl key while drawing the circle will lock the aspect ratio so that you don't end up with an ellipse.</p>
-
-<p><img src="https://lh5.googleusercontent.com/-f7Ifgk1xqds/Tu4lanssEDI/AAAAAAAAH20/ZIkzqyhFnEM/s800/step-2.png" alt="Rectangle and circle" /></p>
-
-<p>Next, select both the circle and the rectangle by first selecting the circle then holding down the shift key and selecting the rectangle.</p>
-
-<p>Now from the <code>"Extensions"</code> menu, select <code>"Generate from path"</code> and in the sub-menu, select <code>"Pattern along path"</code>. The <code>"Pattern along Path"</code> dialog pops up. </p>
-
-<p><img src="https://lh6.googleusercontent.com/-Q-jYlXWOous/Tu4laEZHkvI/AAAAAAAAH28/Sz3ydQTqghQ/s800/pattern-along-path.png" alt="Pattern along path dialog" /></p>
-
-<p>Choose <code>"Repeated"</code> in the <code>"Copies of the pattern"</code> combo, in <code>"Deformation type"</code> choose <code>"Snake"</code>, and pick a number for <code>"Space between copies"</code> - this is the distance between each circle that will be cut out from the border of the rectangle, so good values depend on the size of your circle and subjective taste. Hit <code>"apply"</code>.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-ccgBpNnVZsY/Tu4laDpsFhI/AAAAAAAAH2s/qpmSfkjxo0M/s800/first-pattern-step.png" alt="Circles applied to the path" /></p>
-
-<p>Now we want to <em>remove</em> the path created by the circles around the border of the rectangle. To do that, first select the circles around the edge of the rectangle, then (holding down shift) select the rectangle itself and then choose <code>"Difference"</code> from the <code>"Path"</code> menu.</p>
-
-<p><img src="https://lh6.googleusercontent.com/-XoboYeO1yHM/Tu4lZbdS9DI/AAAAAAAAH2k/ZqTIKj2oecQ/s800/difference.png" alt="Path difference effect" /></p>
-
-<p>Change the colour of your postage-stamp shape to black (fill and stroke), then select it and hit ctrl-c to copy it, then ctrl-v to paste a new copy. Re-select the original and choose <code>"Filters-&gt;Blurs-&gt;Evanescent"</code> - this creates a nice blurred shadow effect.</p>
-
-<p>Select the new copy and change it to an off-white colour (I went for #fbfad4ff), then move it so that it sits just a few pixels above and to the left of the original (blurred shadow) shape.</p>
-
-<p><img src="https://lh3.googleusercontent.com/-Pgk_1jBRtT0/Tu4lZThH_iI/AAAAAAAAH2g/XeJE1jFDNZU/s800/postage-stamp-inkscape.png" alt="the finished postage stamp in inkscape" /></p>
-
-<p>That's it, all done! Now you can add whatever content you like to your stamp and then export as a bitmap image. Below you can see what mine looks like exported as a png. Notice that the corners aren't quite "right" - this is because I didn't spend any time trying to ensure that the rectangle side-lengths were appropriately divisible by the circle + the space between copies - something that's worth doing if you want to get your stamp to look "just right".</p>
-
-<p><img src="https://lh6.googleusercontent.com/-jWvZBSpzLmA/Tu4lZKrXkhI/AAAAAAAAH2c/qrRRQYx43DQ/s800/postage-stamp.png" alt="png postage stamp" /></p>
-]]></description>
-          <category>inkscape</category>
-          <category>perforated</category>
-          <category>border</category>
-          <category>vector</category>
-        <dc:creator><![CDATA[ Steve Liles ]]></dc:creator>
-        <pubDate>Sun, 18 Dec 2011 00:00:00 +0000</pubDate>
       </item>
   </channel>
 </rss>

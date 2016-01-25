@@ -34,6 +34,167 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="1,154" description="An overview of JavaScript Overlay Types, JavaScriptObject, JSNI and JSON parsing in general using GWT">
+              <span class="meta" itemprop="datePublished"><time datetime="2011-10-12">October 12, 2011</time></span>
+              <a itemprop="url" href="gwt_javascriptobjects_javascript_overlays.html"><h1 itemprop="name" itemprop="headline">GWT JavaScriptObjects (Javascript Overlays)</h1></a>
+	      <span itemprop="articleBody"><p>GWT has a fantastic tool for "overlaying" java (GWT) classes on JSON objects such that you don't have to write any parsing code to parse a piece of JSON. There are some nice articles about this from the GWT folks themselves, for example <a href="http://code.google.com/webtoolkit/doc/latest/DevGuideCodingBasicsOverlay.html">this one</a>. The gist of it is, given some JSON like this:</p>
+
+<pre><code>{ "item": {
+    "id": 123,
+    "name": "cheese",
+    "type": "food"
+  }
+}
+</code></pre>
+
+<p>we can "overlay" a java class onto that JSON, and have the GWT compiler (and the browser's native JSON parsing) do the marshalling for us. </p>
+
+<h2>JavaScript Overlay Types</h2>
+
+<p>We do that by writing a JavaScript Overlay Type class that maps the native json data back to the the world of your Java code, and looks like this:</p>
+
+<pre><code>public class Item extends JavaScriptObject
+{
+    protected Item(){}
+
+    public final native Integer getId()/*-{ 
+        return this.id; 
+    }-*/;
+
+    public final native String getName()/*-{ 
+        return this.name; 
+    }-*/;
+
+    public final native String getType()/*-{ 
+        return this.id; 
+    }-*/;
+}
+</code></pre>
+
+<h2>JSNI Methods</h2>
+
+<p>Those three native methods are known in GWT-land as JSNI methods (JavaScript Native Interface), and the part in comments at the end is actually pure JavaScript that you can write to directly access parts of the JSON object. </p>
+
+<p>In these native JSNI sections the "this" object being referred to is the JSON object itself, and although I've only shown very simple property access here you can in fact perform more complex operations if you like.</p>
+
+<p>The return values from our JSNI can be Java's primitive wrappers or String, any class that extends JavaScriptObject (JSO), or one of a number of special JSO classes GWT provides such as JsArray, JsIterable, JsArrayString, etc.</p>
+
+<p>I have exclusively used jsni methods in my example above, but you can include pure java methods as well (provided they are final) - say, for example, we need to parse a date from some json:</p>
+
+<pre><code>public class Item extends JavaScriptObject
+{
+    private static final DateTimeFormat df = 
+        DateTimeFormat.getFormat("yyyyMMdd");
+
+    protected Item(){}
+
+    public final Date whenCreated() {
+        return df.parse(getCreateDateString());
+    }
+
+    public final native Integer getId()/*-{ 
+        return this.id; 
+    }-*/;
+
+    public final native String getName()/*-{ 
+        return this.name; 
+    }-*/;
+
+    public final native String getType()/*-{ 
+        return this.id; 
+    }-*/;
+
+    public final native String getCreateDateString()/*-{ 
+        return this.createDate; 
+    }-*/;
+}
+</code></pre>
+
+<h2>Mapping complex types</h2>
+
+<p>These are simple examples of course, but i've had no trouble mapping even the most complex JSON objects using JSO's. You can map arrays easily enough using the built in GWT JsArray types, like this:</p>
+
+<pre><code>public class Items extends JavaScriptObject
+{
+    protected Items(){}
+
+    public final native JsArray getItems()/*-{ 
+        return this.items; 
+    }-*/;
+}
+</code></pre>
+
+<p>Which would map the following JSON:</p>
+
+<pre><code>{ items: [
+  {
+    "id": 123,
+    "name": "cheese",
+    "type": "food"
+  },
+  {
+    "id": 456,
+    "name": "ham",
+    "type": "food"
+  },
+  {
+    "id": 789,
+    "name": "eggs",
+    "type": "food"
+  }]
+}
+</code></pre>
+
+<h2>JavaScriptObject rules</h2>
+
+<p>There are a couple of basic rules to follow:</p>
+
+<ul>
+<li>Must have a protected no-arg constructor</li>
+<li><em>All</em> methods must be "final"</li>
+<li>Must not have any instance fields</li>
+<li>May only implement a single Interface</li>
+</ul>
+
+<h2>JavaScriptObject "gotchas"</h2>
+
+<p>With regard to that last point, there's another gotcha to look out for: only one JavaScriptObject class can implement any given interface. Think about that for a minute, because its more of a restriction than you might at first realise...</p>
+
+<p>The whole point of Interfaces is to use them to define a contract that implementations will adhere to, so that multiple poly-morphically interchangeable implementations can be used. With JSO's, you can only have one single JSO implementation of an interface - for example you cannot have several JSO's which implement Iterable. This is for the same reason that all JSO methods must be final - JSO's cannot use dynamic method dispatch.</p>
+
+<p>If you try to implement the same interface in more than one of your JSO's you don't (currently) get any warnings from the compiler ... instead you get crazy runtime behaviour due to the wrong JSO class's methods being invoked (because one of your JSO's will receive all method invocations for the interface, regardless of which class the method should have been invoked against).</p>
+
+<p>Interestingly I ran into a problem in the latest GWT release (2.4) that reported a very unhelpful error message (I'm sure the messages in earlier releases of GWT were much more helpful actually). Here's the error message I got:</p>
+
+<pre><code>java.lang.ClassFormatError: Illegal method name "$"
+ in class com/xxx/xxx/client/model/UserResult
+ at java.lang.ClassLoader.defineClass1(Native Method)
+ at java.lang.ClassLoader.defineClassCond(ClassLoader.java:631)
+ at java.lang.ClassLoader.defineClass(ClassLoader.java:615)
+ at java.lang.ClassLoader.defineClass(ClassLoader.java:465)
+ at com.google.gwt.dev.shell.CompilingClassLoader.findClass
+    (CompilingClassLoader.java:1085)
+ at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+ at java.lang.ClassLoader.loadClass(ClassLoader.java:247)
+</code></pre>
+
+<p>... as it turns out, the problem actually was that I broke one of the rules - I had a non-final method in my JavaScriptObject. Not a very helpful error message in this case, which is fairly unusual in my experience of GWT.</p>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=GWT">GWT</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JavaScript">JavaScript</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Overlay">Overlay</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSO">JSO</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSON">JSON</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Parsing">Parsing</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JSNI">JSNI</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="gwt_javascriptobjects_javascript_overlays.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="829" description="An essay on productivity and the state of flow">
               <span class="meta" itemprop="datePublished"><time datetime="2011-09-22">September 22, 2011</time></span>
               <a itemprop="url" href="on_flow_and_feeling_productive.html"><h1 itemprop="name" itemprop="headline">On 'Flow' and feeling productive</h1></a>
@@ -492,63 +653,6 @@
 	        <a href="replicating_java_threading_issues_between_machines_with_different_cpu_counts.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="403" description="Problem description and solution for runtime error messages pertaining to testing a web app that uses JQuery using HtmlUnit.">
-              <span class="meta" itemprop="datePublished"><time datetime="2011-05-27">May 27, 2011</time></span>
-              <a itemprop="url" href="jquery_htmlunit_runtimeerror_messages_galore.html"><h1 itemprop="name" itemprop="headline">JQuery + HtmlUnit = runtimeError messages galore</h1></a>
-	      <span itemprop="articleBody"><p>For those who don't care about the back-story and just want the solution: switch the user-agent to Firefox by using the WebClient constructor that takes a BrowserVersion parameter.</p>
-
-<p>...
-One of my colleagues wrote a htmlunit test that involved swiftly navigating through a set of pages. The test checked the behaviour was correct and passed just fine, but left behind a very large number of messages like this:</p>
-
-<pre><code>runtimeError: message=
-  [The data necessary to complete this operation is not yet available.]
-  sourceName=[http://localhost:10821/js/jquery-1.6.1.js] line=[16]
-  lineSource=[null] lineOffset=[0]
-</code></pre>
-
-<p>This was looking pretty nasty in the hudson and mvn build logs, so I investigated a little to see if I could get rid of it.</p>
-
-<p>First step was to try to figure out what part of the jquery script was triggering the problem, but of course we are using the minified jquery script, so it was impossible to find the problem on line 16 (line 16 is jquery).</p>
-
-<p>Replacing the minified script with the "source" version I get the same error reported at line 923. It's doing the following check:</p>
-
-<pre><code>// The DOM ready check for Internet Explorer
-function doScrollCheck() {
- if ( jQuery.isReady ) {
-  return;
- }
-
- try {
-  // If IE is used, use the trick by Diego Perini
-  // http://javascript.nwbox.com/IEContentLoaded/
-     document.documentElement.doScroll("left");
- } catch(e) {
-  setTimeout( doScrollCheck, 1 );
-  return;
- }
-
- // and execute any waiting functions
- jQuery.ready();
-}
-</code></pre>
-
-<p>Line 923 is the one inside the try block. Of course, this is a an IE specific check, and the default user-agent mimicked by HtmlUnit is Internet Explorer 7 - and yes, we were using the default.</p>
-
-<p>You can change the default by passing a BrowserVersion parameter to the WebClient constructor. Switch to Firefox 3 or 3.6 and the problem goes away, switch to IE8 and it gets worse (test fails) - although it seems this is for different reasons, not related to the doScrollCheck. Can't even escape browser version troubles when not using a browser :(</p>
-
-<p>Incidentally I <a href="http://www.andismith.com/blog/2011/11/25-dev-tool-secrets/">discovered recently</a> that many of the latest browsers and developer plugins can "unminify" javascript on the fly.</p>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=JQuery">JQuery</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=HtmlUnit">HtmlUnit</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=runtimeerror">runtimeerror</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="jquery_htmlunit_runtimeerror_messages_galore.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -566,11 +670,11 @@ function doScrollCheck() {
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="building_opencv_as_an_aar_for_android.html"> Building OpenCV as an .aar for Android</a><span class="date"> - Jan 25, 2016</span></li>
                 <li><a href="is_my_android_app_currently_foreground_or_background.html">Is my Android app currently foreground or background?</a><span class="date"> - Apr 21, 2014</span></li>
                 <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
-                <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>

@@ -34,6 +34,73 @@
       </div>
       <div class="content">
         <div class="main">
+	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="400" description="Just finished converting dsl4xml to work from either pull (fast for servers) or SAX (fast on Android). Here's the perforamnce chart...">
+              <span class="meta" itemprop="datePublished"><time datetime="2012-04-23">April 23, 2012</time></span>
+              <a itemprop="url" href="sax_based_dsl4xml_for_android.html"><h1 itemprop="name" itemprop="headline">SAX based dsl4xml for Android</h1></a>
+	      <span itemprop="articleBody"><p>I just checked in a <a href="https://github.com/steveliles/dsl4xml/blob/master/src/main/java/com/sjl/dsl4xml/SAXDocumentReader.java">SAX parser based version of dsl4xml</a> to github, and finally got a chance to run the perf tests on an Android device. This is how it looks:</p>
+
+<div style="width:590px; height:300px;" id="sax_dsl4xml_chart_div"></div>
+
+<p>Notice that while it loses about 15% on raw SAX parsing, it still provides approximately an order of magnitude greater throughpout than the next best (raw pull parsing). And of course, its damn easy to write <em>readable</em> unmarshalling code with :)</p>
+
+<p>I also added SimpleXML parsing to my performance tests - it ties for last place (performance-wise) with W3C DOM parsing. Arguably it is more readable and requires less code than the others, though personally I'm not a huge fan.</p>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawCharts);
+
+      function drawCharts() {
+        drawSAXdsl4xmlChart();
+      }
+
+      function drawSAXdsl4xmlChart() {
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Concurrency (threads)');
+
+
+data.addColumn('number', 'W3C DOM');
+data.addColumn('number', 'SAX');
+data.addColumn('number', 'Pull');
+data.addColumn('number', 'dsl4xml (pull)');
+data.addColumn('number', 'dsl4xml (SAX)');
+data.addColumn('number', 'SJXP');
+data.addColumn('number', 'SimpleXML');
+
+        data.addRows([
+
+['1',2.3990626431189757,43.064527743674304,3.5096192666862467,3.1076837111373043,29.861563321354247,2.4664573717826044,2.3909004146918598],
+['2',3.8097945346845243,69.65230695343173,6.033185779344725,5.719798415469687,54.390135966806106,4.19575915770385,3.927812341410011],
+['3',3.6368249512540114,71.39012835438209,5.537694525649179,4.886205168164367,58.04773944850799,3.8392278830888653,3.5690149046875117],
+['4',3.6586810559054896,78.02354281756789,5.476464455883683,4.989187889389914,60.89659425282844,4.014151778333453,3.6487355420874175]
+        ]);
+
+        var options = {
+          title: 'Parsing Throughput (higher is better)',
+          hAxis: { title: 'Concurrency (threads)' },
+          vAxis: { title: 'Throughput (docs/sec)' }
+        };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('sax_dsl4xml_chart_div'));
+        chart.draw(data, options);
+
+      }
+</script>
+</span>
+
+              <ul class="keywords">
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=java">java</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=xml">xml</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=parse">parse</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=dsl">dsl</a></li>
+                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=perforamnce">perforamnce</a></li>
+              </ul>
+              <div style="clear:both"></div>
+
+	        <a href="sax_based_dsl4xml_for_android.html">Comment on this post</a>
+
+            </div>
 	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="2,068" description="I'm so fed up with the Google Play comments system. How can they have got it so wrong?">
               <span class="meta" itemprop="datePublished"><time datetime="2012-04-21">April 21, 2012</time></span>
               <a itemprop="url" href="android_market_comments_severe_fail.html"><h1 itemprop="name" itemprop="headline">Android Market Comments - Severe Fail</h1></a>
@@ -1641,101 +1708,6 @@ My book, <a href="http://steveliles.github.io/asynchronous_android.html">Asynchr
 	        <a href="android_s_asynctask.html">Comment on this post</a>
 
             </div>
-	    <div class="article" itemscope itemtype="http://schema.org/BlogPosting" inLanguage="en-GB" isFamilyFriendly="true" wordCount="649" description="A quick intro to how to return a result from an Android Activity">
-              <span class="meta" itemprop="datePublished"><time datetime="2012-03-03">March 03, 2012</time></span>
-              <a itemprop="url" href="returning_a_result_from_an_android_activity.html"><h1 itemprop="name" itemprop="headline">Returning a result from an Android Activity</h1></a>
-	      <span itemprop="articleBody"><p>The Android platform prescribes a number of patterns for putting together an application that plays well with the platform and feels familiar to users.</p>
-
-<p>One of those patterns is the hierarchical use of <code>Activities</code> to segregate the application, and to provide re-usable chunks of application that can service certain requirements. </p>
-
-<p>The higher design goal is to create an eco-system of separable <code>Activities</code> that fulfil <code>Intents</code> that can be re-used by other applications - for example: if my application needs an image, it can request one by invoking an Intent to use an image, and all <code>Activities</code> that can fulfil that <code>Intent</code> will be offered as a choice to the user.</p>
-
-<p>Lets see what that looks like with a code example.</p>
-
-<h3>Invoking an Activity with an Intent</h3>
-
-<p>First of all, lets look at how to invoke an activity with an Intent. Lets say we want to explicitly open the Gallery app to select an image to use in our application. Its very simple:</p>
-
-<pre><code>private static final int PICK_IMAGE_REQUEST = 1;
-
-public void selectImageFromGallery() {
-    Intent _intent = new Intent();
-    _intent.setType("image/*");
-    _intent.setAction(Intent.ACTION_GET_CONTENT);
-    startActivityForResult(
-        Intent.createChooser(_intent, "Select Picture"), 
-        PICK_IMAGE_REQUEST
-    );
-}
-</code></pre>
-
-<p>This will open the gallery app and allow the user to select an image. Notice that in the call to <code>startActivityForResult</code> we provided an int value in the form of <code>PICK_IMAGE_REQUEST</code> - this tells the system what return-code to use when the invoked <code>Activity</code> completes, so that we can respond correctly. </p>
-
-<p>Lets see how we do that ..</p>
-
-<pre><code>@Override
-protected void onActivityResult(
-    int aRequestCode, int aResultCode, Intent aData
-) {
-    switch (aRequestCode) {
-        case PICK_IMAGE_REQUEST:
-            handleUserPickedImage(aData);
-            break;
-        case SOME_OTHER_REQUEST:
-            handleSomethingElse(aData);
-            break;
-    }
-    super.onActivityResult(aRequestCode, aResultCode, aData);
-}
-</code></pre>
-
-<p>Here we're overriding a method of <code>Activity</code> to handle results being passed back from invoked activities. </p>
-
-<p>The value of <code>aRequestCode</code> is the value passed to the <code>startActivityForResult</code> method (so for us its <code>PICK_IMAGE_REQUEST</code>), and is how we distinguish which activity is returning a result.</p>
-
-<p><code>aResultCode</code> will contain the value set by the invoked <code>Activity</code>'s setResult(int), while <code>aData</code> Intent contains any data returned by the <code>Activity</code>. In our example the Intent contains the Uri of the selected image, which we can access like this:</p>
-
-<pre><code>private void handleUserPickedImage(Intent aData) {
-    if ((aData != null) &amp;&amp; (aData.getData() != null)) {
-        Uri _imageUri = aData.getData();
-        // Do something neat with the image...
-    } else {
-        // We didn't receive an image...
-    }
-}
-</code></pre>
-
-<h3>Returning values from an Activity</h3>
-
-<p>Great, we can invoke existing <code>Activity</code>'s and collect results. What does it look like from the other side? - How does the Activity return its results to us?</p>
-
-<pre><code>Uri _resultUri = .. // Some uri we want to return  
-Intent _result = new Intent();              
-_result.setData(_resultUri);
-setResult(Activity.RESULT_OK, _result);
-finish();
-</code></pre>
-
-<p>Its a simple as that: </p>
-
-<ol>
-<li>Create an Intent (the result object)</li>
-<li>Set the result data (you don't have to return a Uri - you can use the putExtra methods to set any values you want)</li>
-<li>Call <code>setResult</code> on your Activity, giving it the result Intent</li>
-<li>Call <code>finish</code> on your Activity</li>
-</ol>
-</span>
-
-              <ul class="keywords">
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Android">Android</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Activity">Activity</a></li>
-                  <li><a itemprop="keywords" href="http://www.google.com/search?q=site:steveliles.github.com&q=Result">Result</a></li>
-              </ul>
-              <div style="clear:both"></div>
-
-	        <a href="returning_a_result_from_an_android_activity.html">Comment on this post</a>
-
-            </div>
         </div>
         <div class="sidebar">
           <div>
@@ -1753,11 +1725,11 @@ finish();
           <div>
             <a href="article-archive.html"><h5>Recent Posts</h5></a>
             <ul>
+                <li><a href="building_opencv_as_an_aar_for_android.html"> Building OpenCV as an .aar for Android</a><span class="date"> - Jan 25, 2016</span></li>
                 <li><a href="is_my_android_app_currently_foreground_or_background.html">Is my Android app currently foreground or background?</a><span class="date"> - Apr 21, 2014</span></li>
                 <li><a href="asynchronous_android.html">Asynchronous Android</a><span class="date"> - Dec 18, 2013</span></li>
                 <li><a href="porting_ischangingconfigurations_to_api_levels_below_11.html">Porting isChangingConfigurations to API-levels below 11</a><span class="date"> - Oct 21, 2013</span></li>
                 <li><a href="android_ssl_certificate_not_trusted.html">Android SSL - Certificate not trusted</a><span class="date"> - May 01, 2013</span></li>
-                <li><a href="roman_numeral_conversion_in_clojure_part_ii.html">Roman numeral conversion in Clojure, part II</a><span class="date"> - Mar 03, 2013</span></li>
             </ul>
             <a href="article-archive.html">Older posts...</a>
           </div>
