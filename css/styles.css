@@ -218,6 +218,8 @@ pre, code {
   font-size:15px; 
   letter-spacing:-1px;
   line-height:17px;
+  max-width: 550px;
+  overflow: auto;
 }
 
 pre > span, code > span {
@@ -553,4 +555,9 @@ li {
 
 #disqus_thread h3 {
   font-size:20px;
+}
+
+.gist {
+  max-width: 600px;
+  overflow: auto;
 }
